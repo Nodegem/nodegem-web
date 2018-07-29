@@ -4,10 +4,14 @@
   "private": true,
   "dependencies": {
     "antd": "^3.7.3",
+    "localforage": "^1.7.2",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-faux-dom": "^4.2.0",
-    "react-scripts-ts-antd": "2.15.1"
+    "react-router-dom": "^4.3.1",
+    "react-scripts-ts-antd": "2.15.1",
+    "resub": "^1.0.8",
+    "resub-persist": "^1.2.6"
   },
   "scripts": {
     "start": "react-scripts-ts-antd start",
@@ -21,6 +25,7 @@
     "@types/react": "^16.4.7",
     "@types/react-dom": "^16.0.6",
     "@types/react-faux-dom": "^4.1.1",
+    "@types/react-router-dom": "^4.3.0",
     "typescript": "^2.9.2"
   }
 }
