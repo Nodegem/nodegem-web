@@ -18,7 +18,11 @@
     // "noUnusedLocals": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "typeRoots": [
+      "node_modules/@types",
+      "src/types.d.ts"
+    ]
   },
   "exclude": [
     "node_modules",

@@ -1,0 +1,13 @@
+.editor {
+    border: 1px solid lightgray;
+    overflow: hidden;
+    flex: 1;
+    flex-direction: column;
+    background-color: rgba(252, 252, 252, 1);
+    width: 100%;
+}
+
+.editor-background {
+    background-color: #fbfbfb;
+    fill: url("#pattern"); 
+}

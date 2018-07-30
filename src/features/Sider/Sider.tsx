@@ -1,8 +1,7 @@
-import { PureComponent } from "react";
 import React from "react";
 import { Menu, Layout, Icon } from "antd";
-import { SiderTheme } from "../../../node_modules/antd/lib/layout/Sider";
-import { ComponentBase } from "../../../node_modules/resub";
+import { SiderTheme } from "antd/lib/layout/Sider";
+import { ComponentBase } from "resub";
 
 const AntSider = Layout.Sider;
 
