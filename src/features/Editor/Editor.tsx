@@ -5,7 +5,7 @@ import "./Editor.scss";
 import { withFauxDOM, ReactFauxDomProps } from "react-faux-dom";
 import { ZoomTransform, ZoomBehavior } from "d3";
 import { HotKeys } from "react-hotkeys";
-import { isInput } from "../../utils";
+import { isInput, isMac } from "../../utils";
 import Node from './Node/Node';
 
 export interface EditorProps {
@@ -60,12 +60,16 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
         this.zoom = d3.zoom()
             .scaleExtent(zoomRange)
             .translateExtent([[-this.halfWidth, -this.halfHeight], [this.halfWidth, this.halfHeight]])
-            .filter(() => d3.event.button === 1 || d3.event.type === "wheel")
+            .filter(this.inputFilter)
             .on("zoom", this.handleCanvasZoom);
 
         d3.select("#canvasGrid")
             .call(this.zoom);
 
+    }
+
+    private inputFilter() : boolean {
+        return d3.event.button === 1 || d3.event.type === "wheel" || (isMac && d3.event.metaKey && d3.event.button === 0)
     }
 
     private handleCanvasZoom() {
