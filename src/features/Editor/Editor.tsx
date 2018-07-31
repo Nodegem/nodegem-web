@@ -7,6 +7,7 @@ import { ZoomTransform, ZoomBehavior } from "d3";
 import { HotKeys } from "react-hotkeys";
 import { isInput, isMac } from "../../utils";
 import Node from './Node/Node';
+import Draggable from "./Draggable/Draggable";
 
 export interface EditorProps {
     size: [number, number];
@@ -109,9 +110,9 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
             <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} style={{ flex: 1, flexDirection: "column" }} focused>
                 <svg className="editor" id="canvasGrid">
                     <defs>
-                        <pattern id="pattern" width={gridSpacing} height={gridSpacing} patternUnits="userSpaceOnUse">
+                        {/* <pattern id="pattern" width={gridSpacing} height={gridSpacing} patternUnits="userSpaceOnUse">
                             <circle cx={gridSpacing / 2} cy={gridSpacing / 2} r={dotSize} fill="lightgray" />
-                        </pattern>
+                        </pattern> */}
                         <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
                             <path d="M 8 0 L 0 0 0 8" fill="none" stroke="lightgray" strokeWidth="0.5" />
                         </pattern>
@@ -123,8 +124,8 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
 
                     <g id="view">
                         <rect x={-halfWidth} y={-halfHeight} width={width} height={height} className="editor-background" />
-                        <g id="nodeContainer" >
-                            <Node width={200} height={200} />
+                        <g id="nodeContainer" onDrag={() => console.log("sda")}>
+                            <Node size={{x: 200, y: 200}} />
                         </g>
                     </g>
                 </svg>

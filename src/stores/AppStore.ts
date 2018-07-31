@@ -1,5 +1,5 @@
 import { StoreBase, AutoSubscribeStore } from 'resub';
-import { IPersistableStore } from 'resub-persist';
+import { IPersistableStore } from 'resub-persist/dist';
 
 @AutoSubscribeStore
 class AppStore extends StoreBase implements IPersistableStore {

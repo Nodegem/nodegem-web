@@ -4,34 +4,41 @@ import { PureComponent } from "react";
 import "./Node.scss";
 
 interface NodeProps {
-    width: number;
-    height: number;
-    originCoords?: Coord;
+    size: Vector2;
+    originCoords?: Vector2;
 }
 
 interface NodeState {
-    coords: Coord;
+    coords: Vector2;
+    isFocused: boolean;
+    dragging: boolean;
 }
 
 export default class Node extends PureComponent<NodeProps, NodeState> {
 
+    static defaultProps : Partial<NodeProps> = {
+        originCoords: {x: 0, y: 0}
+    }
+
     constructor(props: NodeProps) {
         super(props);
 
-        const origCoords : Coord = this.props.originCoords || {x: 0, y: 0};
+        const { originCoords } = this.props;
 
         this.state = {
-            coords: origCoords
+            coords: originCoords as Vector2,
+            isFocused: false,
+            dragging: false
         };
     }
 
     public render() {
 
-        const { width, height } = this.props;
+        const { size } = this.props;
         const { coords } = this.state;
 
         return (
-            <foreignObject x={coords.x} y={coords.y} width={width} height={height}>
+            <foreignObject x={coords.x} y={coords.y} width={size.x} height={size.y}>
                 <div className="node">Hello Node</div>
             </foreignObject>
         )

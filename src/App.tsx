@@ -1,10 +1,10 @@
 import * as React from 'react';
 import './App.scss';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
-import Editor from 'src/features/Editor/Editor';
+import Editor from './features/Editor/Editor';
 import ResubPersistGate from './components/ResubPersistGate/ResubPersistGate';
 import { Layout } from 'antd';
-import Sider from 'src/features/Sider/Sider';
+import Sider from './features/Sider/Sider';
 
 const { Content } = Layout;
 
