@@ -6,6 +6,7 @@ import "./Canvas.scss";
 
 export type CanvasProps = {
     size: [number, number];
+    resetTransitionTime?: number;
     zoomInputFilter?: (ev: any) => boolean;
     onZoom?: (canvas: HTMLElement, transform: any) => void;
     zoomRange?: [number, number];
@@ -15,25 +16,16 @@ export type CanvasProps = {
     className?: string;
 }
 
-export type CanvasState = {
-    zoom: ZoomBehavior<Element, {}> | null
-}
-
-export default class Canvas extends PureComponent<CanvasProps, CanvasState> {
+export default class Canvas extends PureComponent<CanvasProps> {
 
     static defaultProps = {
         zoomRange: [1, 1],
         color: "white",
+        resetTransitionTime: 750,
         onZoom: () => {},
     }
 
-    constructor(props: CanvasProps) {
-        super(props);
-
-        this.state = {
-            zoom: null
-        };
-    }
+    private _zoom : ZoomBehavior<Element, {}>;
 
     componentDidMount() {
 
@@ -50,7 +42,7 @@ export default class Canvas extends PureComponent<CanvasProps, CanvasState> {
         d3.select("#_canvas")
             .call(zoom);
 
-        this.setState({zoom: zoom})
+        this._zoom = zoom;
     }
 
     private inputFilter = () : boolean => {
@@ -73,20 +65,20 @@ export default class Canvas extends PureComponent<CanvasProps, CanvasState> {
     public reset() : void {
         d3.select("#_canvas")
             .transition()
-            .duration(500)
-            .call(this.state.zoom!.transform as any, d3.zoomIdentity);
+            .duration(this.props.resetTransitionTime!)
+            .call(this._zoom!.transform as any, d3.zoomIdentity);
     }
 
     public setCameraTransform({x, y, scale} : {x: number, y: number, scale: number}) : void {
         d3.select("#_canvas") //this may be canvas-view... idk
-            .call(this.state.zoom!.transform, d3.zoomIdentity.translate(x, y).scale(scale));
+            .call(this._zoom!.transform, d3.zoomIdentity.translate(x, y).scale(scale));
     }
 
     public render() {
 
         const { pattern, className, size, color, 
-            fillId, onZoom, zoomInputFilter, zoomRange, 
-            ...rest } = this.props;
+            fillId, onZoom, zoomInputFilter, zoomRange,
+            resetTransitionTime, ...rest } = this.props;
 
         const [ width, height ] = size;
         const halfWidth = width / 2;

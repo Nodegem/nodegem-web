@@ -22,3 +22,9 @@ export const getPosition = (e: MouseEvent, core: DraggableCore): Vector2 => {
 export function createSVGTransform({ x, y }: { x?: number, y?: number }): string {
     return 'translate(' + x + ',' + y + ')';
 }
+
+export function snapToGrid(grid: [number, number], pendingX: number, pendingY: number): [number, number] {
+    const x = Math.round(pendingX / grid[0]) * grid[0];
+    const y = Math.round(pendingY / grid[1]) * grid[1];
+    return [x, y];
+}

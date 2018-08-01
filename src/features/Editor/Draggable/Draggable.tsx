@@ -25,6 +25,7 @@ export type DraggableState = {
 export default class Draggable extends PureComponent<DraggableProps & DraggableCoreProps, DraggableState> {
 
     static defaultProps = {
+        snapToGrid: false,
         draggable: true,
         axis: "both",
         defaultPosition: {x: 0, y: 0},

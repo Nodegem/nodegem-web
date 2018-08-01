@@ -2,7 +2,6 @@ import React, { PureComponent } from "react";
 import * as d3 from 'd3';
 
 import "./Editor.scss";
-import { withFauxDOM, ReactFauxDomProps } from "react-faux-dom";
 import { ZoomTransform, ZoomBehavior, BaseType } from "d3";
 import { HotKeys } from "react-hotkeys";
 import { isInput, isMac, convertCommands } from "../../utils";
@@ -19,7 +18,6 @@ export type EditorProps = {
 
 export type EditorState = {
     nodes: {}[];
-    fullScreen: boolean;
 }
 
 type CombinedProps = EditorProps;
@@ -50,7 +48,6 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
 
     state = {
         nodes: [],
-        fullScreen: false,
     }
 
     private _canvas: Canvas;
@@ -68,16 +65,14 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
         const { size } = this.props;
 
         const hotkeyHandler = {
-            // [EDITOR_KEY_COMMANDS.RESET]: this._canvas.reset
+            [EDITOR_KEY_COMMANDS.RESET]: () => this._canvas.reset()
         }
 
         return (
             <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={{ flex: 1, flexDirection: "column" }} focused>
                 <Canvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern} fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={[.5, 1.5]}>
                     <g id="node-container">
-                        <Draggable>
-                            <Node size={{ x: 200, y: 200 }} />
-                        </Draggable>
+                        <Node size={{ x: 200, y: 200 }} />
                     </g>
                 </Canvas>
             </HotKeys>
@@ -86,4 +81,4 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
 
 }
 
-export default withFauxDOM(Editor);
+export default Editor;

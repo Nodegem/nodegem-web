@@ -1,9 +1,9 @@
 import React, { PureComponent } from "react";
 import ReactDOM from "react-dom";
-import { addEvent, removeEvent } from "./utils";
+import { addEvent, removeEvent, matchesSelectorAndParentsTo } from "./utils";
 import { Vector2 } from "./utils/types";
 import { createCoreData } from "./utils/dataUtils";
-import { getPosition } from "./utils/positionUtils";
+import { getPosition, snapToGrid } from "./utils/positionUtils";
 
 export type DragData = {
     node: HTMLElement;
@@ -12,10 +12,21 @@ export type DragData = {
     lastPosition: Vector2;
 }
 
+export type MouseData = {
+    button: number;
+    altKey: boolean;
+    metaKey: boolean;
+    ctrlKey: boolean;
+    shiftKey: boolean;
+}
+
 export type DragEventHandler = (e: MouseEvent, data: DragData) => void | false;
 
 export type DraggableCoreProps = {
+    handle?: string;
     disabled?: boolean;
+    snapSize?: [number, number];
+    clickFilter?: (mouseInfo: MouseData) => boolean;
     onMouseDown?: (event: MouseEvent) => void;
     onMouseUp?: (event: MouseEvent) => void;
     onDragStart?: DragEventHandler;
@@ -41,13 +52,13 @@ let dragEventFor = events.mouse;
 export default class DraggableCore extends PureComponent<DraggableCoreProps, DraggableCoreState> {
 
     static defaultProps = {
-        scale: 1,
         disabled: false,
         onDragStart: () => {},
         onDrag: () => {},
         onDragStop: () => {},
         onMouseDown: () => {},
-        onMouseUp: () => {}
+        onMouseUp: () => {},
+        clickFilter: (e: MouseData) => true
     }
 
     constructor(props: DraggableCoreProps) {
@@ -78,7 +89,9 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
             return;
         }
 
-        if(this.props.disabled) {
+        if(this.props.disabled ||
+            (this.props.handle && !matchesSelectorAndParentsTo(e.target as Node, this.props.handle, thisNode)))
+        {
             return;
         }
 
@@ -106,7 +119,15 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
     handleDrag = (e: MouseEvent) => {
 
         const position = getPosition(e, this);
-        const {x, y} = position;
+        let {x, y} = position;
+
+        const { snapSize } = this.props;
+        if(Array.isArray(snapSize)) {
+            let deltaX = x - this.state.lastPosition.x, deltaY = y - this.state.lastPosition.y;
+            [deltaX, deltaY] = snapToGrid(snapSize, deltaX, deltaY);
+            if (!deltaX && !deltaY) return; // skip useless drag
+            x = this.state.lastPosition.x + deltaX, y = this.state.lastPosition.y + deltaY;
+        }
 
         const coreData = createCoreData(this, x, y);
 
@@ -152,6 +173,9 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
     }
 
     handleMouseDown = (e: MouseEvent) => {
+
+        const { button, altKey, shiftKey, ctrlKey, metaKey } = e;
+        if(!this.props.clickFilter!({button, altKey, shiftKey, ctrlKey, metaKey})) return;
 
         if(this.props.onMouseDown) {
             this.props.onMouseDown(e);
