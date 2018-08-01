@@ -1,6 +1,7 @@
 import { findDomNode } from './index';
 import DraggableCore, { DragData } from "../DraggableCore";
 import { isNum } from ".";
+import Draggable from '../Draggable';
 
 export const createCoreData = (core: DraggableCore, x: number, y: number) : DragData => {
 
@@ -27,4 +28,16 @@ export const createCoreData = (core: DraggableCore, x: number, y: number) : Drag
         position: { x: x, y: y }
     }
 
+}
+
+export const createDragData = (draggable: Draggable, coreData: DragData) : DragData => {
+    return {
+        node: coreData.node,
+        position: {
+            x: draggable.state.position.x + (coreData.delta.x / draggable.scale!),
+            y: draggable.state.position.y + (coreData.delta.y / draggable.scale!)
+        },
+        delta: coreData.delta,
+        lastPosition: coreData.lastPosition
+    };
 }

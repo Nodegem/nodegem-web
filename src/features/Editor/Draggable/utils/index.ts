@@ -31,8 +31,27 @@ export const isNum = (num: any) : boolean => {
 
 export const findDomNode = (draggable: Draggable | DraggableCore) : HTMLElement => {
     const node = ReactDOM.findDOMNode(draggable);
-    if(!node || !(node instanceof HTMLElement)) {
+    if(!node || !(node instanceof Element)) {
         throw new Error("Draggable node not found");
     }
+    return node as HTMLElement;
+}
+
+export const findParentWithTransform = (draggable: Draggable) : SVGElement => {
+    let node = findDomNode(draggable).parentNode as SVGElement;
+    while(node && node.getAttribute && !node.getAttribute("transform")) {
+        node = node.parentNode as SVGElement;
+    }
     return node;
+}
+
+export const parseTransform = (a: any) : any =>
+{
+    var b={};
+    for (var i in a = a.match(/(\w+\((\-?\d+\.?\d*e?\-?\d*,?)+\))+/g))
+    {
+        var c = a[i].match(/[\w\.\-]+/g);
+        b[c.shift()] = c;
+    }
+    return b;
 }

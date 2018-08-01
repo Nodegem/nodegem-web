@@ -1,4 +1,4 @@
-import React, { PureComponent, EventHandler } from "react";
+import React, { PureComponent } from "react";
 import ReactDOM from "react-dom";
 import { addEvent, removeEvent } from "./utils";
 import { Vector2 } from "./utils/types";
@@ -40,7 +40,8 @@ let dragEventFor = events.mouse;
 
 export default class DraggableCore extends PureComponent<DraggableCoreProps, DraggableCoreState> {
 
-    static defaultProps : DraggableCoreProps = {
+    static defaultProps = {
+        scale: 1,
         disabled: false,
         onDragStart: () => {},
         onDrag: () => {},
@@ -86,11 +87,7 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
 
         const coreData = createCoreData(this, x, y);
 
-        let shouldUpdate;
-        if(this.props.onDragStart) {
-            shouldUpdate = this.props.onDragStart(e, coreData);
-        }
-
+        const shouldUpdate = this.props.onDragStart!(e, coreData);
         if(shouldUpdate === false) return;
 
         this.setState({
@@ -113,11 +110,7 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
 
         const coreData = createCoreData(this, x, y);
 
-        let shouldUpdate;
-        if(this.props.onDrag) {
-            shouldUpdate = this.props.onDrag(e, coreData);
-        }
-
+        const shouldUpdate = this.props.onDrag!(e, coreData);
         if(shouldUpdate === false) {
             this.handleDragStop(new MouseEvent('mouseup'));
             return;
@@ -148,9 +141,7 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
             }
         });
 
-        if(this.props.onDragStop) {
-            this.props.onDragStop(e, coreData);
-        }
+        this.props.onDragStop!(e, coreData);
 
         const thisNode = ReactDOM.findDOMNode(this);
         if(thisNode) {

@@ -18,10 +18,7 @@
     // "noUnusedLocals": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
-    "baseUrl": ".",
-    "typeRoots": [
-      "node_modules/@types",
-    ]
+    "baseUrl": "."
   },
   "exclude": [
     "node_modules",

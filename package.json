@@ -29,6 +29,6 @@
     "@types/react-dom": "^16.0.6",
     "@types/react-faux-dom": "^4.1.1",
     "@types/react-router-dom": "^4.3.0",
-    "typescript": "^2.9.2"
+    "typescript": "^3.0.0"
   }
 }

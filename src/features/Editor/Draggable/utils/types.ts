@@ -3,4 +3,4 @@ export type Vector2 = {
     y: number;
 }
 
-export type EventHandler<T> = (e: T) => void | false;
+export type EventHandler<T> = (e: T) => boolean;
