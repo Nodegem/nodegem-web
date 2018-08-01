@@ -5,7 +5,7 @@ import "./Editor.scss";
 import { withFauxDOM, ReactFauxDomProps } from "react-faux-dom";
 import { ZoomTransform, ZoomBehavior } from "d3";
 import { HotKeys } from "react-hotkeys";
-import { isInput, isMac } from "../../utils";
+import { isInput, isMac, convertCommands } from "../../utils";
 import Node from './Node/Node';
 import Draggable from "./Draggable/Draggable";
 
@@ -18,22 +18,26 @@ export interface EditorProps {
 
 export interface EditorState {
     nodes: {}[];
+    fullScreen: boolean;
 }
 
 type CombinedProps = EditorProps & ReactFauxDomProps;
 
 enum EDITOR_KEY_COMMANDS {
     RESET = "RESET",
+    FULLSCREEN = "FULLSCREEN"
 }
 
 const EDITOR_KEY_MAP = {
-    [EDITOR_KEY_COMMANDS.RESET]: "space"
+    [EDITOR_KEY_COMMANDS.RESET]: "space",
+    [EDITOR_KEY_COMMANDS.FULLSCREEN]: "ctrl+shift+space"
 }
 
 class Editor extends PureComponent<CombinedProps, EditorState> {
 
     state = {
-        nodes: []
+        nodes: [],
+        fullScreen: false
     }
 
     private zoom: ZoomBehavior<Element, {}>;
@@ -52,6 +56,7 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
         this.handleCanvasZoom = this.handleCanvasZoom.bind(this);
         this.resetZoom = this.resetZoom.bind(this);
         this.setZoom = this.setZoom.bind(this);
+        this.toggleFullScreen = this.toggleFullScreen.bind(this);
     }
 
     componentDidMount() {
@@ -82,6 +87,11 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
             .attr("transform", transform);
     }
 
+    private toggleFullScreen(event: KeyboardEvent) {
+        console.log("fullscreen: ", !this.state.fullScreen)
+        this.setState({fullScreen: !this.state.fullScreen});
+    }
+
     private resetZoom(event: KeyboardEvent) {
         if (!isInput(event.target as Element)) {
             d3.select("#canvasGrid")
@@ -98,16 +108,21 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
 
     public render() {
 
+        const { fullScreen } = this.state;
         const { size, gridSpacing, dotSize } = this.props;
         const [width, height] = size;
         const [halfWidth, halfHeight] = [width / 2, height / 2];
 
         const hotkeyHandler = {
-            [EDITOR_KEY_COMMANDS.RESET]: this.resetZoom
+            [EDITOR_KEY_COMMANDS.RESET]: this.resetZoom,
+            [EDITOR_KEY_COMMANDS.FULLSCREEN]: this.toggleFullScreen
         }
 
         return (
-            <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} style={{ flex: 1, flexDirection: "column" }} focused>
+            <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={{ flex: 1, flexDirection: "column" }} focused>
+                <Draggable >
+                    <div>TEsting</div>
+                </Draggable>
                 <svg className="editor" id="canvasGrid">
                     <defs>
                         {/* <pattern id="pattern" width={gridSpacing} height={gridSpacing} patternUnits="userSpaceOnUse">
@@ -124,7 +139,7 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
 
                     <g id="view">
                         <rect x={-halfWidth} y={-halfHeight} width={width} height={height} className="editor-background" />
-                        <g id="nodeContainer" onDrag={() => console.log("sda")}>
+                        <g id="nodeContainer">
                             <Node size={{x: 200, y: 200}} />
                         </g>
                     </g>

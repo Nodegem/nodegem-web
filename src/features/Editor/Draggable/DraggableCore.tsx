@@ -1,6 +1,9 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent, EventHandler } from "react";
 import ReactDOM from "react-dom";
 import { addEvent, removeEvent } from "./utils";
+import { Vector2 } from "./utils/types";
+import { createCoreData } from "./utils/dataUtils";
+import { getPosition } from "./utils/positionUtils";
 
 export type DragData = {
     node: HTMLElement;
@@ -9,18 +12,19 @@ export type DragData = {
     lastPosition: Vector2;
 }
 
-export type DragEventHandler = (e: MouseEvent, data: DragData | null) => void;
+export type DragEventHandler = (e: MouseEvent, data: DragData) => void | false;
 
 export type DraggableCoreProps = {
+    disabled?: boolean;
     onMouseDown?: (event: MouseEvent) => void;
     onMouseUp?: (event: MouseEvent) => void;
-    onDragStart: DragEventHandler;
-    onDrag: DragEventHandler;
-    onDragStop: DragEventHandler;
+    onDragStart?: DragEventHandler;
+    onDrag?: DragEventHandler;
+    onDragStop?: DragEventHandler;
 }
 
 export type DraggableCoreState = {
-    coords: Vector2;
+    lastPosition: Vector2;
     dragging: boolean;
 }
 
@@ -37,6 +41,7 @@ let dragEventFor = events.mouse;
 export default class DraggableCore extends PureComponent<DraggableCoreProps, DraggableCoreState> {
 
     static defaultProps : DraggableCoreProps = {
+        disabled: false,
         onDragStart: () => {},
         onDrag: () => {},
         onDragStop: () => {},
@@ -48,7 +53,7 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
         super(props);
 
         this.state = {
-            coords: {x: NaN, y: NaN},
+            lastPosition: {x: NaN, y: NaN},
             dragging: false
         }
     }
@@ -72,13 +77,27 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
             return;
         }
 
-        this.props.onDragStart(e, null);
+        if(this.props.disabled) {
+            return;
+        }
+
+        const position = getPosition(e, this);
+        const {x, y} = position;
+
+        const coreData = createCoreData(this, x, y);
+
+        let shouldUpdate;
+        if(this.props.onDragStart) {
+            shouldUpdate = this.props.onDragStart(e, coreData);
+        }
+
+        if(shouldUpdate === false) return;
 
         this.setState({
             dragging: true,
-            coords: {
-                x: 0,
-                y: 0
+            lastPosition: {
+                x: x,
+                y: y
             }
         })
 
@@ -88,12 +107,26 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
     }
 
     handleDrag = (e: MouseEvent) => {
-        this.props.onDrag(e, null);
+
+        const position = getPosition(e, this);
+        const {x, y} = position;
+
+        const coreData = createCoreData(this, x, y);
+
+        let shouldUpdate;
+        if(this.props.onDrag) {
+            shouldUpdate = this.props.onDrag(e, coreData);
+        }
+
+        if(shouldUpdate === false) {
+            this.handleDragStop(new MouseEvent('mouseup'));
+            return;
+        }
 
         this.setState({
-            coords: {
-                x: 0,
-                y: 0
+            lastPosition: {
+                x: x,
+                y: y
             }
         })
     }
@@ -102,15 +135,22 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
 
         if(!this.state.dragging) return;
 
+        const position = getPosition(e, this);
+        const {x, y} = position;
+
+        const coreData = createCoreData(this, x, y);
+
         this.setState({
             dragging: false,
-            coords: {
+            lastPosition: {
                 x: NaN,
                 y: NaN
             }
         });
 
-        this.props.onDragStop(e, null);
+        if(this.props.onDragStop) {
+            this.props.onDragStop(e, coreData);
+        }
 
         const thisNode = ReactDOM.findDOMNode(this);
         if(thisNode) {
