@@ -4,9 +4,10 @@ import { PureComponent } from "react";
 import "./Node.scss";
 import { Vector2 } from "../Draggable/utils/types";
 import Draggable from "../Draggable/Draggable";
+import NodeShell from "./NodeShell/NodeShell";
 
 interface NodeProps {
-    size: Vector2;
+    size: [number, number];
 }
 
 interface NodeState {
@@ -20,15 +21,9 @@ export default class Node extends PureComponent<NodeProps, NodeState> {
         const { size, ...rest } = this.props;
 
         return (
-            <Draggable handle=".handle">
-                <foreignObject {...rest} width={size.x} height={size.y}>
-                    <div className="node">
-                        <span className="handle">
-                            Hello Node
-                        </span>
-                    </div>
-                </foreignObject>
-            </Draggable>
+            <NodeShell size={size}>
+                Hello
+            </NodeShell>
         )
     }
 

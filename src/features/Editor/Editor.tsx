@@ -72,7 +72,7 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
             <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={{ flex: 1, flexDirection: "column" }} focused>
                 <Canvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern} fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={[.5, 1.5]}>
                     <g id="node-container">
-                        <Node size={{ x: 200, y: 200 }} />
+                        <Node size={[200, 200]} />
                     </g>
                 </Canvas>
             </HotKeys>
