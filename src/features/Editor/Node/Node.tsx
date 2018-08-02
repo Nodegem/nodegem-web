@@ -1,29 +1,71 @@
-import React from "react";
-import { PureComponent } from "react";
+import React, { PureComponent } from "react";
 
 import "./Node.scss";
-import { Vector2 } from "../Draggable/utils/types";
-import Draggable from "../Draggable/Draggable";
-import NodeShell from "./NodeShell/NodeShell";
+import NodeSkeleton, { NodeContentStyles } from "./NodeSkeleton/NodeSkeleton";
 
-interface NodeProps {
+export type NodeProps = {
     size: [number, number];
+    inputs: {}[];
+    outputs: {}[];
 }
 
-interface NodeState {
-    isFocused: boolean;
+export type NodeState = {
+}
+
+const nodeStyles : NodeContentStyles = {
+    title: {
+        maxHeight: "40px"
+    },
+    body: {
+        height: "100%"
+    },
+    footer: {
+        visible: {
+            height: "40%"
+        },
+        collapsed: {
+            height: "20px"
+        }
+    }
 }
 
 export default class Node extends PureComponent<NodeProps, NodeState> {
 
+    static defaultProps = {
+    }
+
+    state = {
+    }
+
+    private renderTitle = () : JSX.Element | null => {
+        return <span>Hello</span>;
+    }
+
+    private renderBody = (toggleFooter: Function, footerVisibility: boolean) : JSX.Element | null => {
+        return <button onClick={() => toggleFooter()}>Show!</button>;
+    }
+
+    private renderFooter = (toggleFooter: Function) : JSX.Element | null => {
+        return (
+            <button onClick={() => toggleFooter()}>Hide!</button>
+        );
+    }
+
+    private renderCollapseFooter = (toggleFooter: Function, footerVisibility: boolean) : JSX.Element | null => {
+        return (
+            <button onClick={() => toggleFooter()}>Collapsed</button>
+        );
+    }
+
     public render() {
 
-        const { size, ...rest } = this.props;
+        const { size } = this.props;
 
         return (
-            <NodeShell size={size}>
-                Hello
-            </NodeShell>
+            <NodeSkeleton size={size} title={this.renderTitle} body={this.renderBody} 
+                footer={this.renderFooter} footerCollapseHandle={this.renderCollapseFooter}
+                contentStyles={nodeStyles} expandSize={100}
+            />
         )
     }
 

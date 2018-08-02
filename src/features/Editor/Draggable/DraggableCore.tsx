@@ -23,7 +23,7 @@ export type MouseData = {
 export type DragEventHandler = (e: MouseEvent, data: DragData) => void | false;
 
 export type DraggableCoreProps = {
-    handle?: string;
+    handle?: string | null;
     disabled?: boolean;
     snapSize?: [number, number];
     clickFilter?: (mouseInfo: MouseData) => boolean;
