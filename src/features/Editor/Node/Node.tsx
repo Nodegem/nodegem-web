@@ -4,6 +4,7 @@ import "./Node.scss";
 import NodeSkeleton, { NodeContentStyles } from "./NodeSkeleton/NodeSkeleton";
 import { Icon } from "antd";
 import Socket, { SocketCSSProps } from "../Link/Socket/Socket";
+import Input from "./IO/Input/Input";
 
 export type NodeProps = {
     size: [number, number];
@@ -22,36 +23,15 @@ const nodeStyles : NodeContentStyles = {
         height: "100%"
     },
     footer: {
-        visible: {
-            maxHeight: "40%"
-        },
-        collapsed: {
-            maxHeight: "20px"
-        }
+        maxHeight: "30%"
     }
 }
 
 export default class Node extends PureComponent<NodeProps, NodeState> {
 
-    static defaultProps = {
-    }
-
-    state = {
-    }
-
     private renderTitle = () : JSX.Element | null => {
-        const test : SocketCSSProps = {
-            socket: {
-                backgroundColor: "white"
-            },
-            selected: {
-                backgroundColor: "black"
-            }
-        };
-
         return (
             <div style={{display: "inline-flex"}}>
-                <Socket size={[15, 15]} style={test} />
                 <span>{"<Node Title>"}</span>
             </div>
         );
@@ -59,17 +39,20 @@ export default class Node extends PureComponent<NodeProps, NodeState> {
 
     private renderBody = (toggleFooter: Function, footerVisibility: boolean) : JSX.Element | null => {
         return (
-            null
+            <div className="IO">
+                <div className="inputs">
+                    <Input label="input" />
+                    <Input label="input 1" />
+                    <Input label="input 2" />
+                </div>
+                <div className="outputs">
+
+                </div>
+            </div>
         );
     }
 
     private renderFooter = (toggleFooter: Function) : JSX.Element | null => {
-        return (
-            null
-        );
-    }
-
-    private renderCollapseFooter = (toggleFooter: Function, footerVisibility: boolean) : JSX.Element | null => {
         return (
             null
         );
@@ -81,8 +64,7 @@ export default class Node extends PureComponent<NodeProps, NodeState> {
 
         return (
             <NodeSkeleton size={size} title={this.renderTitle} body={this.renderBody} 
-                footer={this.renderFooter} footerCollapseHandle={this.renderCollapseFooter}
-                contentStyles={nodeStyles} expandSize={100}
+                footer={this.renderFooter} contentStyles={nodeStyles} expandSize={100}
             />
         )
     }

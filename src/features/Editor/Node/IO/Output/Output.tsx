@@ -1,6 +1,6 @@
 import { PureComponent } from "react";
-import { IOProps, IOState } from "../IOCore";
+import { IOCoreProps, IOCoreState } from "../IOCore/IOCore";
 
-export default class Output extends PureComponent<IOProps, IOState> {
+export default class Output extends PureComponent<IOCoreProps, IOCoreState> {
 
 }

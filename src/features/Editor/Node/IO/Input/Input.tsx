@@ -1,18 +1,26 @@
 import React, { PureComponent } from "react";
-import classNames from "classnames";
-import { IOProps, IOState } from "../IOCore";
+import IOCore, { IOCoreProps, IOProps } from "../IOCore/IOCore";
+import Socket from "../../../Link/Socket/Socket";
 
-export default class Input extends PureComponent<IOProps, IOState> {
+import './Input.scss';
+
+export default class Input extends PureComponent<IOProps & IOCoreProps> {
+
+    static defaultProps : Partial<IOProps & IOCoreProps> = {
+        onHover: () => {},
+        onBlur: () => {},
+        onToggle: () => {}
+    }
 
     public render() {
 
-        const inputClass = classNames({
-            "input": true
-        });
+        const { label, className, onToggle} = this.props;
 
         return (
-            <div className={inputClass}>
-            </div>
+            <IOCore type="input" className={className}>
+                <Socket toggle={(t) => onToggle!(t)}/>
+                <span className="label">{label}</span>
+            </IOCore>
         );
 
     }
