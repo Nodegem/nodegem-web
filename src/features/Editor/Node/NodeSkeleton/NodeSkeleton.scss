@@ -2,10 +2,12 @@
     .title {
         flex: 1;
         display: flex;
-        justify-content: center;
-        align-items: center;
     }
     .body {
+        flex: 1;
+        display: flex;
+    }
+    .footer {
         flex: 1;
         display: flex;
     }

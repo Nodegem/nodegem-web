@@ -2,6 +2,8 @@ import React, { PureComponent } from "react";
 
 import "./Node.scss";
 import NodeSkeleton, { NodeContentStyles } from "./NodeSkeleton/NodeSkeleton";
+import { Icon } from "antd";
+import Socket, { SocketCSSProps } from "../Link/Socket/Socket";
 
 export type NodeProps = {
     size: [number, number];
@@ -21,10 +23,10 @@ const nodeStyles : NodeContentStyles = {
     },
     footer: {
         visible: {
-            height: "40%"
+            maxHeight: "40%"
         },
         collapsed: {
-            height: "20px"
+            maxHeight: "20px"
         }
     }
 }
@@ -38,22 +40,38 @@ export default class Node extends PureComponent<NodeProps, NodeState> {
     }
 
     private renderTitle = () : JSX.Element | null => {
-        return <span>Hello</span>;
+        const test : SocketCSSProps = {
+            socket: {
+                backgroundColor: "white"
+            },
+            selected: {
+                backgroundColor: "black"
+            }
+        };
+
+        return (
+            <div style={{display: "inline-flex"}}>
+                <Socket size={[15, 15]} style={test} />
+                <span>{"<Node Title>"}</span>
+            </div>
+        );
     }
 
     private renderBody = (toggleFooter: Function, footerVisibility: boolean) : JSX.Element | null => {
-        return <button onClick={() => toggleFooter()}>Show!</button>;
+        return (
+            null
+        );
     }
 
     private renderFooter = (toggleFooter: Function) : JSX.Element | null => {
         return (
-            <button onClick={() => toggleFooter()}>Hide!</button>
+            null
         );
     }
 
     private renderCollapseFooter = (toggleFooter: Function, footerVisibility: boolean) : JSX.Element | null => {
         return (
-            <button onClick={() => toggleFooter()}>Collapsed</button>
+            null
         );
     }
 

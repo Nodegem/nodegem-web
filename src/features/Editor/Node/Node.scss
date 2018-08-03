@@ -1,6 +1,12 @@
 .node {
     background-color: green;
+    border-radius: 10px;
     .title {
         cursor: move;
+        justify-content: center;
+        align-items: center;
+    }
+    &.focused {
+        border: 2px solid darkblue;
     }
 }
