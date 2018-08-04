@@ -9,8 +9,9 @@ export type SocketCSSProps = {
 }
 
 export type SocketProps = {
-    toggle: (toggleFunc: Function) => void;
-    onHover?: () => void;
+    onToggle: (toggleFunc: Function) => void;
+    onHover?: (socket: Socket) => void;
+    onBlur?: (socket: Socket) => void;
     style?: SocketCSSProps;
     className?: string;
 };
@@ -41,11 +42,12 @@ export default class Socket extends PureComponent<SocketProps, SocketState> {
 
     private onMouseHover = () => {
         if(!this.state.hovering) return;
-        this.props.onHover!();
+        this.props.onHover!(this);
     }
 
     private onMouseLeave = () => {
         this.setState({hovering: false});
+        this.props.onBlur!(this);
     }
 
     private toggleSelected = () => {
@@ -55,7 +57,7 @@ export default class Socket extends PureComponent<SocketProps, SocketState> {
     public render() {
 
         const { selected, hovering } = this.state;
-        const { className, style, toggle } = this.props;
+        const { className, style, onToggle } = this.props;
 
         const socketClass = classNames({
             "socket": true,
@@ -71,7 +73,7 @@ export default class Socket extends PureComponent<SocketProps, SocketState> {
 
         return (
             <a className={socketClass} style={combinedStyles} 
-                onClick={() => toggle(this.toggleSelected)} onMouseEnter={this.onMouseEnter} 
+                onClick={() => onToggle(this.toggleSelected)} onMouseEnter={this.onMouseEnter} 
                 onMouseLeave={this.onMouseLeave} onMouseOver={this.onMouseHover} />
         );
     }

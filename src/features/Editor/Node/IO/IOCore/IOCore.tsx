@@ -1,17 +1,29 @@
 import React, { PureComponent } from "react";
 import classNames from "classnames";
+import Output from "../Output/Output";
+import Input from "../Input/Input";
 
 import './IOCore.scss';
+import Socket from "../../../Link/Socket/Socket";
 
 export type IOProps = {
-    label: string;
+    label: JSX.Element | string;
     onToggle?: (toggle: Function) => void;
+    onClick?: (e: MouseEvent, io: Input | Output) => void;
+    onHover?: (io: Input | Output, core: IOCore) => void;
+    onBlur?: (io: Input | Output, core: IOCore) => void;
+    onSocketHover?: (socket: Socket, io: Input | Output) => void;
+    onSocketBlur?: (socket: Socket, io: Input | Output) => void;
 }
 
 export type IOCoreProps = {
     className?: string;
-    onHover?: () => void;
-    onBlur?: () => void;
+}
+
+export type IOCallbacks = {
+    onHover?: (core: IOCore) => void;
+    onBlur?: (core: IOCore) => void;
+    onClick?: (e: MouseEvent, core: IOCore) => void;
 }
 
 export type IOCoreState = {
@@ -20,11 +32,12 @@ export type IOCoreState = {
 
 type IOType = "input" | "output";
 
-export default class IOCore extends PureComponent<IOCoreProps & {type: IOType} , IOCoreState> {
+export default class IOCore extends PureComponent<IOCoreProps & IOCallbacks & {type: IOType} , IOCoreState> {
 
-    static defaultProps : Partial<IOCoreProps> = {
+    static defaultProps : Partial<IOCoreProps & IOCallbacks> = {
         onHover: () => {},
-        onBlur: () => {}
+        onBlur: () => {},
+        onClick: () => {}
     }
 
     state = {
@@ -33,12 +46,16 @@ export default class IOCore extends PureComponent<IOCoreProps & {type: IOType} ,
 
     private onMouseEnter = () => {
         this.setState({hovering: true});
-        this.props.onHover!();
+        this.props.onHover!(this);
     }
 
     private onMouseLeave = () => {
         this.setState({hovering: false});
-        this.props.onBlur!();
+        this.props.onBlur!(this);
+    }
+
+    private onMouseDown = (e: any) => {
+        this.props.onClick!(e, this);
     }
 
     public render() {
@@ -54,7 +71,7 @@ export default class IOCore extends PureComponent<IOCoreProps & {type: IOType} ,
         });
 
         return (
-            <div className={ioClasses} onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
+            <div className={ioClasses} onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} onMouseDown={this.onMouseDown}>
                 {this.props.children}
             </div>
         );

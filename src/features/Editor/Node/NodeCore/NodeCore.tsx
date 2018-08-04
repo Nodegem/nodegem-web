@@ -5,11 +5,13 @@ import { addEvent, removeEvent } from "../../Draggable/utils";
 import ReactDOM from "react-dom";
 import { nodeMatchesOrWithinParent } from "../../utils";
 import { DragData } from "../../Draggable/DraggableCore";
+import { XYCoords } from "../../utils/types";
 
 import "./NodeCore.scss";
 
 export type NodeCoreProps = {
     size: [number, number];
+    position?: XYCoords;
     axis?: AxisOptions;
     snapSize?: [number, number];
     handle?: string | null;
@@ -119,7 +121,7 @@ export default class NodeCore extends PureComponent<NodeCoreProps, NodeCoreState
 
     public render() {
 
-        const { size, className, style, handle, snapSize, axis } = this.props;
+        const { size, className, style, handle, snapSize, axis, position } = this.props;
         const [width, height] = size;
         const { dragging, focused, hovering } = this.state;
 
@@ -132,7 +134,7 @@ export default class NodeCore extends PureComponent<NodeCoreProps, NodeCoreState
         });
 
         return (
-            <Draggable onMouseDown={this.onMouseDown} onDrag={this.onDrag} onDragStart={this.onDragStart} 
+            <Draggable position={position && {x: position[0], y: position[1]}} onMouseDown={this.onMouseDown} onDrag={this.onDrag} onDragStart={this.onDragStart} 
                 onDragStop={this.onDragStop} handle={handle} snapSize={snapSize} axis={axis}>
                 <foreignObject width={width} height={height} onMouseEnter={this.onEnter} onMouseLeave={this.onLeave}>
                     <div className={nodeClasses} style={style}>

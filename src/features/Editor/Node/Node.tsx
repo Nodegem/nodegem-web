@@ -2,12 +2,13 @@ import React, { PureComponent } from "react";
 
 import "./Node.scss";
 import NodeSkeleton, { NodeContentStyles } from "./NodeSkeleton/NodeSkeleton";
-import { Icon } from "antd";
-import Socket, { SocketCSSProps } from "../Link/Socket/Socket";
 import Input from "./IO/Input/Input";
+import Output from "./IO/Output/Output";
+import { XYCoords } from "../utils/types";
 
 export type NodeProps = {
     size: [number, number];
+    position?: XYCoords;
     inputs: {}[];
     outputs: {}[];
 }
@@ -37,7 +38,7 @@ export default class Node extends PureComponent<NodeProps, NodeState> {
         );
     }
 
-    private renderBody = (toggleFooter: Function, footerVisibility: boolean) : JSX.Element | null => {
+    private renderBody = (toggleFooter: Function) : JSX.Element | null => {
         return (
             <div className="IO">
                 <div className="inputs">
@@ -46,7 +47,9 @@ export default class Node extends PureComponent<NodeProps, NodeState> {
                     <Input label="input 2" />
                 </div>
                 <div className="outputs">
-
+                    <Output label="output" />
+                    <Output label="output 2" />
+                    <Output label="output 3" />
                 </div>
             </div>
         );
@@ -60,10 +63,10 @@ export default class Node extends PureComponent<NodeProps, NodeState> {
 
     public render() {
 
-        const { size } = this.props;
+        const { size, position } = this.props;
 
         return (
-            <NodeSkeleton size={size} title={this.renderTitle} body={this.renderBody} 
+            <NodeSkeleton position={position} size={size} title={this.renderTitle} body={this.renderBody} 
                 footer={this.renderFooter} contentStyles={nodeStyles} expandSize={100}
             />
         )

@@ -2,13 +2,14 @@ import React, { PureComponent, CSSProperties } from "react";
 
 import "./NodeSkeleton.scss";
 import NodeCore, { NodeCoreProps } from "../NodeCore/NodeCore";
-import classNames from "classnames";
 import { isFunction } from "util";
+import { XYCoords } from "../../utils/types";
 
 export type NodeContentStyles = {title?: CSSProperties, body?: CSSProperties, footer?: CSSProperties};
 
 export type NodeSkeletonProps = {
     size: [number, number];
+    position?: XYCoords;
     contentStyles?: NodeContentStyles;
     expandSize?: number;
     handle?: string | null;
@@ -45,7 +46,7 @@ export default class NodeSkeleton extends PureComponent<NodeSkeletonProps & Node
 
     public render() {
 
-        const { size, title, body, footer, expandSize, handle, contentStyles } = this.props;
+        const { size, title, body, footer, expandSize, handle, contentStyles, position } = this.props;
         const { showFooter } = this.state;
 
         let [width, height] = size;
@@ -54,7 +55,7 @@ export default class NodeSkeleton extends PureComponent<NodeSkeletonProps & Node
         }
 
         return (
-            <NodeCore size={[width, height]} handle={handle}>
+            <NodeCore position={position} size={[width, height]} handle={handle}>
                 <div className="title" style={contentStyles!.title} >
                     {isFunction(title) ? title(this.toggleFooter, showFooter) : title}
                 </div>
