@@ -2,6 +2,7 @@ import React, { PureComponent, CSSProperties } from "react";
 import classNames from "classnames";
 
 import "./Socket.scss";
+import { XYCoords } from "../../utils/types";
 
 export type SocketCSSProps = {
     socket: CSSProperties,
@@ -35,6 +36,13 @@ export default class Socket extends PureComponent<SocketProps, SocketState> {
         selected: false,
         hovering: false
     }
+
+    get center() : XYCoords {
+        const { x, y, width, height } = this._socket.getBoundingClientRect() as DOMRect;
+        return [x + (width/2), y + (height / 2)];
+    }
+
+    private _socket : Element;
 
     private onMouseEnter = () => {
         this.setState({hovering: true});
@@ -72,7 +80,7 @@ export default class Socket extends PureComponent<SocketProps, SocketState> {
         }
 
         return (
-            <a className={socketClass} style={combinedStyles} 
+            <a ref={(c) => this._socket = c!} className={socketClass} style={combinedStyles} 
                 onClick={() => onToggle(this.toggleSelected)} onMouseEnter={this.onMouseEnter} 
                 onMouseLeave={this.onMouseLeave} onMouseOver={this.onMouseHover} />
         );

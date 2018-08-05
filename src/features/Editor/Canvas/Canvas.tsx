@@ -1,6 +1,7 @@
 import React, { PureComponent } from "react";
 import * as d3 from "d3";
-import { ZoomBehavior, ZoomTransform } from "d3";
+import { ZoomBehavior } from "d3";
+import classNames from "classnames";
 
 import "./Canvas.scss";
 
@@ -84,8 +85,13 @@ export default class Canvas extends PureComponent<CanvasProps> {
         const halfWidth = width / 2;
         const halfHeight = height / 2;
 
+        const canvasClass = classNames({
+            "canvas": true,
+            [className!]: !!className
+        });
+
         return (
-            <svg className={`canvas ${className || ""}`} id="_canvas" {...rest}>
+            <svg className={canvasClass} id="_canvas" {...rest}>
                 <defs>
                     {pattern}
                 </defs>
