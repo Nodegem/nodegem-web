@@ -30,6 +30,9 @@ const nodeStyles : NodeContentStyles = {
 
 export default class Node extends PureComponent<NodeProps, NodeState> {
 
+    public inputs : Input[] = [];
+    public outputs : Output[] = [];
+
     private renderTitle = () : JSX.Element | null => {
         return (
             <div style={{display: "inline-flex"}}>
@@ -42,7 +45,7 @@ export default class Node extends PureComponent<NodeProps, NodeState> {
         return (
             <div className="IO">
                 <div className="inputs">
-                    <Input label="input" />
+                    <Input ref={(i : Input) => this.inputs.push(i)} label="input" />
                     <Input label="input 1" />
                     <Input label="input 2" />
                 </div>

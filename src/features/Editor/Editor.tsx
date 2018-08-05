@@ -1,13 +1,11 @@
 import React, { PureComponent } from "react";
 import * as d3 from 'd3';
+import { HotKeys } from "react-hotkeys";
+import { isMac, convertCommands } from "../../utils";
+import Node from './Node/Node';
+import Canvas from "./Canvas/Canvas";
 
 import "./Editor.scss";
-import { ZoomTransform, ZoomBehavior, BaseType } from "d3";
-import { HotKeys } from "react-hotkeys";
-import { isInput, isMac, convertCommands } from "../../utils";
-import Node from './Node/Node';
-import Draggable from "./Draggable/Draggable";
-import Canvas, { CanvasProps } from "./Canvas/Canvas";
 
 export type EditorProps = {
     size: [number, number];
@@ -52,7 +50,7 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
 
     private _canvas: Canvas;
 
-    private canvasInputFilter = (ev: any): boolean => {
+    private canvasInputFilter = (): boolean => {
         if (d3.event.button === 1) {
             d3.event.preventDefault();
         }

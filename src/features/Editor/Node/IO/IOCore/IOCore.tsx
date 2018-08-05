@@ -2,18 +2,21 @@ import React, { PureComponent } from "react";
 import classNames from "classnames";
 import Output from "../Output/Output";
 import Input from "../Input/Input";
+import Socket from "../../../Link/Socket/Socket";
+import IOBase from "../IOBase";
 
 import './IOCore.scss';
-import Socket from "../../../Link/Socket/Socket";
+
+export type IOOption = Input | Output | IOBase;
 
 export type IOProps = {
     label: JSX.Element | string;
     onToggle?: (toggle: Function) => void;
-    onClick?: (e: MouseEvent, io: Input | Output) => void;
-    onHover?: (io: Input | Output, core: IOCore) => void;
-    onBlur?: (io: Input | Output, core: IOCore) => void;
-    onSocketHover?: (socket: Socket, io: Input | Output) => void;
-    onSocketBlur?: (socket: Socket, io: Input | Output) => void;
+    onClick?: (e: MouseEvent, io: IOBase) => void;
+    onHover?: (io: IOBase, core: IOCore) => void;
+    onBlur?: (io: IOBase, core: IOCore) => void;
+    onSocketHover?: (socket: Socket, io: IOBase) => void;
+    onSocketBlur?: (socket: Socket, io: IOBase) => void;
 }
 
 export type IOCoreProps = {

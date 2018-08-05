@@ -1,39 +1,11 @@
-import React, { PureComponent } from "react";
-import IOCore, { IOCoreProps, IOProps } from "../IOCore/IOCore";
+import React from "react";
+import IOCore from "../IOCore/IOCore";
 import Socket from "../../../Link/Socket/Socket";
+import IOBase from "../IOBase";
 
 import './Input.scss';
 
-export default class Input extends PureComponent<IOProps & IOCoreProps> {
-
-    static defaultProps : Partial<IOProps & IOCoreProps> = {
-        onHover: () => {},
-        onBlur: () => {},
-        onToggle: (t) => t(),
-        onSocketHover: () => {},
-        onSocketBlur: () => {},
-        onClick: () => {}
-    }
-
-    private onBlur = (core: IOCore) : void => {
-        this.props.onBlur!(this, core);
-    }
-
-    private onHover = (core: IOCore) : void => {
-        this.props.onHover!(this, core);
-    }
-
-    private onSocketHover = (socket: Socket) : void => {
-        this.props.onSocketHover!(socket, this);
-    }
-
-    private onSocketBlur = (socket: Socket) : void => {
-        this.props.onSocketHover!(socket, this);
-    }
-
-    private onClick = (e: MouseEvent, io: IOCore) : void => {
-        this.props.onClick!(e, this);
-    }
+export default class Input extends IOBase {
 
     public render() {
 
