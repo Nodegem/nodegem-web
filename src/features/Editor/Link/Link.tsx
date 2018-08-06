@@ -61,7 +61,7 @@ export default class Link extends PureComponent<CombinedProps, LinkState> {
         return (
             <Draggable onDragStart={this.onDragStart} onDrag={this.onDrag} onDragStop={this.onDragStop}>
                 <g>
-                    <path d={this.lineFunc([[0, 0], [400, 400], [400, 200]])!} stroke={color} strokeWidth={size} fill="none" />
+                    <path d={this.lineFunc([])!} stroke={color} strokeWidth={size} fill="none" />
                 </g>
             </Draggable>
         )

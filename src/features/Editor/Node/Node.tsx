@@ -45,14 +45,14 @@ export default class Node extends PureComponent<NodeProps, NodeState> {
         return (
             <div className="IO">
                 <div className="inputs">
-                    <Input ref={(i : Input) => this.inputs.push(i)} label="input" />
-                    <Input label="input 1" />
-                    <Input label="input 2" />
+                    <Input node={this} ref={(i : Input) => this.inputs.push(i)} label="input" />
+                    <Input node={this} label="input 1" />
+                    <Input node={this} label="input 2" />
                 </div>
                 <div className="outputs">
-                    <Output label="output" />
-                    <Output label="output 2" />
-                    <Output label="output 3" />
+                    <Output node={this} label="output" />
+                    <Output node={this} label="output 2" />
+                    <Output node={this} label="output 3" />
                 </div>
             </div>
         );

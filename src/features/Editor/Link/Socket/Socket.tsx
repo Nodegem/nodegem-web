@@ -1,8 +1,9 @@
 import React, { PureComponent, CSSProperties } from "react";
 import classNames from "classnames";
+import { XYCoords } from "../../utils/types";
+import IOBase from "../../Node/IO/IOBase";
 
 import "./Socket.scss";
-import { XYCoords } from "../../utils/types";
 
 export type SocketCSSProps = {
     socket: CSSProperties,
@@ -10,11 +11,12 @@ export type SocketCSSProps = {
 }
 
 export type SocketProps = {
+    io: IOBase;
+    style?: SocketCSSProps;
+    className?: string;
     onToggle: (toggleFunc: Function) => void;
     onHover?: (socket: Socket) => void;
     onBlur?: (socket: Socket) => void;
-    style?: SocketCSSProps;
-    className?: string;
 };
 
 export type SocketState = {

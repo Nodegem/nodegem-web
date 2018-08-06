@@ -13,7 +13,7 @@ export default class Input extends IOBase {
 
         return (
             <IOCore type="input" className={className} onBlur={this.onBlur} onHover={this.onHover} onClick={this.onClick}>
-                <Socket onHover={this.onSocketHover} onBlur={this.onSocketBlur} onToggle={(t) => onToggle!(t)}/>
+                <Socket io={this} onHover={this.onSocketHover} onBlur={this.onSocketBlur} onToggle={(t) => onToggle!(t)}/>
                 <span className="label">{label}</span>
             </IOCore>
         );

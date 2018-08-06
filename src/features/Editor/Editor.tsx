@@ -6,17 +6,15 @@ import Node from './Node/Node';
 import Canvas from "./Canvas/Canvas";
 
 import "./Editor.scss";
-import Link from "./Link/Link";
 
 export type EditorProps = {
     size: [number, number];
     zoomRange: [number, number];
-    gridSpacing: number;
-    dotSize: number;
 }
 
 export type EditorState = {
     nodes: {}[];
+    links: {}[];
 }
 
 type CombinedProps = EditorProps;
@@ -47,6 +45,7 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
 
     state = {
         nodes: [],
+        links: []
     }
 
     private _canvas: Canvas;
@@ -61,7 +60,7 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
 
     public render() {
 
-        const { size } = this.props;
+        const { size, zoomRange } = this.props;
 
         const hotkeyHandler = {
             [EDITOR_KEY_COMMANDS.RESET]: () => this._canvas.reset()
@@ -69,9 +68,8 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
 
         return (
             <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={{ flex: 1, flexDirection: "column", display: "flex" }} focused>
-                <Canvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern} fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={[.5, 1.5]}>
+                <Canvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern} fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={zoomRange}>
                     <g id="link-container">
-                        <Link />
                     </g>
                     <g id="node-container">
                         <Node size={[200, 200]} inputs={[]} outputs={[]} />

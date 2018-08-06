@@ -11,7 +11,7 @@ const { Content } = Layout;
 const persistor = async () => {
 }
 
-const EditorPage = () => <Editor size={[15000, 15000]} gridSpacing={20} dotSize={2} zoomRange={[.75, 2.5]} />;
+const EditorPage = () => <Editor size={[15000, 15000]} zoomRange={[.5, 1.5]} />;
 
 class App extends React.PureComponent {
 

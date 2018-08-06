@@ -4,6 +4,7 @@ import Output from "../Output/Output";
 import Input from "../Input/Input";
 import Socket from "../../../Link/Socket/Socket";
 import IOBase from "../IOBase";
+import Node from "../../Node";
 
 import './IOCore.scss';
 
@@ -11,6 +12,7 @@ export type IOOption = Input | Output | IOBase;
 
 export type IOProps = {
     label: JSX.Element | string;
+    node: Node;
     onToggle?: (toggle: Function) => void;
     onClick?: (e: MouseEvent, io: IOBase) => void;
     onHover?: (io: IOBase, core: IOCore) => void;
