@@ -6,15 +6,11 @@ import Node from './Node/Node';
 import Canvas from "./Canvas/Canvas";
 
 import "./Editor.scss";
+import NodeCanvas from "./NodeCanvas/NodeCanvas";
 
 export type EditorProps = {
     size: [number, number];
     zoomRange: [number, number];
-}
-
-export type EditorState = {
-    nodes: {}[];
-    links: {}[];
 }
 
 type CombinedProps = EditorProps;
@@ -41,16 +37,12 @@ const canvasPattern = (
     </g>
 )
 
-class Editor extends PureComponent<CombinedProps, EditorState> {
+class Editor extends PureComponent<CombinedProps> {
 
-    state = {
-        nodes: [],
-        links: []
-    }
-
-    private _canvas: Canvas;
+    private _canvas: NodeCanvas;
 
     private canvasInputFilter = (): boolean => {
+        this._canvas.addLink();
         if (d3.event.button === 1) {
             d3.event.preventDefault();
         }
@@ -68,13 +60,8 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
 
         return (
             <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={{ flex: 1, flexDirection: "column", display: "flex" }} focused>
-                <Canvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern} fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={zoomRange}>
-                    <g id="link-container">
-                    </g>
-                    <g id="node-container">
-                        <Node size={[200, 200]} inputs={[]} outputs={[]} />
-                    </g>
-                </Canvas>
+                <NodeCanvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern} 
+                    fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={zoomRange} />
             </HotKeys>
         )
     }

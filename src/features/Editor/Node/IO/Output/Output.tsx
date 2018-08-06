@@ -14,7 +14,7 @@ export default class Output extends IOBase {
         return (
             <IOCore type="output" className={className} onBlur={this.onBlur} onHover={this.onHover} onClick={this.onClick}>
                 <span className="label">{label}</span>
-                <Socket io={this} onBlur={this.onSocketBlur} onHover={this.onSocketHover} onToggle={(t) => onToggle!(t)} />
+                <Socket ref={(s:Socket) => this.socket = s} io={this} onBlur={this.onSocketBlur} onHover={this.onSocketHover} onToggle={(t) => onToggle!(t)} />
             </IOCore>
         )
     }

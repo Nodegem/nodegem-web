@@ -13,6 +13,8 @@ export default abstract class IOBase extends PureComponent<IOProps & IOCoreProps
         onClick: () => {}
     }
 
+    public socket : Socket;
+
     protected onBlur = (core: IOCore) : void => {
         this.props.onBlur!(this, core);
     }

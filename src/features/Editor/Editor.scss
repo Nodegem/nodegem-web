@@ -19,3 +19,7 @@
     background-color: #fbfbfb;
     fill: url("#grid"); 
 }
+
+@-moz-document url-prefix() { 
+    /* Firefox specific */
+}

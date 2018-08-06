@@ -1,7 +1,6 @@
 import DraggableCore from "../DraggableCore";
 import { Vector2 } from "./types";
 import { findDomNode } from ".";
-import Draggable from "../Draggable";
 
 export const offsetXYFromParent = (evt: { clientX: number, clientY: number }, offsetParent: Element): Vector2 => {
     const isBody = offsetParent === offsetParent.ownerDocument.body;

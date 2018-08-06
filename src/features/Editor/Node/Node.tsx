@@ -1,16 +1,18 @@
 import React, { PureComponent } from "react";
-
-import "./Node.scss";
 import NodeSkeleton, { NodeContentStyles } from "./NodeSkeleton/NodeSkeleton";
 import Input from "./IO/Input/Input";
 import Output from "./IO/Output/Output";
 import { XYCoords } from "../utils/types";
 
+import "./Node.scss";
+import NodeCanvas from "../NodeCanvas/NodeCanvas";
+
 export type NodeProps = {
+    canvas: NodeCanvas;
     size: [number, number];
-    position?: XYCoords;
     inputs: {}[];
     outputs: {}[];
+    position?: XYCoords;
 }
 
 export type NodeState = {

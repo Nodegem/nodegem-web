@@ -133,10 +133,11 @@ export default class NodeCore extends PureComponent<NodeCoreProps, NodeCoreState
             [className!]: !!className
         });
 
+        //TODO: find some hack that doesn't require me to specify a height and width
         return (
             <Draggable position={position && {x: position[0], y: position[1]}} onMouseDown={this.onMouseDown} onDrag={this.onDrag} onDragStart={this.onDragStart} 
                 onDragStop={this.onDragStop} handle={handle} snapSize={snapSize} axis={axis}>
-                <foreignObject width={width} height={height} onMouseEnter={this.onEnter} onMouseLeave={this.onLeave}>
+                <foreignObject width={width} height={height} style={{overflow: "visible"}} onMouseEnter={this.onEnter} onMouseLeave={this.onLeave}>
                     <div className={nodeClasses} style={style}>
                         {this.props.children}
                     </div>

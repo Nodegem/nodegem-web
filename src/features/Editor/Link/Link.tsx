@@ -1,11 +1,16 @@
 import React, { PureComponent } from "react";
 import { XYCoords } from "../utils/types";
-import { ReactFauxDomProps, withFauxDOM } from "react-faux-dom";
 import * as d3 from "d3";
-import Draggable from "../Draggable/Draggable";
-import { DragData } from "../Draggable/DraggableCore";
+import IOBase from "../Node/IO/IOBase";
+import Input from "../Node/IO/Input/Input";
+import Output from "../Node/IO/Output/Output";
+import ReactDOM from "react-dom";
+import { addEvent, removeEvent } from "../Draggable/utils";
+import { getPosition } from "../utils";
 
 export type LinkProps = {
+    anchor: IOBase | XYCoords;
+    drawDefault?: boolean;
     color?: string;
     size?: number;
     curve?: d3.CurveFactory | d3.CurveFactoryLineOnly
@@ -13,7 +18,6 @@ export type LinkProps = {
 
 export type LinkState = {
     drawing: boolean;
-    sourceCoords: XYCoords;
     destCoords: XYCoords;
 }
 
@@ -35,35 +39,65 @@ export default class Link extends PureComponent<CombinedProps, LinkState> {
             .curve(curve!);
     }
 
+    public input : Input;
+    public output : Output;
+
     constructor(props : CombinedProps) {
         super(props);
 
         this.state = {
-            drawing: false,
-            sourceCoords: [0, 0],
-            destCoords: [0, 0]
+            drawing: props.drawDefault || true,
+            destCoords: [NaN, NaN]
         };
     }
 
-    private onDragStart = (e: MouseEvent, data: DragData) : void | false => {
+    componentDidMount() {
+        const thisNode = ReactDOM.findDOMNode(this);
+        if(thisNode) {
+            const { ownerDocument } = thisNode;
+            addEvent(ownerDocument, "mousemove", this.onDrawing);
+            addEvent(ownerDocument, "mousedown", this.onDrawStop);
+        }
     }
 
-    private onDrag = (e: MouseEvent, data: DragData) => {
+    componentWillUnmount() {
+        this.removeEventHandlers();
     }
 
-    private onDragStop = (e: MouseEvent, data: DragData) => {
+    private removeEventHandlers = () : void => {
+        const thisNode = ReactDOM.findDOMNode(this);
+        if(thisNode) {
+            const { ownerDocument } = thisNode;
+            removeEvent(ownerDocument, "mousemove", this.onDrawing);
+            removeEvent(ownerDocument, "mousedown", this.onDrawStop);
+        }
+    }
+
+    public placeLink = () : void => {
+
+    }
+
+    private onDrawing = (e: MouseEvent) : void => {
+
+        if(!this.state.drawing) return;
+
+        const position = getPosition(e, ReactDOM.findDOMNode(this) as HTMLElement);   
+        this.setState({
+            destCoords: position
+        });
+    }
+
+    private onDrawStop = (e: MouseEvent) : void => {
+        this.removeEventHandlers();
     }
 
     public render() {
 
-        const { size, color } = this.props;
+        const { size, color, anchor } = this.props;
+        const { destCoords } = this.state;
 
         return (
-            <Draggable onDragStart={this.onDragStart} onDrag={this.onDrag} onDragStop={this.onDragStop}>
-                <g>
-                    <path d={this.lineFunc([])!} stroke={color} strokeWidth={size} fill="none" />
-                </g>
-            </Draggable>
+            <path d={this.lineFunc([anchor as XYCoords, destCoords])!} stroke={color} strokeWidth={size} fill="none" />
         )
     }
 
