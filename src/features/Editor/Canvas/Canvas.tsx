@@ -2,6 +2,7 @@ import React, { PureComponent } from "react";
 import * as d3 from "d3";
 import { ZoomBehavior } from "d3";
 import classNames from "classnames";
+import { XYCoords } from "../utils/types";
 
 import "./Canvas.scss";
 
@@ -26,6 +27,8 @@ export default class Canvas extends PureComponent<CanvasProps> {
         onZoom: () => {},
     }
 
+    private _svg : SVGSVGElement;
+    public container : SVGGElement;
     private _zoom : ZoomBehavior<Element, {}>;
 
     componentDidMount() {
@@ -44,6 +47,14 @@ export default class Canvas extends PureComponent<CanvasProps> {
             .call(zoom);
 
         this._zoom = zoom;
+    }
+
+    public svgPoint = (element: SVGSVGElement | SVGGElement, coords: XYCoords) : XYCoords => {
+        const pt = this._svg.createSVGPoint();
+        pt.x = coords[0];
+        pt.y = coords[1];
+        const newCoords = pt.matrixTransform(element.getScreenCTM()!.inverse());
+        return [newCoords.x, newCoords.y];
     }
 
     private inputFilter = () : boolean => {
@@ -91,11 +102,11 @@ export default class Canvas extends PureComponent<CanvasProps> {
         });
 
         return (
-            <svg className={canvasClass} id="_canvas" {...rest}>
+            <svg ref={(s) => this._svg = s!} className={canvasClass} id="_canvas" {...rest}>
                 <defs>
                     {pattern}
                 </defs>
-                <g id="_canvas-view" transform={d3.zoomIdentity.toString()}>
+                <g ref={(g) => this.container = g!} id="_canvas-view" transform={d3.zoomIdentity.toString()}>
                     <rect x={-halfWidth} y={-halfHeight} 
                             width={width} height={height} 
                             className="canvas-background" id="_canvas-background" 

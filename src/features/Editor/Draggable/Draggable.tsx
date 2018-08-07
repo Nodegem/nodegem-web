@@ -5,7 +5,6 @@ import ReactDOM from "react-dom";
 import { createSVGTransform } from "./utils/positionUtils";
 import { createDragData } from "./utils/dataUtils";
 import { findParentWithTransform, parseTransform } from "./utils";
-import { XYCoords } from "../utils/types";
 
 export type AxisOptions = 'both' | 'x' | 'y' | 'none';
 

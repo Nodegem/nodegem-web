@@ -4,28 +4,21 @@ import Node from '../Node/Node';
 import Link from "../Link/Link";
 import Socket from "../Link/Socket/Socket";
 import { XYCoords } from "../utils/types";
-import TestCircle from "../Link/TestCircle";
-import ReactDOM from "react-dom";
 
 import "./NodeCanvas.scss";
-
 
 export type NodeCanvasProps = {
 
 }
 
 type test = {
-    socket: Socket;
-}
-
-type test2 = {
-    pos: XYCoords;
+    startPos: XYCoords;
+    destPos: XYCoords;
 }
 
 export type NodeCanvasState = {
     nodes: {}[];
     links: test[];
-    test: test2[];
 }
 
 export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasProps, NodeCanvasState> {
@@ -34,23 +27,21 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
 
     state = {
         nodes: [],
-        links: [],
-        test: []
+        links: []
     }
 
-    get offset() : [number, number] {
-        const parent = (ReactDOM.findDOMNode(this) as Element).parentElement!;
-        return [parent.offsetLeft, parent.offsetTop];
+    public convertCoords = (coords: XYCoords) : XYCoords => {
+        return this._canvas.svgPoint(this._canvas.container, coords);
     }
 
     public reset = () : void => {
         this._canvas.reset();
     }
 
-    public addLink = (socket: Socket) : void => {
+    public addLink = (s: XYCoords, d: XYCoords) : void => {
         //TODO
         this.setState(prevState => ({
-            links: [...prevState.links, {socket}]
+            links: [...prevState.links, {startPos: s, destPos: d}]
         }));
     }
 
@@ -58,30 +49,20 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
         //TODO
     }
 
-    public addTest = (pos: XYCoords) : void => {
-        this.setState(prevState => ({
-            test: [...prevState.test, {pos}]
-        }));
-    }
-
     public render() {
 
         const { ...rest } = this.props;
-        const { nodes, links, test } = this.state;
+        const { nodes, links } = this.state;
 
         return (
             <Canvas ref={(c: Canvas) => this._canvas = c} {...rest}>
                 <g id="_link-container">
                     {links.map((l: test, index) => {
-                        return <Link key={index} anchor={l.socket.center} color="red"/>
+                        return <Link canvas={this} key={index} startPos={l.startPos} destPos={l.destPos} color="red"/>
                     })}
                 </g>
                 <g id="_node-container">
                     <Node canvas={this} size={[200, 200]} inputs={[]} outputs={[]} />
-
-                    {test.map((l: test2, index) => {
-                        return <TestCircle key={index} position={l.pos} />
-                    })}
                 </g>
             </Canvas>
         );

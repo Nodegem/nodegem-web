@@ -6,11 +6,12 @@ import Input from "../Node/IO/Input/Input";
 import Output from "../Node/IO/Output/Output";
 import ReactDOM from "react-dom";
 import { addEvent, removeEvent } from "../Draggable/utils";
-import { getPosition } from "../utils";
-import Draggable from "../Draggable/Draggable";
+import NodeCanvas from "../NodeCanvas/NodeCanvas";
 
 export type LinkProps = {
-    anchor: IOBase | XYCoords;
+    canvas: NodeCanvas;
+    startPos: XYCoords;
+    destPos: XYCoords;
     drawDefault?: boolean;
     color?: string;
     size?: number;
@@ -19,7 +20,8 @@ export type LinkProps = {
 
 export type LinkState = {
     drawing: boolean;
-    destCoords: XYCoords;
+    startPos: XYCoords;
+    destPos: XYCoords;
 }
 
 type CombinedProps = LinkProps;
@@ -48,17 +50,37 @@ export default class Link extends PureComponent<CombinedProps, LinkState> {
 
         this.state = {
             drawing: props.drawDefault || true,
-            destCoords: [NaN, NaN]
+            startPos: this.getCoords(props.startPos),
+            destPos: this.getCoords(props.destPos)
         };
+    }
+
+    componentDidMount() {
+        const thisNode = ReactDOM.findDOMNode(this);
+        if(thisNode) {
+            const { ownerDocument } = thisNode;
+            addEvent(ownerDocument, "mousemove", this.onDraw)
+        }
+    }
+
+    private getCoords = (coords: XYCoords) : XYCoords => {
+        return this.props.canvas.convertCoords(coords);
+    }
+
+    onDraw = (e: MouseEvent) => {
+
+        const { clientX, clientY } = e;
+
+        this.setState({destPos: this.getCoords([clientX, clientY])})
     }
 
     public render() {
 
-        const { size, color, anchor } = this.props;
-        const { destCoords } = this.state;
+        const { size, color } = this.props;
+        const { destPos, startPos } = this.state;
 
         return (
-            <path d={this.lineFunc([anchor as XYCoords, destCoords])!} stroke={color} strokeWidth={size} fill="none" />
+            <path d={this.lineFunc([startPos, destPos])!} stroke={color} strokeWidth={size} fill="none" />
         )
     }
 

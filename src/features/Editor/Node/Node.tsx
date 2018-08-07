@@ -2,13 +2,12 @@ import React, { PureComponent } from "react";
 import NodeSkeleton, { NodeContentStyles } from "./NodeSkeleton/NodeSkeleton";
 import Input from "./IO/Input/Input";
 import Output from "./IO/Output/Output";
-
-import "./Node.scss";
 import NodeCanvas from "../NodeCanvas/NodeCanvas";
 import Socket from "../Link/Socket/Socket";
-import NodeCore, { NodeCoreProps } from "./NodeCore/NodeCore";
-import { DragData } from "../Draggable/DraggableCore";
+import { NodeCoreProps } from "./NodeCore/NodeCore";
 import { XYCoords } from "../utils/types";
+
+import "./Node.scss";
 
 export type NodeProps = {
     canvas: NodeCanvas;
@@ -67,13 +66,7 @@ export default class Node extends PureComponent<NodeProps & NodeCoreProps, NodeS
 
         const { canvas } = this.props;
 
-        const position = this.position;
-        console.log(position, socket.center, canvas.offset);
-        const [nodeX, nodeY] = position;
-        const [x, y] = socket.center;
-        const [offsetX, offsetY] = [0, 0];//canvas.offset;
-        canvas.addTest([nodeX + x - offsetX, nodeY + y - offsetY]);
-
+        canvas.addLink(socket.center, [e.clientX, e.clientY]);
     }
 
     private renderFooter = (toggleFooter: Function) : JSX.Element | null => {
