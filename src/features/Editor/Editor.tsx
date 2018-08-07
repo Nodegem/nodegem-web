@@ -42,7 +42,6 @@ class Editor extends PureComponent<CombinedProps> {
     private _canvas: NodeCanvas;
 
     private canvasInputFilter = (): boolean => {
-        this._canvas.addLink();
         if (d3.event.button === 1) {
             d3.event.preventDefault();
         }

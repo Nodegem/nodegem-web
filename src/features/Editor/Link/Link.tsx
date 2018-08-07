@@ -7,6 +7,7 @@ import Output from "../Node/IO/Output/Output";
 import ReactDOM from "react-dom";
 import { addEvent, removeEvent } from "../Draggable/utils";
 import { getPosition } from "../utils";
+import Draggable from "../Draggable/Draggable";
 
 export type LinkProps = {
     anchor: IOBase | XYCoords;
@@ -49,46 +50,6 @@ export default class Link extends PureComponent<CombinedProps, LinkState> {
             drawing: props.drawDefault || true,
             destCoords: [NaN, NaN]
         };
-    }
-
-    componentDidMount() {
-        const thisNode = ReactDOM.findDOMNode(this);
-        if(thisNode) {
-            const { ownerDocument } = thisNode;
-            addEvent(ownerDocument, "mousemove", this.onDrawing);
-            addEvent(ownerDocument, "mousedown", this.onDrawStop);
-        }
-    }
-
-    componentWillUnmount() {
-        this.removeEventHandlers();
-    }
-
-    private removeEventHandlers = () : void => {
-        const thisNode = ReactDOM.findDOMNode(this);
-        if(thisNode) {
-            const { ownerDocument } = thisNode;
-            removeEvent(ownerDocument, "mousemove", this.onDrawing);
-            removeEvent(ownerDocument, "mousedown", this.onDrawStop);
-        }
-    }
-
-    public placeLink = () : void => {
-
-    }
-
-    private onDrawing = (e: MouseEvent) : void => {
-
-        if(!this.state.drawing) return;
-
-        const position = getPosition(e, ReactDOM.findDOMNode(this) as HTMLElement);   
-        this.setState({
-            destCoords: position
-        });
-    }
-
-    private onDrawStop = (e: MouseEvent) : void => {
-        this.removeEventHandlers();
     }
 
     public render() {

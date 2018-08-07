@@ -14,7 +14,7 @@ export type SocketProps = {
     io: IOBase;
     style?: SocketCSSProps;
     className?: string;
-    onToggle: (toggleFunc: Function) => void;
+    onClick: (e: MouseEvent, socket: Socket) => void;
     onHover?: (socket: Socket) => void;
     onBlur?: (socket: Socket) => void;
 };
@@ -60,14 +60,19 @@ export default class Socket extends PureComponent<SocketProps, SocketState> {
         this.props.onBlur!(this);
     }
 
-    private toggleSelected = () => {
+    public toggle = () => {
         this.setState({selected: !this.state.selected});
+    }
+
+    private onClick = (e) => {
+        const { onClick } = this.props;
+        onClick(e, this);
     }
 
     public render() {
 
         const { selected, hovering } = this.state;
-        const { className, style, onToggle } = this.props;
+        const { className, style } = this.props;
 
         const socketClass = classNames({
             "socket": true,
@@ -83,7 +88,7 @@ export default class Socket extends PureComponent<SocketProps, SocketState> {
 
         return (
             <a ref={(c) => this._socket = c!} className={socketClass} style={combinedStyles} 
-                onClick={() => onToggle(this.toggleSelected)} onMouseEnter={this.onMouseEnter} 
+                onClick={this.onClick} onMouseEnter={this.onMouseEnter} 
                 onMouseLeave={this.onMouseLeave} onMouseOver={this.onMouseHover} />
         );
     }

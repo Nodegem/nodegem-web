@@ -5,6 +5,7 @@ import ReactDOM from "react-dom";
 import { createSVGTransform } from "./utils/positionUtils";
 import { createDragData } from "./utils/dataUtils";
 import { findParentWithTransform, parseTransform } from "./utils";
+import { XYCoords } from "../utils/types";
 
 export type AxisOptions = 'both' | 'x' | 'y' | 'none';
 
@@ -37,6 +38,10 @@ export default class Draggable extends PureComponent<DraggableProps & DraggableC
         if(containerSVG === false) return 1;
         const transform = containerSVG.getAttribute("transform");
         return parseTransform(transform).scale[0];
+    }
+
+    get position() : Vector2 {
+        return this.state.position;
     }
 
     constructor(props : DraggableProps & DraggableCoreProps) {

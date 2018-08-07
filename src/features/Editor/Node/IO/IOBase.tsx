@@ -7,7 +7,7 @@ export default abstract class IOBase extends PureComponent<IOProps & IOCoreProps
     static defaultProps : Partial<IOProps & IOCoreProps> = {
         onHover: () => {},
         onBlur: () => {},
-        onToggle: (t) => t(),
+        onSocketClick: () => {},
         onSocketHover: () => {},
         onSocketBlur: () => {},
         onClick: () => {}
@@ -29,6 +29,10 @@ export default abstract class IOBase extends PureComponent<IOProps & IOCoreProps
 
     protected onSocketBlur = (socket: Socket) : void => {
         this.props.onSocketHover!(socket, this);
+    }
+
+    protected onSocketClick = (e: MouseEvent, socket: Socket) : void => {
+        this.props.onSocketClick!(e, socket);
     }
 
     protected onClick = (e: MouseEvent, io: IOCore) : void => {

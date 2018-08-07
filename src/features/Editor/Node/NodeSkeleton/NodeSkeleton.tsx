@@ -40,13 +40,20 @@ export default class NodeSkeleton extends PureComponent<NodeSkeletonProps & Node
         showFooter: this.props.showFooterByDefault!
     }
 
+    private _nodeCore : NodeCore;
+
+    get position() : XYCoords {
+        return this._nodeCore.position;
+    }
+
     private toggleFooter = () => {
         this.setState({showFooter: !this.state.showFooter});
     }
 
     public render() {
 
-        const { size, title, body, footer, expandSize, handle, contentStyles, position } = this.props;
+        const { size, title, body, footer, expandSize,
+            handle, contentStyles, position, onDrag, onDragStop, onDragStart } = this.props;
         const { showFooter } = this.state;
 
         let [width, height] = size;
@@ -55,7 +62,7 @@ export default class NodeSkeleton extends PureComponent<NodeSkeletonProps & Node
         }
 
         return (
-            <NodeCore position={position} size={[width, height]} handle={handle}>
+            <NodeCore ref={(n) => this._nodeCore = n!} position={position} size={[width, height]} handle={handle} onDrag={onDrag} onDragStart={onDragStart} onDragStop={onDragStop}>
                 <div className="title" style={contentStyles!.title} >
                     {isFunction(title) ? title(this.toggleFooter, showFooter) : title}
                 </div>

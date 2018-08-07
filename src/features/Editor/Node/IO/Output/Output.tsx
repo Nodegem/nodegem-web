@@ -9,12 +9,12 @@ export default class Output extends IOBase {
 
     public render() {
 
-        const { label, className, onToggle } = this.props
+        const { label, className, onSocketClick } = this.props
 
         return (
             <IOCore type="output" className={className} onBlur={this.onBlur} onHover={this.onHover} onClick={this.onClick}>
                 <span className="label">{label}</span>
-                <Socket ref={(s:Socket) => this.socket = s} io={this} onBlur={this.onSocketBlur} onHover={this.onSocketHover} onToggle={(t) => onToggle!(t)} />
+                <Socket ref={(s:Socket) => this.socket = s} io={this} onBlur={this.onSocketBlur} onHover={this.onSocketHover} onClick={this.onSocketClick} />
             </IOCore>
         )
     }

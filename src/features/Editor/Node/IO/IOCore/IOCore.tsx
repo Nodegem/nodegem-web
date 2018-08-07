@@ -13,7 +13,7 @@ export type IOOption = Input | Output | IOBase;
 export type IOProps = {
     label: JSX.Element | string;
     node: Node;
-    onToggle?: (toggle: Function) => void;
+    onSocketClick?: (e: MouseEvent, socket: Socket) => void;
     onClick?: (e: MouseEvent, io: IOBase) => void;
     onHover?: (io: IOBase, core: IOCore) => void;
     onBlur?: (io: IOBase, core: IOCore) => void;
