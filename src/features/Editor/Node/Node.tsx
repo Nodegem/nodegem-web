@@ -4,8 +4,10 @@ import Input from "./IO/Input/Input";
 import Output from "./IO/Output/Output";
 import NodeCanvas from "../NodeCanvas/NodeCanvas";
 import Socket from "../Link/Socket/Socket";
-import { NodeCoreProps } from "./NodeCore/NodeCore";
+import NodeCore, { NodeCoreProps } from "./NodeCore/NodeCore";
 import { XYCoords } from "../utils/types";
+import Link from "../Link/Link";
+import { DragData } from "../Draggable/DraggableCore";
 
 import "./Node.scss";
 
@@ -65,8 +67,13 @@ export default class Node extends PureComponent<NodeProps & NodeCoreProps, NodeS
     private onSocketClick = (e: MouseEvent, socket: Socket) : void => {
 
         const { canvas } = this.props;
+        const {clientX, clientY} = e;
 
-        canvas.addLink(socket.center, [e.clientX, e.clientY]);
+        canvas.addLink({source: socket, destination: [clientX, clientY], color: "blue", onMouseDown: this.onLinkDown});
+    }
+
+    private onLinkDown = (canvasCoords: XYCoords, link: Link) : void => {
+        link.stopDraw();
     }
 
     private renderFooter = (toggleFooter: Function) : JSX.Element | null => {
@@ -75,13 +82,16 @@ export default class Node extends PureComponent<NodeProps & NodeCoreProps, NodeS
         );
     }
 
+    private onNodeMove = (core: NodeCore, e: MouseEvent, data: DragData) => {
+    }
+
     public render() {
 
         const { size, position } = this.props;
 
         return (
             <NodeSkeleton ref={(n) => this._node = n!} position={position} size={size} title={this.renderTitle} body={this.renderBody} 
-                footer={this.renderFooter} contentStyles={nodeStyles} expandSize={100}
+                footer={this.renderFooter} contentStyles={nodeStyles} expandSize={100} onDrag={this.onNodeMove}
             />
         )
     }
