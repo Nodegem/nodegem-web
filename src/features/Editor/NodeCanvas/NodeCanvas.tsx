@@ -62,7 +62,7 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
                     })}
                 </g>
                 <g id="_node-container">
-                    <Node canvas={this} size={[200, 200]} inputs={[]} outputs={[]} />
+                    <Node canvas={this} size={[200, 200]} inputs={[{}]} outputs={[{}]} />
                 </g>
             </Canvas>
         );

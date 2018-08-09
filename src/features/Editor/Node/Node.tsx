@@ -50,14 +50,31 @@ export default class Node extends PureComponent<NodeProps & NodeCoreProps, NodeS
     }
 
     private renderBody = (toggleFooter: Function) : JSX.Element | null => {
+
+        const { inputs, outputs } = this.props;
+        const hasInputs = inputs.length > 0;
+        const hasOutputs = outputs.length > 0;
+
         return (
             <div className="IO">
-                <div className="inputs">
-                    <Input node={this} ref={(i : Input) => this.inputs.push(i)} label="input" onSocketClick={this.onSocketClick} />
-                </div>
-                <div className="outputs">
-                    <Output node={this} label="output" onSocketClick={this.onSocketClick} />
-                </div>
+                { hasInputs && 
+                    (
+                        <div className="inputs">
+                            {inputs.map((x, index) =>
+                                <Input node={this} key={index} ref={(i : Input) => this.inputs.push(i)} label="input" onSocketClick={this.onSocketClick} />
+                            )}
+                        </div>
+                    )
+                }
+                { hasOutputs && 
+                    (
+                        <div className="outputs">
+                            {outputs.map((x, index) => 
+                                <Output node={this} key={index} label="output" onSocketClick={this.onSocketClick} />
+                            )}
+                        </div>
+                    )
+                }
             </div>
         );
     }
