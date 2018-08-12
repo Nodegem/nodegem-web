@@ -1,8 +1,7 @@
 import React, { PureComponent } from "react";
 import Canvas, { CanvasProps } from "../Canvas/Canvas";
-import Node from '../Node/Node';
-import Link from "../Link/Link";
-import Socket from "../Link/Socket/Socket";
+import Node, { NodeProps } from '../Node/Node';
+import Link, { LinkProps } from "../Link/Link";
 import { XYCoords } from "../utils/types";
 
 import "./NodeCanvas.scss";
@@ -11,14 +10,9 @@ export type NodeCanvasProps = {
 
 }
 
-type test = {
-    startPos: XYCoords;
-    destPos: XYCoords;
-}
-
 export type NodeCanvasState = {
-    nodes: {}[];
-    links: test[];
+    nodes: Omit<NodeProps, "canvas" | "inputs" | "outputs">[];
+    links: LinkProps[];
 }
 
 export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasProps, NodeCanvasState> {
@@ -26,11 +20,20 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
     private _canvas : Canvas;
 
     state = {
-        nodes: [],
+        nodes: [
+            {
+                inputs: [{}],
+                outputs: [{}]
+            },
+            {
+                inputs: [{}],
+                outputs: [{}]
+            }
+        ],
         links: []
     }
 
-    public convertCoords = (coords: XYCoords) : XYCoords => {
+    public toCanvasCoords = (coords: XYCoords) : XYCoords => {
         return this._canvas.svgPoint(this._canvas.container, coords);
     }
 
@@ -38,14 +41,22 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
         this._canvas.reset();
     }
 
-    public addLink = (s: XYCoords, d: XYCoords) : void => {
+    public addLink = (props: Omit<LinkProps, "canvas">) : void => {
         //TODO
         this.setState(prevState => ({
-            links: [...prevState.links, {startPos: s, destPos: d}]
+            links: [...prevState.links, {...props as LinkProps}]
         }));
     }
 
+    public deleteLink = () : void => {
+        //TODO
+    }
+
     public addNode = () : void => {
+        //TODO
+    }
+
+    public deleteNode = () : void => {
         //TODO
     }
 
@@ -57,12 +68,14 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
         return (
             <Canvas ref={(c: Canvas) => this._canvas = c} {...rest}>
                 <g id="_link-container">
-                    {links.map((l: test, index) => {
-                        return <Link canvas={this} key={index} startPos={l.startPos} destPos={l.destPos} color="red"/>
+                    {links.map((l: LinkProps, index) => {
+                        return <Link canvas={this} key={index} {...l} />
                     })}
                 </g>
                 <g id="_node-container">
-                    <Node canvas={this} size={[200, 200]} inputs={[{}]} outputs={[{}]} />
+                    {nodes.map((n: NodeProps, index) => {
+                        return <Node canvas={this} key={index} size={[200, 200]} position={[200 + (index * 400), 250 + (index * 200)]} {...n} />
+                    })}
                 </g>
             </Canvas>
         );

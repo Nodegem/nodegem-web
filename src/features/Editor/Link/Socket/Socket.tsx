@@ -4,6 +4,7 @@ import { XYCoords } from "../../utils/types";
 import IOBase from "../../Node/IO/IOBase";
 
 import "./Socket.scss";
+import Link from "../Link";
 
 export type SocketCSSProps = {
     socket: CSSProperties,
@@ -45,6 +46,11 @@ export default class Socket extends PureComponent<SocketProps, SocketState> {
     }
 
     private _socket : Element;
+    private _link : Link | null;
+
+    public get link() : Link | null {
+        return this._link;
+    }
 
     private onMouseEnter = () => {
         this.setState({hovering: true});
@@ -67,6 +73,11 @@ export default class Socket extends PureComponent<SocketProps, SocketState> {
     private onClick = (e) => {
         const { onClick } = this.props;
         onClick(e, this);
+    }
+
+    public setLink = (link: Link | null) => {
+        this._link = link;
+        this.setState({selected: !!link});
     }
 
     public render() {
