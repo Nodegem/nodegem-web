@@ -1,21 +1,61 @@
-import React from "react";
-import IOCore from "../IOCore/IOCore";
-import Socket from "../../../Link/Socket/Socket";
-import IOBase from "../IOBase";
+import React, {PureComponent} from "react";
 
 import './Output.scss';
+import classNames from "classnames";
 
-export default class Output extends IOBase {
+export type OutputProps = {
+    name: string;
+    onMouseDown?: (e: React.MouseEvent) => void;
+}
+
+export type OutputState = {
+    hover: boolean;
+}
+
+export default class Output extends React.PureComponent<OutputProps, OutputState> {
+
+    state = {
+        hover: false
+    }
+
+    static defaultProps = {
+        onMouseDown: () => {}
+    }
+
+    private handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        this.props.onMouseDown!(e);
+    }
 
     public render() {
 
-        const { label, className, onSocketClick } = this.props
+        const { name } = this.props;
+        const { hover } = this.state;
+
+        const socketClassName = classNames({
+            "socket": true,
+            "hover": hover
+        });
+
+        const outputClassName = classNames({
+            "output": true,
+            "hover": hover
+        });
+
+        const labelClassName = classNames({
+            "label": true,
+            "hover": hover
+        });
 
         return (
-            <IOCore type="output" className={className} onBlur={this.onBlur} onHover={this.onHover} onClick={this.onClick}>
-                <span className="label">{label}</span>
-                <Socket ref={(s:Socket) => this.socket = s} io={this} onBlur={this.onSocketBlur} onHover={this.onSocketHover} onClick={this.onSocketClick} />
-            </IOCore>
+            <li className="node-output" onMouseDown={this.handleClick}>
+               <a className={outputClassName} href="#" onClick={this.handleClick}>
+                    <span className={labelClassName}>{name}</span>
+                    <i className={socketClassName} />
+                </a>
+            </li>
         )
     }
 

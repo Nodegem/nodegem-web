@@ -1,16 +1,10 @@
-.node-io {
-    &.output {
-        display: inherit;
-        justify-content: flex-end;
-        width: 100%;
-        padding: 3px 0;
+li.node-output {
+    display: inline-flex;
+    justify-content: flex-end;
+    width: 100%;
+    padding: 3px 0;
 
-        .label {
-            margin-right: 8px;
-        }
-
-        .socket {
-            margin-top: 2px;
-        }
+    .label {
+        margin-right: 8px;
     }
 }

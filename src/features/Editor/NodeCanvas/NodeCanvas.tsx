@@ -1,7 +1,7 @@
 import React, { PureComponent } from "react";
 import Canvas, { CanvasProps } from "../Canvas/Canvas";
 import Node, { NodeProps } from '../Node/Node';
-import Link, { LinkProps } from "../Link/Link";
+import Spline, { SplineProps } from "../Spline/Spline";
 import { XYCoords } from "../utils/types";
 
 import "./NodeCanvas.scss";
@@ -11,8 +11,9 @@ export type NodeCanvasProps = {
 }
 
 export type NodeCanvasState = {
-    nodes: Omit<NodeProps, "canvas" | "inputs" | "outputs">[];
-    links: LinkProps[];
+    nodes: {}[];
+    links: SplineProps[];
+    dragging: boolean;
 }
 
 export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasProps, NodeCanvasState> {
@@ -26,15 +27,18 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
     state = {
         nodes: [
             {
-                inputs: [{}],
-                outputs: [{}]
+                title: "test",
+                inputs: [{name: "input"}],
+                outputs: [{name: "output"}]
             },
             {
-                inputs: [{}],
-                outputs: [{}]
+                title: "test 2",
+                inputs: [{name: "input"}],
+                outputs: [{name: "output"}]
             }
         ],
-        links: []
+        links: [],
+        dragging: true
     }
 
     public toCanvasCoords = (coords: XYCoords) : XYCoords => {
@@ -45,43 +49,27 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
         this._canvas.reset();
     }
 
-    public addLink = (props: Omit<LinkProps, "canvas" | "id">) : void => {
-        //TODO
-        this.setState(prevState => ({
-            links: [...prevState.links, {...props as LinkProps}]
-        }));
-    }
-
-    public deleteLink = (link: Link) : void => {
-        //TODO
-        this.setState(prevState => ({
-            links: prevState.links.filter(((x, index) => index !== link.props.id))
-        }));
-    }
-
-    public addNode = () : void => {
-        //TODO
-    }
-
-    public deleteNode = () : void => {
-        //TODO
-    }
-
     public render() {
 
         const { ...rest } = this.props;
-        const { nodes, links } = this.state;
+        const { nodes, links, dragging } = this.state;
+        let newConnector : JSX.Element | null = null;
+
+        if(dragging) {
+            newConnector = (<Spline start={[50, 50]} end={[500, 500]}  />);
+        }
 
         return (
             <Canvas ref={(c: Canvas) => this._canvas = c} {...rest}>
                 <g id="_link-container">
-                    {links.map((l: LinkProps, index) => {
-                        return <Link canvas={this} id={index} key={index} {...l} />
+                    {links.map((l: SplineProps, index) => {
+                        return <Spline key={index} {...l} />
                     })}
+                    {newConnector}
                 </g>
                 <g id="_node-container">
                     {nodes.map((n: NodeProps, index) => {
-                        return <Node canvas={this} key={index} size={[200, 200]} position={[200 + (index * 400), 250 + (index * 200)]} {...n} />
+                        return <Node key={index} size={[200, 200]} position={[200 + (index * 400), 250 + (index * 200)]} {...n} />
                     })}
                 </g>
             </Canvas>

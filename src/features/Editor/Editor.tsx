@@ -25,14 +25,14 @@ const EDITOR_KEY_MAP = {
     [EDITOR_KEY_COMMANDS.FULLSCREEN]: "ctrl+shift+space"
 }
 
-const canvasPattern = (
+const canvasPattern = (size: number) => (
     <g>
         <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
             <path d="M 8 0 L 0 0 0 8" fill="none" stroke="lightgray" strokeWidth="0.5" />
         </pattern>
-        <pattern id="grid" width="200" height="200" patternUnits="userSpaceOnUse">
-            <rect width="200" height="200" fill="url(#smallGrid)" />
-            <path d="M 200 0 L 0 0 0 200" fill="none" stroke="gray" strokeWidth=".5" />
+        <pattern id="grid" width={size} height={size} patternUnits="userSpaceOnUse">
+            <rect width={size} height={size} fill="url(#smallGrid)" />
+            <path d={`M ${size} 0 L 0 0 0 ${size}`} fill="none" stroke="gray" strokeWidth=".5" />
         </pattern>
     </g>
 )
@@ -59,7 +59,7 @@ class Editor extends PureComponent<CombinedProps> {
 
         return (
             <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={{ flex: 1, flexDirection: "column", display: "flex" }} focused>
-                <NodeCanvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern}
+                <NodeCanvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern(200)}
                     fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={zoomRange} />
             </HotKeys>
         )

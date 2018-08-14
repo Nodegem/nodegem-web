@@ -1,13 +1,11 @@
 import React, { PureComponent, CSSProperties } from "react";
 import Draggable, { AxisOptions } from "../../Draggable/Draggable";
 import classNames from 'classnames';
-import { addEvent, removeEvent } from "../../Draggable/utils";
-import ReactDOM from "react-dom";
-import { nodeMatchesOrWithinParent } from "../../utils";
 import { DragData } from "../../Draggable/DraggableCore";
 import { XYCoords } from "../../utils/types";
 
 import "./NodeCore.scss";
+import onClickOutside, { InjectedOnClickOutProps, HandleClickOutside } from "react-onclickoutside";
 
 export type NodeCoreProps = {
     size: [number, number];
@@ -32,7 +30,9 @@ export type NodeCoreState = {
     hovering: boolean;
 }
 
-export default class NodeCore extends PureComponent<NodeCoreProps, NodeCoreState> {
+type CombineProps = NodeCoreProps & InjectedOnClickOutProps;
+
+class NodeCore extends PureComponent<CombineProps, NodeCoreState> implements HandleClickOutside<any> {
 
     state = {
         dragging: false,
@@ -40,7 +40,7 @@ export default class NodeCore extends PureComponent<NodeCoreProps, NodeCoreState
         hovering: false
     }
 
-    static defaultProps = {
+    static defaultProps : Partial<NodeCoreProps> = {
         onFocus: () => {},
         onBlur: () => {},
         onHover: () => {},
@@ -60,14 +60,6 @@ export default class NodeCore extends PureComponent<NodeCoreProps, NodeCoreState
         return [x, y];
     }
 
-    componentWillUnmount() {
-        const thisNode = ReactDOM.findDOMNode(this);
-        if(thisNode) {
-            const { ownerDocument } = thisNode;
-            removeEvent(ownerDocument, "mouseup", this.onOutOfFocus);
-        }
-    }
-
     private onEnter = () : void => {
         this.setState({hovering: true});
         this.props.onHover!(this);
@@ -81,28 +73,13 @@ export default class NodeCore extends PureComponent<NodeCoreProps, NodeCoreState
     }
 
     private onMouseDown = (e: MouseEvent) => {
-
         this.setState({focused: true});
         this.props.onFocus!(this);
-
-        const thisNode = ReactDOM.findDOMNode(this);
-        if(thisNode) {
-            const {ownerDocument} = thisNode;
-            addEvent(ownerDocument, "mousedown", this.onOutOfFocus)
-        }
     }
 
-    private onOutOfFocus= (e: MouseEvent) => {
-        const thisNode = ReactDOM.findDOMNode(this);
-        if(thisNode && e.target) {
-            const {ownerDocument} = thisNode;
-            if(!nodeMatchesOrWithinParent(thisNode, e.target as Node)) {
-                this.setState({focused: false});
-                removeEvent(ownerDocument, "mousedown", this.onOutOfFocus);
-
-                this.props.onBlur!(this);
-            }
-        }
+    handleClickOutside = (event: React.MouseEvent<any>) : void => {
+        this.setState({focused: false});
+        this.props.onBlur!(this);
     }
 
     private onDragStart = (e: MouseEvent, data: DragData) : void | false => {
@@ -155,3 +132,5 @@ export default class NodeCore extends PureComponent<NodeCoreProps, NodeCoreState
     }
 
 }
+
+export default onClickOutside(NodeCore);

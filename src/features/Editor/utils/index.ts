@@ -24,6 +24,10 @@ export const getPosition = (e: MouseEvent, node: HTMLElement) : XYCoords => {
     return offsetXYFromParent(e, offsetParent);
 }
 
+export const distance = (from: XYCoords, to: XYCoords) : number => {
+    return Math.sqrt( Math.pow(to[0] - from[0], 2) + Math.pow(to[1] - from[1], 2) );
+}
+
 export class Guid {
     static newGuid() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
