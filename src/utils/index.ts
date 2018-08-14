@@ -21,3 +21,15 @@ const convertCommand = (command: string) : string => {
     
     return command;
 }
+
+export const findReactComponent = <T extends React.Component>(el : Element) : T | null => {
+    //Figure out faster & efficient way of retrieving this was with parent / children traversal
+    for (const key in el) {
+      if (key.startsWith('__reactInternalInstance$')) {
+        const fiberNode = el[key];
+  
+        return (fiberNode && fiberNode.return && fiberNode.return.stateNode) as T;
+      }
+    }
+    return null;
+  };

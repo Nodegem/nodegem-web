@@ -28,6 +28,7 @@ export default class Canvas extends PureComponent<CanvasProps> {
     }
 
     private _svg : SVGSVGElement;
+    private _rect : SVGRectElement;
     public container : SVGGElement;
     private _zoom : ZoomBehavior<Element, {}>;
 
@@ -86,6 +87,10 @@ export default class Canvas extends PureComponent<CanvasProps> {
             .call(this._zoom!.transform, d3.zoomIdentity.translate(x, y).scale(scale));
     }
 
+    public isElementCanvas = (element: Element) : boolean => {
+        return element === this._svg || element === this._rect;
+    }
+
     public render() {
 
         const { pattern, className, size, color, 
@@ -107,7 +112,7 @@ export default class Canvas extends PureComponent<CanvasProps> {
                     {pattern}
                 </defs>
                 <g ref={(g) => this.container = g!} id="_canvas-view" transform={d3.zoomIdentity.toString()}>
-                    <rect x={-halfWidth} y={-halfHeight} 
+                    <rect ref={(r) => this._rect = r!} x={-halfWidth} y={-halfHeight} 
                             width={width} height={height} 
                             className="canvas-background" id="_canvas-background" 
                             style={{ fill: (fillId ? `url("${fillId}")` : "none"), backgroundColor: color }} />

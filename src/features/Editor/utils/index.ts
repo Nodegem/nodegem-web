@@ -1,4 +1,5 @@
 import { XYCoords } from './types.d';
+import { findReactComponent } from '../../../utils';
 
 export const nodeMatchesOrWithinParent = (base: Node, compare: Node) : boolean => {
     let currentNode = compare;
@@ -21,4 +22,8 @@ const offsetXYFromParent = (evt: { clientX: number, clientY: number }, offsetPar
 export const getPosition = (e: MouseEvent, node: HTMLElement) : XYCoords => {
     const offsetParent = node.offsetParent || node.ownerDocument.body;
     return offsetXYFromParent(e, offsetParent);
+}
+
+export const convertTargetToComponent = <T extends React.Component>(e: MouseEvent) : T | null => {
+    return findReactComponent<T>(e.target as Element);
 }

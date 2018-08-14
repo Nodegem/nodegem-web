@@ -3,11 +3,8 @@ import NodeSkeleton, { NodeContentStyles } from "./NodeSkeleton/NodeSkeleton";
 import Input from "./IO/Input/Input";
 import Output from "./IO/Output/Output";
 import NodeCanvas from "../NodeCanvas/NodeCanvas";
-import Socket from "../Link/Socket/Socket";
-import NodeCore, { NodeCoreProps } from "./NodeCore/NodeCore";
+import { NodeCoreProps } from "./NodeCore/NodeCore";
 import { XYCoords } from "../utils/types";
-import Link from "../Link/Link";
-import { DragData } from "../Draggable/DraggableCore";
 
 import "./Node.scss";
 
@@ -63,7 +60,7 @@ export default class Node extends PureComponent<NodeProps & NodeCoreProps, NodeS
                     (
                         <div className="inputs">
                             {inputs.map((x, index) =>
-                                <Input node={this} key={index} ref={(i : Input) => this.inputs.push(i)} label="input" onSocketClick={this.onSocketClick} />
+                                <Input node={this} key={index} ref={(i : Input) => this.inputs.push(i)} label="input" />
                             )}
                         </div>
                     )
@@ -72,7 +69,7 @@ export default class Node extends PureComponent<NodeProps & NodeCoreProps, NodeS
                     (
                         <div className="outputs">
                             {outputs.map((x, index) => 
-                                <Output node={this} key={index} label="output" onSocketClick={this.onSocketClick} />
+                                <Output node={this} key={index} label="output" />
                             )}
                         </div>
                     )
@@ -81,25 +78,10 @@ export default class Node extends PureComponent<NodeProps & NodeCoreProps, NodeS
         );
     }
 
-    private onSocketClick = (e: MouseEvent, socket: Socket) : void => {
-
-        const { canvas } = this.props;
-        const {clientX, clientY} = e;
-
-        canvas.addLink({source: socket, destination: [clientX, clientY], color: "blue", onMouseDown: this.onLinkDown});
-    }
-
-    private onLinkDown = (canvasCoords: XYCoords, link: Link) : void => {
-        link.stopDraw();
-    }
-
     private renderFooter = (toggleFooter: Function) : JSX.Element | null => {
         return (
             null
         );
-    }
-
-    private onNodeMove = (core: NodeCore, e: MouseEvent, data: DragData) => {
     }
 
     public render() {
@@ -108,7 +90,7 @@ export default class Node extends PureComponent<NodeProps & NodeCoreProps, NodeS
 
         return (
             <NodeSkeleton ref={(n) => this._node = n!} position={position} size={size} title={this.renderTitle} body={this.renderBody} 
-                footer={this.renderFooter} contentStyles={nodeStyles} expandSize={100} onDrag={this.onNodeMove}
+                footer={this.renderFooter} contentStyles={nodeStyles} expandSize={100}
             />
         )
     }

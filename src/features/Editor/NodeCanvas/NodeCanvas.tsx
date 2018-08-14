@@ -19,6 +19,10 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
 
     private _canvas : Canvas;
 
+    public get baseCanvas() : Canvas {
+        return this._canvas;
+    }
+
     state = {
         nodes: [
             {
@@ -41,15 +45,18 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
         this._canvas.reset();
     }
 
-    public addLink = (props: Omit<LinkProps, "canvas">) : void => {
+    public addLink = (props: Omit<LinkProps, "canvas" | "id">) : void => {
         //TODO
         this.setState(prevState => ({
             links: [...prevState.links, {...props as LinkProps}]
         }));
     }
 
-    public deleteLink = () : void => {
+    public deleteLink = (link: Link) : void => {
         //TODO
+        this.setState(prevState => ({
+            links: prevState.links.filter(((x, index) => index !== link.props.id))
+        }));
     }
 
     public addNode = () : void => {
@@ -69,7 +76,7 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
             <Canvas ref={(c: Canvas) => this._canvas = c} {...rest}>
                 <g id="_link-container">
                     {links.map((l: LinkProps, index) => {
-                        return <Link canvas={this} key={index} {...l} />
+                        return <Link canvas={this} id={index} key={index} {...l} />
                     })}
                 </g>
                 <g id="_node-container">
