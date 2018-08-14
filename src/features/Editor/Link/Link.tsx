@@ -6,9 +6,10 @@ import { addEvent, removeEvent } from "../Draggable/utils";
 import NodeCanvas from "../NodeCanvas/NodeCanvas";
 import Socket from "./Socket/Socket";
 
-type LinkEventHandler = (canvasCoords: XYCoords, link: Link) => void | false;
+type LinkEventHandler = (canvasCoords: XYCoords, event: MouseEvent, link: Link) => void | false;
 
 export type LinkProps = {
+    id: number; //Temp
     canvas: NodeCanvas;
     source: Socket;
     destination: Socket | XYCoords;
@@ -75,6 +76,7 @@ export default class Link extends PureComponent<CombinedProps, LinkState> {
     }
 
     componentWillUnmount() {
+        this.props.source.setLink(null);
         this.stopDraw();
     }
 
@@ -139,18 +141,27 @@ export default class Link extends PureComponent<CombinedProps, LinkState> {
         if(!this.state.drawing) return;
 
         const coords = this.getConvertedMouseCoords(e);
-        const shouldMove = this.props.onDraw!(coords, this);
+        const shouldMove = this.props.onDraw!(coords, e, this);
         if(shouldMove === false) return;
 
         this.setState({destPos: coords})
     }
 
     onMouseUp = (e: MouseEvent) => {
-        this.props.onMouseUp!(this.getConvertedMouseCoords(e), this);
+        this.props.onMouseUp!(this.getConvertedMouseCoords(e), e, this);
     }
 
     onMouseDown = (e: MouseEvent) => {
-        this.props.onMouseDown!(this.getConvertedMouseCoords(e), this);
+
+        const {canvas} = this.props;
+        const linkElement = ReactDOM.findDOMNode(this);
+
+        if(e.target === linkElement || canvas.baseCanvas.isElementCanvas(e.target as Element)) {
+            canvas.deleteLink(this);
+            return;
+        }
+
+        this.props.onMouseDown!(this.getConvertedMouseCoords(e), e, this);
     }
 
     public render() {

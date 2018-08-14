@@ -12,17 +12,18 @@
         .IO {
             flex: inherit;
             display: inherit;
+            flex-direction: row;
 
             .inputs {
                 padding: 10px;
-                width: 50%;
+                width: 100%;
                 flex-direction: column;
             }
 
             .outputs {
+                width: 100%;
                 display: inherit;
                 padding: 10px;
-                width: 50%;
                 flex-direction: column;
             }
         }

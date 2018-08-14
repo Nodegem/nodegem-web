@@ -1,4 +1,5 @@
 import { XYCoords } from './types.d';
+import { findReactComponent } from '../../../utils';
 
 export const nodeMatchesOrWithinParent = (base: Node, compare: Node) : boolean => {
     let currentNode = compare;
@@ -30,4 +31,8 @@ export class Guid {
             return v.toString(16);
         });
     }
+}
+
+export const convertTargetToComponent = <T extends React.Component>(e: MouseEvent) : T | null => {
+    return findReactComponent<T>(e.target as Element);
 }

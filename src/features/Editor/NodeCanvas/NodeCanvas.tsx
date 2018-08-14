@@ -11,7 +11,7 @@ export type NodeCanvasProps = {
 }
 
 export type NodeCanvasState = {
-    nodes: NodeProps[];
+    nodes: Omit<NodeProps, "canvas" | "inputs" | "outputs">[];
     links: LinkProps[];
 }
 
@@ -19,8 +19,21 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
 
     private _canvas : Canvas;
 
+    public get baseCanvas() : Canvas {
+        return this._canvas;
+    }
+
     state = {
-        nodes: [],
+        nodes: [
+            {
+                inputs: [{}],
+                outputs: [{}]
+            },
+            {
+                inputs: [{}],
+                outputs: [{}]
+            }
+        ],
         links: []
     }
 
@@ -32,15 +45,18 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
         this._canvas.reset();
     }
 
-    public addLink = (props: Omit<LinkProps, "canvas">) : void => {
+    public addLink = (props: Omit<LinkProps, "canvas" | "id">) : void => {
         //TODO
         this.setState(prevState => ({
             links: [...prevState.links, {...props as LinkProps}]
         }));
     }
 
-    public deleteLink = () : void => {
+    public deleteLink = (link: Link) : void => {
         //TODO
+        this.setState(prevState => ({
+            links: prevState.links.filter(((x, index) => index !== link.props.id))
+        }));
     }
 
     public addNode = () : void => {
@@ -60,15 +76,13 @@ export default class NodeCanvas extends PureComponent<NodeCanvasProps & CanvasPr
             <Canvas ref={(c: Canvas) => this._canvas = c} {...rest}>
                 <g id="_link-container">
                     {links.map((l: LinkProps, index) => {
-                        return <Link canvas={this} key={index} {...l} />
+                        return <Link canvas={this} id={index} key={index} {...l} />
                     })}
                 </g>
                 <g id="_node-container">
                     {nodes.map((n: NodeProps, index) => {
-                        return <Node canvas={this} key={index} size={[200, 200]} {...n} />
+                        return <Node canvas={this} key={index} size={[200, 200]} position={[200 + (index * 400), 250 + (index * 200)]} {...n} />
                     })}
-                    <Node canvas={this} size={[200, 200]} position={[300, 200]} inputs={[]} outputs={[]} />
-                    <Node canvas={this} size={[200, 200]} position={[700, 400]} inputs={[]} outputs={[]} />
                 </g>
             </Canvas>
         );
