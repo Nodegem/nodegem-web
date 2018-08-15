@@ -7,7 +7,8 @@ import { circleO } from 'react-icons-kit/fa/circleO'
 import { XYCoords } from "../../../utils/types";
 
 export type OutputProps = {
-    name: string;
+    label: string;
+    id: string;
     socketSize?: number;
     onMouseDown?: (e: React.MouseEvent, output: Output) => void;
 }
@@ -43,7 +44,7 @@ export default class Output extends React.PureComponent<OutputProps, OutputState
 
     public render() {
 
-        const { name, socketSize } = this.props;
+        const { label, socketSize } = this.props;
         const { hover } = this.state;
 
         const socketClassName = classNames({
@@ -64,7 +65,7 @@ export default class Output extends React.PureComponent<OutputProps, OutputState
         return (
             <li className="node-output" onMouseDown={this.handleClick}>
                <a className={outputClassName} href="#" onClick={this.handleClick}>
-                    <span className={labelClassName}>{name}</span>
+                    <span className={labelClassName}>{label}</span>
                     <span ref={(i) => this._icon = i!} style={{display: "flex"}} className={socketClassName}>
                         <Icon  icon={circleO} size={socketSize} />
                     </span>

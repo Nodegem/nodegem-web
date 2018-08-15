@@ -8,7 +8,8 @@ import { circle } from 'react-icons-kit/fa/circle';
 import { XYCoords } from "../../../utils/types";
 
 export type InputProps = {
-    name: string;
+    label: string;
+    id: string;
     socketSize?: number;
     onClick?: (e: React.MouseEvent, input: Input) => void;
     onMouseUp?: (e: React.MouseEvent, input: Input) => void;
@@ -61,7 +62,7 @@ export default class Input extends React.PureComponent<InputProps, InputState> {
 
     public render() {
 
-        const { name, socketSize } = this.props;
+        const { label, socketSize } = this.props;
         const { hover } = this.state;
 
         const socketClassName = classNames({
@@ -85,7 +86,7 @@ export default class Input extends React.PureComponent<InputProps, InputState> {
                     <span style={{display: "flex"}} className={socketClassName} ref={(i) => this._icon = i!}>
                         <Icon size={socketSize} icon={hover ? circle : circleO} onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut} />
                     </span>
-                    <span className={labelClassName}>{name}</span>
+                    <span className={labelClassName}>{label}</span>
                 </a>
             </li>
         );

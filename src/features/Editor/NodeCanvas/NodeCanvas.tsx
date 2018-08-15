@@ -1,49 +1,37 @@
-import React, { PureComponent } from "react";
+import React, { Component } from "react";
 import Canvas, { CanvasProps } from "../Canvas/Canvas";
-import Node from '../Node/Node';
+import Node, { NodeMetaData } from '../Node/Node';
 import Spline from "../Spline/Spline";
 import { XYCoords } from "../utils/types";
 import { addEvent, removeEvent } from "../Draggable/utils";
 import Output from "../Node/IO/Output/Output";
 import Input from "../Node/IO/Input/Input";
 import update from 'immutability-helper';
+import { ConnectorData, CanvasData, NodeData } from "./types";
+import { distance } from '../utils';
 
 import "./NodeCanvas.scss";
 
-export type CanvasData = {
-    nodes: { [nodeId: string] : NodeData };
-    connectors: ConnectorData[];
-}
-
-export type NodeData = {
-    id: string;
-    title: string;
-    inputs: {name: string}[];
-    outputs: {name: string}[];
-    position: XYCoords;
-}
-
-export type ConnectorData = {
-    sourceNode: string;
-    endNode: string;
-}
-
 export type NodeCanvasProps = {
-
+    data: CanvasData;
 }
 
 export type NodeCanvasState = {
-    data: CanvasData;
+    nodes: { [nodeId: string] : NodeData };
+    connectors: ConnectorData[];
     dragging: boolean;
+    nodeDragging: boolean;
+    nodesRendered: boolean;
     position: XYCoords;
-    source: {nodeId: string, source: XYCoords};
+    source: {nodeId: string, sourceFieldId: string, position: XYCoords};
 }
 
 type CombineProps = NodeCanvasProps & CanvasProps;
 
-export default class NodeCanvas extends PureComponent<CombineProps, NodeCanvasState> {
+export default class NodeCanvas extends Component<CombineProps, NodeCanvasState> {
 
     private _canvas : Canvas;
+    private _nodes: {[nodeId: string]: Node};
 
     public get baseCanvas() : Canvas {
         return this._canvas;
@@ -53,27 +41,42 @@ export default class NodeCanvas extends PureComponent<CombineProps, NodeCanvasSt
         super(props);
 
         this.state = {
-            data: {
-                nodes: {
-                    "dsa": { id: "1", title: "goodbye", inputs: [{ name: "Input" }], outputs: [{name: "Output"}], position: [200, 200] },
-                    "thing": { id: "2", title: "hello", inputs: [{ name: "Input" }], outputs: [{name: "Output"}], position: [400, 550] }
-                },
-                connectors: []
-            },
+            nodes: props.data.nodes,
+            connectors: props.data.connectors,
             dragging: false,
+            nodeDragging: false,
+            nodesRendered: false,
             position: [0, 0],
-            source: {nodeId: "", source:[0, 0]}
+            source: {nodeId: "", sourceFieldId: "", position:[0, 0]}
         }
+
+        this._nodes = {};
     }
 
     componentDidMount() {
         addEvent(document, "mousemove", this.handleMouseMove);
         addEvent(document, "mouseup", this.handleMouseUp);
+
+        setTimeout(() => this.setState({nodesRendered: true}), 50);
     }
 
     componentWillUnmount() {
         removeEvent(document, "mousemove", this.handleMouseMove);
         removeEvent(document, "mouseup", this.handleMouseUp);
+    }
+
+    shouldComponentUpdate(nextProps : CombineProps, nextState : NodeCanvasState) : boolean {
+
+        const { nodeDragging, dragging } = this.state;
+
+        if((dragging || nodeDragging) && this.state.position !== nextState.position
+            || this.state.nodesRendered !== nextState.nodesRendered
+            || this.state.dragging !== nextState.dragging) 
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public toCanvasCoords = (coords: XYCoords) : XYCoords => {
@@ -89,7 +92,6 @@ export default class NodeCanvas extends PureComponent<CombineProps, NodeCanvasSt
         e.preventDefault();
 
         const {clientX, clientY} = e;
-
         this.setState({position: this.toCanvasCoords([clientX, clientY])});
     }
 
@@ -103,14 +105,16 @@ export default class NodeCanvas extends PureComponent<CombineProps, NodeCanvasSt
         if(dragging) {
 
             const { source } = this.state;
-            const destination = this.toCanvasCoords(input.anchorPoint);
-            const newConnector : ConnectorData = {sourceNode: source.nodeId, endNode: node.props.id};
+            const newConnector : ConnectorData = {
+                sourceNode: source.nodeId,
+                sourceFieldId: source.sourceFieldId,
+                endNode: node.props.id,
+                endFieldId: input.props.id
+            };
 
             const newState = update(this.state, {
-                data: {
-                    connectors: {
-                        $push: newConnector
-                    }
+                connectors: {
+                    $push: [newConnector]
                 }
             });
             this.setState(newState);
@@ -120,43 +124,78 @@ export default class NodeCanvas extends PureComponent<CombineProps, NodeCanvasSt
 
     private handleStartConnector = (e: React.MouseEvent, output: Output, node: Node) => {
         const sourcePos = this.toCanvasCoords(output.anchorPoint);
-        this.setState({dragging: true, source: {nodeId: node.props.id, source: sourcePos}});
+        this.setState({dragging: true, source: {nodeId: node.props.id, sourceFieldId: output.props.id, position: sourcePos}});
     }
 
-    private handleNodeMove = (e: React.MouseEvent, node: Node) => {
-        // this.setState({})
+    private handleNodeDragStart = (e: React.MouseEvent, node: Node, data: NodeMetaData) => {
     }
 
-    private getNodeById = (id: string) : NodeData => {
-        return this.state.data.nodes[id];
+    private handleNodeMove = (e: React.MouseEvent, node: Node, data: NodeMetaData) => {
+        const newNodeState = update(this.state.nodes, {
+            [node.props.id]: {
+                position: {
+                    $set: data.position
+                }
+            }
+        });
+        this.setState({
+            nodes: newNodeState,
+            nodeDragging: true
+        });
+    }
+
+    private handleNodeDragStop = (e: React.MouseEvent, node: Node, data: NodeMetaData) => {
+        this.setState({nodeDragging: false});
+    }
+
+    private getNodeById = (id: string) : Node => {
+        return this._nodes[id];
+    }
+
+    private getFieldPositionById = (nodeId: string, fieldId: string) : XYCoords => {
+        const node = this.getNodeById(nodeId);
+        return node.getFieldById(fieldId);
+    }
+
+    private splineTransform = (values: XYCoords[]) : XYCoords[] => {
+        const offset = 30;
+        const [startX, startY] = values[0];
+        const [endX, endY] = values[1];
+        return [
+            [startX, startY],
+            [startX + offset, startY],
+            [endX - offset, endY],
+            [endX, endY]
+        ];
     }
 
     public render() {
 
         const { ...rest } = this.props;
-        const { data, dragging, position, source } = this.state;
-        const { nodes, connectors } = data;
+        const { nodes, connectors, dragging, position, source, nodesRendered } = this.state;
 
         return (
             <Canvas ref={(c: Canvas) => this._canvas = c} {...rest}>
                 <g id="_link-container">
-                    {connectors.map((connector: ConnectorData, index: number) => {
-                        const start = this.getNodeById(connector.sourceNode).position;
-                        const end = this.getNodeById(connector.endNode).position;
-                        return <Spline key={index} start={start} end={end} />
-                    })}
+                    {nodesRendered && 
+                        connectors.map((connector: ConnectorData, index: number) => {
+                            const start = this.getFieldPositionById(connector.sourceNode, connector.sourceFieldId);
+                            const end = this.getFieldPositionById(connector.endNode, connector.endFieldId);
+                            return <Spline key={index} linkTransform={this.splineTransform} start={this.toCanvasCoords(start)} end={this.toCanvasCoords(end)} />
+                        })
+                    }
                     {dragging && (
-                        <Spline start={source.source} end={position} />
+                        <Spline start={source.position} end={position} linkTransform={this.splineTransform} />
                     )}
                 </g>
                 <g id="_node-container">
                     {Object.keys(nodes).map((key: string, index: number) => {
                         const node = nodes[key];
-                        return <Node key={index} size={[200, 200]}
+                        return <Node ref={(n: Node) => this._nodes[node.id] = n} key={index} size={[200, 200]}
                             onCompleteConnector={this.handleCompleteConnector} onStartConnector={this.handleStartConnector}
-                            onDrag={this.handleNodeMove}
+                            onDrag={this.handleNodeMove} onDragStart={this.handleNodeDragStart} onDragStop={this.handleNodeDragStop}
                             {...node}
-                            />
+                        />
                     })}
                 </g>
             </Canvas>

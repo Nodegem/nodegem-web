@@ -75,7 +75,7 @@ class Spline extends PureComponent<CombinedProps, SplineState> implements Handle
 
         return (
             <g>
-                <path className="connector-click-area" d={pathString} onClick={this.handleClick} />
+                <path className="connector-click-area" d={pathString} onClick={this.handleClick} fill="none" stroke="transparent" />
                 <path className={className} d={pathString} stroke={color} strokeWidth={strokeSize} onClick={this.handleClick} />
                 <circle cx={start[0]} cy={start[1]} r={3} fill={"#337ab7"} />
                 <circle cx={end[0]} cy={end[1]} r={3} fill={"#337ab7"} />

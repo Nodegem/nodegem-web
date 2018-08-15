@@ -7,6 +7,7 @@ import Canvas from "./Canvas/Canvas";
 
 import "./Editor.scss";
 import NodeCanvas from "./NodeCanvas/NodeCanvas";
+import { CanvasData } from "./NodeCanvas/types";
 
 export type EditorProps = {
     size: [number, number];
@@ -37,6 +38,19 @@ const canvasPattern = (size: number) => (
     </g>
 )
 
+const nodeData : CanvasData = {
+    nodes: {
+        "1": { id: "1", title: "goodbye", inputs: [{ label: "Input", id: "10" }, { label: "Input", id: "12" }], outputs: [{label: "Output", id: "1"}], position: [200, 200] },
+        "2": { id: "2", title: "hello", inputs: [{ label: "Input", id: "11" }, { label: "Input", id: "12" }, { label: "Input", id: "13" }], outputs: [{label: "Output", id: "2"}], position: [400, 550] },
+        "3": { id: "3", title: "test", inputs: [{ label: "Input", id: "11" }], outputs: [{label: "Output", id: "2"}], position: [800, 550] },
+        "4": { id: "4", title: "test 2", inputs: [{ label: "Input", id: "11" }], outputs: [{label: "Output", id: "2"}], position: [600, 300] },
+    },
+    connectors: [
+        { sourceNode: "1", sourceFieldId: "1", endNode: "2", endFieldId: "13" },
+        { sourceNode: "2", sourceFieldId: "2", endNode: "3", endFieldId: "11" }
+    ]
+}
+
 class Editor extends PureComponent<CombinedProps> {
 
     private _canvas: NodeCanvas;
@@ -59,7 +73,7 @@ class Editor extends PureComponent<CombinedProps> {
 
         return (
             <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={{ flex: 1, flexDirection: "column", display: "flex" }} focused>
-                <NodeCanvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern(200)}
+                <NodeCanvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern(200)} data={nodeData}
                     fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={zoomRange} />
             </HotKeys>
         )
