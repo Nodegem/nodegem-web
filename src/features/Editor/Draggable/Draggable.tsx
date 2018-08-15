@@ -72,7 +72,7 @@ export default class Draggable extends PureComponent<DraggableProps & DraggableC
         this.setState({dragging: false});
     }
 
-    handleDragStart = (e: MouseEvent, data: DragData) : false | void => {
+    handleDragStart = (e: React.MouseEvent, data: DragData) : false | void => {
 
         if(!this.props.draggable) return false;
 
@@ -82,7 +82,7 @@ export default class Draggable extends PureComponent<DraggableProps & DraggableC
         this.setState({dragging: true});
     }
 
-    handleDrag = (e: MouseEvent, data: DragData) : false | void => {
+    handleDrag = (e: React.MouseEvent, data: DragData) : false | void => {
 
         if(!this.state.dragging) return false;
 
@@ -98,7 +98,7 @@ export default class Draggable extends PureComponent<DraggableProps & DraggableC
         this.setState(newState);
     }
 
-    handleDragStop = (e: MouseEvent, data: DragData) : false | void => {
+    handleDragStop = (e: React.MouseEvent, data: DragData) : false | void => {
 
         if(!this.state.dragging) return false;
 

@@ -3,9 +3,12 @@ import Draggable, { AxisOptions } from "../../Draggable/Draggable";
 import classNames from 'classnames';
 import { DragData } from "../../Draggable/DraggableCore";
 import { XYCoords } from "../../utils/types";
+import onClickOutside, { InjectedOnClickOutProps, HandleClickOutside } from "react-onclickoutside";
 
 import "./NodeCore.scss";
-import onClickOutside, { InjectedOnClickOutProps, HandleClickOutside } from "react-onclickoutside";
+
+type EventHandler = (e: React.MouseEvent, node: NodeCore) => void;
+type DragEventHandler = (e: React.MouseEvent, data: DragData, node: NodeCore) => void | false;
 
 export type NodeCoreProps = {
     size: [number, number];
@@ -15,13 +18,17 @@ export type NodeCoreProps = {
     handle?: string | null;
     className?: string;
     style?: CSSProperties;
-    onFocus?: (node: NodeCore) => void;
-    onBlur?: (node: NodeCore) => void;
-    onHover?: (node:NodeCore) => void;
-    onLeave?: (node: NodeCore) => void;
-    onDragStart?: (node: NodeCore, e: MouseEvent, data: DragData) => void | false;
-    onDrag?: (node: NodeCore, e: MouseEvent, data: DragData) => void | false;
-    onDragStop?: (node: NodeCore, e: MouseEvent, data: DragData) => void | false;
+}
+
+export type NodeCoreEventHandlers = {
+    onDoubleClick?: EventHandler;
+    onFocus?: EventHandler;
+    onBlur?: EventHandler;
+    onHover?: EventHandler;
+    onLeave?: EventHandler;
+    onDragStart?: DragEventHandler;
+    onDrag?: DragEventHandler;
+    onDragStop?: DragEventHandler;
 }
 
 export type NodeCoreState = {
@@ -30,7 +37,7 @@ export type NodeCoreState = {
     hovering: boolean;
 }
 
-type CombineProps = NodeCoreProps & InjectedOnClickOutProps;
+type CombineProps = NodeCoreProps & NodeCoreEventHandlers & InjectedOnClickOutProps;
 
 class NodeCore extends PureComponent<CombineProps, NodeCoreState> implements HandleClickOutside<any> {
 
@@ -40,7 +47,8 @@ class NodeCore extends PureComponent<CombineProps, NodeCoreState> implements Han
         hovering: false
     }
 
-    static defaultProps : Partial<NodeCoreProps> = {
+    static defaultProps : Partial<NodeCoreProps & NodeCoreEventHandlers> = {
+        onDoubleClick: () => {},
         onFocus: () => {},
         onBlur: () => {},
         onHover: () => {},
@@ -60,44 +68,48 @@ class NodeCore extends PureComponent<CombineProps, NodeCoreState> implements Han
         return [x, y];
     }
 
-    private onEnter = () : void => {
+    private onEnter = (e: React.MouseEvent) : void => {
         this.setState({hovering: true});
-        this.props.onHover!(this);
+        this.props.onHover!(e, this);
     }
 
-    private onLeave = () : void => {
+    private onLeave = (e: React.MouseEvent) : void => {
         if(this.state.dragging) return;
 
         this.setState({hovering: false});
-        this.props.onLeave!(this);
+        this.props.onLeave!(e, this);
     }
 
-    private onMouseDown = (e: MouseEvent) => {
+    private onMouseDown = (e: React.MouseEvent) => {
         this.setState({focused: true});
-        this.props.onFocus!(this);
+        this.props.onFocus!(e, this);
     }
 
-    handleClickOutside = (event: React.MouseEvent<any>) : void => {
+    handleClickOutside = (e: React.MouseEvent) : void => {
         this.setState({focused: false});
-        this.props.onBlur!(this);
+        this.props.onBlur!(e, this);
     }
 
-    private onDragStart = (e: MouseEvent, data: DragData) : void | false => {
+    private handleDoubleClick = (e: React.MouseEvent) : void => {
+        this.props.onDoubleClick!(e, this);
+    }
 
-        const shouldStart = this.props.onDragStart!(this, e, data);
+    private onDragStart = (e: React.MouseEvent, data: DragData) : void | false => {
+
+        const shouldStart = this.props.onDragStart!(e, data, this);
         if(shouldStart === false) return false;
 
         this.setState({dragging: true});
     }
 
-    private onDrag = (e: MouseEvent, data: DragData) : void | false => {
-        const shouldDrag = this.props.onDrag!(this, e, data);
+    private onDrag = (e: React.MouseEvent, data: DragData) : void | false => {
+        const shouldDrag = this.props.onDrag!(e, data, this);
         if(shouldDrag === false) return false;
 
     }
 
-    private onDragStop = (e: MouseEvent, data: DragData) : void | false => {
-        const shouldStop = this.props.onDragStop!(this, e, data);
+    private onDragStop = (e: React.MouseEvent, data: DragData) : void | false => {
+        const shouldStop = this.props.onDragStop!(e, data, this);
         if(shouldStop === false) return false;
 
         this.setState({dragging: false});
@@ -119,10 +131,11 @@ class NodeCore extends PureComponent<CombineProps, NodeCoreState> implements Han
 
         //TODO: find some hack that doesn't require me to specify a height and width
         return (
-            <Draggable ref={(d) => this._draggable = d!} position={position && {x: position[0], y: position[1]}} onMouseDown={this.onMouseDown} onDrag={this.onDrag} onDragStart={this.onDragStart} 
+            <Draggable ref={(d) => this._draggable = d!} position={position && {x: position[0], y: position[1]}} 
+                onMouseDown={this.onMouseDown} onDrag={this.onDrag} onDragStart={this.onDragStart} 
                 onDragStop={this.onDragStop} handle={handle} snapSize={snapSize} axis={axis}>
                 <foreignObject width={width} height={height} style={{overflow: "visible"}} onMouseEnter={this.onEnter} onMouseLeave={this.onLeave}>
-                    <div className={nodeClasses} style={style}>
+                    <div className={nodeClasses} style={style} onDoubleClick={this.handleDoubleClick}>
                         {this.props.children}
                     </div>
                 </foreignObject>

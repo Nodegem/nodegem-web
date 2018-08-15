@@ -12,7 +12,7 @@ export const offsetXYFromParent = (evt: { clientX: number, clientY: number }, of
     return { x, y };
 }
 
-export const getPosition = (e: MouseEvent, core: DraggableCore): Vector2 => {
+export const getPosition = (e: React.MouseEvent, core: DraggableCore): Vector2 => {
     const node = findDomNode(core);
     const offsetParent = node.offsetParent || node.ownerDocument.body;
     return offsetXYFromParent(e, offsetParent);

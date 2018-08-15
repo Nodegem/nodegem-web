@@ -2,10 +2,14 @@ import React, {PureComponent} from "react";
 
 import './Output.scss';
 import classNames from "classnames";
+import { Icon } from 'react-icons-kit';
+import { circleO } from 'react-icons-kit/fa/circleO'
+import { XYCoords } from "../../../utils/types";
 
 export type OutputProps = {
     name: string;
-    onMouseDown?: (e: React.MouseEvent) => void;
+    socketSize?: number;
+    onMouseDown?: (e: React.MouseEvent, output: Output) => void;
 }
 
 export type OutputState = {
@@ -13,25 +17,33 @@ export type OutputState = {
 }
 
 export default class Output extends React.PureComponent<OutputProps, OutputState> {
-
+    
     state = {
         hover: false
     }
 
+    private _icon : Element;
+
+    get anchorPoint() : XYCoords {
+        const { x, y, width, height } = this._icon.getBoundingClientRect() as DOMRect;
+        return [x + (width / 2), y + (height / 2)];
+    }
+
     static defaultProps = {
-        onMouseDown: () => {}
+        onMouseDown: () => {},
+        socketSize: 15
     }
 
     private handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
 
-        this.props.onMouseDown!(e);
+        this.props.onMouseDown!(e, this);
     }
 
     public render() {
 
-        const { name } = this.props;
+        const { name, socketSize } = this.props;
         const { hover } = this.state;
 
         const socketClassName = classNames({
@@ -53,7 +65,9 @@ export default class Output extends React.PureComponent<OutputProps, OutputState
             <li className="node-output" onMouseDown={this.handleClick}>
                <a className={outputClassName} href="#" onClick={this.handleClick}>
                     <span className={labelClassName}>{name}</span>
-                    <i className={socketClassName} />
+                    <span ref={(i) => this._icon = i!} style={{display: "flex"}} className={socketClassName}>
+                        <Icon  icon={circleO} size={socketSize} />
+                    </span>
                 </a>
             </li>
         )

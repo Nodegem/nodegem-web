@@ -1,17 +1,17 @@
 import React, { PureComponent } from 'react';
-import Output from '../IO/Output/Output';
+import Output from '../../IO/Output/Output';
 
 import "./OutputList.scss";
 
 export type OutputListProps = {
     items: {name: string}[];
-    onStartConnector: (e: React.MouseEvent) => void;
+    onStartConnector: (e: React.MouseEvent, output: Output) => void;
 }
 
 export default class OutputList extends React.PureComponent<OutputListProps> {
 
-    private handleMouseDown = (e: React.MouseEvent) => {
-        this.props.onStartConnector(e);
+    private handleMouseDown = (e: React.MouseEvent, output: Output) => {
+        this.props.onStartConnector(e, output);
     }
 
     public render() {

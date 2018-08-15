@@ -20,15 +20,15 @@ export type MouseData = {
     shiftKey: boolean;
 }
 
-export type DragEventHandler = (e: MouseEvent, data: DragData) => void | false;
+export type DragEventHandler = (e: React.MouseEvent, data: DragData) => void | false;
 
 export type DraggableCoreProps = {
     handle?: string | null;
     disabled?: boolean;
     snapSize?: [number, number];
     clickFilter?: (mouseInfo: MouseData) => boolean;
-    onMouseDown?: (event: MouseEvent) => void;
-    onMouseUp?: (event: MouseEvent) => void;
+    onMouseDown?: (event: React.MouseEvent) => void;
+    onMouseUp?: (event: React.MouseEvent) => void;
     onDragStart?: DragEventHandler;
     onDrag?: DragEventHandler;
     onDragStop?: DragEventHandler;
@@ -82,7 +82,7 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
 
     }
 
-    handleDragStart = (e: MouseEvent) => {
+    handleDragStart = (e: React.MouseEvent) => {
 
         const thisNode = ReactDOM.findDOMNode(this);
         if(!thisNode || !thisNode.ownerDocument || !thisNode.ownerDocument.body) {
@@ -116,7 +116,7 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
         addEvent(ownerDocument, dragEventFor.stop, this.handleDragStop);
     }
 
-    handleDrag = (e: MouseEvent) => {
+    handleDrag = (e: React.MouseEvent) => {
 
         const position = getPosition(e, this);
         let {x, y} = position;
@@ -133,7 +133,7 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
 
         const shouldUpdate = this.props.onDrag!(e, coreData);
         if(shouldUpdate === false) {
-            this.handleDragStop(new MouseEvent('mouseup'));
+            this.handleDragStop(new MouseEvent('mouseup') as any);
             return;
         }
 
@@ -145,7 +145,7 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
         })
     }
 
-    handleDragStop = (e: MouseEvent) => {
+    handleDragStop = (e: React.MouseEvent) => {
 
         if(!this.state.dragging) return;
 
@@ -172,7 +172,7 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
         }
     }
 
-    handleMouseDown = (e: MouseEvent) => {
+    handleMouseDown = (e: React.MouseEvent) => {
 
         const { button, altKey, shiftKey, ctrlKey, metaKey } = e;
         if(!this.props.clickFilter!({button, altKey, shiftKey, ctrlKey, metaKey})) return;
@@ -184,7 +184,7 @@ export default class DraggableCore extends PureComponent<DraggableCoreProps, Dra
         this.handleDragStart(e);
     }
 
-    handleMouseUp = (e: MouseEvent) => {
+    handleMouseUp = (e: React.MouseEvent) => {
 
         if(this.props.onMouseUp) {
             this.props.onMouseUp(e);

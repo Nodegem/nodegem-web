@@ -1,17 +1,17 @@
 import React, { PureComponent } from 'react';
-import Input from '../IO/Input/Input';
+import Input from '../../IO/Input/Input';
 
 import "./InputList.scss";
 
 export type InputListProps = {
     items: {name: string}[];
-    onCompleteConnector: (e: React.MouseEvent) => void;
+    onCompleteConnector: (e: React.MouseEvent, input: Input) => void;
 }
 
 export default class InputList extends React.PureComponent<InputListProps> {
 
-    private handleMouseUp = (e: React.MouseEvent) => {
-        this.props.onCompleteConnector(e);
+    private handleMouseUp = (e: React.MouseEvent, input: Input) => {
+        this.props.onCompleteConnector(e, input);
     }
 
     public render() {
