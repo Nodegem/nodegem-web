@@ -12,7 +12,6 @@ export type CanvasProps = {
     zoomInputFilter?: (ev: any) => boolean;
     onZoom?: (canvas: HTMLElement, transform: any) => void;
     zoomRange?: [number, number];
-    color?: string;
     fillId?: string;
     pattern?: JSX.Element;
     className?: string;
@@ -22,7 +21,6 @@ export default class Canvas extends PureComponent<CanvasProps> {
 
     static defaultProps = {
         zoomRange: [1, 1],
-        color: "white",
         resetTransitionTime: 750,
         onZoom: () => {},
     }
@@ -93,7 +91,7 @@ export default class Canvas extends PureComponent<CanvasProps> {
 
     public render() {
 
-        const { pattern, className, size, color, 
+        const { pattern, className, size, 
             fillId, onZoom, zoomInputFilter, zoomRange,
             resetTransitionTime, ...rest } = this.props;
 
@@ -115,7 +113,7 @@ export default class Canvas extends PureComponent<CanvasProps> {
                     <rect ref={(r) => this._rect = r!} x={-halfWidth} y={-halfHeight} 
                             width={width} height={height} 
                             className="canvas-background" id="_canvas-background" 
-                            style={{ fill: (fillId ? `url("${fillId}")` : "none"), backgroundColor: color }} />
+                            style={{ fill: (fillId ? `url("${fillId}")` : "none") }} />
                             
                         {this.props.children}
                 </g>

@@ -15,8 +15,8 @@ export type SplineProps = {
     handleRadius?: number;
     handleColor?: string;
     curve?: d3.CurveFactory | d3.CurveFactoryLineOnly;
-    onClick?: (e: React.MouseEvent) => void;
-    onClickOutside?: (e: React.MouseEvent) => void;
+    onClick?: (e: React.MouseEvent, spline: Spline) => void;
+    onClickOutside?: (e: React.MouseEvent, spline: Spline) => void;
     linkTransform?: (values: XYCoords[]) => XYCoords[];
 }
 
@@ -26,7 +26,7 @@ export type SplineState = {
 
 type CombinedProps = SplineProps & InjectedOnClickOutProps;
 
-class Spline extends PureComponent<CombinedProps, SplineState> implements HandleClickOutside<any> {
+export default class Spline extends PureComponent<CombinedProps, SplineState> implements HandleClickOutside<any> {
 
     static defaultProps : Partial<SplineProps> = {
         onClick: (e: React.MouseEvent) => {},
@@ -57,12 +57,13 @@ class Spline extends PureComponent<CombinedProps, SplineState> implements Handle
 
     handleClickOutside = (e: React.MouseEvent<any>) : void => {
         this.setState({selected: false});
-        this.props.onClickOutside!(e);
+        this.props.onClickOutside!(e, this);
     }
 
     handleClick = (e: React.MouseEvent) : void => {
+        console.log(e);
         this.setState({selected: !this.state.selected});
-        this.props.onClick!(e);
+        this.props.onClick!(e, this);
     }
 
     public render() {
@@ -79,8 +80,8 @@ class Spline extends PureComponent<CombinedProps, SplineState> implements Handle
 
         return (
             <g>
-                <path className="connector-click-area" d={pathString} onClick={this.handleClick} fill="none" stroke="transparent" />
-                <path className={className} d={pathString} stroke={color} strokeWidth={strokeSize} onClick={this.handleClick} />
+                <path className="connector-click-area" d={pathString} onMouseDown={this.handleClick} fill="none" stroke="transparent" />
+                <path className={className} d={pathString} stroke={color} strokeWidth={strokeSize} onMouseDown={this.handleClick} />
                 <circle cx={start[0]} cy={start[1]} r={handleRadius} fill={handleColor} />
                 <circle cx={end[0]} cy={end[1]} r={handleRadius} fill={handleColor} />
             </g>
@@ -89,4 +90,4 @@ class Spline extends PureComponent<CombinedProps, SplineState> implements Handle
 
 }
 
-export default onClickOutside(Spline);
+export const SplineComponent = onClickOutside(Spline);

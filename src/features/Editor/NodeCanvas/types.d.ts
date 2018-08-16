@@ -19,8 +19,8 @@ export type IOData = {
 }
 
 export type ConnectorData = {
-    sourceNode: string;
+    sourceNodeId: string;
     sourceFieldId: string;
-    endNode: string;
-    endFieldId: string;
+    toNodeId: string;
+    toFieldId: string;
 }

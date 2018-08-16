@@ -8,6 +8,10 @@
     height: 100%;
 }
 
+.canvas-background {
+    background-color: white;
+}
+
 /* Chrome Only */
 @media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) { 
     .canvas {

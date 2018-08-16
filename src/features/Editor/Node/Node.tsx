@@ -13,11 +13,8 @@ import "./Node.scss";
 export type NodeProps = {
     title: string;
     id: string;
-    size: [number, number];
     inputs: IOData[];
     outputs: IOData[];
-    onStartConnector: (e: React.MouseEvent, output: Output, node: Node) => void;
-    onCompleteConnector: (e: React.MouseEvent, input: Input, node: Node) => void;
     position?: XYCoords;
     handle?: string | null;
 }
@@ -31,6 +28,10 @@ export type NodeHandlerProps = {
     onDragStart?: (e: React.MouseEvent, node: Node, data: NodeMetaData) => void;
     onDrag?: (e: React.MouseEvent, node: Node, data: NodeMetaData) => void;
     onDragStop?: (e: React.MouseEvent, node: Node, data: NodeMetaData) => void;
+    onBlur?: (e: React.MouseEvent, node: Node) => void;
+    onStartConnector: (e: React.MouseEvent, output: Output, node: Node) => void;
+    onCompleteConnector: (e: React.MouseEvent, input: Input, node: Node) => void;
+    onDoubleClick?: (e: React.MouseEvent, node: Node) => void;
 }
 
 type CombineProps = NodeProps & NodeHandlerProps;
@@ -46,7 +47,9 @@ export default class Node extends PureComponent<CombineProps> {
         onCompleteConnector: () => {},
         onDrag: () => {},
         onDragStart: () => {},
-        onDragStop: () => {}
+        onDragStop: () => {},
+        onDoubleClick: () => {},
+        onBlur: () => {}
     }
 
     private _inputList: InputList;
@@ -85,9 +88,17 @@ export default class Node extends PureComponent<CombineProps> {
         this.props.onDragStop!(e, this, {id: this.props.id, position: [x, y]});
     }
 
+    private handleBlur = (e: React.MouseEvent) => {
+        this.props.onBlur!(e, this);
+    }
+
+    private handleDoubleClick = (e: React.MouseEvent) => {
+        this.props.onDoubleClick!(e, this);
+    }
+
     public render() {
 
-        const { size, title, handle, position, inputs, outputs } = this.props;
+        const { title, handle, position, inputs, outputs } = this.props;
 
         const width = 200;
         const height = titleHeight + (fieldHeight * Math.max(inputs.length, outputs.length));
@@ -97,6 +108,7 @@ export default class Node extends PureComponent<CombineProps> {
                         handle={handle} onDrag={this.handleNodeMove} 
                         onDragStart={this.handleNodeDragStart} 
                         onDragStop={this.handleNodeDragStop}
+                        onBlur={this.handleBlur} onDoubleClick={this.handleDoubleClick}
             >
                 <div className="header">
                     <span className="title">{title}</span>

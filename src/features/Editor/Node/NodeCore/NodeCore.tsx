@@ -86,8 +86,11 @@ class NodeCore extends PureComponent<CombineProps, NodeCoreState> implements Han
     }
 
     handleClickOutside = (e: React.MouseEvent) : void => {
+        if(this.state.focused) {
+            this.props.onBlur!(e, this);
+        }
+
         this.setState({focused: false});
-        this.props.onBlur!(e, this);
     }
 
     private handleDoubleClick = (e: React.MouseEvent) : void => {
