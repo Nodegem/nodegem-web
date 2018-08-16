@@ -4,6 +4,7 @@ import './Output.scss';
 import classNames from "classnames";
 import { Icon } from 'react-icons-kit';
 import { circleO } from 'react-icons-kit/fa/circleO'
+import { circle } from 'react-icons-kit/fa/circle'
 import { XYCoords } from "../../../utils/types";
 
 export type OutputProps = {
@@ -15,12 +16,14 @@ export type OutputProps = {
 
 export type OutputState = {
     hover: boolean;
+    connected: boolean;
 }
 
 export default class Output extends React.PureComponent<OutputProps, OutputState> {
     
     state = {
-        hover: false
+        hover: false,
+        connected: false
     }
 
     private _icon : Element;
@@ -42,32 +45,27 @@ export default class Output extends React.PureComponent<OutputProps, OutputState
         this.props.onMouseDown!(e, this);
     }
 
+    public setConnected = (toggle: boolean) : void => {
+        this.setState({connected: toggle});
+    }
+
     public render() {
 
         const { label, socketSize } = this.props;
-        const { hover } = this.state;
-
-        const socketClassName = classNames({
-            "socket": true,
-            "hover": hover
-        });
+        const { hover, connected } = this.state;
 
         const outputClassName = classNames({
             "output": true,
-            "hover": hover
-        });
-
-        const labelClassName = classNames({
-            "label": true,
-            "hover": hover
+            "hover": hover,
+            "connected": connected
         });
 
         return (
             <li className="node-output" onMouseDown={this.handleClick}>
                <a className={outputClassName} href="#" onClick={this.handleClick}>
-                    <span className={labelClassName}>{label}</span>
-                    <span ref={(i) => this._icon = i!} style={{display: "flex"}} className={socketClassName}>
-                        <Icon  icon={circleO} size={socketSize} />
+                    <span className="label">{label}</span>
+                    <span ref={(i) => this._icon = i!} style={{display: "flex"}} className="socket">
+                        <Icon icon={connected || hover ? circle : circleO} size={socketSize} />
                     </span>
                 </a>
             </li>

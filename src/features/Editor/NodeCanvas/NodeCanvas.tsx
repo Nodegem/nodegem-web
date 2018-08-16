@@ -20,8 +20,8 @@ export type NodeCanvasState = {
     nodes: { [nodeId: string] : NodeData };
     connectors: ConnectorData[];
     dragging: boolean;
-    nodeDragging: boolean;
-    nodesRendered: boolean;
+    nodeDragging: boolean; //I don't like this
+    nodesRendered: boolean; // I don't like this
     position: XYCoords;
     source: {nodeId: string, sourceFieldId: string, position: XYCoords};
 }
@@ -57,7 +57,22 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
         addEvent(document, "mousemove", this.handleMouseMove);
         addEvent(document, "mouseup", this.handleMouseUp);
 
-        setTimeout(() => this.setState({nodesRendered: true}), 50);
+        setTimeout(this.onLoaded, 50);
+    }
+
+    //This is utter bullshit but the only way I can get it to render properly
+    private onLoaded = () => {
+
+        for(let connector of this.props.data.connectors) {
+            
+            const sourceField = this.getFieldById(connector.sourceNode, connector.sourceFieldId);
+            const endField = this.getFieldById(connector.endNode, connector.endFieldId);
+
+            sourceField.setConnected(true);
+            endField.setConnected(true);
+        }
+
+        this.setState({nodesRendered: true});
     }
 
     componentWillUnmount() {
@@ -96,6 +111,16 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
     }
 
     private handleMouseUp = (e: React.MouseEvent) => {
+
+        const {source} = this.state;
+        if(source.nodeId) {
+            const field = this.getFieldById(source.nodeId, source.sourceFieldId);
+            //TODO
+            if(field) {
+                field.setConnected(false);
+            }
+        }
+
         //This is totes a hack to get around the event call order
         setTimeout(() => this.setState({dragging: false}), 1);
     }
@@ -117,13 +142,16 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
                     $push: [newConnector]
                 }
             });
+
             this.setState(newState);
+            input.setConnected(true);
         }
         this.setState({dragging: false});
     }
 
     private handleStartConnector = (e: React.MouseEvent, output: Output, node: Node) => {
         const sourcePos = this.toCanvasCoords(output.anchorPoint);
+        output.setConnected(true);
         this.setState({dragging: true, source: {nodeId: node.props.id, sourceFieldId: output.props.id, position: sourcePos}});
     }
 
@@ -152,9 +180,13 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
         return this._nodes[id];
     }
 
-    private getFieldPositionById = (nodeId: string, fieldId: string) : XYCoords => {
+    private getFieldById = (nodeId: string, fieldId: string) : Output | Input => {
         const node = this.getNodeById(nodeId);
-        return node.getFieldById(fieldId);
+        return node.getFieldById(fieldId)!;
+    }
+
+    private getFieldPositionById = (nodeId: string, fieldId: string) : XYCoords => {
+        return this.getFieldById(nodeId, fieldId).anchorPoint;
     }
 
     private splineTransform = (values: XYCoords[]) : XYCoords[] => {

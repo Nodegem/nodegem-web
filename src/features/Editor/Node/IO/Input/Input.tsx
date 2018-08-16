@@ -17,12 +17,14 @@ export type InputProps = {
 
 export type InputState = {
     hover: boolean;
+    connected: boolean;
 }
 
 export default class Input extends React.PureComponent<InputProps, InputState> {
 
     state = {
-        hover: false
+        hover: false,
+        connected: false
     }
 
     static defaultProps = {
@@ -60,33 +62,33 @@ export default class Input extends React.PureComponent<InputProps, InputState> {
         this.setState({hover: false});
     }
 
+    public setConnected = (toggle: boolean) : void => {
+        this.setState({connected: toggle});
+    }
+
+    private noop = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
     public render() {
 
         const { label, socketSize } = this.props;
-        const { hover } = this.state;
-
-        const socketClassName = classNames({
-            "socket": true,
-            "hover": hover
-        });
+        const { hover, connected } = this.state;
 
         const inputClassName = classNames({
             "input": true,
-            "hover": hover
-        });
-
-        const labelClassName = classNames({
-            "label": true,
-            "hover": hover
+            "hover": hover,
+            "connected": connected
         });
 
         return (
             <li className="node-input">
-                <a className={inputClassName} onClick={this.handleClick} onMouseUp={this.handleMouseUp} href="#">
-                    <span style={{display: "flex"}} className={socketClassName} ref={(i) => this._icon = i!}>
-                        <Icon size={socketSize} icon={hover ? circle : circleO} onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut} />
+                <a className={inputClassName} onClick={this.handleClick} onMouseDown={this.noop} onMouseUp={this.handleMouseUp} href="#">
+                    <span style={{display: "flex"}} className="socket" ref={(i) => this._icon = i!}>
+                        <Icon size={socketSize} icon={hover || connected ? circle : circleO} onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut} />
                     </span>
-                    <span className={labelClassName}>{label}</span>
+                    <span className="label">{label}</span>
                 </a>
             </li>
         );

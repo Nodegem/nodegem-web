@@ -52,11 +52,14 @@ export default class Node extends PureComponent<CombineProps> {
     private _inputList: InputList;
     private _outputList: OutputList;
 
-    public getFieldById = (fieldId: string) : XYCoords => {
-        const inputDict = this._inputList.inputs.reduce((m, i) => ({...m, ...{[i.props.id]: i.anchorPoint}}), {});
-        const outputDict = this._outputList.outputs.reduce((m, o) => ({...m, ...{[o.props.id]: o.anchorPoint}}), {});
-        const combinedDict = {...inputDict, ...outputDict};
-        return combinedDict[fieldId];
+    public getFieldById = <T extends (Input | Output)>(fieldId: string) : T | null => {
+        const combinedList = [...this._inputList.inputs, ...this._outputList.outputs];
+        for (let field of combinedList) {
+            if(field.props.id === fieldId) {
+                return field as T;
+            }
+        }
+        return null;
     }
 
     private handleStartConnector = (e: React.MouseEvent, output: Output) => {

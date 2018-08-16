@@ -12,6 +12,8 @@ export type SplineProps = {
     mousePos?: XYCoords;
     color?: string;
     strokeSize?: number;
+    handleRadius?: number;
+    handleColor?: string;
     curve?: d3.CurveFactory | d3.CurveFactoryLineOnly;
     onClick?: (e: React.MouseEvent) => void;
     onClickOutside?: (e: React.MouseEvent) => void;
@@ -31,6 +33,8 @@ class Spline extends PureComponent<CombinedProps, SplineState> implements Handle
         onClickOutside: (e: React.MouseEvent) => {},
         linkTransform: (values) => values,
         color: "black",
+        handleColor: "black",
+        handleRadius: 5,
         strokeSize: 2,
         curve: d3.curveLinear
     }
@@ -57,14 +61,14 @@ class Spline extends PureComponent<CombinedProps, SplineState> implements Handle
     }
 
     handleClick = (e: React.MouseEvent) : void => {
-        this.setState({selected: true});
+        this.setState({selected: !this.state.selected});
         this.props.onClick!(e);
     }
 
     public render() {
 
         const { selected } = this.state;
-        const { start, end, strokeSize, color, linkTransform } = this.props;
+        const { start, end, strokeSize, color, handleColor, handleRadius, linkTransform } = this.props;
 
         const pathString = this.lineFunc(linkTransform!([start, end]))!;
 
@@ -77,8 +81,8 @@ class Spline extends PureComponent<CombinedProps, SplineState> implements Handle
             <g>
                 <path className="connector-click-area" d={pathString} onClick={this.handleClick} fill="none" stroke="transparent" />
                 <path className={className} d={pathString} stroke={color} strokeWidth={strokeSize} onClick={this.handleClick} />
-                <circle cx={start[0]} cy={start[1]} r={3} fill={"#337ab7"} />
-                <circle cx={end[0]} cy={end[1]} r={3} fill={"#337ab7"} />
+                <circle cx={start[0]} cy={start[1]} r={handleRadius} fill={handleColor} />
+                <circle cx={end[0]} cy={end[1]} r={handleRadius} fill={handleColor} />
             </g>
         )
     }
