@@ -16,6 +16,7 @@ export type SplineProps = {
     handleColor?: string;
     curve?: d3.CurveFactory | d3.CurveFactoryLineOnly;
     onClick?: (e: React.MouseEvent, spline: Spline) => void;
+    onRightClick?: (e: React.MouseEvent, spline: Spline) => void;
     onClickOutside?: (e: React.MouseEvent, spline: Spline) => void;
     linkTransform?: (values: XYCoords[]) => XYCoords[];
 }
@@ -26,11 +27,12 @@ export type SplineState = {
 
 type CombinedProps = SplineProps & InjectedOnClickOutProps;
 
-export default class Spline extends PureComponent<CombinedProps, SplineState> implements HandleClickOutside<any> {
+class Spline extends PureComponent<CombinedProps, SplineState> implements HandleClickOutside<any> {
 
     static defaultProps : Partial<SplineProps> = {
-        onClick: (e: React.MouseEvent) => {},
-        onClickOutside: (e: React.MouseEvent) => {},
+        onClick: () => {},
+        onClickOutside: () => {},
+        onRightClick: () => {},
         linkTransform: (values) => values,
         color: "black",
         handleColor: "black",
@@ -61,9 +63,12 @@ export default class Spline extends PureComponent<CombinedProps, SplineState> im
     }
 
     handleClick = (e: React.MouseEvent) : void => {
-        console.log(e);
         this.setState({selected: !this.state.selected});
         this.props.onClick!(e, this);
+    }
+
+    private handleRightClick = (e: React.MouseEvent) : void => {
+        this.props.onRightClick!(e, this);
     }
 
     public render() {
@@ -80,8 +85,10 @@ export default class Spline extends PureComponent<CombinedProps, SplineState> im
 
         return (
             <g>
-                <path className="connector-click-area" d={pathString} onMouseDown={this.handleClick} fill="none" stroke="transparent" />
-                <path className={className} d={pathString} stroke={color} strokeWidth={strokeSize} onMouseDown={this.handleClick} />
+                <path className="connector-click-area" d={pathString} onClick={this.handleClick} 
+                    fill="none" stroke="transparent" onContextMenu={this.handleRightClick} />
+                <path className={className} d={pathString} stroke={color} strokeWidth={strokeSize} 
+                    onClick={this.handleClick} onContextMenu={this.handleRightClick} />
                 <circle cx={start[0]} cy={start[1]} r={handleRadius} fill={handleColor} />
                 <circle cx={end[0]} cy={end[1]} r={handleRadius} fill={handleColor} />
             </g>
@@ -90,4 +97,4 @@ export default class Spline extends PureComponent<CombinedProps, SplineState> im
 
 }
 
-export const SplineComponent = onClickOutside(Spline);
+export default onClickOutside(Spline);

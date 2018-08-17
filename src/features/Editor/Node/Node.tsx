@@ -32,6 +32,7 @@ export type NodeHandlerProps = {
     onStartConnector: (e: React.MouseEvent, output: Output, node: Node) => void;
     onCompleteConnector: (e: React.MouseEvent, input: Input, node: Node) => void;
     onDoubleClick?: (e: React.MouseEvent, node: Node) => void;
+    onRightClick?: (e: React.MouseEvent, node: Node) => void;
 }
 
 type CombineProps = NodeProps & NodeHandlerProps;
@@ -96,6 +97,10 @@ export default class Node extends PureComponent<CombineProps> {
         this.props.onDoubleClick!(e, this);
     }
 
+    private handleRightClick = (e: React.MouseEvent) => {
+        this.props.onRightClick!(e, this);
+    }
+
     public render() {
 
         const { title, handle, position, inputs, outputs } = this.props;
@@ -109,6 +114,7 @@ export default class Node extends PureComponent<CombineProps> {
                         onDragStart={this.handleNodeDragStart} 
                         onDragStop={this.handleNodeDragStop}
                         onBlur={this.handleBlur} onDoubleClick={this.handleDoubleClick}
+                        onRightClick={this.handleRightClick}
             >
                 <div className="header">
                     <span className="title">{title}</span>

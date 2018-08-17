@@ -9,6 +9,7 @@
     "immutability-helper": "^2.7.1",
     "localforage": "^1.7.2",
     "react": "^16.4.1",
+    "react-contextmenu": "^2.9.3",
     "react-dom": "^16.4.1",
     "react-faux-dom": "^4.2.0",
     "react-hotkeys": "^1.1.4",

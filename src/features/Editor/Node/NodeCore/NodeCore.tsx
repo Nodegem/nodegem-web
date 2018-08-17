@@ -21,6 +21,7 @@ export type NodeCoreProps = {
 }
 
 export type NodeCoreEventHandlers = {
+    onRightClick?: EventHandler;
     onDoubleClick?: EventHandler;
     onFocus?: EventHandler;
     onBlur?: EventHandler;
@@ -85,6 +86,10 @@ class NodeCore extends PureComponent<CombineProps, NodeCoreState> implements Han
         this.props.onFocus!(e, this);
     }
 
+    private onRightClick = (e: React.MouseEvent) => {
+        this.props.onRightClick!(e, this);
+    }
+
     handleClickOutside = (e: React.MouseEvent) : void => {
         if(this.state.focused) {
             this.props.onBlur!(e, this);
@@ -138,7 +143,7 @@ class NodeCore extends PureComponent<CombineProps, NodeCoreState> implements Han
                 onMouseDown={this.onMouseDown} onDrag={this.onDrag} onDragStart={this.onDragStart} 
                 onDragStop={this.onDragStop} handle={handle} snapSize={snapSize} axis={axis}>
                 <foreignObject width={width} height={height} style={{overflow: "visible"}} onMouseEnter={this.onEnter} onMouseLeave={this.onLeave}>
-                    <div className={nodeClasses} style={style} onDoubleClick={this.handleDoubleClick}>
+                    <div className={nodeClasses} style={style} onDoubleClick={this.handleDoubleClick} onContextMenu={this.onRightClick}>
                         {this.props.children}
                     </div>
                 </foreignObject>

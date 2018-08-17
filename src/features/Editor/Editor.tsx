@@ -1,13 +1,15 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent, CSSProperties } from "react";
 import * as d3 from 'd3';
 import { HotKeys } from "react-hotkeys";
 import { isMac, convertCommands } from "../../utils";
-
-import "./Editor.scss";
+import { ContextMenuTrigger, ContextMenu, MenuItem } from 'react-contextmenu';
 import NodeCanvas from "./NodeCanvas/NodeCanvas";
 import { CanvasData, ConnectorData } from "./NodeCanvas/types";
 import update from "immutability-helper";
-import Spline from "./Spline/Spline";
+
+import "./Editor.scss";
+import "./ContextMenu/context-menu.scss";
+
 
 export type EditorProps = {
     size: [number, number];
@@ -51,8 +53,27 @@ const nodeData : CanvasData = {
     ]
 }
 
+const NodeContextMenu = (data) => {
+    return (
+        <MenuItem>Node</MenuItem>
+    )
+}
+
+const ConnectorContextMenu = (data) => {
+    return (
+        <MenuItem>Connector</MenuItem>
+    )
+}
+
+const CanvasContextMenu = (data) => {
+    return (
+        <MenuItem>Canvas</MenuItem>
+    )
+}
+
 type EditorState = {
     data: CanvasData;
+    contextData?: JSX.Element;
 }
 
 class Editor extends PureComponent<CombinedProps, EditorState> {
@@ -65,10 +86,6 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
         this.state = {
             data: nodeData
         };
-    }
-
-    componentDidMount() {
-        document.oncontextmenu = (e) => false;
     }
 
     private canvasInputFilter = (): boolean => {
@@ -107,28 +124,53 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
     }
 
     private handleConnectorSelect = (connector: ConnectorData, e: React.MouseEvent) => {
-        console.log("Connector Selected", e.button);
+    }
+
+    private handleConnectorRightClick = (connector: ConnectorData, e: React.MouseEvent) => {
+        this.setState({contextData: ConnectorContextMenu(connector)});
     }
 
     private handleNodeDeselect = (nodeId: string, e: React.MouseEvent) => {
-        console.log("Node Deselected ", nodeId, e.button);
+    }
+
+    private handleNodeRightClick = (nodeId: string, e: React.MouseEvent) => {
+        this.setState({contextData: NodeContextMenu(nodeId)});
+    }
+
+    private handleCanvasRightClick = (e: React.MouseEvent) => {
+        this.setState({contextData: CanvasContextMenu({})});
     }
 
     public render() {
 
         const { size, zoomRange } = this.props;
+        const { contextData } = this.state;
 
         const hotkeyHandler = {
             [EDITOR_KEY_COMMANDS.RESET]: () => this._canvas.reset()
         }
 
+        const flexStyle : CSSProperties = { flex: 1, flexDirection: "column", display: "flex" };
+
+        //Doesn't work on FireFox
         return (
-            <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={{ flex: 1, flexDirection: "column", display: "flex" }} focused>
-                <NodeCanvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern(200)} data={this.state.data}
-                    fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={zoomRange} 
-                    onNewConnector={this.handleNewConnector} onNodeMoveStop={this.handleNodeMoveStop} onConnectorSelect={this.handleConnectorSelect}
-                    onNodeDeselect={this.handleNodeDeselect} />
-            </HotKeys>
+            <div style={flexStyle}>
+                <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={flexStyle} focused>
+                    <ContextMenuTrigger id="canvas_menu" style={flexStyle}>
+                        <NodeCanvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern(200)} data={this.state.data}
+                            fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={zoomRange} 
+                            onNewConnector={this.handleNewConnector} onNodeMoveStop={this.handleNodeMoveStop} onConnectorSelect={this.handleConnectorSelect}
+                            onNodeDeselect={this.handleNodeDeselect} onNodeRightClick={this.handleNodeRightClick}
+                            onConnectorRightClick={this.handleConnectorRightClick} onCanvasRightClick={this.handleCanvasRightClick} />
+                    </ContextMenuTrigger>
+                </HotKeys>
+                    <ContextMenu id="canvas_menu">
+                        { !contextData 
+                            ? (<MenuItem></MenuItem>) 
+                            : contextData
+                        }
+                    </ContextMenu>
+            </div>
         )
     }
 

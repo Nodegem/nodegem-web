@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Canvas, { CanvasProps } from "../Canvas/Canvas";
 import Node, { NodeMetaData } from '../Node/Node';
-import Spline, { SplineComponent } from "../Spline/Spline";
+import Spline from "../Spline/Spline";
 import { XYCoords } from "../utils/types";
 import { addEvent, removeEvent } from "../Draggable/utils";
 import Output from "../Node/IO/Output/Output";
@@ -12,14 +12,17 @@ import "./NodeCanvas.scss";
 
 export type NodeCanvasProps = {
     data: CanvasData;
+    onCanvasRightClick?: (e: React.MouseEvent) => void;
     onNewConnector?: (connector: ConnectorData, e: React.MouseEvent) => void;
     onConnectorSelect?: (connector: ConnectorData, e: React.MouseEvent) => void;
     onConnectorDeselect?: (connector: ConnectorData, e: React.MouseEvent) => void;
+    onConnectorRightClick?: (connector: ConnectorData, e: React.MouseEvent) => void;
     onNodeMove?: (id: string, position: XYCoords) => void;
     onNodeMoveStop?: (id: string, position: XYCoords) => void;
     onNodeSelect?: (id: string, e: React.MouseEvent) => void;
     onNodeDeselect?: (id: string, e: React.MouseEvent) => void;
     onNodeDoubleClick?: (id: string, e: React.MouseEvent) => void;
+    onNodeRightClick?: (id: string, e: React.MouseEvent) => void;
 }
 
 export type NodeCanvasState = {
@@ -42,6 +45,7 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
     }
 
     static defaultProps : Partial<NodeCanvasProps> = {
+        onCanvasRightClick: () => {},
         onNewConnector: () => {},
         onConnectorSelect: () => {},
         onConnectorDeselect: () => {},
@@ -165,6 +169,10 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
     private handleNodeBlur = (e: React.MouseEvent, node: Node) => {
         this.props.onNodeDeselect!(node.props.id, e);
     }
+
+    private handleNodeRightClick = (e: React.MouseEvent, node: Node) => {
+        this.props.onNodeRightClick!(node.props.id, e);
+    }
     //#endregion
 
     //#region Spline Handlers
@@ -194,7 +202,6 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
             this.props.onNewConnector!({sourceNodeId: source!.nodeId, sourceFieldId: source!.sourceFieldId, toNodeId: node.props.id, toFieldId: input.props.id}, e);
             input.setConnected(true);
         }
-
         this.setState({ dragging: false });
     }
 
@@ -204,6 +211,10 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
 
     private handleSplineBlur = (e: React.MouseEvent, connector: ConnectorData) => {
         this.props.onConnectorDeselect!(connector, e);
+    }
+
+    private handleSplineRightClick = (e: React.MouseEvent, connector: ConnectorData) => {
+        this.props.onConnectorRightClick!(connector, e);
     }
 
     //#endregion
@@ -223,26 +234,27 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
 
     public render() {
 
-        const { size, pattern, fillId, className, onZoom, resetTransitionTime, zoomRange, zoomInputFilter, data } = this.props;
+        const { size, pattern, fillId, className, onZoom, resetTransitionTime, zoomRange, zoomInputFilter, data, onCanvasRightClick } = this.props;
         const { dragging, position, source, nodesRendered } = this.state;
         const props = {pattern, fillId, className, onZoom, resetTransitionTime, zoomRange, zoomInputFilter };
 
         const { nodes, connectors } = data;
 
         return (
-            <Canvas ref={(c: Canvas) => this._canvas = c} size={size} {...props}>
+            <Canvas ref={(c: Canvas) => this._canvas = c} size={size} onRightClick={onCanvasRightClick} {...props}>
                 <g id="_link-container">
                     {nodesRendered &&
                         connectors.map((connector: ConnectorData, index: number) => {
                             const start = this.getFieldPositionById(connector.sourceNodeId, connector.sourceFieldId);
                             const end = this.getFieldPositionById(connector.toNodeId, connector.toFieldId);
-                            return <SplineComponent key={index} linkTransform={this.splineTransform} 
+                            return <Spline key={index} linkTransform={this.splineTransform} 
                                 onClick={(e) => this.handleSplineClick(e, connector)} onClickOutside={(e) => this.handleSplineBlur(e, connector)} 
+                                onRightClick={(e) => this.handleSplineRightClick(e, connector)}
                                 start={this.toCanvasCoords(start)} end={this.toCanvasCoords(end)} />
                         })
                     }
                     {(dragging && source) && (
-                        <SplineComponent start={source.position} end={position} linkTransform={this.splineTransform} />
+                        <Spline start={source.position} end={position} linkTransform={this.splineTransform} />
                     )}
                 </g>
                 <g id="_node-container">
@@ -252,6 +264,7 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
                             onCompleteConnector={this.handleCompleteConnector} onStartConnector={this.handleStartConnector}
                             onDrag={this.handleNodeMove} onDragStart={this.handleNodeDragStart} onDragStop={this.handleNodeDragStop}
                             onBlur={this.handleNodeBlur} onDoubleClick={this.handleNodeDoubleClick}
+                            onRightClick={this.handleNodeRightClick}
                             {...node}
                         />
                     })}

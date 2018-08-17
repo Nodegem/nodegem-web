@@ -10,6 +10,7 @@ export type CanvasProps = {
     size: [number, number];
     resetTransitionTime?: number;
     zoomInputFilter?: (ev: any) => boolean;
+    onRightClick?: (e: React.MouseEvent) => void;
     onZoom?: (canvas: HTMLElement, transform: any) => void;
     zoomRange?: [number, number];
     fillId?: string;
@@ -23,6 +24,7 @@ export default class Canvas extends PureComponent<CanvasProps> {
         zoomRange: [1, 1],
         resetTransitionTime: 750,
         onZoom: () => {},
+        onRightClick: () => {}
     }
 
     private _svg : SVGSVGElement;
@@ -93,7 +95,7 @@ export default class Canvas extends PureComponent<CanvasProps> {
 
         const { pattern, className, size, 
             fillId, onZoom, zoomInputFilter, zoomRange,
-            resetTransitionTime, ...rest } = this.props;
+            resetTransitionTime, onRightClick, ...rest } = this.props;
 
         const [ width, height ] = size;
         const halfWidth = width / 2;
@@ -112,7 +114,8 @@ export default class Canvas extends PureComponent<CanvasProps> {
                 <g ref={(g) => this.container = g!} id="_canvas-view" transform={d3.zoomIdentity.toString()}>
                     <rect ref={(r) => this._rect = r!} x={-halfWidth} y={-halfHeight} 
                             width={width} height={height} 
-                            className="canvas-background" id="_canvas-background" 
+                            className="canvas-background" id="_canvas-background"
+                            onContextMenu={onRightClick} 
                             style={{ fill: (fillId ? `url("${fillId}")` : "none") }} />
                             
                         {this.props.children}
