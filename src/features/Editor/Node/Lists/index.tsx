@@ -5,8 +5,8 @@ import { IOData } from '../../NodeCanvas/types';
 
 import './styles.scss';
 
-type FieldListType = React.ComponentType<{ items: IOData[], children: React.ComponentType<{item: IOData}>}>
-const FieldList: FieldListType = ({ items, children }) => <ul className="node-fields">{items.map((item, key) => React.createElement(children, { item, key }))}</ul>
+type FieldListType = React.ComponentType<{ items: IOData[], type: "inputs" | "outputs", children: React.ComponentType<{item: IOData}>}>
+const FieldList: FieldListType = ({ items, type, children }) => <ul className={`node-fields node-${type}`}>{items.map((item, key) => React.createElement(children, { item, key }))}</ul>
 
 type OutputListProps = {
     items: IOData[];
@@ -23,7 +23,7 @@ export class OutputList extends React.PureComponent<OutputListProps> {
         const {items, onStartConnector} = this.props;
         this._outputs = [];
         return (
-            <FieldList items={items}>{
+            <FieldList type="outputs" items={items}>{
                 ({item}) => <Output ref={(o) => this._outputs.push(o!)} {...item} onMouseDown={onStartConnector} />}
             </FieldList>
         )
@@ -45,7 +45,7 @@ export class InputList extends React.PureComponent<InputListProps> {
         const {items, onCompleteConnector} = this.props;
         this._inputs = [];
         return (
-            <FieldList items={items}>{
+            <FieldList type="inputs" items={items}>{
                 ({item}) => <Input ref={(i) => this.inputs.push(i!)} {...item} onMouseUp={onCompleteConnector} />}
             </FieldList>
         )

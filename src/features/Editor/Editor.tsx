@@ -69,14 +69,6 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
 
     private _canvas: NodeCanvas;
 
-    // constructor(props: CombinedProps) {
-    //     super(props);
-
-    //     this.state = {
-    //         data: nodeData
-    //     };
-    // }
-
     protected _buildState(props: CombinedProps) : EditorState {
         return {
             data: editorStore.getCanvasData(),
@@ -100,7 +92,6 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
         });
 
         editorStore.setCanvasData(newState);
-        // this.setState({data: newState});
     }
 
     private handleNodeMoveStop = (nodeId, position) => {
@@ -116,9 +107,6 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
         });
 
         editorStore.setCanvasData(newNodeState);
-        // this.setState({
-        //     data: newNodeState
-        // });
     }
 
     private handleConnectorSelect = (connector: ConnectorData, e: React.MouseEvent) => {

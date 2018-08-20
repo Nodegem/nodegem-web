@@ -50,7 +50,8 @@ export default class Sider extends ComponentBase<{}, SiderState> {
                 collapsible
                 onCollapse={this.handleCollapse}
             >
-                <Menu              
+                <Menu
+                    mode="inline"
                     onClick={this.handleClick}  
                     theme={theme}
                     defaultSelectedKeys={["dashboard"]}
