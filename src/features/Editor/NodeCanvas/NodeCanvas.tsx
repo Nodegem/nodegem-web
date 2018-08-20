@@ -86,14 +86,14 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
     //This is utter bullshit but the only way I can get it to render properly
     private onLoaded = () => {
 
-        for (let connector of this.props.data.connectors) {
+        // for (let connector of this.props.data.connectors) {
 
-            const sourceField = this.getFieldById(connector.sourceNodeId, connector.sourceFieldId);
-            const endField = this.getFieldById(connector.toNodeId, connector.toFieldId);
+        //     const sourceField = this.getFieldById(connector.sourceNodeId, connector.sourceFieldId);
+        //     const endField = this.getFieldById(connector.toNodeId, connector.toFieldId);
 
-            sourceField.setConnected(true);
-            endField.setConnected(true);
-        }
+        //     sourceField.setConnected(true);
+        //     endField.setConnected(true);
+        // }
 
         this.setState({ nodesRendered: true });
     }
@@ -142,7 +142,7 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
                 const hasExistingConnection = this.props.data.connectors.some(x => x.sourceNodeId === source.nodeId);
                 const field = this.getFieldById(source.nodeId, source.sourceFieldId);
                 if (field && !hasExistingConnection) {
-                    field.setConnected(false);
+                    // field.setConnected(false);
                 }
             }
 
@@ -197,7 +197,7 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
 
     private handleStartConnector = (e: React.MouseEvent, output: Output, node: Node) => {
         const sourcePos = this.toCanvasCoords(output.anchorPoint);
-        output.setConnected(true);
+        // output.setConnected(true);
         this.setState({ dragging: true, source: { nodeId: node.props.id, sourceFieldId: output.props.id, position: sourcePos } });
     }
 
@@ -206,7 +206,7 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
         if (dragging) {
             const { source } = this.state;
             this.props.onNewConnector!({sourceNodeId: source!.nodeId, sourceFieldId: source!.sourceFieldId, toNodeId: node.props.id, toFieldId: input.props.id}, e);
-            input.setConnected(true);
+            // input.setConnected(true);
         }
         this.setState({ dragging: false });
     }
@@ -251,12 +251,13 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
                 <g id="_link-container">
                     {nodesRendered &&
                         connectors.map((connector: ConnectorData, index: number) => {
-                            const start = this.getFieldPositionById(connector.sourceNodeId, connector.sourceFieldId);
-                            const end = this.getFieldPositionById(connector.toNodeId, connector.toFieldId);
+                            const start = this.getFieldById(connector.sourceNodeId, connector.sourceFieldId);
+                            const end = this.getFieldById(connector.toNodeId, connector.toFieldId);
                             return <Spline key={index} linkTransform={this.splineTransform} 
                                 onClick={(e) => this.handleSplineClick(e, connector)} onClickOutside={(e) => this.handleSplineBlur(e, connector)} 
                                 onRightClick={(e) => this.handleSplineRightClick(e, connector)}
-                                start={this.toCanvasCoords(start)} end={this.toCanvasCoords(end)} />
+                                start={this.toCanvasCoords(start.anchorPoint)} end={this.toCanvasCoords(end.anchorPoint)}
+                                sourceField={start as Output} toField={end as Input} />
                         })
                     }
                     {(dragging && source) && (
@@ -264,9 +265,9 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
                     )}
                 </g>
                 <g id="_node-container">
-                    {Object.keys(nodes).map((key: string, index: number) => {
+                    {Object.keys(nodes).map((key: string) => {
                         const node = nodes[key];
-                        return <Node ref={(n: Node) => this._nodes[node.id] = n} key={index}
+                        return <Node ref={(n: Node) => this._nodes[node.id] = n} key={node.id}
                             onCompleteConnector={this.handleCompleteConnector} onStartConnector={this.handleStartConnector}
                             onDrag={this.handleNodeMove} onDragStart={this.handleNodeDragStart} onDragStop={this.handleNodeDragStop}
                             onBlur={this.handleNodeBlur} onDoubleClick={this.handleNodeDoubleClick}

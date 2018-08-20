@@ -42,8 +42,8 @@ export class InputList extends React.PureComponent<InputListProps> {
     }
 
     public render() {
-        const {items, onCompleteConnector} = this.props;
         this._inputs = [];
+        const {items, onCompleteConnector} = this.props;
         return (
             <FieldList type="inputs" items={items}>{
                 ({item}) => <Input ref={(i) => this.inputs.push(i!)} {...item} onMouseUp={onCompleteConnector} />}

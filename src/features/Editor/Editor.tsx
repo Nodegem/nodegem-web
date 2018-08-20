@@ -85,10 +85,33 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
     }
 
     private handleNewConnector = (connector: ConnectorData) => {
+
+        if(!this.canConnect(connector)) return;
+
         const newState = update(this.state.data, {
             connectors: {
                 $push: [connector]
             }
+        });
+
+        editorStore.setCanvasData(newState);
+    }
+
+    private canConnect = (connector: ConnectorData) => {
+        const {connectors} = this.state.data;
+        const isSameNode = connector.sourceNodeId === connector.toNodeId;
+        if(isSameNode) return false;
+
+        const fieldAlreadyConnected = connectors.some(x => x.toNodeId === connector.toNodeId && x.toFieldId === connector.toFieldId);
+        if(fieldAlreadyConnected) return false;
+
+        return true;
+    }
+
+    private detachConnector = (connector: ConnectorData) => {
+
+        const newState = update(this.state.data, {
+            connectors: arr => arr.filter(item => item !== connector)
         });
 
         editorStore.setCanvasData(newState);
@@ -113,6 +136,12 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
     }
 
     private handleConnectorRightClick = (connector: ConnectorData, e: React.MouseEvent) => {
+
+        if(e.metaKey) {
+            this.detachConnector(connector);
+            return;
+        }
+
         this.setState({contextData: ConnectorContextMenu(connector)});
     }
 

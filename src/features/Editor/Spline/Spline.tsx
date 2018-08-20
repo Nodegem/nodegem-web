@@ -3,18 +3,25 @@ import { XYCoords } from "../utils/types";
 import * as d3 from "d3";
 import onClickOutside, { HandleClickOutside, InjectedOnClickOutProps } from 'react-onclickoutside';
 import classNames from "classnames";
+import Output from "../Node/IO/Output/Output";
+import Input from "../Node/IO/Input/Input";
 
 import './Spline.scss';
 
 export type SplineProps = {
     start: XYCoords;
     end: XYCoords;
+    sourceField?: Output;
+    toField?: Input;
     mousePos?: XYCoords;
     color?: string;
     strokeSize?: number;
     handleRadius?: number;
     handleColor?: string;
     curve?: d3.CurveFactory | d3.CurveFactoryLineOnly;
+}
+
+type SplineHandlers = {
     onClick?: (e: React.MouseEvent, spline: Spline) => void;
     onRightClick?: (e: React.MouseEvent, spline: Spline) => void;
     onClickOutside?: (e: React.MouseEvent, spline: Spline) => void;
@@ -25,11 +32,11 @@ export type SplineState = {
     selected: boolean;
 }
 
-type CombinedProps = SplineProps & InjectedOnClickOutProps;
+type CombinedProps = SplineProps & SplineHandlers & InjectedOnClickOutProps;
 
 class Spline extends PureComponent<CombinedProps, SplineState> implements HandleClickOutside<any> {
 
-    static defaultProps : Partial<SplineProps> = {
+    static defaultProps : Partial<SplineProps & SplineHandlers> = {
         onClick: () => {},
         onClickOutside: () => {},
         onRightClick: () => {},
@@ -55,6 +62,30 @@ class Spline extends PureComponent<CombinedProps, SplineState> implements Handle
         this.state = {
             selected: false,
         };
+    }
+
+    componentDidMount() {
+        const {sourceField, toField} = this.props;
+
+        if(sourceField) {
+            sourceField.setConnected(true);
+        }
+
+        if(toField) {
+            toField.setConnected(true);
+        }
+    }
+
+    componentWillUnmount() {
+        const {sourceField, toField} = this.props;
+
+        if(sourceField) {
+            sourceField.setConnected(false);
+        }
+
+        if(toField) {
+            toField.setConnected(false);
+        }
     }
 
     handleClickOutside = (e: React.MouseEvent<any>) : void => {

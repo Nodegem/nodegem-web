@@ -59,8 +59,7 @@ export default class Node extends PureComponent<CombineProps> {
     public getFieldById = <T extends (Input | Output)>(fieldId: string) : T | null => {
         const combinedList = [...this._inputList.inputs, ...this._outputList.outputs];
         for (let field of combinedList) {
-            //TODO: Dis shit breaks for some reason
-            if(field.props.id === fieldId) {
+            if(field && field.props.id === fieldId) {
                 return field as T;
             }
         }
