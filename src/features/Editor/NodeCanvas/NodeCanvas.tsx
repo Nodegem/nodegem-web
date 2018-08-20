@@ -12,6 +12,7 @@ import "./NodeCanvas.scss";
 
 export type NodeCanvasProps = {
     data: CanvasData;
+    cameraTransform?: [number, number, number];
     onCanvasRightClick?: (e: React.MouseEvent) => void;
     onNewConnector?: (connector: ConnectorData, e: React.MouseEvent) => void;
     onConnectorSelect?: (connector: ConnectorData, e: React.MouseEvent) => void;
@@ -75,6 +76,11 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
         addEvent(document, "mouseup", this.handleMouseUp);
 
         setTimeout(this.onLoaded, 50);
+
+        if(this.props.cameraTransform) {
+            const [x, y, scale] = this.props.cameraTransform;
+            this._canvas.setCameraTransform({x, y, scale});
+        }
     }
 
     //This is utter bullshit but the only way I can get it to render properly
@@ -234,9 +240,9 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
 
     public render() {
 
-        const { size, pattern, fillId, className, onZoom, resetTransitionTime, zoomRange, zoomInputFilter, data, onCanvasRightClick } = this.props;
+        const { size, pattern, fillId, className, onZoomPan, resetTransitionTime, zoomRange, zoomInputFilter, data, onCanvasRightClick } = this.props;
         const { dragging, position, source, nodesRendered } = this.state;
-        const props = {pattern, fillId, className, onZoom, resetTransitionTime, zoomRange, zoomInputFilter };
+        const props = {pattern, fillId, className, onZoomPan, resetTransitionTime, zoomRange, zoomInputFilter };
 
         const { nodes, connectors } = data;
 

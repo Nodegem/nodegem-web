@@ -1,4 +1,4 @@
-import React, { PureComponent, CSSProperties } from "react";
+import React, { PureComponent, CSSProperties, Props } from "react";
 import * as d3 from 'd3';
 import { HotKeys } from "react-hotkeys";
 import { isMac, convertCommands } from "../../utils";
@@ -9,14 +9,8 @@ import update from "immutability-helper";
 
 import "./Editor.scss";
 import "./ContextMenu/context-menu.scss";
-
-
-export type EditorProps = {
-    size: [number, number];
-    zoomRange: [number, number];
-}
-
-type CombinedProps = EditorProps;
+import { ComponentBase } from "resub";
+import { editorStore } from "../../stores/EditorStore";
 
 enum EDITOR_KEY_COMMANDS {
     RESET = "RESET",
@@ -40,19 +34,6 @@ const canvasPattern = (size: number) => (
     </g>
 )
 
-const nodeData : CanvasData = {
-    nodes: {
-        "1": { id: "1", title: "goodbye", inputs: [{ label: "Input", id: "10" }, { label: "Input", id: "12" }], outputs: [{label: "Output", id: "1"}], position: [200, 200] },
-        "2": { id: "2", title: "hello", inputs: [{ label: "Input", id: "11" }, { label: "Input", id: "12" }, { label: "Input", id: "13" }], outputs: [{label: "Output", id: "2"}], position: [400, 550] },
-        "3": { id: "3", title: "test", inputs: [{ label: "Input", id: "11" }], outputs: [{label: "Output", id: "2"}], position: [800, 550] },
-        "4": { id: "4", title: "test 2", inputs: [{ label: "Input", id: "11" }], outputs: [{label: "Output", id: "2"}], position: [600, 300] },
-    },
-    connectors: [
-        { sourceNodeId: "1", sourceFieldId: "1", toNodeId: "2", toFieldId: "13" },
-        { sourceNodeId: "2", sourceFieldId: "2", toNodeId: "3", toFieldId: "11" }
-    ]
-}
-
 const NodeContextMenu = (data) => {
     return (
         <MenuItem>Node</MenuItem>
@@ -71,20 +52,35 @@ const CanvasContextMenu = (data) => {
     )
 }
 
+export type EditorProps = {
+    size: [number, number];
+    zoomRange: [number, number];
+}
+
+type CombinedProps = EditorProps & Props<any>;
+
 type EditorState = {
     data: CanvasData;
+    cameraTransform?: [number, number, number];
     contextData?: JSX.Element;
 }
 
-class Editor extends PureComponent<CombinedProps, EditorState> {
+class Editor extends ComponentBase<CombinedProps, EditorState> {
 
     private _canvas: NodeCanvas;
 
-    constructor(props: CombinedProps) {
-        super(props);
+    // constructor(props: CombinedProps) {
+    //     super(props);
 
-        this.state = {
-            data: nodeData
+    //     this.state = {
+    //         data: nodeData
+    //     };
+    // }
+
+    protected _buildState(props: CombinedProps) : EditorState {
+        return {
+            data: editorStore.getCanvasData(),
+            cameraTransform: editorStore.getCanvasTransform()
         };
     }
 
@@ -103,7 +99,8 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
             }
         });
 
-        this.setState({data: newState});
+        editorStore.setCanvasData(newState);
+        // this.setState({data: newState});
     }
 
     private handleNodeMoveStop = (nodeId, position) => {
@@ -118,9 +115,10 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
             }
         });
 
-        this.setState({
-            data: newNodeState
-        });
+        editorStore.setCanvasData(newNodeState);
+        // this.setState({
+        //     data: newNodeState
+        // });
     }
 
     private handleConnectorSelect = (connector: ConnectorData, e: React.MouseEvent) => {
@@ -141,35 +139,46 @@ class Editor extends PureComponent<CombinedProps, EditorState> {
         this.setState({contextData: CanvasContextMenu({})});
     }
 
+    private handleContextMenuHide = (e: React.MouseEvent) => {
+        this.setState({contextData: undefined});
+    }
+
+    private handleCanvasZoomPan = (canvas, transform) => {
+        editorStore.setCanvasTransform(transform);
+    }
+
     public render() {
 
         const { size, zoomRange } = this.props;
-        const { contextData } = this.state;
+        const { contextData, cameraTransform } = this.state;
 
         const hotkeyHandler = {
             [EDITOR_KEY_COMMANDS.RESET]: () => this._canvas.reset()
         }
 
         const flexStyle : CSSProperties = { flex: 1, flexDirection: "column", display: "flex" };
+        const shouldDisplay = !contextData ? "none" : "block";
 
-        //Doesn't work on FireFox
         return (
-            <div style={flexStyle}>
+            <div className="editor" style={flexStyle}>
                 <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={flexStyle} focused>
                     <ContextMenuTrigger id="canvas_menu" style={flexStyle}>
-                        <NodeCanvas ref={(c) => this._canvas = c!} size={size} pattern={canvasPattern(200)} data={this.state.data}
+                        <NodeCanvas ref={(c) => this._canvas = c!} size={size} 
+                            pattern={canvasPattern(200)} data={this.state.data}
+                            cameraTransform={cameraTransform}
                             fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={zoomRange} 
                             onNewConnector={this.handleNewConnector} onNodeMoveStop={this.handleNodeMoveStop} onConnectorSelect={this.handleConnectorSelect}
                             onNodeDeselect={this.handleNodeDeselect} onNodeRightClick={this.handleNodeRightClick}
-                            onConnectorRightClick={this.handleConnectorRightClick} onCanvasRightClick={this.handleCanvasRightClick} />
+                            onConnectorRightClick={this.handleConnectorRightClick} onCanvasRightClick={this.handleCanvasRightClick}
+                            onZoomPan={this.handleCanvasZoomPan} />
                     </ContextMenuTrigger>
                 </HotKeys>
-                    <ContextMenu id="canvas_menu">
-                        { !contextData 
-                            ? (<MenuItem></MenuItem>) 
-                            : contextData
-                        }
-                    </ContextMenu>
+                <ContextMenu style={{display: shouldDisplay}} id="canvas_menu" onHide={this.handleContextMenuHide}>
+                    { !contextData 
+                        ? (<MenuItem></MenuItem>) 
+                        : contextData
+                    }
+                </ContextMenu>
             </div>
         )
     }

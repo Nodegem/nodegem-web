@@ -11,7 +11,7 @@ export type CanvasProps = {
     resetTransitionTime?: number;
     zoomInputFilter?: (ev: any) => boolean;
     onRightClick?: (e: React.MouseEvent) => void;
-    onZoom?: (canvas: HTMLElement, transform: any) => void;
+    onZoomPan?: (canvas: HTMLElement, transform: [number, number, number]) => void;
     zoomRange?: [number, number];
     fillId?: string;
     pattern?: JSX.Element;
@@ -23,7 +23,7 @@ export default class Canvas extends PureComponent<CanvasProps> {
     static defaultProps = {
         zoomRange: [1, 1],
         resetTransitionTime: 750,
-        onZoom: () => {},
+        onZoomPan: () => {},
         onRightClick: () => {}
     }
 
@@ -72,7 +72,8 @@ export default class Canvas extends PureComponent<CanvasProps> {
         const canvas = d3.select("#_canvas-view");
         canvas.attr("transform", transform);
 
-        this.props.onZoom!(canvas.node() as HTMLElement, transform);
+        const {x, y, k} = transform;
+        this.props.onZoomPan!(canvas.node() as HTMLElement, [x, y, k]);
     }
 
     public reset() : void {
@@ -94,7 +95,7 @@ export default class Canvas extends PureComponent<CanvasProps> {
     public render() {
 
         const { pattern, className, size, 
-            fillId, onZoom, zoomInputFilter, zoomRange,
+            fillId, onZoomPan, zoomInputFilter, zoomRange,
             resetTransitionTime, onRightClick, ...rest } = this.props;
 
         const [ width, height ] = size;

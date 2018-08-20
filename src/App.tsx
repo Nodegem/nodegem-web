@@ -5,10 +5,17 @@ import Editor from './features/Editor/Editor';
 import ResubPersistGate from './components/ResubPersistGate/ResubPersistGate';
 import { Layout } from 'antd';
 import Sider from './features/Sider/Sider';
+import { autoSave, rehydrate } from 'resub-persist/dist';
+import { appStore } from './stores/AppStore';
+import localforage from 'localforage';
+import { editorStore } from './stores/EditorStore';
 
 const { Content } = Layout;
 
 const persistor = async () => {
+  await rehydrate(localforage, [appStore, editorStore]);
+  await autoSave(localforage, appStore);
+  await autoSave(localforage, editorStore);
 }
 
 const EditorPage = () => <Editor size={[15000, 15000]} zoomRange={[.5, 1.5]} />;

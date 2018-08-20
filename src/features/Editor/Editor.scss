@@ -1,11 +1,7 @@
-.editor {
-    border: 1px solid lightgray;
-    overflow: hidden;
+.react-contextmenu-wrapper {
     flex: 1;
+    display: flex;
     flex-direction: column;
-    background-color: rgba(252, 252, 252, 1);
-    width: 100%;
-    height: 100%;
 }
 
 /* Chrome Only */
@@ -13,11 +9,6 @@
     .editor {
         height: stretch;
     }
-}
-
-.editor-background {
-    background-color: #fbfbfb;
-    fill: url("#grid"); 
 }
 
 @-moz-document url-prefix() { 

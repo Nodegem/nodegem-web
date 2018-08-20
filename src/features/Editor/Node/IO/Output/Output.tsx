@@ -55,6 +55,7 @@ export default class Output extends React.PureComponent<OutputProps, OutputState
         const { hover, connected } = this.state;
 
         const outputClassName = classNames({
+            "field": true,
             "output": true,
             "hover": hover,
             "connected": connected
@@ -62,7 +63,7 @@ export default class Output extends React.PureComponent<OutputProps, OutputState
 
         return (
             <li className="node-output" onMouseDown={this.handleClick}>
-               <a className={outputClassName} href="#" onClick={this.handleClick}>
+               <a className={outputClassName} onClick={this.handleClick}>
                     <span className="label">{label}</span>
                     <span ref={(i) => this._icon = i!} style={{display: "flex"}} className="socket">
                         <Icon icon={connected || hover ? circle : circleO} size={socketSize} />

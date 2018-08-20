@@ -2,6 +2,7 @@ import React from "react";
 import { Menu, Layout, Icon } from "antd";
 import { SiderTheme } from "antd/lib/layout/Sider";
 import { ComponentBase } from "resub";
+import { appStore } from "../../stores/AppStore";
 
 const AntSider = Layout.Sider;
 
@@ -13,25 +14,57 @@ export interface SiderState {
 
 export default class Sider extends ComponentBase<{}, SiderState> {
 
-    handleCollapse() {
+    protected _buildState() : Partial<SiderState> {
+        return {
+            collapsed: appStore.getSiderCollapsed(),
+            theme: appStore.getSiderTheme(),
+            selectedKeys: appStore.getSelectedKeys()
+        };
+    }
 
+    handleCollapse = () => {
+        appStore.setSiderCollapsed(!this.state.collapsed);
+    }
+
+    handleClick = ({item, key, keyPath}) => {
+
+        if(!keyPath.includes("settings")) {
+            appStore.setSelectedKeys(key);
+        }
+
+        if(key === "theme") {
+            const { theme } = this.state;
+            let newTheme : SiderTheme = theme === "dark" ? "light" : "dark";
+            appStore.setSiderTheme(newTheme);
+        }
     }
 
     public render() {
+
+        const { theme, collapsed } = this.state;
+
         return (
             <AntSider
-                theme="dark"
+                theme={theme}
+                collapsed={collapsed}
                 collapsible
                 onCollapse={this.handleCollapse}
             >
-                <Menu
-                    theme="dark"
+                <Menu              
+                    onClick={this.handleClick}  
+                    theme={theme}
                     defaultSelectedKeys={["dashboard"]}
+                    selectedKeys={["dashboard"]}
                 >
                     <Menu.Item key="dashboard">
                         <Icon type="dashboard" />
                         <span>Editor</span>
                     </Menu.Item>
+                    <Menu.SubMenu key="settings" title={<span><Icon type="setting"/><span>Settings</span></span>}>
+                        <Menu.Item key="theme">
+                            Change Theme
+                        </Menu.Item>
+                    </Menu.SubMenu>
                 </Menu>
             </AntSider>
         );

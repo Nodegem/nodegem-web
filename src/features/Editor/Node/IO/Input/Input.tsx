@@ -77,6 +77,7 @@ export default class Input extends React.PureComponent<InputProps, InputState> {
         const { hover, connected } = this.state;
 
         const inputClassName = classNames({
+            "field": true,
             "input": true,
             "hover": hover,
             "connected": connected
@@ -84,7 +85,7 @@ export default class Input extends React.PureComponent<InputProps, InputState> {
 
         return (
             <li className="node-input">
-                <a className={inputClassName} onClick={this.handleClick} onMouseDown={this.noop} onMouseUp={this.handleMouseUp} href="#">
+                <a className={inputClassName} onClick={this.handleClick} onMouseDown={this.noop} onMouseUp={this.handleMouseUp}>
                     <span style={{display: "flex"}} className="socket" ref={(i) => this._icon = i!}>
                         <Icon size={socketSize} icon={hover || connected ? circle : circleO} onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut} />
                     </span>
