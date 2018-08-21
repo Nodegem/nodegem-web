@@ -64,30 +64,6 @@ class Spline extends PureComponent<CombinedProps, SplineState> implements Handle
         };
     }
 
-    componentDidMount() {
-        const {sourceField, toField} = this.props;
-
-        if(sourceField) {
-            sourceField.setConnected(true);
-        }
-
-        if(toField) {
-            toField.setConnected(true);
-        }
-    }
-
-    componentWillUnmount() {
-        const {sourceField, toField} = this.props;
-
-        if(sourceField) {
-            sourceField.setConnected(false);
-        }
-
-        if(toField) {
-            toField.setConnected(false);
-        }
-    }
-
     handleClickOutside = (e: React.MouseEvent<any>) : void => {
         this.setState({selected: false});
         this.props.onClickOutside!(e, this);

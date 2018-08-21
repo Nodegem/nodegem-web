@@ -10,9 +10,15 @@ import { IOData } from "../NodeCanvas/types";
 
 import "./Node.scss";
 
+export type ConnectedFieldType = {
+    inputs: { [fieldId: string] : number },
+    outputs: { [fieldId: string] : number }
+}
+
 export type NodeProps = {
     title: string;
     id: string;
+    connectedFields: ConnectedFieldType;
     inputs: IOData[];
     outputs: IOData[];
     position?: XYCoords;
@@ -103,7 +109,7 @@ export default class Node extends PureComponent<CombineProps> {
 
     public render() {
 
-        const { title, handle, position, inputs, outputs } = this.props;
+        const { title, handle, position, inputs, outputs, connectedFields } = this.props;
 
         const width = 200;
         const height = titleHeight + (fieldHeight * Math.max(inputs.length, outputs.length));
@@ -120,8 +126,8 @@ export default class Node extends PureComponent<CombineProps> {
                     <span className="title">{title}</span>
                 </div>
                 <div className="content">
-                    <InputList ref={(il) => this._inputList = il!} items={inputs} onCompleteConnector={this.handleCompleteConnector} />
-                    <OutputList ref={(ol) => this._outputList = ol!} items={outputs} onStartConnector={this.handleStartConnector} />
+                    <InputList ref={(il) => this._inputList = il!} connectedFields={connectedFields.inputs} items={inputs} onCompleteConnector={this.handleCompleteConnector} />
+                    <OutputList ref={(ol) => this._outputList = ol!} connectedFields={connectedFields.outputs} items={outputs} onStartConnector={this.handleStartConnector} />
                 </div>
             </NodeCore>
         )

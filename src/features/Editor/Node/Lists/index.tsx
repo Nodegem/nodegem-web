@@ -1,7 +1,7 @@
 import React from 'react';
 import Output from '../IO/Output/Output';
 import Input from '../IO/Input/Input';
-import { IOData } from '../../NodeCanvas/types';
+import { IOData, ConnectorData } from '../../NodeCanvas/types';
 
 import './styles.scss';
 
@@ -10,6 +10,7 @@ const FieldList: FieldListType = ({ items, type, children }) => <ul className={`
 
 type OutputListProps = {
     items: IOData[];
+    connectedFields: { [fieldId: string] : number };
     onStartConnector: (e: React.MouseEvent, output: Output) => void;
 }
 export class OutputList extends React.PureComponent<OutputListProps> {
@@ -20,11 +21,12 @@ export class OutputList extends React.PureComponent<OutputListProps> {
     }
 
     public render() {
-        const {items, onStartConnector} = this.props;
+        const {items, onStartConnector, connectedFields} = this.props;
         this._outputs = [];
         return (
             <FieldList type="outputs" items={items}>{
-                ({item}) => <Output ref={(o) => this._outputs.push(o!)} {...item} onMouseDown={onStartConnector} />}
+                ({item}) => <Output ref={(o) => this._outputs.push(o!)} {...item} connected={connectedFields[item.id] > 0}
+                     onMouseDown={onStartConnector} />}
             </FieldList>
         )
     }
@@ -32,6 +34,7 @@ export class OutputList extends React.PureComponent<OutputListProps> {
 
 type InputListProps = {
     items: IOData[];
+    connectedFields: { [fieldId: string] : number };
     onCompleteConnector: (e: React.MouseEvent, input: Input) => void;
 }
 export class InputList extends React.PureComponent<InputListProps> {
@@ -43,10 +46,11 @@ export class InputList extends React.PureComponent<InputListProps> {
 
     public render() {
         this._inputs = [];
-        const {items, onCompleteConnector} = this.props;
+        const {items, onCompleteConnector, connectedFields} = this.props;
         return (
             <FieldList type="inputs" items={items}>{
-                ({item}) => <Input ref={(i) => this.inputs.push(i!)} {...item} onMouseUp={onCompleteConnector} />}
+                ({item}) => <Input ref={(i) => this.inputs.push(i!)} {...item} connected={connectedFields[item.id] > 0}
+                     onMouseUp={onCompleteConnector} />}
             </FieldList>
         )
     }

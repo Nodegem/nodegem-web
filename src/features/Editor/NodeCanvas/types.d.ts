@@ -1,7 +1,7 @@
 import { XYCoords } from "../utils/types";
 
 export type CanvasData = {
-    nodes: { [nodeId: string] : NodeData };
+    nodes: NodeData[];
     connectors: ConnectorData[];
 }
 

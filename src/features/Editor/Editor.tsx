@@ -108,7 +108,7 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
         return true;
     }
 
-    private detachConnector = (connector: ConnectorData) => {
+    private removeConnector = (connector: ConnectorData) => {
 
         const newState = update(this.state.data, {
             connectors: arr => arr.filter(item => item !== connector)
@@ -117,14 +117,23 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
         editorStore.setCanvasData(newState);
     }
 
+    private removeNode = (nodeId: string) => {
+        
+        const newState = update(this.state.data, {
+            nodes: arr => arr.filter(node => node.id !== nodeId),
+            connectors: arr => arr.filter(item => item.sourceNodeId !== nodeId && item.toNodeId !== nodeId)
+        });
+
+        editorStore.setCanvasData(newState);
+    }
+
     private handleNodeMoveStop = (nodeId, position) => {
 
+        const index = this.state.data.nodes.findIndex(x => x.id === nodeId);
         const newNodeState = update(this.state.data, {
             nodes: {
-                [nodeId]: {
-                    position: {
-                        $set: position
-                    }
+                [index]: {
+                    position: { $set: position }
                 }
             }
         });
@@ -138,7 +147,7 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
     private handleConnectorRightClick = (connector: ConnectorData, e: React.MouseEvent) => {
 
         if(e.metaKey) {
-            this.detachConnector(connector);
+            this.removeConnector(connector);
             return;
         }
 
@@ -149,6 +158,12 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
     }
 
     private handleNodeRightClick = (nodeId: string, e: React.MouseEvent) => {
+
+        if(e.metaKey) {
+            this.removeNode(nodeId);
+            return;
+        }
+
         this.setState({contextData: NodeContextMenu(nodeId)});
     }
 

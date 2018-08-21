@@ -9,6 +9,7 @@ import { XYCoords } from "../../../utils/types";
 
 export type InputProps = {
     label: string;
+    connected: boolean;
     id: string;
     socketSize?: number;
     onClick?: (e: React.MouseEvent, input: Input) => void;
@@ -17,14 +18,12 @@ export type InputProps = {
 
 export type InputState = {
     hover: boolean;
-    connected: boolean;
 }
 
 export default class Input extends React.PureComponent<InputProps, InputState> {
 
     state = {
-        hover: false,
-        connected: false
+        hover: false
     }
 
     static defaultProps = {
@@ -62,10 +61,6 @@ export default class Input extends React.PureComponent<InputProps, InputState> {
         this.setState({hover: false});
     }
 
-    public setConnected = (toggle: boolean) : void => {
-        this.setState({connected: toggle});
-    }
-
     private noop = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -73,8 +68,8 @@ export default class Input extends React.PureComponent<InputProps, InputState> {
 
     public render() {
 
-        const { label, socketSize } = this.props;
-        const { hover, connected } = this.state;
+        const { label, socketSize, connected } = this.props;
+        const { hover } = this.state;
 
         const inputClassName = classNames({
             "field": true,
@@ -85,7 +80,8 @@ export default class Input extends React.PureComponent<InputProps, InputState> {
 
         return (
             <li className="node-input">
-                <a className={inputClassName} onClick={this.handleClick} onMouseDown={this.noop} onMouseUp={this.handleMouseUp}>
+                <a className={inputClassName} onMouseDown={this.handleClick} onMouseUp={this.handleMouseUp} 
+                    onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut}>
                     <span style={{display: "flex"}} className="socket" ref={(i) => this._icon = i!}>
                         <Icon size={socketSize} icon={hover || connected ? circle : circleO} onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut} />
                     </span>

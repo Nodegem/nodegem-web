@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import Canvas, { CanvasProps } from "../Canvas/Canvas";
-import Node, { NodeMetaData } from '../Node/Node';
+import Node, { NodeMetaData, ConnectedFieldType } from '../Node/Node';
 import Spline from "../Spline/Spline";
 import { XYCoords } from "../utils/types";
 import { addEvent, removeEvent } from "../Draggable/utils";
 import Output from "../Node/IO/Output/Output";
 import Input from "../Node/IO/Input/Input";
-import { ConnectorData, CanvasData } from "./types";
+import { ConnectorData, CanvasData, NodeData } from "./types";
 
 import "./NodeCanvas.scss";
 
@@ -41,6 +41,8 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
     private _canvas: Canvas;
     private _nodes: { [nodeId: string]: Node };
 
+    private _connectedFields : { [nodeId: string] : ConnectedFieldType };
+
     public get baseCanvas(): Canvas {
         return this._canvas;
     }
@@ -68,6 +70,7 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
         }
 
         this._nodes = {};
+        this.generateNodeConnections(props.data);
     }
 
     componentDidMount() {
@@ -83,18 +86,32 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
         }
     }
 
+    private generateNodeConnections = (newData: CanvasData) => {
+        const { nodes, connectors } = newData;
+        this._connectedFields = nodes
+            .reduce((acc, val) => {
+                acc[val.id] = connectors
+                    .filter(x => x.sourceNodeId === val.id || x.toNodeId === val.id)
+                    .reduce((cAcc, cVal) => 
+                    {
+                        if(cVal.sourceNodeId === val.id) {
+                            const newVal = cAcc.outputs[cVal.sourceFieldId];
+                            if(!newVal) cAcc.outputs[cVal.sourceFieldId] = 1;
+                            else cAcc.outputs[cVal.sourceFieldId] += 1;
+                        }
+                        else {
+                            const newVal = cAcc.inputs[cVal.toFieldId];
+                            if(!newVal) cAcc.inputs[cVal.toFieldId] = 1;
+                            else cAcc.inputs[cVal.toFieldId] += 1;
+                        }
+                        return cAcc;
+                }, { inputs: {}, outputs: {} } as ConnectedFieldType)
+                return acc;
+            }, {})
+    }
+
     //This is utter bullshit but the only way I can get it to render properly
     private onLoaded = () => {
-
-        // for (let connector of this.props.data.connectors) {
-
-        //     const sourceField = this.getFieldById(connector.sourceNodeId, connector.sourceFieldId);
-        //     const endField = this.getFieldById(connector.toNodeId, connector.toFieldId);
-
-        //     sourceField.setConnected(true);
-        //     endField.setConnected(true);
-        // }
-
         this.setState({ nodesRendered: true });
     }
 
@@ -110,7 +127,14 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
         if ((dragging || nodeDragging) && this.state.position !== nextState.position
             || this.state.nodesRendered !== nextState.nodesRendered
             || this.state.dragging !== nextState.dragging
-            || this.props.data !== nextProps.data) {
+            || this.props.data !== nextProps.data) 
+        {
+        
+            if(this.props.data.connectors !== nextProps.data.connectors
+                || this.props.data.nodes !== nextProps.data.nodes) {
+                    this.generateNodeConnections(nextProps.data);
+                } 
+
             return true;
         }
 
@@ -137,15 +161,6 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
 
         //This is totes a hack to get around the event call order
         setTimeout(() => {
-            const { source } = this.state;
-            if (source && source.nodeId) {
-                const hasExistingConnection = this.props.data.connectors.some(x => x.sourceNodeId === source.nodeId);
-                const field = this.getFieldById(source.nodeId, source.sourceFieldId);
-                if (field && !hasExistingConnection) {
-                    // field.setConnected(false);
-                }
-            }
-
             this.setState({ dragging: false });
         }, 1)
 
@@ -197,7 +212,6 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
 
     private handleStartConnector = (e: React.MouseEvent, output: Output, node: Node) => {
         const sourcePos = this.toCanvasCoords(output.anchorPoint);
-        // output.setConnected(true);
         this.setState({ dragging: true, source: { nodeId: node.props.id, sourceFieldId: output.props.id, position: sourcePos } });
     }
 
@@ -205,8 +219,9 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
         const { dragging } = this.state;
         if (dragging) {
             const { source } = this.state;
-            this.props.onNewConnector!({sourceNodeId: source!.nodeId, sourceFieldId: source!.sourceFieldId, toNodeId: node.props.id, toFieldId: input.props.id}, e);
-            // input.setConnected(true);
+            this.props.onNewConnector!(
+                {sourceNodeId: source!.nodeId, sourceFieldId: source!.sourceFieldId, 
+                    toNodeId: node.props.id, toFieldId: input.props.id}, e);
         }
         this.setState({ dragging: false });
     }
@@ -232,10 +247,6 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
     private getFieldById = (nodeId: string, fieldId: string): Output | Input => {
         const node = this.getNodeById(nodeId);
         return node.getFieldById(fieldId)!;
-    }
-
-    private getFieldPositionById = (nodeId: string, fieldId: string): XYCoords => {
-        return this.getFieldById(nodeId, fieldId).anchorPoint;
     }
 
     public render() {
@@ -265,13 +276,12 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
                     )}
                 </g>
                 <g id="_node-container">
-                    {Object.keys(nodes).map((key: string) => {
-                        const node = nodes[key];
+                    {nodes.map(node => {
                         return <Node ref={(n: Node) => this._nodes[node.id] = n} key={node.id}
                             onCompleteConnector={this.handleCompleteConnector} onStartConnector={this.handleStartConnector}
                             onDrag={this.handleNodeMove} onDragStart={this.handleNodeDragStart} onDragStop={this.handleNodeDragStop}
                             onBlur={this.handleNodeBlur} onDoubleClick={this.handleNodeDoubleClick}
-                            onRightClick={this.handleNodeRightClick}
+                            onRightClick={this.handleNodeRightClick} connectedFields={this._connectedFields[node.id]}
                             {...node}
                         />
                     })}
