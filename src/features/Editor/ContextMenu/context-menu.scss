@@ -1,18 +1,37 @@
+$delay: 250ms;
+
 .react-contextmenu {
     background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid rgba(0,0,0,.15);
-    border-radius: .25rem;
     color: #373a3c;
-    font-size: 16px;
+    font-size: 14px;
     margin: 2px 0 0;
     min-width: 160px;
-    outline: none;
     opacity: 0;
-    padding: 5px 0;
     pointer-events: none;
     text-align: left;
-    transition: opacity 250ms ease !important;
+    transition: opacity $delay ease !important;
+    animation: react-contexify__popIn $delay cubic-bezier(.51, .92, .24, 1.2) !important;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, .2), 0 0 0 1px #eee;
+
+    .icon {
+        display: inline-flex;
+        vertical-align: middle;
+        padding-right: 7px;
+    }
+
+    .node-search {
+        padding: 5px;
+
+        input {
+            border-radius: 5px;
+        }
+    }
+
+}
+
+@keyframes react-contexify__popIn {
+	0% { transform: scale(0); }
+	100% { transform: scale(1); }
 }
 
 .react-contextmenu.react-contextmenu--visible {
@@ -33,7 +52,8 @@
     white-space: nowrap;
 
     &:hover {
-        background: deepskyblue;
+        color: #fff;
+        background:#20a0ff;
     }
 }
 
@@ -75,9 +95,4 @@
     display: inline-block;
     position: absolute;
     right: 7px;
-}
-
-.example-multiple-targets::after {
-    content: attr(data-count);
-    display: block;
 }

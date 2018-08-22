@@ -10,6 +10,14 @@ import { ConnectorData, CanvasData, NodeData } from "./types";
 
 import "./NodeCanvas.scss";
 
+interface ICanvasContext {
+    dragging: boolean;
+} 
+
+export const CanvasContext = React.createContext<ICanvasContext>({
+    dragging: false
+});
+
 export type NodeCanvasProps = {
     data: CanvasData;
     cameraTransform?: [number, number, number];
@@ -259,33 +267,35 @@ export default class NodeCanvas extends Component<CombineProps, NodeCanvasState>
 
         return (
             <Canvas ref={(c: Canvas) => this._canvas = c} size={size} onRightClick={onCanvasRightClick} {...props}>
-                <g id="_link-container">
-                    {nodesRendered &&
-                        connectors.map((connector: ConnectorData, index: number) => {
-                            const start = this.getFieldById(connector.sourceNodeId, connector.sourceFieldId);
-                            const end = this.getFieldById(connector.toNodeId, connector.toFieldId);
-                            return <Spline key={index} linkTransform={this.splineTransform} 
-                                onClick={(e) => this.handleSplineClick(e, connector)} onClickOutside={(e) => this.handleSplineBlur(e, connector)} 
-                                onRightClick={(e) => this.handleSplineRightClick(e, connector)}
-                                start={this.toCanvasCoords(start.anchorPoint)} end={this.toCanvasCoords(end.anchorPoint)}
-                                sourceField={start as Output} toField={end as Input} />
-                        })
-                    }
-                    {(dragging && source) && (
-                        <Spline start={source.position} end={position} linkTransform={this.splineTransform} />
-                    )}
-                </g>
-                <g id="_node-container">
-                    {nodes.map(node => {
-                        return <Node ref={(n: Node) => this._nodes[node.id] = n} key={node.id}
-                            onCompleteConnector={this.handleCompleteConnector} onStartConnector={this.handleStartConnector}
-                            onDrag={this.handleNodeMove} onDragStart={this.handleNodeDragStart} onDragStop={this.handleNodeDragStop}
-                            onBlur={this.handleNodeBlur} onDoubleClick={this.handleNodeDoubleClick}
-                            onRightClick={this.handleNodeRightClick} connectedFields={this._connectedFields[node.id]}
-                            {...node}
-                        />
-                    })}
-                </g>
+                <CanvasContext.Provider value={{ dragging }}>
+                    <g id="_link-container">
+                        {nodesRendered &&
+                            connectors.map((connector: ConnectorData, index: number) => {
+                                const start = this.getFieldById(connector.sourceNodeId, connector.sourceFieldId);
+                                const end = this.getFieldById(connector.toNodeId, connector.toFieldId);
+                                return <Spline key={index} linkTransform={this.splineTransform} 
+                                    onClick={(e) => this.handleSplineClick(e, connector)} onClickOutside={(e) => this.handleSplineBlur(e, connector)} 
+                                    onRightClick={(e) => this.handleSplineRightClick(e, connector)}
+                                    start={this.toCanvasCoords(start.anchorPoint)} end={this.toCanvasCoords(end.anchorPoint)}
+                                    sourceField={start as Output} toField={end as Input} />
+                            })
+                        }
+                        {(dragging && source) && (
+                            <Spline start={source.position} end={position} linkTransform={this.splineTransform} />
+                        )}
+                    </g>
+                    <g id="_node-container">
+                        {nodes.map(node => {
+                            return <Node ref={(n: Node) => this._nodes[node.id] = n} key={node.id}
+                                onCompleteConnector={this.handleCompleteConnector} onStartConnector={this.handleStartConnector}
+                                onDrag={this.handleNodeMove} onDragStart={this.handleNodeDragStart} onDragStop={this.handleNodeDragStop}
+                                onBlur={this.handleNodeBlur} onDoubleClick={this.handleNodeDoubleClick}
+                                onRightClick={this.handleNodeRightClick} connectedFields={this._connectedFields[node.id]}
+                                {...node}
+                            />
+                        })}
+                    </g>
+                </CanvasContext.Provider>
             </Canvas>
         );
     }

@@ -11,6 +11,7 @@ import "./Editor.scss";
 import "./ContextMenu/context-menu.scss";
 import { ComponentBase } from "resub";
 import { editorStore } from "../../stores/EditorStore";
+import { NodeContextMenu, CanvasContextMenu } from "./ContextMenu";
 
 enum EDITOR_KEY_COMMANDS {
     RESET = "RESET",
@@ -34,21 +35,9 @@ const canvasPattern = (size: number) => (
     </g>
 )
 
-const NodeContextMenu = (data) => {
-    return (
-        <MenuItem>Node</MenuItem>
-    )
-}
-
 const ConnectorContextMenu = (data) => {
     return (
         <MenuItem>Connector</MenuItem>
-    )
-}
-
-const CanvasContextMenu = (data) => {
-    return (
-        <MenuItem>Canvas</MenuItem>
     )
 }
 
@@ -159,16 +148,11 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
 
     private handleNodeRightClick = (nodeId: string, e: React.MouseEvent) => {
 
-        if(e.metaKey || e.ctrlKey) {
-            this.removeNode(nodeId);
-            return;
-        }
-
-        this.setState({contextData: NodeContextMenu(nodeId)});
+        this.setState({contextData: (<NodeContextMenu nodeId={nodeId} onDeleteNode={() => this.removeNode(nodeId)} />)});
     }
 
     private handleCanvasRightClick = (e: React.MouseEvent) => {
-        this.setState({contextData: CanvasContextMenu({})});
+        this.setState({contextData: <CanvasContextMenu />});
     }
 
     private handleContextMenuHide = (e: React.MouseEvent) => {

@@ -1,9 +1,3 @@
-.react-contextmenu-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
 $nodeTitleFontSize: 16px;
 $nodeBorderRadius: 5px;
 $nodeBackground: #1E5188;
@@ -38,12 +32,22 @@ $nodeHeaderBorder: 1px solid black;
             .field {
                 color: $nodeTextColor;
 
+                &.drag-hover {
+                    outline: 3px solid red;
+                }
+
                 .socket {
                     color: $nodeSocketColor;
                 }
             }
         }
     }
+}
+
+.react-contextmenu-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Chrome Only */
