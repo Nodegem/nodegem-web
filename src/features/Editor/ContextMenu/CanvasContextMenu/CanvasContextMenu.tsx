@@ -1,12 +1,17 @@
 import React, { PureComponent } from "react";
 import { MenuItem, SubMenu } from 'react-contextmenu';
-import { Icon } from "react-icons-kit";
 import {trash2} from 'react-icons-kit/feather/trash2';
 import { MenuIcon } from "..";
 
-export default class CanvasContextMenu extends PureComponent {
+type CanvasContextProps = {
+    clearCanvas: () => void;
+}
+export default class CanvasContextMenu extends PureComponent<CanvasContextProps> {
     
     public render() {
+
+        const { clearCanvas } = this.props;
+
         return (
             <>
                 <div className="node-search" >
@@ -15,7 +20,7 @@ export default class CanvasContextMenu extends PureComponent {
                 <SubMenu title="hello">
                     <MenuItem>Goodbye</MenuItem>
                 </SubMenu>
-                <MenuItem>
+                <MenuItem onClick={() => clearCanvas()}>
                     <MenuIcon icon={trash2} />
                     Clear Canvas
                 </MenuItem>

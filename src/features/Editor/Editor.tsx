@@ -152,7 +152,7 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
     }
 
     private handleCanvasRightClick = (e: React.MouseEvent) => {
-        this.setState({contextData: <CanvasContextMenu />});
+        this.setState({contextData: <CanvasContextMenu clearCanvas={this.clearCanvas} />});
     }
 
     private handleContextMenuHide = (e: React.MouseEvent) => {
@@ -161,6 +161,10 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
 
     private handleCanvasZoomPan = (canvas, transform) => {
         editorStore.setCanvasTransform(transform);
+    }
+
+    private clearCanvas = () => {
+        editorStore.setCanvasData({ nodes: [], connectors: [] });
     }
 
     public render() {

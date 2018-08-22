@@ -8,9 +8,16 @@ $nodeHeaderBorder: 1px solid black;
 
 .editor {
     .node {
+
+        &.focused {
+            box-shadow: 0 0 0 2px lightgreen, 3px 3px 10px rgba(.7, .7, .7, .3);
+        }
+
         border-radius: $nodeBorderRadius;
         overflow: hidden;
         background: $nodeBackground;
+        box-shadow: 3px 3px 10px rgba(.7, .7, .7, .3);
+
         .header {
             color: $nodeTextColor;
             padding-left: 10px;
