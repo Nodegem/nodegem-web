@@ -146,7 +146,7 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
 
     private handleConnectorRightClick = (connector: ConnectorData, e: React.MouseEvent) => {
 
-        if(e.metaKey) {
+        if(e.metaKey || e.ctrlKey) {
             this.removeConnector(connector);
             return;
         }
@@ -159,7 +159,7 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
 
     private handleNodeRightClick = (nodeId: string, e: React.MouseEvent) => {
 
-        if(e.metaKey) {
+        if(e.metaKey || e.ctrlKey) {
             this.removeNode(nodeId);
             return;
         }
