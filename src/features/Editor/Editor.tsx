@@ -1,26 +1,32 @@
-import React, { PureComponent, CSSProperties, Props } from "react";
+import React, { CSSProperties, Props } from "react";
 import * as d3 from 'd3';
 import { HotKeys } from "react-hotkeys";
-import { isMac, convertCommands } from "../../utils";
+import { isMac } from "../../utils";
 import { ContextMenuTrigger, ContextMenu, MenuItem } from 'react-contextmenu';
 import NodeCanvas from "./NodeCanvas/NodeCanvas";
-import { CanvasData, ConnectorData } from "./NodeCanvas/types";
+import { CanvasData, ConnectorData, NodeData } from "./NodeCanvas/types";
 import update from "immutability-helper";
 
 import "./Editor.scss";
 import "./ContextMenu/context-menu.scss";
 import { ComponentBase } from "resub";
 import { editorStore } from "../../stores/EditorStore";
-import { NodeContextMenu, CanvasContextMenu } from "./ContextMenu";
+import { NodeContextMenu, CanvasContextMenu, ConnectorContextMenu } from "./ContextMenu";
+import { XYCoords } from "./utils/types";
 
 enum EDITOR_KEY_COMMANDS {
     RESET = "RESET",
-    FULLSCREEN = "FULLSCREEN"
+    FULLSCREEN = "FULLSCREEN",
+    DELETE = "DELETE",
+    TEST = "TEST"
 }
 
 const EDITOR_KEY_MAP = {
     [EDITOR_KEY_COMMANDS.RESET]: "space",
-    [EDITOR_KEY_COMMANDS.FULLSCREEN]: "ctrl+shift+space"
+    [EDITOR_KEY_COMMANDS.FULLSCREEN]: ["ctrl+shift+space", "command+shift+space"],
+    [EDITOR_KEY_COMMANDS.DELETE]: ["del", "backspace"],
+    [EDITOR_KEY_COMMANDS.TEST]: ["enter"]
+
 }
 
 const canvasPattern = (size: number) => (
@@ -35,12 +41,6 @@ const canvasPattern = (size: number) => (
     </g>
 )
 
-const ConnectorContextMenu = (data) => {
-    return (
-        <MenuItem>Connector</MenuItem>
-    )
-}
-
 export type EditorProps = {
     size: [number, number];
     zoomRange: [number, number];
@@ -52,6 +52,7 @@ type EditorState = {
     data: CanvasData;
     cameraTransform?: [number, number, number];
     contextData?: JSX.Element;
+    selectedNodeIds?: string[];
 }
 
 class Editor extends ComponentBase<CombinedProps, EditorState> {
@@ -65,6 +66,19 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
         };
     }
 
+    componentDidMount() {
+        this.setState({ selectedNodeIds: [] });
+    }
+
+    shouldComponentUpdate(nextProps: CombinedProps, nextState: EditorState) : boolean {
+
+        if(this.state.selectedNodeIds !== nextState.selectedNodeIds) {
+            return false;
+        }
+
+        return true;
+    }
+
     private canvasInputFilter = (): boolean => {
         if (d3.event.button === 1) {
             d3.event.preventDefault();
@@ -74,16 +88,8 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
     }
 
     private handleNewConnector = (connector: ConnectorData) => {
-
         if(!this.canConnect(connector)) return;
-
-        const newState = update(this.state.data, {
-            connectors: {
-                $push: [connector]
-            }
-        });
-
-        editorStore.setCanvasData(newState);
+        editorStore.addConnector(connector);
     }
 
     private canConnect = (connector: ConnectorData) => {
@@ -126,7 +132,6 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
                 }
             }
         });
-
         editorStore.setCanvasData(newNodeState);
     }
 
@@ -140,15 +145,33 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
             return;
         }
 
-        this.setState({contextData: ConnectorContextMenu(connector)});
+        this.setState({contextData: <ConnectorContextMenu onDeleteConnector={() => this.removeConnector(connector)} />});
+    }
+
+    private addNode = (node: NodeData) => {
+        editorStore.addNode(node);
+    }
+
+    private handleNodeSelect = (nodeId: string, e: React.MouseEvent) => {
+        const newState = update(this.state, {
+            selectedNodeIds: {
+                $push: [nodeId]
+            }
+        });
+
+        this.setState(newState);
     }
 
     private handleNodeDeselect = (nodeId: string, e: React.MouseEvent) => {
+        const newState = update(this.state, {
+            selectedNodeIds: arr => arr.filter(x => x !== nodeId)
+        });
+
+        this.setState(newState);
     }
 
     private handleNodeRightClick = (nodeId: string, e: React.MouseEvent) => {
-
-        this.setState({contextData: (<NodeContextMenu nodeId={nodeId} onDeleteNode={() => this.removeNode(nodeId)} />)});
+        this.setState({contextData: (<NodeContextMenu onDeleteNode={() => this.removeNode(nodeId)} />)});
     }
 
     private handleCanvasRightClick = (e: React.MouseEvent) => {
@@ -167,13 +190,24 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
         editorStore.setCanvasData({ nodes: [], connectors: [] });
     }
 
+    private deleteSelectedNode = () => {
+        const { selectedNodeIds } = this.state;
+        new Set(selectedNodeIds!).forEach(x => this.removeNode(x));
+    }
+
     public render() {
 
         const { size, zoomRange } = this.props;
         const { contextData, cameraTransform } = this.state;
 
         const hotkeyHandler = {
-            [EDITOR_KEY_COMMANDS.RESET]: () => this._canvas.reset()
+            [EDITOR_KEY_COMMANDS.RESET]: () => this._canvas.reset(),
+            [EDITOR_KEY_COMMANDS.DELETE]: () => this.deleteSelectedNode(),
+            [EDITOR_KEY_COMMANDS.TEST]: () => {
+                const id = this.state.data.nodes.length + 1;
+                const newPos = [Math.random() * 900, Math.random() * 900] as XYCoords;
+                this.addNode({ id: id.toString(), title: "test " + id, inputs: [{ label: "Input", id: "11" }], outputs: [{label: "Output", id: "2"}], position: newPos })
+            }
         }
 
         const flexStyle : CSSProperties = { flex: 1, flexDirection: "column", display: "flex" };
@@ -181,13 +215,14 @@ class Editor extends ComponentBase<CombinedProps, EditorState> {
 
         return (
             <div className="editor" style={flexStyle}>
-                <HotKeys keyMap={convertCommands(EDITOR_KEY_MAP)} handlers={hotkeyHandler} style={flexStyle} focused>
+                <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} style={flexStyle} focused>
                     <ContextMenuTrigger id="canvas_menu" style={flexStyle}>
                         <NodeCanvas ref={(c) => this._canvas = c!} size={size} 
                             pattern={canvasPattern(200)} data={this.state.data}
                             cameraTransform={cameraTransform}
                             fillId="#grid" zoomInputFilter={this.canvasInputFilter} zoomRange={zoomRange} 
-                            onNewConnector={this.handleNewConnector} onNodeMoveStop={this.handleNodeMoveStop} onConnectorSelect={this.handleConnectorSelect}
+                            onNewConnector={this.handleNewConnector} onNodeMoveStop={this.handleNodeMoveStop} 
+                            onConnectorSelect={this.handleConnectorSelect} onNodeSelect={this.handleNodeSelect}
                             onNodeDeselect={this.handleNodeDeselect} onNodeRightClick={this.handleNodeRightClick}
                             onConnectorRightClick={this.handleConnectorRightClick} onCanvasRightClick={this.handleCanvasRightClick}
                             onZoomPan={this.handleCanvasZoomPan} />

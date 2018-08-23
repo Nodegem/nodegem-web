@@ -1,6 +1,7 @@
-import { NodeData, CanvasData } from './../features/Editor/NodeCanvas/types.d';
+import { NodeData, CanvasData, ConnectorData } from './../features/Editor/NodeCanvas/types.d';
 import { StoreBase, autoSubscribe, AutoSubscribeStore } from 'resub';
 import { IPersistableStore } from 'resub-persist/dist';
+import update from 'immutability-helper';
 
 const nodeData : CanvasData = {
     nodes: [
@@ -36,6 +37,24 @@ class EditorStore extends StoreBase implements IPersistableStore {
 
     public setCanvasData(data: CanvasData) {
         this._canvasData = data;
+        this.trigger();
+    }
+
+    public addNode(node: NodeData) {
+        this._canvasData = update(this._canvasData, {
+            nodes: {
+                $push: [node]
+            }
+        })
+        this.trigger();
+    }
+
+    public addConnector(connector: ConnectorData) {
+        this._canvasData = update(this._canvasData, {
+            connectors: {
+                $push: [connector]
+            }
+        });
         this.trigger();
     }
 
