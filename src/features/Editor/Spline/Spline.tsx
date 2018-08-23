@@ -45,7 +45,7 @@ class Spline extends PureComponent<CombinedProps, SplineState> implements Handle
         handleColor: "black",
         handleRadius: 5,
         strokeSize: 2,
-        curve: d3.curveLinear
+        curve: d3.curveBasis
     }
 
     private get lineFunc() : d3.Line<XYCoords> {
