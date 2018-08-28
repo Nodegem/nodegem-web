@@ -6,9 +6,7 @@ const connection = new signalR.HubConnectionBuilder()
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
-connection.on("Running", (user, message) => {
-    console.log(process.env);
-    console.log(user, message);
+connection.on("Running", data => {
 })
 
 connection.start()
