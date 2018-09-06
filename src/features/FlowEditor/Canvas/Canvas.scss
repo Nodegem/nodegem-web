@@ -1,0 +1,20 @@
+.canvas {
+    border: 1px solid lightgray;
+    overflow: hidden;
+    flex: 1;
+    flex-direction: column;
+    background-color: rgba(252, 252, 252, 1);
+    width: 100%;
+    height: 100%;
+}
+
+.canvas-background {
+    background-color: white;
+}
+
+/* Chrome Only */
+@media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) { 
+    .canvas {
+        height: stretch;
+    }
+}

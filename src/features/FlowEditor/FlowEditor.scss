@@ -1,0 +1,10 @@
+.flow-editor {
+    display: flex;
+    flex: 1;
+}
+
+@media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) { 
+    .flow-editor {
+        height: stretch;
+    }
+}

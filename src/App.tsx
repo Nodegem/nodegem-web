@@ -10,6 +10,7 @@ import { appStore } from './stores/AppStore';
 import localforage from 'localforage';
 import { editorStore } from './stores/EditorStore';
 import TestClient from './features/TestClient/TestClient';
+import FlowEditor from './features/FlowEditor/FlowEditor';
 
 const { Content } = Layout;
 
@@ -20,6 +21,7 @@ const persistor = async () => {
 }
 
 const EditorPage = () => <Editor size={[15000, 15000]} zoomRange={[.5, 1.5]} />;
+const NewEditorPage = () => <FlowEditor />;
 
 class App extends React.PureComponent {
 
@@ -34,7 +36,7 @@ class App extends React.PureComponent {
                 <Content style={{ padding: "20px", display: "flex", flexDirection: "column", minHeight: "100%" }}>
                   <Switch>
                     <Route path="/" component={EditorPage} exact />
-                    {/* <Route path="/editor" component={EditorPage} /> */}
+                    <Route path="/editor" component={NewEditorPage} exact />
                     <Route path="/test" component={TestClient} />
                   </Switch>
                 </Content>
