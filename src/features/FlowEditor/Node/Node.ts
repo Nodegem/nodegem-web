@@ -3,26 +3,46 @@ import { uuid } from "lodash-uuid";
 import { observable, computed, action } from "mobx";
 import { InputValuePort, OutputValuePort } from './Ports/ValuePort';
 import { InputFlowPort, OutputFlowPort } from './Ports/FlowPort';
-import { store } from '../store';
 import { Link } from '../Link';
 import { ValuePort, FlowPort, AnyPort } from './Ports/types';
 import _ from 'lodash';
+import { store } from '..';
 
 class Node
 {
     id = uuid();
 
+    type: string;
+    title: string;
     @observable position: XYCoords;
-    @observable allPorts: Array<AnyPort>;
+    @observable allPorts: Array<AnyPort> = [];
 
-    @computed
     public get valuePorts() : Array<ValuePort> {
         return this.allPorts.filter(x => x instanceof InputValuePort || x instanceof OutputValuePort) as Array<ValuePort>;
     }
 
-    @computed
     public get flowPorts() : Array<FlowPort> {
         return this.allPorts.filter(x => x instanceof InputFlowPort || x instanceof OutputFlowPort) as Array<FlowPort>;
+    }
+
+    @computed    
+    public get inputValuePorts() : Array<InputValuePort> {
+        return this.valuePorts.filter(x => x instanceof InputValuePort) as Array<InputValuePort>;
+    }
+
+    @computed
+    public get inputFlowPorts() : Array<InputFlowPort> {
+        return this.flowPorts.filter(x => x instanceof InputFlowPort) as Array<InputFlowPort>;
+    }
+
+    @computed
+    public get outputValuePorts() : Array<OutputValuePort> {
+        return this.valuePorts.filter(x => x instanceof OutputValuePort) as Array<OutputValuePort>;
+    }
+
+    @computed
+    public get outputFlowPorts() : Array<OutputFlowPort> {
+        return this.flowPorts.filter(x => x instanceof OutputFlowPort) as Array<OutputFlowPort>;
     }
 
     @computed
@@ -30,8 +50,10 @@ class Node
         return store.links.filter(x => x.source.node === this || x.destination.node === this);
     }
 
-    constructor(position: XYCoords) {
-        this.position = position;
+    constructor(title: string, type: string, position: XYCoords | undefined = undefined) {
+        this.title = title;
+        this.type = type;
+        this.position = position || [0, 0];
     }
 
     public handleDragStart = (e: React.MouseEvent) => {

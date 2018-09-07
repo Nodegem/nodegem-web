@@ -6,10 +6,15 @@ import Canvas from './Canvas/Canvas';
 import _ from 'lodash';
 
 import "./FlowEditor.scss";
+import { Node, NodeView } from './Node';
+import { store } from './store/store';
 
 const EDITOR_KEY_MAP = {
 
 }
+
+const node = new Node("hello", "Math.Subtract");
+store.nodes.push(node);
 
 @observer
 class FlowEditor extends React.Component {
@@ -28,7 +33,7 @@ class FlowEditor extends React.Component {
 
                         </g>
                         <g id="_nodes">
-
+                            <NodeView node={node} size={[200, 200]} />
                         </g>
                     </Canvas>
                 </HotKeys>
