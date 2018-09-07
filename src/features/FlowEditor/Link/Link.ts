@@ -1,5 +1,5 @@
-import { Port } from "../Node/Ports/Port";
 import { uuid } from "lodash-uuid";
+import { Node } from '../Node';
 
 interface Connection {
     node: Node;
@@ -18,6 +18,10 @@ class Link {
         this.destination = destination;
     }
 
+    public remove = () => {
+        
+    }
+
 }
 
-export { Link };
+export { Link, Connection };

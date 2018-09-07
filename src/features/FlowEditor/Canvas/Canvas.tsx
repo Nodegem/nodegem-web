@@ -2,7 +2,6 @@ import React, { PureComponent } from "react";
 import * as d3 from "d3";
 import { ZoomBehavior } from "d3";
 import classNames from "classnames";
-import { XYCoords } from "../utils";
 
 import "./Canvas.scss";
 

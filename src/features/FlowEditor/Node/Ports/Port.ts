@@ -1,4 +1,5 @@
 import { observable } from "mobx";
+import { PortIOType, PortType } from "./types";
 
 abstract class Port<IOType extends PortIOType, PType extends PortType> {
 

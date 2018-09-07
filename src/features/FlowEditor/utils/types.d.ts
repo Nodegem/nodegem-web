@@ -1,1 +1,1 @@
-export type XYCoords = [number, number];
+type XYCoords = [number, number];

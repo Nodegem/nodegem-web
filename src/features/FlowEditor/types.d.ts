@@ -1,6 +1,6 @@
-import { XYCoords } from './../Editor/utils/types.d';
+import { AnyPort } from "./Node/Ports/types";
 
 interface DrawingConnection {
-    from: {},
+    from: AnyPort,
     mouse: XYCoords
 }

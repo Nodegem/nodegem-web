@@ -1,15 +1,11 @@
 import * as React from 'react';
-import { DrawingConnection } from './types';
-import { observable } from 'mobx';
 import { observer } from 'mobx-react';
+import { HotKeys } from 'react-hotkeys';
+import { canvasPattern } from './Patterns';
+import Canvas from './Canvas/Canvas';
 import _ from 'lodash';
 
 import "./FlowEditor.scss";
-import { HotKeys } from 'react-hotkeys';
-import Canvas from './Canvas/Canvas';
-import { canvasPattern } from './Patterns';
-
-
 
 const EDITOR_KEY_MAP = {
 

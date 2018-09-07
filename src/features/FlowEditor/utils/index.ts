@@ -1,5 +1,4 @@
 import { XYCoords } from './../../Editor/utils/types.d';
-export { XYCoords } from './types';
 
 export const convertCoords = (parentElement: SVGSVGElement, element: SVGSVGElement | SVGGElement, coords: XYCoords) : XYCoords => {
     const pt = parentElement.createSVGPoint();

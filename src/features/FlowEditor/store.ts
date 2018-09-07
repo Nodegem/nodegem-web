@@ -1,10 +1,12 @@
 import { observable } from "mobx";
-import { DrawingConnection } from ".";
 import { CanvasThing } from "./Canvas/CanvasThing";
+import { Link } from "./Link";
+import { DrawingConnection } from "./types";
+import { Node } from './Node';
 
 class FlowEditorStore {
-    @observable nodes: {}[];
-    @observable connections: {}[];
+    @observable nodes: Array<Node>;
+    @observable links: Array<Link>;
     @observable currentConnection: DrawingConnection;
 
     canvas: CanvasThing;
