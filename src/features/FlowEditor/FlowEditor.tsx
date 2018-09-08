@@ -2,12 +2,12 @@ import * as React from 'react';
 import { observer } from 'mobx-react';
 import { HotKeys } from 'react-hotkeys';
 import { canvasPattern } from './Patterns';
-import Canvas from './Canvas/Canvas';
 import _ from 'lodash';
 
 import "./FlowEditor.scss";
 import { Node, NodeView } from './Node';
 import { store } from './store/store';
+import { GraphView } from './Canvas/GraphView';
 
 const EDITOR_KEY_MAP = {
 
@@ -26,16 +26,16 @@ class FlowEditor extends React.Component {
         }
 
         return (
-            <div className="flow-editor">
-                <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} >
-                    <Canvas size={[15000, 15000]} pattern={canvasPattern(200)} fillId="#grid">
+            <div className="flow-editor" onMouseDown={() => console.log(this)}>
+                <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} style={{flex: "inherit"}}>
+                    <GraphView size={[15000, 15000]} pattern={canvasPattern(200)} graph={store.graph} zoomRange={[.5, 1.5]}>
                         <g id="_connections">
 
                         </g>
                         <g id="_nodes">
-                            <NodeView node={node} size={[200, 200]} />
+                            <NodeView node={node} defaultWidth={200} />
                         </g>
-                    </Canvas>
+                    </GraphView>
                 </HotKeys>
             </div>
         )

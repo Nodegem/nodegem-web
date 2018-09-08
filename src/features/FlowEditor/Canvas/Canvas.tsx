@@ -62,6 +62,7 @@ export default class Canvas extends PureComponent<CanvasProps> {
             return this.props.zoomInputFilter(d3.event);
         }
 
+        console.log("sdasd");
         return !d3.event.button;
     }
 

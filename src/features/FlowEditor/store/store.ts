@@ -1,5 +1,5 @@
 import { observable } from "mobx";
-import { CanvasThing } from "../Canvas/CanvasThing";
+import { Graph } from "../Canvas/Graph";
 import { Link } from "../Link";
 import { DrawingConnection } from "../types";
 import { Node } from '../Node';
@@ -7,9 +7,9 @@ import { Node } from '../Node';
 class FlowEditorStore {
     @observable nodes: Array<Node> = [];
     @observable links: Array<Link> = [];
-    @observable currentConnection: DrawingConnection;
+    @observable linking: DrawingConnection;
 
-    canvas: CanvasThing;
+    graph: Graph = new Graph();
 }
 
 export const store = new FlowEditorStore();

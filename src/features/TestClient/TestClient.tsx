@@ -1,27 +1,27 @@
-import React from 'react';
-import * as signalR from '@aspnet/signalr';
+// import React from 'react';
+// import * as signalR from '@aspnet/signalr';
 
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:5001/graphHub")
-    .configureLogging(signalR.LogLevel.Information)
-    .build();
+// const connection = new signalR.HubConnectionBuilder()
+//     .withUrl("https://localhost:5001/graphHub")
+//     .configureLogging(signalR.LogLevel.Information)
+//     .build();
 
-connection.on("Running", data => {
-})
+// connection.on("Running", data => {
+// })
 
-connection.start()
-    .then(() => connection.invoke("Run", "Test", "run"))
-    .catch(err => console.error(err));
+// connection.start()
+//     .then(() => connection.invoke("Run", "Test", "run"))
+//     .catch(err => console.error(err));
 
 
-export default class TestClient extends React.PureComponent {
+// export default class TestClient extends React.PureComponent {
 
-    public render() {
+//     public render() {
 
-        return (
-            <div>Hello</div>
-        )
+//         return (
+//             <div>Hello</div>
+//         )
 
-    }
+//     }
 
-} 
+// } 

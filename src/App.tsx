@@ -9,7 +9,7 @@ import { autoSave, rehydrate } from 'resub-persist/dist';
 import { appStore } from './stores/AppStore';
 import localforage from 'localforage';
 import { editorStore } from './stores/EditorStore';
-import TestClient from './features/TestClient/TestClient';
+// import TestClient from './features/TestClient/TestClient';
 import FlowEditor from './features/FlowEditor/FlowEditor';
 
 const { Content } = Layout;
@@ -37,7 +37,7 @@ class App extends React.PureComponent {
                   <Switch>
                     <Route path="/" component={EditorPage} exact />
                     <Route path="/editor" component={NewEditorPage} exact />
-                    <Route path="/test" component={TestClient} />
+                    {/* <Route path="/test" component={TestClient} /> */}
                   </Switch>
                 </Content>
               </Layout>

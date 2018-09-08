@@ -25,6 +25,14 @@ class Node
         return this.allPorts.filter(x => x instanceof InputFlowPort || x instanceof OutputFlowPort) as Array<FlowPort>;
     }
 
+    public get numInputs() : number {
+        return this.inputFlowPorts.length + this.inputValuePorts.length;
+    }
+
+    public get numOutputs() : number {
+        return this.outputFlowPorts.length + this.outputValuePorts.length;
+    }
+
     @computed    
     public get inputValuePorts() : Array<InputValuePort> {
         return this.valuePorts.filter(x => x instanceof InputValuePort) as Array<InputValuePort>;
@@ -57,6 +65,9 @@ class Node
     }
 
     public handleDragStart = (e: React.MouseEvent) => {
+
+        e.stopPropagation();
+        e.preventDefault();
 
         const handleMove = action((e: MouseEvent) => {
 
