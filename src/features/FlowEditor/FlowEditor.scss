@@ -1,7 +1,44 @@
+$nodeTitleFontSize: 16px;
+$nodeBorderRadius: 5px;
+$nodeBackground: #1E5188;
+$nodeSecondary: #42A0D4;
+$nodeTextColor: rgb(245, 245, 245);
+$nodeSocketColor: #71D6C0;
+$nodeHeaderBorder: 1px solid black;
+
 .flow-editor {
     display: flex;
     flex-direction: column;
     flex: 1;
+
+    user-select: none;
+    -ms-user-select: none;
+
+    .node {
+
+        border-radius: $nodeBorderRadius;
+        overflow: hidden;
+        background: $nodeBackground;
+        box-shadow: 3px 3px 10px rgba(.7, .7, .7, .3);
+
+        .header {
+            color: $nodeTextColor;
+            padding-left: 10px;
+            justify-content: left;
+            border-bottom: $nodeHeaderBorder;
+            cursor: move;
+
+            .title {
+                text-transform: capitalize;
+                font-size: $nodeTitleFontSize;
+            }
+        }
+
+        .content {
+            padding: 0;
+        }
+    }
+
 }
 
 @media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) { 

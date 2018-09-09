@@ -1,28 +1,40 @@
 import * as d3 from 'd3';
+import { observable } from 'mobx';
 
 class Graph {
 
     private camera : any;
+
+    @observable
+    public position : XYCoords = [0, 0];
+    @observable
+    public mounted: boolean = false;
+
+    public scale : number = 1;
 
     public initialize = (size: [number, number], zoomRange: [number, number]) => {
 
         const [width, height] = size;
         const [halfWidth, halfHeight] = [width / 2, height / 2];
 
-        this.camera = d3
-            .zoom()
-            .scaleExtent(zoomRange)
+        const zoom = d3.zoom()
+            .scaleExtent(zoomRange!)
             .translateExtent([[-halfWidth, -halfHeight], [halfWidth, halfHeight]])
-            .filter(this.inputFilter)
             .on("zoom", this.handleCamera);
 
         d3.select("#_graph")
-            .call(this.camera);
+            .call(zoom);
 
+        // For some reason I need this for it to actually properly scale
+        setTimeout(() => this.mounted = true, 100);
     }
 
     public convertCoords = (coords: XYCoords) : XYCoords => {
-        return [0, 0];
+        const pt = (d3.select("#_graph").node() as any).createSVGPoint();
+        pt.x = coords[0];
+        pt.y = coords[1];
+        const newCoords = pt.matrixTransform((d3.select("#_graph-view").node() as any).getScreenCTM()!.inverse());
+        return [newCoords.x, newCoords.y];
     }
 
     public reset = () : void => {
@@ -36,10 +48,10 @@ class Graph {
         const transform = d3.event.transform;
         const canvas = d3.select("#_graph-view");
         canvas.attr("transform", transform);
-    }
-
-    private inputFilter = (e: any) : boolean => {
-        return true;
+        
+        if(transform.k !== this.scale) {
+            this.scale = transform.k;
+        }
     }
 
 }

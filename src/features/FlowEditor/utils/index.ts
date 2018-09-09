@@ -1,9 +1,19 @@
-import { XYCoords } from './../../Editor/utils/types.d';
+export const createTransform = (coords: XYCoords, scale: number = 1) : string => {
+    const [x, y] = coords;
+    return `translate(${x},${y}), scale(${scale})`;
+}
 
-export const convertCoords = (parentElement: SVGSVGElement, element: SVGSVGElement | SVGGElement, coords: XYCoords) : XYCoords => {
-    const pt = parentElement.createSVGPoint();
-    pt.x = coords[0];
-    pt.y = coords[1];
-    const newCoords = pt.matrixTransform(element.getScreenCTM()!.inverse());
-    return [newCoords.x, newCoords.y];
+export const hasChildWithClass = (element: Element, className: string, maxDepth : number = 3) => {
+
+    let currentElement : Element | null = element;
+    let currentDepth = 0;
+
+    do {
+        if(currentElement.className === className) return true;
+        currentElement = currentElement.parentElement;
+        currentDepth++;
+    } 
+    while(currentElement && currentDepth < maxDepth);
+
+    return false;
 }

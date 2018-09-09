@@ -1,4 +1,3 @@
-import { XYCoords } from './../../Editor/utils/types.d';
 import { uuid } from "lodash-uuid";
 import { observable, computed, action } from "mobx";
 import { InputValuePort, OutputValuePort } from './Ports/ValuePort';
@@ -7,6 +6,7 @@ import { Link } from '../Link';
 import { ValuePort, FlowPort, AnyPort } from './Ports/types';
 import _ from 'lodash';
 import { store } from '..';
+import { hasChildWithClass } from "../utils";
 
 class Node
 {
@@ -66,11 +66,12 @@ class Node
 
     public handleDragStart = (e: React.MouseEvent) => {
 
-        e.stopPropagation();
-        e.preventDefault();
+        const clientOffset = this.convert([e.clientX, e.clientY]);
+        const offset = [clientOffset[0] - this.position[0], clientOffset[1] - this.position[1]];
 
         const handleMove = action((e: MouseEvent) => {
-
+            const newPos = this.convert([e.clientX, e.clientY]);
+            this.position = [newPos[0] - offset[0], newPos[1] - offset[1]];
         });
 
         const handleUp = () => {
@@ -80,6 +81,10 @@ class Node
 
         document.addEventListener("mouseup", handleUp);
         document.addEventListener("mousemove", handleMove);
+    }
+
+    private convert = (coords: XYCoords) : XYCoords => {
+        return store.graph.convertCoords(coords);
     }
 
     public remove = () => {

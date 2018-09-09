@@ -7,13 +7,18 @@ import _ from 'lodash';
 import "./FlowEditor.scss";
 import { Node, NodeView } from './Node';
 import { store } from './store/store';
-import { GraphView } from './Canvas/GraphView';
+import { GraphView } from './Graph/GraphView';
+import { InputFlowPort, OutputFlowPort } from './Node/Ports/FlowPort';
+import { InputValuePort } from './Node/Ports/ValuePort';
 
 const EDITOR_KEY_MAP = {
 
 }
 
 const node = new Node("hello", "Math.Subtract");
+node.allPorts.push(new InputFlowPort("input"));
+node.allPorts.push(new InputValuePort("input v"));
+node.allPorts.push(new OutputFlowPort("output"));
 store.nodes.push(node);
 
 @observer
@@ -26,7 +31,7 @@ class FlowEditor extends React.Component {
         }
 
         return (
-            <div className="flow-editor" onMouseDown={() => console.log(this)}>
+            <div className="flow-editor">
                 <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} style={{flex: "inherit"}}>
                     <GraphView size={[15000, 15000]} pattern={canvasPattern(200)} graph={store.graph} zoomRange={[.5, 1.5]}>
                         <g id="_connections">

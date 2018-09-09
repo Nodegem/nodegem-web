@@ -1,8 +1,8 @@
 import { observable } from "mobx";
-import { Graph } from "../Canvas/Graph";
 import { Link } from "../Link";
 import { DrawingConnection } from "../types";
 import { Node } from '../Node';
+import { Graph } from "../Graph";
 
 class FlowEditorStore {
     @observable nodes: Array<Node> = [];

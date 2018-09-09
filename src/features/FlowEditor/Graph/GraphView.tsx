@@ -26,7 +26,7 @@ class GraphView extends React.Component<GraphViewProps> {
 
     public render() {
 
-        const { pattern, size, onRightClick } = this.props;
+        const { graph, pattern, size, onRightClick } = this.props;
 
         const [width, height] = size;
         const [halfWidth, halfHeight] = [width/2, height/2];
@@ -42,8 +42,7 @@ class GraphView extends React.Component<GraphViewProps> {
                             className="graph-background"
                             onContextMenu={onRightClick} 
                             style={{ fill: (pattern.patternId ? `url("${pattern.patternId}")` : "none") }} />
-                            
-                        {this.props.children}
+                        { graph.mounted && this.props.children }
                 </g>
             </svg>
         );
