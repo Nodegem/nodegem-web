@@ -1,5 +1,7 @@
-import { observable } from "mobx";
+import { observable, computed } from "mobx";
 import { PortIOType, PortType } from "./types";
+import { store } from "../..";
+import { Node } from '../Node';
 
 abstract class Port<IOType extends PortIOType, PType extends PortType> {
 
@@ -7,7 +9,11 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
     type: PType;
     label: string;
     key: string;
-    @observable isConnected: boolean;
+    
+    @computed 
+    public get connected(): boolean {
+        return store.links.some(x => x.source.port === this || x.destination.port === this);
+    }
 
     constructor(label: string) {
         this.label = label;

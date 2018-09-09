@@ -19,7 +19,7 @@ $nodeHeaderBorder: 1px solid black;
         border-radius: $nodeBorderRadius;
         overflow: hidden;
         background: $nodeBackground;
-        box-shadow: 3px 3px 10px rgba(.7, .7, .7, .3);
+        // box-shadow: 3px 3px 10px rgba(.7, .7, .7, .3);
 
         .header {
             color: $nodeTextColor;
@@ -35,7 +35,37 @@ $nodeHeaderBorder: 1px solid black;
         }
 
         .content {
-            padding: 0;
+
+            flex: 1;
+            display: flex;
+            height: 100%;
+            width: 100%;
+            flex-direction: row;
+    
+            .ports {
+
+                flex: 1;
+                display: flex;
+                width: 100%;
+                flex-direction: row;
+
+                ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .inputs {
+                    width: 50%;
+                }
+
+                .outputs {
+                    background: $nodeSecondary;
+                    width: 50%;
+                }
+
+
+            }
         }
     }
 

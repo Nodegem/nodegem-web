@@ -1,19 +1,39 @@
 import * as React from "react";
 import { InputValuePort, OutputValuePort } from ".";
+import classNames from "classnames";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircle } from '@fortawesome/free-regular-svg-icons';
+import { faCircle as faCircleSolid } from '@fortawesome/free-solid-svg-icons';
+
+const PortIcon = ({ connected } : { connected: boolean }) => {
+
+    const portClass = classNames({
+        "connection": true,
+        "connected": connected
+    });
+
+    const circleIcon = connected ? faCircleSolid : faCircle;
+
+    return (
+        <span className={portClass}><FontAwesomeIcon icon={circleIcon} /></span>
+    )
+}
 
 const InputValuePortView = ({ port } : { port: InputValuePort }) => {
     return (
-        <div>
-            Input Value Port
-        </div>
+        <>
+            <PortIcon connected={port.connected} />
+            <span>{port.label}</span>
+        </>
     )
 }
 
 const OutputValuePortView = ({ port } : { port: OutputValuePort }) => {
     return (
-        <div>
-            Output Value Port
-        </div>
+        <>
+            <span>{port.label}</span>
+            <PortIcon connected={port.connected} />
+        </>
     )
 }
 

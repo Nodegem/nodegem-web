@@ -9,7 +9,7 @@ import { Node, NodeView } from './Node';
 import { store } from './store/store';
 import { GraphView } from './Graph/GraphView';
 import { InputFlowPort, OutputFlowPort } from './Node/Ports/FlowPort';
-import { InputValuePort } from './Node/Ports/ValuePort';
+import { InputValuePort, OutputValuePort } from './Node/Ports/ValuePort';
 
 const EDITOR_KEY_MAP = {
 
@@ -19,6 +19,7 @@ const node = new Node("hello", "Math.Subtract");
 node.allPorts.push(new InputFlowPort("input"));
 node.allPorts.push(new InputValuePort("input v"));
 node.allPorts.push(new OutputFlowPort("output"));
+node.allPorts.push(new OutputValuePort("output v"));
 store.nodes.push(node);
 
 @observer

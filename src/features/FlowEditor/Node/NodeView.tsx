@@ -17,14 +17,14 @@ const InputList = ({ flowInputs, valueInputs } : { flowInputs: Array<InputFlowPo
             <ul className="flows">
                 {
                     flowInputs.map(x => (
-                        <li key={x.key}><InputFlowPortView port={x} /></li>
+                        <li className="port" key={x.key}><InputFlowPortView port={x} /></li>
                     ))
                 }
             </ul>
             <ul className="values">
                 {
                     valueInputs.map(x => (
-                        <li key={x.key}><InputValuePortView port={x} /></li>
+                        <li className="port" key={x.key}><InputValuePortView port={x} /></li>
                     ))
                 }
             </ul>
@@ -81,7 +81,7 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
     
         const numFields = Math.max(node.numInputs, node.numOutputs);
         const defaultTitleHeight = 45;
-        const defaultFieldHeight = 20;
+        const defaultFieldHeight = 22;
         const nodeHeight = numFields * defaultFieldHeight + defaultTitleHeight;
         
         return (
@@ -92,8 +92,10 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
                         <span className="title">{node.title}</span>
                     </div>
                     <div className="content">
-                        <InputList flowInputs={node.inputFlowPorts} valueInputs={node.inputValuePorts} />
-                        <OutputList flowOutputs={node.outputFlowPorts} valueOutputs={node.outputValuePorts} />
+                        <div className="ports">
+                            <InputList flowInputs={node.inputFlowPorts} valueInputs={node.inputValuePorts} />
+                            <OutputList flowOutputs={node.outputFlowPorts} valueOutputs={node.outputValuePorts} />
+                        </div>
                     </div>
                 </div>
             </foreignObject>

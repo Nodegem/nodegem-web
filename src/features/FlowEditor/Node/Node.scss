@@ -1,3 +1,24 @@
 .node-shell {
     overflow: visible;
 }
+
+.node {
+    .content {
+        .ports {
+            .port {
+                width: 100%;
+                flex: 1;
+                display: inline-flex;
+            }
+
+            .inputs {
+                padding-left: 5px;
+            }
+
+            .outputs  {
+                text-align: right;
+                padding-right: 5px;
+            }
+        }
+    }
+}
