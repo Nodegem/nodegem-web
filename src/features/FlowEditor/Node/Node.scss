@@ -4,10 +4,15 @@ $connectionPadding: 5px;
     overflow: visible;
 }
 
+.connection {
+    cursor: pointer;
+}
+
 .node {
     .content {
         .ports {
             .port {
+                margin: 3px 0;
                 width: 100%;
                 flex: 1;
                 display: inline-flex;
@@ -22,7 +27,10 @@ $connectionPadding: 5px;
             }
 
             .outputs  {
-                text-align: right;
+                display: flex;
+                flex: 1;
+                flex-direction: column;
+                align-items: flex-end;
                 padding-right: 5px;
 
                 .connection {

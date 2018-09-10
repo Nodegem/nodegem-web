@@ -5,6 +5,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircle as faCircleSolid } from '@fortawesome/free-solid-svg-icons';
 
+const portClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const { x, y, width, height } = (e.target as Element).getBoundingClientRect() as DOMRect;
+    const [halfWidth, halfHeight] = [width / 2, height / 2];
+}
+
 const PortIcon = ({ connected } : { connected: boolean }) => {
 
     const portClass = classNames({
@@ -16,7 +24,7 @@ const PortIcon = ({ connected } : { connected: boolean }) => {
     const circleIcon = connected ? faCircleSolid : faCircle;
 
     return (
-        <span className={portClass}><FontAwesomeIcon icon={circleIcon} size="xs" /></span>
+        <span className={portClass} onClick={portClick} onContextMenu={portClick}><FontAwesomeIcon icon={circleIcon} size="sm" /></span>
     )
 }
 

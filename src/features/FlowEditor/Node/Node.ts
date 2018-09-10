@@ -6,7 +6,6 @@ import { Link } from '../Link';
 import { ValuePort, FlowPort, AnyPort } from './Ports/types';
 import _ from 'lodash';
 import { store } from '..';
-import { hasChildWithClass } from "../utils";
 
 class Node
 {

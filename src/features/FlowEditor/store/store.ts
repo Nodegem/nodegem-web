@@ -7,7 +7,7 @@ import { Graph } from "../Graph";
 class FlowEditorStore {
     @observable nodes: Array<Node> = [];
     @observable links: Array<Link> = [];
-    @observable linking: DrawingConnection;
+    @observable linking?: DrawingConnection;
 
     graph: Graph = new Graph();
 }

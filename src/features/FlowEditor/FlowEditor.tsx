@@ -22,6 +22,13 @@ node.allPorts.push(new OutputFlowPort("output"));
 node.allPorts.push(new OutputValuePort("output v"));
 store.nodes.push(node);
 
+const node2 = new Node("Goodbye", "Math.Subtract", [250, 250]);
+node2.allPorts.push(new InputFlowPort("input"));
+node2.allPorts.push(new InputValuePort("input v"));
+node2.allPorts.push(new OutputFlowPort("output"));
+node2.allPorts.push(new OutputValuePort("output v"));
+store.nodes.push(node2);
+
 @observer
 class FlowEditor extends React.Component {
 
@@ -39,7 +46,9 @@ class FlowEditor extends React.Component {
 
                         </g>
                         <g id="_nodes">
-                            <NodeView node={node} defaultWidth={200} />
+                            {store.nodes.map(x => 
+                                <NodeView key={x.id} node={x} defaultWidth={200} />    
+                            )}
                         </g>
                     </GraphView>
                 </HotKeys>

@@ -38,14 +38,14 @@ const OutputList = ({ flowOutputs, valueOutputs } : { flowOutputs: Array<OutputF
             <ul className="flows">
                 {
                     flowOutputs.map(x => (
-                        <li key={x.key}><OutputFlowPortView port={x} /></li>
+                        <li className="port" key={x.key}><OutputFlowPortView port={x} /></li>
                     ))
                 }
             </ul>
             <ul className="values">
                 {
                     valueOutputs.map(x => (
-                        <li key={x.key}><OutputValuePortView port={x} /></li>
+                        <li className="port" key={x.key}><OutputValuePortView port={x} /></li>
                     ))
                 }
             </ul>
@@ -81,7 +81,7 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
     
         const numFields = Math.max(node.numInputs, node.numOutputs);
         const defaultTitleHeight = 45;
-        const defaultFieldHeight = 22;
+        const defaultFieldHeight = 25;
         const nodeHeight = numFields * defaultFieldHeight + defaultTitleHeight;
         
         return (
