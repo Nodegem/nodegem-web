@@ -23,7 +23,8 @@
     "react-router-dom": "^4.3.1",
     "react-scripts-ts-antd": "2.15.1",
     "resub": "^1.0.8",
-    "resub-persist": "^1.2.6"
+    "resub-persist": "^1.2.6",
+    "shortid": "^2.2.13"
   },
   "scripts": {
     "start": "react-scripts-ts-antd start",
@@ -44,6 +45,7 @@
     "@types/react-faux-dom": "^4.1.1",
     "@types/react-onclickoutside": "^6.0.4",
     "@types/react-router-dom": "^4.3.0",
+    "@types/shortid": "^0.0.29",
     "typescript": "^3.0.0"
   }
 }

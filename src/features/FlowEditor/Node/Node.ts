@@ -2,7 +2,7 @@ import { uuid } from "lodash-uuid";
 import { observable, computed, action } from "mobx";
 import { InputValuePort, OutputValuePort } from './Ports/ValuePort';
 import { InputFlowPort, OutputFlowPort } from './Ports/FlowPort';
-import { Link } from '../Link';
+import { LinkOptions } from '../Link';
 import { ValuePort, FlowPort, AnyPort } from './Ports/types';
 import _ from 'lodash';
 import { store } from '..';
@@ -53,7 +53,7 @@ class Node
     }
 
     @computed
-    public get links() : Array<Link> {
+    public get links() : Array<LinkOptions> {
         return store.links.filter(x => x.source.node === this || x.destination.node === this);
     }
 

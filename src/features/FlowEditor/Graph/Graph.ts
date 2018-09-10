@@ -1,5 +1,7 @@
 import * as d3 from 'd3';
-import { observable } from 'mobx';
+import { observable, action } from 'mobx';
+import { store } from '..';
+import { AnyPort } from '../Node/Ports/types';
 
 class Graph {
 
@@ -9,6 +11,8 @@ class Graph {
     public position : XYCoords = [0, 0];
     @observable
     public mounted: boolean = false;
+    @observable
+    public mousePosition : XYCoords = [NaN, NaN];
 
     public scale : number = 1;
 
@@ -25,9 +29,27 @@ class Graph {
         d3.select("#_graph")
             .call(zoom);
 
+        d3.select(document)
+            .on("mousemove", this.handleMouseMove);
+
         // For some reason I need this for it to actually properly scale
         setTimeout(() => this.mounted = true, 100);
     }
+
+    private handleMouseMove = () => {
+        // if(!store.linking) return;
+
+        const { clientX, clientY } = d3.event;
+        this.mousePosition = this.convertCoords([clientX, clientY]);
+    }
+
+    public startLink = action((port: AnyPort, sourcePos: XYCoords) => {
+        store.linking = { from: port, sourcePos: this.convertCoords(sourcePos), mouse: this.convertCoords(this.mousePosition) };
+    })
+
+    public stopLink = action(() => {
+        store.linking = undefined;
+    })
 
     public convertCoords = (coords: XYCoords) : XYCoords => {
         const pt = (d3.select("#_graph").node() as any).createSVGPoint();

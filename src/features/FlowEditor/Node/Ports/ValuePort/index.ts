@@ -1,21 +1,22 @@
 import { Port } from "../Port";
 import { PortIOType } from "../types";
+import { Node } from "../../Node";
 
 abstract class ValuePort<IOType extends PortIOType> extends Port<IOType, "value"> {
-    constructor(label: string) {
-        super(label);
+    constructor(node: Node, label: string) {
+        super(node, label);
         this.type = "value";
     }
 }
 class InputValuePort extends ValuePort<"input"> {
-    constructor(label: string) {
-        super(label);
+    constructor(node: Node, label: string) {
+        super(node, label);
         this.ioType = "input";
     }
 }
 class OutputValuePort extends ValuePort<"output"> {
-    constructor(label: string) {
-        super(label);
+    constructor(node: Node, label: string) {
+        super(node, label);
         this.ioType = "output";
     }
 }

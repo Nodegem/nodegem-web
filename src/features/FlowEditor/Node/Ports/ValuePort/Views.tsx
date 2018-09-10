@@ -4,34 +4,47 @@ import classNames from "classnames";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircle as faCircleSolid } from '@fortawesome/free-solid-svg-icons';
+import { observer } from "mobx-react";
+import { store } from "../../../store/store";
+import { AnyPort } from "../types";
 
-const portClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
+@observer
+class PortIcon extends React.Component<{ port : AnyPort }> {
 
-    const { x, y, width, height } = (e.target as Element).getBoundingClientRect() as DOMRect;
-    const [halfWidth, halfHeight] = [width / 2, height / 2];
-}
+    private onPortClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+    
+        const { x, y, width, height } = (e.target as Element).getBoundingClientRect() as DOMRect;
+        const [halfWidth, halfHeight] = [width / 2, height / 2];
+    
+        const sourcePos : XYCoords = [x + halfWidth, y + halfHeight];
+        store.graph.startLink(this.props.port, sourcePos);
+    }
 
-const PortIcon = ({ connected } : { connected: boolean }) => {
+    public render() {
 
-    const portClass = classNames({
-        "connection": true,
-        "value": true,
-        "connected": connected
-    });
+        const { connected } = this.props.port;
 
-    const circleIcon = connected ? faCircleSolid : faCircle;
+        const portClass = classNames({
+            "connection": true,
+            "value": true,
+            "connected": connected
+        });
+    
+        const circleIcon = connected ? faCircleSolid : faCircle;
 
-    return (
-        <span className={portClass} onClick={portClick} onContextMenu={portClick}><FontAwesomeIcon icon={circleIcon} size="sm" /></span>
-    )
+        return (
+            <span className={portClass} onClick={this.onPortClick}><FontAwesomeIcon icon={circleIcon} size="sm" /></span>
+        )
+    }
+
 }
 
 const InputValuePortView = ({ port } : { port: InputValuePort }) => {
     return (
         <>
-            <PortIcon connected={port.connected} />
+            <PortIcon port={port} />
             <span>{port.label}</span>
         </>
     )
@@ -41,7 +54,7 @@ const OutputValuePortView = ({ port } : { port: OutputValuePort }) => {
     return (
         <>
             <span>{port.label}</span>
-            <PortIcon connected={port.connected} />
+            <PortIcon port={port} />
         </>
     )
 }

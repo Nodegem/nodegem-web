@@ -6,6 +6,7 @@ import { InputFlowPort, OutputFlowPort } from "./Ports/FlowPort";
 import { InputValuePort, OutputValuePort } from "./Ports/ValuePort";
 import { createTransform, hasChildWithClass } from "../utils";
 import * as d3 from "d3";
+import shortId from 'shortid';
 
 import "./Node.scss";
 import { InputFlowPortView, OutputFlowPortView } from "./Ports/FlowPort/Views";
@@ -56,8 +57,14 @@ const OutputList = ({ flowOutputs, valueOutputs } : { flowOutputs: Array<OutputF
 @observer
 class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
 
+    private tempId: string = shortId();
+
+    private get nodeTempId() : string {
+        return `node-${this.tempId}`;
+    }
+
     componentDidMount() {
-        d3.select(".node")
+        d3.select(`#${this.nodeTempId}`)
             .on("mousedown", () => this.onNodeClick(d3.event));
     }
 
@@ -83,11 +90,11 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
         const defaultTitleHeight = 45;
         const defaultFieldHeight = 25;
         const nodeHeight = numFields * defaultFieldHeight + defaultTitleHeight;
-        
+
         return (
             <foreignObject className="node-shell" width={defaultWidth} height={nodeHeight} 
                 transform={createTransform(node.position)} onMouseDown={this.onNodeClick}>
-                <div className={nodeClasses}>
+                <div className={nodeClasses} id={this.nodeTempId}>
                     <div className="header">
                         <span className="title">{node.title}</span>
                     </div>

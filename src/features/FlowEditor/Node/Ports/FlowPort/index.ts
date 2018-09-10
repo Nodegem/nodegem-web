@@ -1,21 +1,22 @@
 import { Port } from "../Port";
 import { PortIOType } from "../types";
+import { Node } from "../../Node";
 
 abstract class FlowPort<IOType extends PortIOType> extends Port<IOType, "flow"> {
-    constructor(label: string) {
-        super(label);
+    constructor(node: Node, label: string) {
+        super(node, label);
         this.type = "flow";
     }
 }
 class InputFlowPort extends FlowPort<"input"> {
-    constructor(label: string) {
-        super(label);
+    constructor(node: Node, label: string) {
+        super(node, label);
         this.ioType = "input";
     }
 }
 class OutputFlowPort extends FlowPort<"output"> {
-    constructor(label: string) {
-        super(label);
+    constructor(node: Node, label: string) {
+        super(node, label);
         this.ioType = "output";
     }
 }
