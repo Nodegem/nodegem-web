@@ -8,6 +8,7 @@ const PortIcon = ({ connected, type } : { connected: boolean, type: PortIOType }
 
     const portClass = classNames({
         "connection": true,
+        "flow": true,
         "connected": connected
     });
 

@@ -9,13 +9,14 @@ const PortIcon = ({ connected } : { connected: boolean }) => {
 
     const portClass = classNames({
         "connection": true,
+        "value": true,
         "connected": connected
     });
 
     const circleIcon = connected ? faCircleSolid : faCircle;
 
     return (
-        <span className={portClass}><FontAwesomeIcon icon={circleIcon} /></span>
+        <span className={portClass}><FontAwesomeIcon icon={circleIcon} size="xs" /></span>
     )
 }
 

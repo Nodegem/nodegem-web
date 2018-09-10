@@ -19,7 +19,7 @@ $nodeHeaderBorder: 1px solid black;
         border-radius: $nodeBorderRadius;
         overflow: hidden;
         background: $nodeBackground;
-        // box-shadow: 3px 3px 10px rgba(.7, .7, .7, .3);
+        box-shadow: 3px 3px 10px rgba(.7, .7, .7, .3);
 
         .header {
             color: $nodeTextColor;
@@ -48,6 +48,12 @@ $nodeHeaderBorder: 1px solid black;
                 display: flex;
                 width: 100%;
                 flex-direction: row;
+                color: $nodeTextColor;
+                font-size: 13px;
+                
+                .connection {
+                    color: $nodeSocketColor;
+                }
 
                 ul {
                     list-style: none;
