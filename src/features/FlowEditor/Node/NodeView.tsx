@@ -57,14 +57,9 @@ const OutputList = ({ flowOutputs, valueOutputs } : { flowOutputs: Array<OutputF
 @observer
 class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
 
-    private tempId: string = shortId();
-
-    private get nodeTempId() : string {
-        return `node-${this.tempId}`;
-    }
 
     componentDidMount() {
-        d3.select(`#${this.nodeTempId}`)
+        d3.select(`#${this.props.node.elementId}`)
             .on("mousedown", () => this.onNodeClick(d3.event));
     }
 
@@ -94,7 +89,7 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
         return (
             <foreignObject className="node-shell" width={defaultWidth} height={nodeHeight} 
                 transform={createTransform(node.position)} onMouseDown={this.onNodeClick}>
-                <div className={nodeClasses} id={this.nodeTempId}>
+                <div className={nodeClasses} id={node.elementId}>
                     <div className="header">
                         <span className="title">{node.title}</span>
                     </div>

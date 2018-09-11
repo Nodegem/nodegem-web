@@ -1,29 +1,12 @@
 import * as React from "react";
 import { InputFlowPort, OutputFlowPort } from ".";
-import classNames from "classnames";
-import { Icon } from "antd";
-import { PortIOType } from "../types";
-import { observer } from "mobx-react";
-
-const PortIcon = observer(({ connected, type } : { connected: boolean, type: PortIOType }) => {
-
-    const portClass = classNames({
-        "connection": true,
-        "flow": true,
-        "connected": connected
-    });
-
-    const direction = type === "input" ? "caret-left" : "caret-right";
-    return (
-        <span className={portClass}><Icon type={direction} theme="outlined" /></span>
-    )
-})
+import { FlowPortIconView } from "../PortView";
 
 const InputFlowPortView = ({ port } : { port: InputFlowPort }) => {
     return (
         <>
-            <PortIcon connected={port.connected} type={port.ioType} />
-            <span>{port.label}</span>
+            <FlowPortIconView port={port} />
+            <span className={port.elementId}>{port.label}</span>
         </>
     )
 }
@@ -31,8 +14,8 @@ const InputFlowPortView = ({ port } : { port: InputFlowPort }) => {
 const OutputFlowPortView = ({ port } : { port: OutputFlowPort }) => {
     return (
         <>
-            <span>{port.label}</span>
-            <PortIcon connected={port.connected} type={port.ioType} />
+            <span className={port.elementId}>{port.label}</span>
+            <FlowPortIconView port={port} />
         </>
     )
 }

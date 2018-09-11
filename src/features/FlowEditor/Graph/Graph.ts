@@ -1,7 +1,8 @@
+import { Observable } from './../utils/Observable';
 import * as d3 from 'd3';
 import { observable, action } from 'mobx';
 import { store } from '..';
-import { AnyPort } from '../Node/Ports/types';
+import { AnyPort, FlowPort } from '../Node/Ports/types';
 
 class Graph {
 
@@ -44,12 +45,24 @@ class Graph {
     }
 
     public startLink = action((port: AnyPort, sourcePos: XYCoords) => {
+        d3.select(document)
+            .on("mouseup", this.handleLinkMouseUp);
         store.linking = { from: port, sourcePos: this.convertCoords(sourcePos), mouse: this.convertCoords(this.mousePosition) };
     })
 
     public stopLink = action(() => {
+        d3.select(document)
+            .on("mouseup", null);
         store.linking = undefined;
+    });
+
+    public attackLink = action((to: AnyPort) => {
+        this.stopLink();
     })
+
+    private handleLinkMouseUp = () => {
+        this.stopLink();
+    }
 
     public convertCoords = (coords: XYCoords) : XYCoords => {
         const pt = (d3.select("#_graph").node() as any).createSVGPoint();

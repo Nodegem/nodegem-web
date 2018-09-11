@@ -2,6 +2,8 @@ import { Port } from "../Port";
 import { PortIOType } from "../types";
 import { Node } from "../../Node";
 
+import { InputFlowPortView, OutputFlowPortView } from './Views';
+
 abstract class FlowPort<IOType extends PortIOType> extends Port<IOType, "flow"> {
     constructor(node: Node, label: string) {
         super(node, label);
@@ -21,4 +23,4 @@ class OutputFlowPort extends FlowPort<"output"> {
     }
 }
 
-export { InputFlowPort, OutputFlowPort };
+export { InputFlowPort, OutputFlowPort, InputFlowPortView, OutputFlowPortView };

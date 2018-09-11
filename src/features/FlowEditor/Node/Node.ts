@@ -1,15 +1,17 @@
 import { uuid } from "lodash-uuid";
+import { InputValuePort, OutputValuePort, OutputFlowPort, InputFlowPort } from "./Ports";
 import { observable, computed, action } from "mobx";
-import { InputValuePort, OutputValuePort } from './Ports/ValuePort';
-import { InputFlowPort, OutputFlowPort } from './Ports/FlowPort';
 import { LinkOptions } from '../Link';
 import { ValuePort, FlowPort, AnyPort } from './Ports/types';
 import _ from 'lodash';
 import { store } from '..';
+import shortId from 'shortid';
 
 class Node
 {
     id = uuid();
+    
+    elementId: string = `node-${shortId()}`;
 
     type: string;
     title: string;

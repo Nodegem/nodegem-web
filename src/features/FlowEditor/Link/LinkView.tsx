@@ -28,7 +28,7 @@ const DrawFlowLinkView = observer(({ }) => {
 
 const DrawValueLinkView = ({ sourcePos, destPos } : { sourcePos: XYCoords, destPos: XYCoords }) => {
     return (
-        <path d={lineFunc(lineTransform([sourcePos, destPos]))!} stroke="red" strokeWidth={5} fill="none" />
+        <path d={lineFunc(lineTransform([sourcePos, destPos]))!} stroke="red" strokeWidth={3} fill="none" />
     )
 }
 
