@@ -21,6 +21,8 @@ const lineTransform = (coords: [XYCoords, XYCoords]): Array<XYCoords> => {
     ];
 }
 
+const flowMarkerOffset = 17;
+
 const FlowMarker = ({}) => {
     return (
         <marker id="marker-arrow" className="flow-arrow-marker" markerWidth="12" markerHeight="12" refX="6" refY="4" orient="auto" stroke="lightgreen" fill="lightgreen" viewBox="0 0 20 20">
@@ -45,16 +47,17 @@ const BaseValueLinkView = ({ d, sourcePos, destPos }: { d: string, sourcePos: XY
     )
 }
 
-const BaseFlowLinkView = ({ d, sourcePos, destPos }: { d: string, sourcePos: XYCoords, destPos: XYCoords }) => {
+const BaseFlowLinkView = ({ d }: { d: string }) => {
     return (
         <path d={d} className="link flow" stroke="lightgreen" markerEnd="url(#marker-arrow)" strokeWidth={3} fill="none" />
     )
 }
 
 const DrawFlowLinkView = ({ sourcePos, destPos }: { sourcePos: XYCoords, destPos: XYCoords }) => {
-    const data = lineFunc(lineTransform([sourcePos, destPos]))!;
+    const [dX, dY] = destPos;
+    const data = lineFunc(lineTransform([sourcePos, [dX - flowMarkerOffset, dY]]))!;
     return (
-        <BaseFlowLinkView d={data} sourcePos={sourcePos} destPos={destPos} />
+        <BaseFlowLinkView d={data} />
     )
 }
 
@@ -68,12 +71,12 @@ const DrawValueLinkView = ({ sourcePos, destPos }: { sourcePos: XYCoords, destPo
 const FlowLinkView = observer(({ link }: { link: FlowLink }) => {
     const sourceCoords = store.graph.convertCoords(link.source.port.centerCoords);
     const destCoords = store.graph.convertCoords(link.destination.port.centerCoords);
-    destCoords[0] -= 17;
+    destCoords[0] -= flowMarkerOffset;
 
     const data = lineFunc(lineTransform([sourceCoords, destCoords]))!;
     return (
         <g>
-            <BaseFlowLinkView d={data} sourcePos={sourceCoords} destPos={destCoords} />
+            <BaseFlowLinkView d={data} />
             <LinkHandleView d={data} />
         </g>
     )
