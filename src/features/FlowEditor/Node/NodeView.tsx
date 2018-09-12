@@ -73,6 +73,10 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
         }
     }
 
+    componentDidUpdate() {
+        this.props.node.allPorts.forEach(x => x.updateCenterCoords());
+    }
+
     public render() {
 
         const { node, defaultWidth } = this.props;

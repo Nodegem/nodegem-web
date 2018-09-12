@@ -65,13 +65,10 @@ class Node
 
         const clientOffset = this.convert([e.clientX, e.clientY]);
         const offset = [clientOffset[0] - this.position[0], clientOffset[1] - this.position[1]];
-        this.allPorts.forEach(x => x.updateCenterCoords());
 
         const handleMove = action((e: MouseEvent) => {
             const newPos = this.convert([e.clientX, e.clientY]);
             this.position = [newPos[0] - offset[0], newPos[1] - offset[1]];
-            
-            this.allPorts.forEach(x => x.updateCenterCoords());
         });
 
         const handleUp = () => {
