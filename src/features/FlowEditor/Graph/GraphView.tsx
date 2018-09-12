@@ -10,6 +10,7 @@ interface GraphViewProps {
     zoomRange: [number, number];
     size: [number, number];
     pattern: Pattern;
+    defs?: JSX.Element;
     onRightClick?: (e: React.MouseEvent) => void;
 }
 
@@ -26,7 +27,7 @@ class GraphView extends React.Component<GraphViewProps> {
 
     public render() {
 
-        const { graph, pattern, size, onRightClick } = this.props;
+        const { graph, pattern, size, onRightClick, defs } = this.props;
 
         const [width, height] = size;
         const [halfWidth, halfHeight] = [width/2, height/2];
@@ -35,6 +36,7 @@ class GraphView extends React.Component<GraphViewProps> {
             <svg className="graph" id="_graph">
                 <defs>
                     {pattern.pattern}
+                    {defs}
                 </defs>
                 <g id="_graph-view" transform={d3.zoomIdentity.toString()}>
                     <rect x={-halfWidth} y={-halfHeight} 

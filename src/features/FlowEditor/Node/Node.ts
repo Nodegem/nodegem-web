@@ -34,22 +34,18 @@ class Node
         return this.outputFlowPorts.length + this.outputValuePorts.length;
     }
 
-    @computed    
     public get inputValuePorts() : Array<InputValuePort> {
         return this.valuePorts.filter(x => x instanceof InputValuePort) as Array<InputValuePort>;
     }
 
-    @computed
     public get inputFlowPorts() : Array<InputFlowPort> {
         return this.flowPorts.filter(x => x instanceof InputFlowPort) as Array<InputFlowPort>;
     }
 
-    @computed
     public get outputValuePorts() : Array<OutputValuePort> {
         return this.valuePorts.filter(x => x instanceof OutputValuePort) as Array<OutputValuePort>;
     }
 
-    @computed
     public get outputFlowPorts() : Array<OutputFlowPort> {
         return this.flowPorts.filter(x => x instanceof OutputFlowPort) as Array<OutputFlowPort>;
     }
@@ -69,10 +65,13 @@ class Node
 
         const clientOffset = this.convert([e.clientX, e.clientY]);
         const offset = [clientOffset[0] - this.position[0], clientOffset[1] - this.position[1]];
+        this.allPorts.forEach(x => x.updateCenterCoords());
 
         const handleMove = action((e: MouseEvent) => {
             const newPos = this.convert([e.clientX, e.clientY]);
             this.position = [newPos[0] - offset[0], newPos[1] - offset[1]];
+            
+            this.allPorts.forEach(x => x.updateCenterCoords());
         });
 
         const handleUp = () => {

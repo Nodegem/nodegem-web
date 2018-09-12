@@ -1,4 +1,4 @@
-import { computed } from "mobx";
+import { computed, observable, action } from "mobx";
 import { PortIOType, PortType, AnyPort } from "./types";
 import { store } from "../..";
 import { Node } from "../Node";
@@ -15,20 +15,25 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
     key: string;
     node: Node;
 
+    @observable
+    private port? : AnyPort;
+
+    @observable
+    centerCoords : XYCoords = [NaN, NaN];
+
     portElement: Element;
 
-    @computed 
+    @computed
     public get connected(): boolean {
-        return (store.linking && store.linking.from === this) 
-            || store.links.some(x => x.source.port === this || x.destination.port === this);
+        return !!this.port || (store.linking && store.linking.from === this)!;
     }
 
-    public get centerCoords() : XYCoords {
+    public updateCenterCoords = action(() => {
         const { x, y, width, height } = this.portElement.getBoundingClientRect() as DOMRect;
         const [halfWidth, halfHeight] = [width / 2, height / 2];
-    
-        return [x + halfWidth, y + halfHeight];
-    }
+
+        this.centerCoords = [x + halfWidth, y + halfHeight];
+    })
 
     constructor(node: Node, label: string) {
         this.node = node;
@@ -40,8 +45,11 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
         this.portId = `port-${uniqueId}`;
     }
 
-    public onMount = () => {
+    public setPort = (port: AnyPort | undefined) => {
+        this.port = port;
+    }
 
+    public onMount = () => {
         const portSelection = d3.select(`#${this.portId}`);
         this.portElement = portSelection.node() as Element;
 
@@ -49,7 +57,7 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
             d3.event.preventDefault();
             d3.event.stopPropagation();
 
-            store.graph.startLink(this as AnyPort, this.centerCoords);
+            store.graph.startLink(this as AnyPort);
         })
 
         d3.selectAll(`.${this.elementId}`)
@@ -57,9 +65,10 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
 
-                store.graph.stopLink();
+                store.graph.attachLink(this as AnyPort);
             });
 
+        this.updateCenterCoords();
     }
 
 }

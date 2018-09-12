@@ -1,8 +1,9 @@
-import { Observable } from './../utils/Observable';
 import * as d3 from 'd3';
 import { observable, action } from 'mobx';
 import { store } from '..';
-import { AnyPort, FlowPort } from '../Node/Ports/types';
+import { AnyPort } from '../Node/Ports/types';
+import { FlowLink, ValueLink, LinkOptions } from '../Link';
+import { OutputFlowPort, InputValuePort, OutputValuePort, InputFlowPort } from '../Node/Ports';
 
 class Graph {
 
@@ -14,8 +15,6 @@ class Graph {
     public mounted: boolean = false;
     @observable
     public mousePosition : XYCoords = [NaN, NaN];
-
-    public scale : number = 1;
 
     public initialize = (size: [number, number], zoomRange: [number, number]) => {
 
@@ -38,16 +37,19 @@ class Graph {
     }
 
     private handleMouseMove = () => {
-        // if(!store.linking) return;
+        if(!store.linking) return;
 
         const { clientX, clientY } = d3.event;
         this.mousePosition = this.convertCoords([clientX, clientY]);
     }
 
-    public startLink = action((port: AnyPort, sourcePos: XYCoords) => {
+    public startLink = action((port: AnyPort) => {
         d3.select(document)
             .on("mouseup", this.handleLinkMouseUp);
-        store.linking = { from: port, sourcePos: this.convertCoords(sourcePos), mouse: this.convertCoords(this.mousePosition) };
+        
+        const { clientX, clientY } = d3.event;
+        this.mousePosition = this.convertCoords([clientX, clientY]);
+        store.linking = { from: port, sourcePos: this.convertCoords(port.centerCoords), mouse: this.convertCoords(this.mousePosition) };
     })
 
     public stopLink = action(() => {
@@ -56,7 +58,31 @@ class Graph {
         store.linking = undefined;
     });
 
-    public attackLink = action((to: AnyPort) => {
+    public attachLink = action((to: AnyPort) => {
+
+        if(!store.linking) return;
+
+        const { from } = store.linking;
+
+        if(from.type !== to.type) return;
+
+        const source = to.ioType === "output" ? to : from;
+        const dest = to.ioType === "input" ? to : from;
+
+        if(source === dest) return;
+        
+        let newLink : LinkOptions;
+
+        if(from.type === "flow") {
+            newLink = new FlowLink({ port: source as OutputFlowPort, node: source.node }, { port: dest as InputFlowPort, node: dest.node });
+        } else {
+            newLink = new ValueLink({ port: source as OutputValuePort, node: source.node }, { port: dest as InputValuePort, node: dest.node });
+        }
+
+        source.setPort(dest);
+        dest.setPort(source);
+        store.links.push(newLink);
+
         this.stopLink();
     })
 
@@ -83,10 +109,8 @@ class Graph {
         const transform = d3.event.transform;
         const canvas = d3.select("#_graph-view");
         canvas.attr("transform", transform);
-        
-        if(transform.k !== this.scale) {
-            this.scale = transform.k;
-        }
+
+        store.nodes.forEach(x => x.allPorts.forEach(x => x.updateCenterCoords()));
     }
 
 }

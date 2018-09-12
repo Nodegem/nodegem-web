@@ -15,6 +15,10 @@ $nodeHeaderBorder: 1px solid black;
     user-select: none;
     -ms-user-select: none;
 
+    .link-handler {
+        cursor: pointer;
+    }
+
     .node {
 
         border-radius: $nodeBorderRadius;

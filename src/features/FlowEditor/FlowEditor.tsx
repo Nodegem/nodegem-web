@@ -10,10 +10,12 @@ import { store } from './store/store';
 import { GraphView } from './Graph/GraphView';
 import { InputFlowPort, OutputFlowPort } from './Node/Ports/FlowPort';
 import { InputValuePort, OutputValuePort } from './Node/Ports/ValuePort';
-import { DrawValueLinkView } from './Link/LinkView';
+import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
+import { ValueLink, FlowLink } from './Link';
+import { transformGraph } from './utils/data-transform/data-transform';
 
 const EDITOR_KEY_MAP = {
-
+    'test': ["ctrl+k"]
 }
 
 const node = new Node("hello", "Math.Subtract", [500, 250]);
@@ -30,26 +32,54 @@ node2.allPorts.push(new OutputFlowPort(node, "output"));
 node2.allPorts.push(new OutputValuePort(node, "output v"));
 store.nodes.push(node2);
 
+const AdditionalDefs = ({}) => {
+    return (
+        <FlowMarker />
+    )
+}
+
 @observer
 class FlowEditor extends React.Component {
 
     public render() {
 
         const hotkeyHandler = {
+            'test': (event) => { event.preventDefault(); console.log(transformGraph(store.nodes, store.links)); }
+        };
 
+        let source : XYCoords = [0, 0];
+        let destination : XYCoords = [0, 0];
+
+        if(!!store.linking) {
+            const link = store.linking;
+            if(link.from.ioType === "output") {
+                source = link.sourcePos;
+                destination = store.graph.mousePosition;
+            } else {
+                destination = link.sourcePos;
+                source = store.graph.mousePosition;
+            }
         }
 
         return (
             <div className="flow-editor">
                 <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} style={{flex: "inherit"}}>
-                    <GraphView size={[15000, 15000]} pattern={canvasPattern(200)} graph={store.graph} zoomRange={[.5, 1.5]}>
+                    <GraphView size={[15000, 15000]} pattern={canvasPattern(200)} graph={store.graph} zoomRange={[.5, 1.5]} defs={<AdditionalDefs />}>
                         <g id="_connections">
+                            {
+                                store.links.map(x => {
+                                    const returnElement = x instanceof ValueLink
+                                        ? <ValueLinkView key={x.id} link={x} />
+                                        : <FlowLinkView key={x.id} link={x} />;
+                                    return returnElement;
+                                })
+                            }
                             {
                                 store.linking 
                                     && (
                                         store.linking.from.type === "flow" 
-                                        ? <></>
-                                        : <DrawValueLinkView sourcePos={store.linking.sourcePos} destPos={store.graph.mousePosition} />
+                                        ? <DrawFlowLinkView sourcePos={source} destPos={destination} />
+                                        : <DrawValueLinkView sourcePos={source} destPos={destination} />
                                     )
                             }
                         </g>
