@@ -35,10 +35,10 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
         this.centerCoords = [x + halfWidth, y + halfHeight];
     })
 
-    constructor(node: Node, label: string) {
+    constructor(node: Node, label: string, key: string) {
         this.node = node;
         this.label = label;
-        this.key = label.toLowerCase();
+        this.key = key;
 
         const uniqueId = shortId();
         this.elementId = `${node.elementId}-port-${uniqueId}`

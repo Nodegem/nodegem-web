@@ -64,12 +64,18 @@ class Graph {
 
         const { from } = store.linking;
 
-        if(from.type !== to.type) return;
+        if(from.type !== to.type) {
+            this.stopLink();
+            return;
+        }
 
         const source = to.ioType === "output" ? to : from;
         const dest = to.ioType === "input" ? to : from;
 
-        if(source === dest) return;
+        if(source === dest || source.node === dest.node) {
+            this.stopLink();
+            return;
+        } 
         
         let newLink : LinkOptions;
 
@@ -81,9 +87,16 @@ class Graph {
 
         source.setPort(dest);
         dest.setPort(source);
+        source.node.addLink(newLink);
+        dest.node.addLink(newLink);
+
         store.links.push(newLink);
 
         this.stopLink();
+    })
+
+    public detachLink = action((from: AnyPort) => {
+
     })
 
     private handleLinkMouseUp = () => {
@@ -110,6 +123,7 @@ class Graph {
         const canvas = d3.select("#_graph-view");
         canvas.attr("transform", transform);
 
+        // Me don't likey.... have to do this if you pan the camera and try to create a link... it thinks the port is in a different position
         store.nodes.forEach(x => x.allPorts.forEach(x => x.updateCenterCoords()));
     }
 

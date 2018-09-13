@@ -33,7 +33,7 @@ const FlowMarker = ({}) => {
 
 const LinkHandleView = ({ d } : { d: string }) => {
     return (
-        <path d={d} className="link-handle" fill="none" strokeWidth={12} stroke="none" />
+        <path d={d} className="link-click-handle" fill="none" strokeWidth={12} stroke="transparent" />
     );
 }
 

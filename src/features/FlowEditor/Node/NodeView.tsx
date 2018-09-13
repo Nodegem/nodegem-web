@@ -6,7 +6,6 @@ import { InputFlowPort, OutputFlowPort } from "./Ports/FlowPort";
 import { InputValuePort, OutputValuePort } from "./Ports/ValuePort";
 import { createTransform, hasChildWithClass } from "../utils";
 import * as d3 from "d3";
-import shortId from 'shortid';
 
 import "./Node.scss";
 import { InputFlowPortView, OutputFlowPortView } from "./Ports/FlowPort/Views";
@@ -74,7 +73,7 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
     }
 
     componentDidUpdate() {
-        this.props.node.allPorts.forEach(x => x.updateCenterCoords());
+        this.props.node.updateLinks();
     }
 
     public render() {

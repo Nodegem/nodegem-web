@@ -15,6 +15,7 @@ class Node
 
     type: string;
     title: string;
+    links: Array<LinkOptions> = [];
     @observable position: XYCoords;
     @observable allPorts: Array<AnyPort> = [];
 
@@ -50,11 +51,6 @@ class Node
         return this.flowPorts.filter(x => x instanceof OutputFlowPort) as Array<OutputFlowPort>;
     }
 
-    @computed
-    public get links() : Array<LinkOptions> {
-        return store.links.filter(x => x.source.node === this || x.destination.node === this);
-    }
-
     constructor(title: string, type: string, position: XYCoords | undefined = undefined) {
         this.title = title;
         this.type = type;
@@ -72,12 +68,33 @@ class Node
         });
 
         const handleUp = () => {
+            this.updatePortsPositions();
+
             document.removeEventListener("mousemove", handleMove);
             document.removeEventListener("mouseup", handleUp);
         }
 
         document.addEventListener("mouseup", handleUp);
         document.addEventListener("mousemove", handleMove);
+    }
+
+    public addLink = (link: LinkOptions) => {
+        this.links.push(link);
+    }
+
+    public removeLink = (link: LinkOptions) => {
+        _.remove(this.links, link);
+    }
+
+    private updatePortsPositions = () => {
+        this.allPorts.forEach(x => x.updateCenterCoords());
+    }
+
+    public updateLinks = () => {
+        this.links.forEach(x => {
+            x.source.port.updateCenterCoords();
+            x.destination.port.updateCenterCoords();
+        })
     }
 
     private convert = (coords: XYCoords) : XYCoords => {
