@@ -29,7 +29,7 @@ abstract class BaseService {
         return axiosInstance.delete(this.joinPath(url))
     }
 
-    private joinPath = (url: string) => {
+    private joinPath = (url?: string) => {
         return `${this.path}${url}`;
     }
 
