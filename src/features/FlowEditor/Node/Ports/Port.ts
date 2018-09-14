@@ -17,7 +17,7 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
     node: Node;
 
     @observable
-    private port? : AnyPort;
+    protected port? : AnyPort;
 
     @observable
     centerCoords : XYCoords = [NaN, NaN];

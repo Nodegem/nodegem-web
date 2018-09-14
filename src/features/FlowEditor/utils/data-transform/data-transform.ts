@@ -29,7 +29,7 @@ export { GraphData };
 export const transformGraph = (nodes: Array<Node>, links: Array<LinkOptions>) : GraphData => {
     return {
         nodes: nodes.map<NodeData>(x => 
-            ({ id: x.id, type: x.type, fields: [] })
+            ({ id: x.id, type: x.type, fields: x.inputValuePorts.map(iv => ({ key: iv.key, value: iv.value })) })
         ),
         connections: links.map<ConnectionData>(x => 
             ({ source: x.source.node.id, sourceKey: x.source.port.key, destination: x.destination.node.id, destinationKey: x.destination.port.key })

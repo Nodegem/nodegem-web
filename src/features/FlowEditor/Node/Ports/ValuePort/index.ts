@@ -17,6 +17,13 @@ class InputValuePort extends ValuePort<"input"> {
     inputBox: InputBox;
 
     public get connected() { return true; }
+    public get hasConnection() {
+        return !!this.port;
+    }
+
+    public get value() {
+        return this.hasConnection ? this.defaultValue : this.inputBox.value;
+    }
 
     constructor(label: string, key: string, defaultValue: any) {
         super(label, key);
