@@ -64,8 +64,12 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
 
     onNodeClick = (e: React.MouseEvent) => {
 
-        e.stopPropagation();
-        e.preventDefault();
+        if(e.target instanceof Element
+            && e.target.tagName.toLowerCase() !== "input")
+        {
+            e.stopPropagation();
+            e.preventDefault();
+        }
 
         if(hasChildWithClass(e.target as Element, "header")) {
             this.props.node.handleDragStart(e);
@@ -98,8 +102,8 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
                     </div>
                     <div className="content">
                         <div className="ports">
-                            <InputList flowInputs={node.inputFlowPorts} valueInputs={node.inputValuePorts} />
-                            <OutputList flowOutputs={node.outputFlowPorts} valueOutputs={node.outputValuePorts} />
+                            { node.numInputs > 0 && <InputList flowInputs={node.inputFlowPorts} valueInputs={node.inputValuePorts} /> }
+                            { node.numOutputs > 0 && <OutputList flowOutputs={node.outputFlowPorts} valueOutputs={node.outputValuePorts} /> }
                         </div>
                     </div>
                 </div>

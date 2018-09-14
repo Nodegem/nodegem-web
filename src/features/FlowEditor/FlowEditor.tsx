@@ -2,7 +2,7 @@ import * as React from 'react';
 import { observer } from 'mobx-react';
 import { HotKeys } from 'react-hotkeys';
 import { canvasPattern } from './Patterns';
-import { NodeView } from './Node';
+import { NodeView, Node } from './Node';
 import { store } from './store/store';
 import { GraphView } from './Graph/GraphView';
 import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
@@ -11,6 +11,9 @@ import { createNodeFromDefinition } from './utils/data-transform/node-definition
 import _ from 'lodash';
 
 import "./FlowEditor.scss";
+import { transformGraph } from './utils/data-transform/data-transform';
+import { graphService } from './services/graph-service';
+import { InputValuePort, OutputValuePort } from './Node/Ports';
 
 const AdditionalDefs = ({}) => {
     return (
@@ -19,8 +22,14 @@ const AdditionalDefs = ({}) => {
 }
 
 const EDITOR_KEY_MAP = {
-    'test': ["ctrl+k"]
+    'test': ["ctrl+k", "command+k"],
+    'run': ["ctrl+r", "command+r"]
 }
+
+const newNode = new Node("Title", "title");
+newNode.addPort(new InputValuePort("input", "input", 0))
+newNode.addPort(new OutputValuePort("ouptut", "out"))
+store.addNode(newNode);
 
 @observer
 class FlowEditor extends React.Component {
@@ -30,7 +39,21 @@ class FlowEditor extends React.Component {
         const hotkeyHandler = {
             'test': (event) => { 
                 event.preventDefault();
-                console.log("create graph scene")
+                console.log(store.nodeDefinitions);
+
+                const start = store.nodeDefinitions[3];
+                const log = store.nodeDefinitions[0];
+                const add = store.nodeDefinitions[1];
+                store.nodes.push(createNodeFromDefinition(start, [200, 200]))
+                store.nodes.push(createNodeFromDefinition(add, [250, 250]))
+                store.nodes.push(createNodeFromDefinition(add, [300, 300]))
+                store.nodes.push(createNodeFromDefinition(log, [400, 400]))
+            },
+            'run': (event) => {
+                event.preventDefault();
+                const graphData = transformGraph(store.nodes, store.links);
+                console.log(graphData);
+                graphService.runGraph(graphData).then(x => console.log(x));
             }
         };
 
@@ -48,9 +71,10 @@ class FlowEditor extends React.Component {
             }
         }
 
+        const flexStyles : React.CSSProperties = { flex: "inherit", flexDirection: "column", display: "inherit" };
         return (
             <div className="flow-editor">
-                <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} style={{flex: "inherit"}}>
+                <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} style={flexStyles}>
                     <GraphView size={[15000, 15000]} pattern={canvasPattern(200)} graph={store.graph} zoomRange={[.5, 1.5]} defs={<AdditionalDefs />}>
                         <g id="_connections">
                             {

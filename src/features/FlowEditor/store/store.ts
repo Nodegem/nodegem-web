@@ -1,4 +1,4 @@
-import { observable } from "mobx";
+import { observable, action } from "mobx";
 import { DrawingConnection } from "../types";
 import { Node } from '../Node';
 import { Graph } from "../Graph";
@@ -20,6 +20,10 @@ class FlowEditorStore {
             this.nodeDefinitions = data;
         });
     }
+
+    public addNode = action((node: Node) => {
+        this.nodes.push(node);
+    })
 }
 
 export const store = new FlowEditorStore();

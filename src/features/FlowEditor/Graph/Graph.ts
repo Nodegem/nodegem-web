@@ -49,6 +49,7 @@ class Graph {
         
         const { clientX, clientY } = d3.event;
         this.mousePosition = this.convertCoords([clientX, clientY]);
+        port.updateCenterCoords();
         store.linking = { from: port, sourcePos: this.convertCoords(port.centerCoords), mouse: this.convertCoords(this.mousePosition) };
     })
 
@@ -85,6 +86,7 @@ class Graph {
             newLink = new ValueLink({ port: source as OutputValuePort, node: source.node }, { port: dest as InputValuePort, node: dest.node });
         }
 
+        to.updateCenterCoords();
         source.setPort(dest);
         dest.setPort(source);
         source.node.addLink(newLink);
@@ -122,9 +124,6 @@ class Graph {
         const transform = d3.event.transform;
         const canvas = d3.select("#_graph-view");
         canvas.attr("transform", transform);
-
-        // Me don't likey.... have to do this if you pan the camera and try to create a link... it thinks the port is in a different position
-        store.nodes.forEach(x => x.allPorts.forEach(x => x.updateCenterCoords()));
     }
 
 }

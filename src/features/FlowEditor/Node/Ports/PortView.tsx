@@ -49,7 +49,7 @@ const ValuePortIconView = ({ port } : { port: ValuePort }) => {
     const circleIcon = port.connected ? faCircleSolid : faCircle;
     return (
         <PortIconView port={port}>
-            <FontAwesomeIcon icon={circleIcon} size="sm" />
+            <FontAwesomeIcon icon={circleIcon} size="xs" />
         </PortIconView>
     )
 }

@@ -24,6 +24,7 @@ interface FieldData {
     value: any;
 }
 
+export { GraphData };
 
 export const transformGraph = (nodes: Array<Node>, links: Array<LinkOptions>) : GraphData => {
     return {
