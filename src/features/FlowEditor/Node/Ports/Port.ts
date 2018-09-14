@@ -7,6 +7,7 @@ import * as d3 from 'd3';
 
 abstract class Port<IOType extends PortIOType, PType extends PortType> {
 
+    uniqueId: string;
     portId: string;
     elementId: string;
     ioType: IOType;
@@ -35,14 +36,17 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
         this.centerCoords = [x + halfWidth, y + halfHeight];
     })
 
-    constructor(node: Node, label: string, key: string) {
-        this.node = node;
+    constructor(label: string, key: string) {
         this.label = label;
         this.key = key;
 
-        const uniqueId = shortId();
-        this.elementId = `${node.elementId}-port-${uniqueId}`
-        this.portId = `port-${uniqueId}`;
+        this.uniqueId = shortId();
+        this.portId = `port-${this.uniqueId}`;
+    }
+
+    public setNode = (node: Node) => {
+        this.node = node;
+        this.elementId = `${node.elementId}-port-${this.uniqueId}`;
     }
 
     public setPort = (port: AnyPort | undefined) => {

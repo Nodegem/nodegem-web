@@ -39,11 +39,11 @@ const LinkHandleView = ({ d } : { d: string }) => {
 
 const BaseValueLinkView = ({ d, sourcePos, destPos }: { d: string, sourcePos: XYCoords, destPos: XYCoords }) => {
     return (
-        <g>
+        <>
             <path d={d} stroke="red" className="link value" strokeWidth={3} fill="none" />
             <circle className="link-value-handle" cx={sourcePos[0]} cy={sourcePos[1]} r={3} stroke="red" />
             <circle className="link-value-handle" cx={destPos[0]} cy={destPos[1]} r={3} stroke="red" />
-        </g>
+        </>
     )
 }
 

@@ -17,14 +17,14 @@ const InputList = ({ flowInputs, valueInputs } : { flowInputs: Array<InputFlowPo
             <ul className="flows">
                 {
                     flowInputs.map(x => (
-                        <li className="port" key={x.key}><InputFlowPortView port={x} /></li>
+                        <li className="port" key={x.uniqueId}><InputFlowPortView port={x} /></li>
                     ))
                 }
             </ul>
             <ul className="values">
                 {
                     valueInputs.map(x => (
-                        <li className="port" key={x.key}><InputValuePortView port={x} /></li>
+                        <li className="port" key={x.uniqueId}><InputValuePortView port={x} /></li>
                     ))
                 }
             </ul>
@@ -38,14 +38,14 @@ const OutputList = ({ flowOutputs, valueOutputs } : { flowOutputs: Array<OutputF
             <ul className="flows">
                 {
                     flowOutputs.map(x => (
-                        <li className="port" key={x.key}><OutputFlowPortView port={x} /></li>
+                        <li className="port" key={x.uniqueId}><OutputFlowPortView port={x} /></li>
                     ))
                 }
             </ul>
             <ul className="values">
                 {
                     valueOutputs.map(x => (
-                        <li className="port" key={x.key}><OutputValuePortView port={x} /></li>
+                        <li className="port" key={x.uniqueId}><OutputValuePortView port={x} /></li>
                     ))
                 }
             </ul>

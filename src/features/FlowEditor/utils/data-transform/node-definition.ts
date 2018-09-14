@@ -36,9 +36,9 @@ export { NodeDefinition };
 
 export const createNodeFromDefinition = (definition: NodeDefinition, position: XYCoords) : Node => {
     var newNode = new Node(definition.title, definition.type, position);
-    definition.flowInputs.forEach(x => newNode.allPorts.push(new InputFlowPort(newNode, x.label, x.key)));
-    definition.flowOutputs.forEach(x => newNode.allPorts.push(new OutputFlowPort(newNode, x.label, x.key)));
-    definition.valueInputs.forEach(x => newNode.allPorts.push(new InputValuePort(newNode, x.label, x.key, x.defaultValue)));
-    definition.valueOutputs.forEach(x => newNode.allPorts.push(new OutputValuePort(newNode, x.label, x.key)));
+    definition.flowInputs.forEach(x => newNode.addPort(new InputFlowPort(x.label, x.key)));
+    definition.flowOutputs.forEach(x => newNode.addPort(new OutputFlowPort(x.label, x.key)));
+    definition.valueInputs.forEach(x => newNode.addPort(new InputValuePort(x.label, x.key, x.defaultValue)));
+    definition.valueOutputs.forEach(x => newNode.addPort(new OutputValuePort(x.label, x.key)));
     return newNode;
 }

@@ -1,6 +1,6 @@
 import { uuid } from "lodash-uuid";
 import { InputValuePort, OutputValuePort, OutputFlowPort, InputFlowPort } from "./Ports";
-import { observable, computed, action } from "mobx";
+import { observable, action } from "mobx";
 import { LinkOptions } from '../Link';
 import { ValuePort, FlowPort, AnyPort } from './Ports/types';
 import _ from 'lodash';
@@ -77,6 +77,11 @@ class Node
         document.addEventListener("mouseup", handleUp);
         document.addEventListener("mousemove", handleMove);
     }
+
+    public addPort = action((port: AnyPort) => {
+        port.setNode(this);
+        this.allPorts.push(port);
+    })
 
     public addLink = (link: LinkOptions) => {
         this.links.push(link);

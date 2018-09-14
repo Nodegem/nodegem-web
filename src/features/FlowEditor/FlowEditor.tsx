@@ -2,40 +2,24 @@ import * as React from 'react';
 import { observer } from 'mobx-react';
 import { HotKeys } from 'react-hotkeys';
 import { canvasPattern } from './Patterns';
+import { NodeView } from './Node';
+import { store } from './store/store';
+import { GraphView } from './Graph/GraphView';
+import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
+import { ValueLink } from './Link';
+import { createNodeFromDefinition } from './utils/data-transform/node-definition';
 import _ from 'lodash';
 
 import "./FlowEditor.scss";
-import { Node, NodeView } from './Node';
-import { store } from './store/store';
-import { GraphView } from './Graph/GraphView';
-import { InputFlowPort, OutputFlowPort } from './Node/Ports/FlowPort';
-import { InputValuePort, OutputValuePort } from './Node/Ports/ValuePort';
-import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
-import { ValueLink } from './Link';
-import { transformGraph } from './utils/data-transform/data-transform';
-
-const EDITOR_KEY_MAP = {
-    'test': ["ctrl+k"]
-}
-
-const node = new Node("hello", "Math.Subtract", [500, 250]);
-node.allPorts.push(new InputFlowPort(node, "input", "i"));
-node.allPorts.push(new InputValuePort(node, "input v", "ib", 1));
-node.allPorts.push(new OutputFlowPort(node, "output", "sdasd"));
-node.allPorts.push(new OutputValuePort(node, "output v", "sdasdadas"));
-store.nodes.push(node);
-
-const node2 = new Node("Goodbye", "Math.Subtract", [500, 500]);
-node2.allPorts.push(new InputFlowPort(node2, "input", "sda"));
-node2.allPorts.push(new InputValuePort(node2, "input v", "d", 1));
-node2.allPorts.push(new OutputFlowPort(node2, "output", "asdasdas"));
-node2.allPorts.push(new OutputValuePort(node2, "output v", "sdasdadasda"));
-store.nodes.push(node2);
 
 const AdditionalDefs = ({}) => {
     return (
         <FlowMarker />
     )
+}
+
+const EDITOR_KEY_MAP = {
+    'test': ["ctrl+k"]
 }
 
 @observer
@@ -44,7 +28,10 @@ class FlowEditor extends React.Component {
     public render() {
 
         const hotkeyHandler = {
-            'test': (event) => { event.preventDefault(); console.log(transformGraph(store.nodes, store.links)); }
+            'test': (event) => { 
+                event.preventDefault();
+                console.log("create graph scene")
+            }
         };
 
         let source : XYCoords = [0, 0];

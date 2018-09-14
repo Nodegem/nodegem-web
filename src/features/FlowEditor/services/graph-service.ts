@@ -3,14 +3,11 @@ import { NodeDefinition } from "../utils/data-transform/node-definition";
 
 class GraphService extends BaseService {
 
-    constructor() {
-        super("node")
-    }
-
-    public getNodeDefinitions = () => {
-        return this.get<Array<NodeDefinition>>("");
+    public getNodeDefinitions = async () : Promise<Array<NodeDefinition>> => {
+        const response = await this.get<Array<NodeDefinition>>("nodes");
+        return response.data;
     }
 
 }
 
-export { GraphService };
+export const graphService = new GraphService();
