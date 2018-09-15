@@ -30,6 +30,9 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
     }
 
     public updateCenterCoords = action(() => {
+
+        if(!this.portElement) return;
+
         const { x, y, width, height } = this.portElement.getBoundingClientRect() as DOMRect;
         const [halfWidth, halfHeight] = [width / 2, height / 2];
 
@@ -49,9 +52,9 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
         this.elementId = `${node.elementId}-port-${this.uniqueId}`;
     }
 
-    public setPort = (port: AnyPort | undefined) => {
+    public setPort = action((port: AnyPort | undefined) => {
         this.port = port;
-    }
+    })
 
     public onMount = () => {
         const portSelection = d3.select(`#${this.portId}`);

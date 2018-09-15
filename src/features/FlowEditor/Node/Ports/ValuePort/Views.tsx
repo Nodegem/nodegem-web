@@ -2,16 +2,23 @@ import * as React from "react";
 import { InputValuePort, OutputValuePort } from ".";
 import { ValuePortIconView } from "../PortView";
 import { InputBoxView } from "./Input/InputBoxView";
+import { observer } from "mobx-react";
 
-const InputValuePortView = ({ port } : { port: InputValuePort }) => {
+const InputValuePortView = observer(({ port } : { port: InputValuePort }) => {
     return (
         <>
-            <ValuePortIconView port={port} />
-            <span className={port.elementId}>{port.label}</span>
-            <InputBoxView input={port.inputBox} />
+            { port.shouldShowInput 
+                ? <InputBoxView port={port} />
+                : (
+                    <>
+                        <ValuePortIconView port={port} />
+                        <span className={port.elementId}>{port.label}</span> 
+                    </>
+                )
+            }
         </>
     )
-}
+})
 
 const OutputValuePortView = ({ port } : { port: OutputValuePort }) => {
     return (

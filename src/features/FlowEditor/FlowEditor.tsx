@@ -23,13 +23,20 @@ const AdditionalDefs = ({}) => {
 
 const EDITOR_KEY_MAP = {
     'test': ["ctrl+k", "command+k"],
-    'run': ["ctrl+r", "command+r"]
+    'run': ["ctrl+enter", "command+enter"],
+    'center': ["space"],
+    'clear': ["command+backspace"]
 }
 
-const newNode = new Node("Title", "title");
+const newNode = new Node("Title", "title", [200, 200]);
 newNode.addPort(new InputValuePort("input", "input", 0))
 newNode.addPort(new OutputValuePort("ouptut", "out"))
 store.addNode(newNode);
+
+const newNode2 = new Node("Title 2", "title 2", [500, 500]);
+newNode2.addPort(new InputValuePort("input", "input", 0))
+newNode2.addPort(new OutputValuePort("ouptut", "out"))
+store.addNode(newNode2);
 
 @observer
 class FlowEditor extends React.Component {
@@ -54,6 +61,13 @@ class FlowEditor extends React.Component {
                 const graphData = transformGraph(store.nodes, store.links);
                 console.log(graphData);
                 graphService.runGraph(graphData).then(x => console.log(x));
+            },
+            'center': (event) => {
+                store.graph.reset();
+            },
+            'clear': (event) => {
+                event.preventDefault();
+                store.clear();
             }
         };
 

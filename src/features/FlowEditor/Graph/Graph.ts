@@ -32,6 +32,8 @@ class Graph {
         d3.select(document)
             .on("mousemove", this.handleMouseMove);
 
+        this.camera = zoom;
+
         // For some reason I need this for it to actually properly scale
         setTimeout(() => this.mounted = true, 100);
     }

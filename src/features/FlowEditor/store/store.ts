@@ -24,6 +24,12 @@ class FlowEditorStore {
     public addNode = action((node: Node) => {
         this.nodes.push(node);
     })
+
+    public clear = action(() : void => {
+        this.nodes = [];
+        this.links = [];
+        this.graph.reset();
+    })
 }
 
 export const store = new FlowEditorStore();

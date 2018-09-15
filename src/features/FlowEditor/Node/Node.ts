@@ -6,6 +6,8 @@ import { ValuePort, FlowPort, AnyPort } from './Ports/types';
 import _ from 'lodash';
 import { store } from '..';
 import shortId from 'shortid';
+import * as d3 from "d3";
+import { hasChildWithClass } from "../utils";
 
 class Node
 {
@@ -76,6 +78,28 @@ class Node
 
         document.addEventListener("mouseup", handleUp);
         document.addEventListener("mousemove", handleMove);
+    }
+
+    public onMount = () => {
+        d3.select(`#${this.elementId}`)
+            .on("mousedown", this.handleMouseDown);
+    }
+
+    private handleMouseDown = () => {
+        const e = d3.event;
+
+        if(e.target instanceof Element
+            && e.target.tagName.toLowerCase() !== "input")
+        {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
+        if(e.button !== 0) return;
+
+        if(hasChildWithClass(e.target as Element, "header")) {
+            this.handleDragStart(e);
+        }
     }
 
     public addPort = action((port: AnyPort) => {

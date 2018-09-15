@@ -4,8 +4,7 @@ import classNames from 'classnames';
 import { Node } from '.';
 import { InputFlowPort, OutputFlowPort } from "./Ports/FlowPort";
 import { InputValuePort, OutputValuePort } from "./Ports/ValuePort";
-import { createTransform, hasChildWithClass } from "../utils";
-import * as d3 from "d3";
+import { createTransform } from "../utils";
 
 import "./Node.scss";
 import { InputFlowPortView, OutputFlowPortView } from "./Ports/FlowPort/Views";
@@ -58,22 +57,7 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
 
 
     componentDidMount() {
-        d3.select(`#${this.props.node.elementId}`)
-            .on("mousedown", () => this.onNodeClick(d3.event));
-    }
-
-    onNodeClick = (e: React.MouseEvent) => {
-
-        if(e.target instanceof Element
-            && e.target.tagName.toLowerCase() !== "input")
-        {
-            e.stopPropagation();
-            e.preventDefault();
-        }
-
-        if(hasChildWithClass(e.target as Element, "header")) {
-            this.props.node.handleDragStart(e);
-        }
+        this.props.node.onMount();
     }
 
     componentDidUpdate() {
@@ -95,7 +79,7 @@ class NodeView extends React.Component<{ node: Node, defaultWidth: number }> {
 
         return (
             <foreignObject className="node-shell" width={defaultWidth} height={nodeHeight} 
-                transform={createTransform(node.position)} onMouseDown={this.onNodeClick}>
+                transform={createTransform(node.position)}>
                 <div className={nodeClasses} id={node.elementId}>
                     <div className="header">
                         <span className="title">{node.title}</span>

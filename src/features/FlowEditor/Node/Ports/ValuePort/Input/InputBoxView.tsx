@@ -1,17 +1,16 @@
 import * as React from "react";
-import { InputBox } from "./InputBox";
 
 import "./InputBoxView.scss";
+import { observer } from "mobx-react";
+import { InputValuePort } from "..";
 
-const boxWidth = 70;
-const inputWidth = .8 * boxWidth;
-
-const InputBoxView = ({ input } : {input: InputBox }) => {
+const InputBoxView = observer(({ port } : {port: InputValuePort }) => {
+    const input = port.inputBox;
     return (
-        <span className="port-input" id={input.elementId} style={{position: "absolute", left: -boxWidth, minWidth: boxWidth}}>
-            <input type="text" onChange={input.handleChange} style={{ maxWidth: inputWidth }} />
+        <span className="port-input" id={input.elementId}>
+            <input type={port.inputBox.type} onChange={input.handleChange} value={input.value} placeholder={port.label} />
         </span>
     )
-}
+})
 
 export { InputBoxView };
