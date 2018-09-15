@@ -123,6 +123,7 @@ class Graph {
     }
 
     private handleCamera = () => {
+
         const transform = d3.event.transform;
         const canvas = d3.select("#_graph-view");
         canvas.attr("transform", transform);

@@ -8,12 +8,12 @@ import { GraphView } from './Graph/GraphView';
 import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
 import { ValueLink } from './Link';
 import { createNodeFromDefinition } from './utils/data-transform/node-definition';
-import _ from 'lodash';
-
-import "./FlowEditor.scss";
 import { transformGraph } from './utils/data-transform/data-transform';
 import { graphService } from './services/graph-service';
 import { InputValuePort, OutputValuePort } from './Node/Ports';
+import _ from 'lodash';
+
+import "./FlowEditor.scss";
 
 const AdditionalDefs = ({}) => {
     return (
@@ -25,18 +25,8 @@ const EDITOR_KEY_MAP = {
     'test': ["ctrl+k", "command+k"],
     'run': ["ctrl+enter", "command+enter"],
     'center': ["space"],
-    'clear': ["command+backspace"]
+    'clear': ["ctrl+backspace", "command+backspace"]
 }
-
-const newNode = new Node("Title", "title", [200, 200]);
-newNode.addPort(new InputValuePort("input", "input", 0))
-newNode.addPort(new OutputValuePort("ouptut", "out"))
-store.addNode(newNode);
-
-const newNode2 = new Node("Title 2", "title 2", [500, 500]);
-newNode2.addPort(new InputValuePort("input", "input", 0))
-newNode2.addPort(new OutputValuePort("ouptut", "out"))
-store.addNode(newNode2);
 
 @observer
 class FlowEditor extends React.Component {
@@ -48,19 +38,20 @@ class FlowEditor extends React.Component {
                 event.preventDefault();
                 console.log(store.nodeDefinitions);
 
-                const start = store.nodeDefinitions[3];
+                const start = store.nodeDefinitions[4];
                 const log = store.nodeDefinitions[0];
-                const add = store.nodeDefinitions[1];
+                const add = store.nodeDefinitions[2];
+                const sendText = store.nodeDefinitions[1];
                 store.nodes.push(createNodeFromDefinition(start, [200, 200]))
                 store.nodes.push(createNodeFromDefinition(add, [250, 250]))
                 store.nodes.push(createNodeFromDefinition(add, [300, 300]))
                 store.nodes.push(createNodeFromDefinition(log, [400, 400]))
+                store.nodes.push(createNodeFromDefinition(sendText, [450, 450]))
             },
             'run': (event) => {
                 event.preventDefault();
                 const graphData = transformGraph(store.nodes, store.links);
-                console.log(graphData);
-                graphService.runGraph(graphData).then(x => console.log(x));
+                graphService.runGraph(graphData);
             },
             'center': (event) => {
                 store.graph.reset();
