@@ -38,15 +38,17 @@ class FlowEditor extends React.Component {
                 event.preventDefault();
                 console.log(store.nodeDefinitions);
 
-                const start = store.nodeDefinitions[4];
-                const log = store.nodeDefinitions[0];
-                const add = store.nodeDefinitions[2];
-                const sendText = store.nodeDefinitions[1];
+                const start = store.nodeDefinitions[5];
+                const log = store.nodeDefinitions[1];
+                const add = store.nodeDefinitions[3];
+                const sendText = store.nodeDefinitions[2];
+                const fetch = store.nodeDefinitions[0];
                 store.nodes.push(createNodeFromDefinition(start, [200, 200]))
                 store.nodes.push(createNodeFromDefinition(add, [250, 250]))
                 store.nodes.push(createNodeFromDefinition(add, [300, 300]))
                 store.nodes.push(createNodeFromDefinition(log, [400, 400]))
                 store.nodes.push(createNodeFromDefinition(sendText, [450, 450]))
+                store.nodes.push(createNodeFromDefinition(fetch, [800, 800]))
             },
             'run': (event) => {
                 event.preventDefault();
