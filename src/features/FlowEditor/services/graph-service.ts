@@ -5,12 +5,12 @@ import { GraphData } from "../utils/data-transform/data-transform";
 class GraphService extends BaseService {
 
     public getNodeDefinitions = async () : Promise<Array<NodeDefinition>> => {
-        const response = await this.get<Array<NodeDefinition>>("nodes");
+        const response = await this.get<Array<NodeDefinition>>("node");
         return response.data;
     }
 
     public runGraph = async (data: GraphData) : Promise<any> => {
-        const response = await this.post("nodes", data);
+        const response = await this.post("node", data);
         return response.data;
     }
 
