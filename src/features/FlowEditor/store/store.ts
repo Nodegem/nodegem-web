@@ -25,9 +25,15 @@ class FlowEditorStore {
         this.nodes.push(node);
     })
 
+    public addLink = action((link: LinkOptions) => {
+        this.links.push(link);
+    })
+
     public clear = action(() : void => {
-        this.nodes = [];
+        this.links.forEach(x => x.remove());
+        this.nodes.forEach(x => x.remove());
         this.links = [];
+        this.nodes = [];
         this.graph.reset();
     })
 }

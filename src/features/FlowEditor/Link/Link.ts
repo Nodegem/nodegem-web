@@ -5,6 +5,7 @@ import { OutputValuePort, InputValuePort } from '../Node/Ports/ValuePort';
 import { store } from '..';
 import _ from 'lodash';
 import shortId from 'shortid';
+import { action } from "mobx";
 
 interface Connection<T extends AnyPort> {
     node: Node;
@@ -21,11 +22,16 @@ class Link<T extends AnyPort> {
     constructor(source: Connection<T>, destination: Connection<T>) {
         this.source = source;
         this.destination = destination;
+
+        this.source.node.addLink(this as LinkOptions);
+        this.destination.node.addLink(this as LinkOptions);
     }
 
-    public remove = () => {
-        _.remove(store.links, this as (FlowLink | ValueLink));
-    }
+    public remove = action(() => {
+        this.source.node.removeLink(this as LinkOptions);
+        this.destination.node.removeLink(this as LinkOptions);
+        _.remove(store.links, this as LinkOptions);
+    })
 
 }
 

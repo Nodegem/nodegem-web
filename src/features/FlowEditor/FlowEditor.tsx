@@ -28,6 +28,21 @@ const EDITOR_KEY_MAP = {
     'clear': ["ctrl+backspace", "command+backspace"]
 }
 
+const node = new Node("title1", "tutle", [100, 100]);
+node.addPort(new InputValuePort("input", "key", 0))
+node.addPort(new OutputValuePort("output", "key"))
+store.addNode(node)
+
+const node2 = new Node("title2", "tutle");
+node2.addPort(new InputValuePort("input", "key", 0))
+node2.addPort(new OutputValuePort("output", "key"))
+store.addNode(node2)
+
+const node3 = new Node("title3", "tutle", [300, 0]);
+node3.addPort(new InputValuePort("input", "key", 0))
+node3.addPort(new OutputValuePort("output", "key"))
+store.addNode(node3)
+
 @observer
 class FlowEditor extends React.Component {
 
@@ -53,6 +68,7 @@ class FlowEditor extends React.Component {
             'run': (event) => {
                 event.preventDefault();
                 const graphData = transformGraph(store.nodes, store.links);
+                console.log(graphData);
                 graphService.runGraph(graphData);
             },
             'center': (event) => {

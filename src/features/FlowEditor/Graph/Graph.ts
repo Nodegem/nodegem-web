@@ -1,3 +1,4 @@
+import { isInput } from './../../../utils/index';
 import * as d3 from 'd3';
 import { observable, action } from 'mobx';
 import { store } from '..';
@@ -9,8 +10,6 @@ class Graph {
 
     private camera : any;
 
-    @observable
-    public position : XYCoords = [0, 0];
     @observable
     public mounted: boolean = false;
     @observable
@@ -24,10 +23,12 @@ class Graph {
         const zoom = d3.zoom()
             .scaleExtent(zoomRange!)
             .translateExtent([[-halfWidth, -halfHeight], [halfWidth, halfHeight]])
-            .on("zoom", this.handleCamera);
+            .on("zoom", this.handleCamera)
+            .filter(this.handleFilter);
 
         d3.select("#_graph")
-            .call(zoom);
+            .call(zoom)
+            .on("dblclick.zoom", null);
 
         d3.select(document)
             .on("mousemove", this.handleMouseMove);
@@ -36,6 +37,16 @@ class Graph {
 
         // For some reason I need this for it to actually properly scale
         setTimeout(() => this.mounted = true, 100);
+    }
+
+    private handleFilter = () : boolean => {
+
+        const e = d3.event;
+        if(isInput(e.target)) {
+            return false;
+        }
+
+        return !e.button;
     }
 
     private handleMouseMove = () => {
@@ -78,8 +89,13 @@ class Graph {
         if(source === dest || source.node === dest.node) {
             this.stopLink();
             return;
-        } 
-        
+        }
+
+        if(dest.ioType === "input" && dest.connected) {
+            this.stopLink();
+            return;
+        }
+
         let newLink : LinkOptions;
 
         if(from.type === "flow") {
@@ -89,18 +105,19 @@ class Graph {
         }
 
         to.updateCenterCoords();
-        source.setPort(dest);
-        dest.setPort(source);
-        source.node.addLink(newLink);
-        dest.node.addLink(newLink);
-
-        store.links.push(newLink);
-
+        source.addLink(newLink);
+        dest.addLink(newLink);
+        store.addLink(newLink);
         this.stopLink();
     })
 
     public detachLink = action((from: AnyPort) => {
-
+        const link = from.getTopMostLink();
+        if(link) {
+            link.source.port.detachLink(link);
+            link.destination.port.detachLink(link);
+        }
+        this.startLink(from);
     })
 
     private handleLinkMouseUp = () => {
@@ -123,7 +140,6 @@ class Graph {
     }
 
     private handleCamera = () => {
-
         const transform = d3.event.transform;
         const canvas = d3.select("#_graph-view");
         canvas.attr("transform", transform);

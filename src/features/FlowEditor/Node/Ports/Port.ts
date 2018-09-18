@@ -4,6 +4,8 @@ import { store } from "../..";
 import { Node } from "../Node";
 import shortId from 'shortid';
 import * as d3 from 'd3';
+import { LinkOptions } from "../../Link";
+import _ from "lodash";
 
 abstract class Port<IOType extends PortIOType, PType extends PortType> {
 
@@ -17,7 +19,7 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
     node: Node;
 
     @observable
-    protected port? : AnyPort;
+    protected links : Array<LinkOptions> = [];
 
     @observable
     centerCoords : XYCoords = [NaN, NaN];
@@ -25,8 +27,13 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
     portElement: Element;
 
     @computed
+    public get hasALink() : boolean {
+        return this.links.length > 0;
+    }
+
+    @computed
     public get connected(): boolean {
-        return !!this.port || (store.linking && store.linking.from === this)!;
+        return this.hasALink || (store.linking && store.linking.from === this)!;
     }
 
     public updateCenterCoords = action(() => {
@@ -52,8 +59,13 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
         this.elementId = `${node.elementId}-port-${this.uniqueId}`;
     }
 
-    public setPort = action((port: AnyPort | undefined) => {
-        this.port = port;
+    public addLink = action((link: LinkOptions) => {
+        this.links.push(link);
+    })
+
+    public detachLink = action((link: LinkOptions) => {
+        link.remove();
+        _.remove(this.links, link);
     })
 
     public onMount = () => {
@@ -64,7 +76,11 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
             d3.event.preventDefault();
             d3.event.stopPropagation();
 
-            store.graph.startLink(this as AnyPort);
+            if(!this.shouldDetachLink(d3.event)) {
+                store.graph.startLink(this as AnyPort);
+            } else {
+                store.graph.detachLink(this as AnyPort);
+            }
         })
 
         d3.selectAll(`.${this.elementId}`)
@@ -78,6 +94,13 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
         this.updateCenterCoords();
     }
 
+    public getTopMostLink = () : LinkOptions | undefined => {
+        return this.links.length > 0 ? this.links[0] : undefined;
+    }
+
+    protected shouldDetachLink = (event) : boolean => {
+        return this.connected && this.ioType === "input";
+    }
 }
 
 export { Port };

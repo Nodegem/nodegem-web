@@ -130,10 +130,10 @@ class Node
         return store.graph.convertCoords(coords);
     }
 
-    public remove = () => {
+    public remove = action(() => {
         this.links.forEach(x => x.remove());
         _.remove(store.nodes, this);
-    }
+    })
 
 }
 

@@ -1,12 +1,10 @@
 import { Port } from "../Port";
 import { PortIOType } from "../types";
-import { Node } from "../../Node";
 
 import { InputValuePortView, OutputValuePortView } from './Views';
 import { InputBox } from "./Input/InputBox";
 import { store } from "../../..";
-import { computed } from "mobx";
-import { isNullOrUndefined } from "util";
+import { computed, action } from "mobx";
 
 abstract class ValuePort<IOType extends PortIOType> extends Port<IOType, "value"> {
     constructor(label: string, key: string) {
@@ -21,16 +19,14 @@ class InputValuePort extends ValuePort<"input"> {
 
     @computed
     public get shouldShowInput() : boolean {
-        return !this.hasConnection 
-            && (!store.linking || (store.linking && store.linking.from.node === this.node) || (store.linking && store.linking.from.type === "flow"))
-    }
-
-    public get hasConnection() : boolean {
-        return !!this.port;
+        return !this.connected 
+            && (!store.linking || (store.linking && store.linking.from.node === this.node) 
+                    || (store.linking && store.linking.from.type === "flow")
+                    || (store.linking && store.linking.from.ioType === "input"))
     }
 
     public get value() {
-        return !this.hasConnection ? this.inputBox.value : this.defaultValue;
+        return !this.connected ? this.inputBox.value : this.defaultValue;
     }
 
     constructor(label: string, key: string, defaultValue: any) {
@@ -41,10 +37,12 @@ class InputValuePort extends ValuePort<"input"> {
     }
 }
 class OutputValuePort extends ValuePort<"output"> {
+
     constructor(label: string, key: string) {
         super(label, key);
         this.ioType = "output";
     }
+
 }
 
 export { InputValuePort, OutputValuePort, InputValuePortView, OutputValuePortView };
