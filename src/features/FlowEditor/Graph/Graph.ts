@@ -116,8 +116,13 @@ class Graph {
         if(link) {
             link.source.port.detachLink(link);
             link.destination.port.detachLink(link);
+
+            if(from.ioType === "input") {
+                this.startLink(link.source.port);
+            } else {
+                this.startLink(link.destination.port);
+            }
         }
-        this.startLink(from);
     })
 
     private handleLinkMouseUp = () => {
