@@ -34,8 +34,8 @@
     "eject": "react-scripts-ts-antd eject"
   },
   "devDependencies": {
-    "@types/classnames": "^2.2.6",
     "@types/axios": "^0.14.0",
+    "@types/classnames": "^2.2.6",
     "@types/d3": "^5.0.0",
     "@types/immutability-helper": "^2.6.3",
     "@types/jest": "^23.3.1",
@@ -45,7 +45,6 @@
     "@types/react": "^16.4.7",
     "@types/react-dom": "^16.0.6",
     "@types/react-faux-dom": "^4.1.1",
-    "@types/react-onclickoutside": "^6.0.4",
     "@types/react-router-dom": "^4.3.0",
     "@types/shortid": "^0.0.29",
     "typescript": "^3.0.0"

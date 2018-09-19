@@ -1,6 +1,6 @@
 import { computed, observable, action } from "mobx";
 import { PortIOType, PortType, AnyPort } from "./types";
-import { store } from "../..";
+import { flowEditorStore } from "../..";
 import { Node } from "../Node";
 import shortId from 'shortid';
 import * as d3 from 'd3';
@@ -33,7 +33,7 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
 
     @computed
     public get connected(): boolean {
-        return this.hasALink || (store.linking && store.linking.from === this)!;
+        return this.hasALink || (flowEditorStore.linking && flowEditorStore.linking.from === this)!;
     }
 
     public updateCenterCoords = action(() => {
@@ -77,9 +77,9 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
             d3.event.stopPropagation();
 
             if(!this.shouldDetachLink(d3.event)) {
-                store.graph.startLink(this as AnyPort);
+                flowEditorStore.graph.startLink(this as AnyPort);
             } else {
-                store.graph.detachLink(this as AnyPort);
+                flowEditorStore.graph.detachLink(this as AnyPort);
             }
         })
 
@@ -88,7 +88,7 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
 
-                store.graph.attachLink(this as AnyPort);
+                flowEditorStore.graph.attachLink(this as AnyPort);
             });
 
         this.updateCenterCoords();

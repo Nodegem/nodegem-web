@@ -1,7 +1,8 @@
-import { isInput } from './../../../utils/index';
+import { flowEditorStore } from '..';
+import { flowContextStore } from './../store/flow-context-store';
+import { isInput } from './../../../utils';
 import * as d3 from 'd3';
 import { observable, action } from 'mobx';
-import { store } from '..';
 import { AnyPort } from '../Node/Ports/types';
 import { FlowLink, ValueLink, LinkOptions } from '../Link';
 import { OutputFlowPort, InputValuePort, OutputValuePort, InputFlowPort } from '../Node/Ports';
@@ -28,9 +29,11 @@ class Graph {
 
         d3.select("#_graph")
             .call(zoom)
+            .on("contextmenu", this.handleRightClick)
             .on("dblclick.zoom", null);
 
         d3.select(document)
+            .on("mousedown", this.handleMouseDown)
             .on("mousemove", this.handleMouseMove);
 
         this.camera = zoom;
@@ -39,18 +42,43 @@ class Graph {
         setTimeout(() => this.mounted = true, 100);
     }
 
-    private handleFilter = () : boolean => {
+    private handleMouseDown = () => {
+        flowContextStore.hide();
+    }
+
+    private handleRightClick = () => {
+        d3.event.preventDefault();
+        d3.event.stopPropagation();
 
         const e = d3.event;
-        if(isInput(e.target)) {
+        const position: XYCoords = [e.pageX, e.pageY];
+
+        flowContextStore.show(flowEditorStore.graphContextMenu, position);
+    }
+
+    private handleFilter = action(() : boolean => {
+
+        const e = d3.event;
+        const leftClick = !e.button;
+        const isContextVisible = flowContextStore.visible;
+
+        if(!this.isGraph(e.target) || !leftClick) {
             return false;
         }
 
-        return !e.button;
+        if(isContextVisible && leftClick) {
+            flowContextStore.hide();
+        }
+
+        return leftClick;
+    })
+
+    private isGraph = (target : Element) : boolean => {
+        return target.className === "graph-background" || (target.parentElement && target.parentElement.id === "_graph-view")!;
     }
 
     private handleMouseMove = () => {
-        if(!store.linking) return;
+        if(!flowEditorStore.linking) return;
 
         const { clientX, clientY } = d3.event;
         this.mousePosition = this.convertCoords([clientX, clientY]);
@@ -63,20 +91,20 @@ class Graph {
         const { clientX, clientY } = d3.event;
         this.mousePosition = this.convertCoords([clientX, clientY]);
         port.updateCenterCoords();
-        store.linking = { from: port, sourcePos: this.convertCoords(port.centerCoords), mouse: this.convertCoords(this.mousePosition) };
+        flowEditorStore.linking = { from: port, sourcePos: this.convertCoords(port.centerCoords), mouse: this.convertCoords(this.mousePosition) };
     })
 
     public stopLink = action(() => {
         d3.select(document)
             .on("mouseup", null);
-        store.linking = undefined;
+        flowEditorStore.linking = undefined;
     });
 
     public attachLink = action((to: AnyPort) => {
 
-        if(!store.linking) return;
+        if(!flowEditorStore.linking) return;
 
-        const { from } = store.linking;
+        const { from } = flowEditorStore.linking;
 
         if(from.type !== to.type) {
             this.stopLink();
@@ -112,7 +140,7 @@ class Graph {
         to.updateCenterCoords();
         source.addLink(newLink);
         dest.addLink(newLink);
-        store.addLink(newLink);
+        flowEditorStore.addLink(newLink);
         this.stopLink();
     })
 

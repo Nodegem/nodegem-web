@@ -2,7 +2,7 @@ import * as React from "react";
 import { FlowLink, ValueLink } from ".";
 import * as d3 from 'd3';
 import { observer } from "mobx-react";
-import { store } from "..";
+import { flowEditorStore } from "..";
 
 const lineFunc = d3.line()
     .x(d => d[0])
@@ -69,8 +69,8 @@ const DrawValueLinkView = ({ sourcePos, destPos }: { sourcePos: XYCoords, destPo
 }
 
 const FlowLinkView = observer(({ link }: { link: FlowLink }) => {
-    const sourceCoords = store.graph.convertCoords(link.source.port.centerCoords);
-    const destCoords = store.graph.convertCoords(link.destination.port.centerCoords);
+    const sourceCoords = flowEditorStore.graph.convertCoords(link.source.port.centerCoords);
+    const destCoords = flowEditorStore.graph.convertCoords(link.destination.port.centerCoords);
     destCoords[0] -= flowMarkerOffset;
 
     const data = lineFunc(lineTransform([sourceCoords, destCoords]))!;
@@ -83,8 +83,8 @@ const FlowLinkView = observer(({ link }: { link: FlowLink }) => {
 })
 
 const ValueLinkView = observer(({ link }: { link: ValueLink }) => {
-    const sourceCoords = store.graph.convertCoords(link.source.port.centerCoords);
-    const destCoords = store.graph.convertCoords(link.destination.port.centerCoords);
+    const sourceCoords = flowEditorStore.graph.convertCoords(link.source.port.centerCoords);
+    const destCoords = flowEditorStore.graph.convertCoords(link.destination.port.centerCoords);
 
     const data = lineFunc(lineTransform([sourceCoords, destCoords]))!;
     return (

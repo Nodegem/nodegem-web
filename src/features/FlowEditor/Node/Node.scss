@@ -1,4 +1,12 @@
 $connectionPadding: 5px;
+$nodeTitleFontSize: 18px;
+$nodePortFontSize: 15px;
+$nodeBorderRadius: 5px;
+$nodeBackground: #1E5188;
+$nodeSecondary: #42A0D4;
+$nodeTextColor: rgb(245, 245, 245);
+$nodeSocketColor: #71D6C0;
+$nodeHeaderBorder: 1px solid black;
 
 .node-shell {
     overflow: visible;
@@ -9,17 +17,55 @@ $connectionPadding: 5px;
 }
 
 .node {
+
+    border-radius: $nodeBorderRadius;
+    overflow: hidden;
+    background: $nodeBackground;
+
+    .header {
+        color: $nodeTextColor;
+        padding: 3px 10px;
+        justify-content: left;
+        border-bottom: $nodeHeaderBorder;
+        cursor: move;
+
+        .title {
+            font-weight: bold;
+            text-transform: capitalize;
+            font-size: $nodeTitleFontSize;
+        }
+    }
+
     .content {
+
+        flex: 1;
+        display: flex;
+        height: 100%;
+        width: 100%;
+        flex-direction: row;
+
         .ports {
-            .port {
-                margin: 3px 0;
-                width: 100%;
-                flex: 1;
-                display: inline-flex;
+
+            flex: 1;
+            display: flex;
+            width: 100%;
+            flex-direction: row;
+            color: $nodeTextColor;
+            font-size: $nodePortFontSize;
+
+            .connection {
+                color: $nodeSocketColor;
+            }
+
+            ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
             }
 
             .inputs {
                 padding-left: 5px;
+                width: 50%;
 
                 .connection {
                     padding-right: $connectionPadding;
@@ -27,6 +73,8 @@ $connectionPadding: 5px;
             }
 
             .outputs  {
+                background: $nodeSecondary;
+                width: 50%;
                 display: flex;
                 flex: 1;
                 flex-direction: column;
@@ -37,6 +85,33 @@ $connectionPadding: 5px;
                     padding-left: $connectionPadding;
                 }
             }
+        }
+    }
+}
+
+.node {
+
+
+    .content {
+
+        
+
+        .ports {
+
+
+            
+
+
+
+            .inputs {
+
+            }
+
+            .outputs {
+ 
+            }
+
+
         }
     }
 }

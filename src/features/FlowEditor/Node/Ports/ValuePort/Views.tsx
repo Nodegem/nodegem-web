@@ -4,6 +4,8 @@ import { ValuePortIconView } from "../PortView";
 import { InputBoxView } from "./Input/InputBoxView";
 import { observer } from "mobx-react";
 
+import "../Port.scss";
+
 const InputValuePortView = observer(({ port } : { port: InputValuePort }) => {
     return (
         <>

@@ -3,7 +3,7 @@ import { PortIOType } from "../types";
 
 import { InputValuePortView, OutputValuePortView } from './Views';
 import { InputBox } from "./Input/InputBox";
-import { store } from "../../..";
+import { flowEditorStore } from "../../..";
 import { computed, action } from "mobx";
 
 abstract class ValuePort<IOType extends PortIOType> extends Port<IOType, "value"> {
@@ -20,9 +20,9 @@ class InputValuePort extends ValuePort<"input"> {
     @computed
     public get shouldShowInput() : boolean {
         return !this.connected 
-            && (!store.linking || (store.linking && store.linking.from.node === this.node) 
-                    || (store.linking && store.linking.from.type === "flow")
-                    || (store.linking && store.linking.from.ioType === "input"))
+            && (!flowEditorStore.linking || (flowEditorStore.linking && flowEditorStore.linking.from.node === this.node) 
+                    || (flowEditorStore.linking && flowEditorStore.linking.from.type === "flow")
+                    || (flowEditorStore.linking && flowEditorStore.linking.from.ioType === "input"))
     }
 
     public get value() {

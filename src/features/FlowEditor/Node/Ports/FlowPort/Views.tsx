@@ -2,6 +2,8 @@ import * as React from "react";
 import { InputFlowPort, OutputFlowPort } from ".";
 import { FlowPortIconView } from "../PortView";
 
+import "../Port.scss";
+
 const InputFlowPortView = ({ port } : { port: InputFlowPort }) => {
     return (
         <>

@@ -2,7 +2,7 @@ import { OutputFlowPort, InputFlowPort } from "../Node/Ports/FlowPort";
 import { Node } from '../Node';
 import { FlowPort, AnyPort, ValuePort } from "../Node/Ports/types";
 import { OutputValuePort, InputValuePort } from '../Node/Ports/ValuePort';
-import { store } from '..';
+import { flowEditorStore } from '..';
 import _ from 'lodash';
 import shortId from 'shortid';
 import { action } from "mobx";
@@ -30,7 +30,7 @@ class Link<T extends AnyPort> {
     public remove = action(() => {
         this.source.node.removeLink(this as LinkOptions);
         this.destination.node.removeLink(this as LinkOptions);
-        _.remove(store.links, this as LinkOptions);
+        _.remove(flowEditorStore.links, this as LinkOptions);
     })
 
 }

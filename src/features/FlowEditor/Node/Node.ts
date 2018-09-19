@@ -4,7 +4,7 @@ import { observable, action } from "mobx";
 import { LinkOptions } from '../Link';
 import { ValuePort, FlowPort, AnyPort } from './Ports/types';
 import _ from 'lodash';
-import { store } from '..';
+import { flowEditorStore } from '..';
 import shortId from 'shortid';
 import * as d3 from "d3";
 import { hasChildWithClass } from "../utils";
@@ -127,12 +127,12 @@ class Node
     }
 
     private convert = (coords: XYCoords) : XYCoords => {
-        return store.graph.convertCoords(coords);
+        return flowEditorStore.graph.convertCoords(coords);
     }
 
     public remove = action(() => {
         this.links.forEach(x => x.remove());
-        _.remove(store.nodes, this);
+        _.remove(flowEditorStore.nodes, this);
     })
 
 }

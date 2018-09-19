@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import { HotKeys } from 'react-hotkeys';
 import { canvasPattern } from './Patterns';
 import { NodeView, Node } from './Node';
-import { store } from './store/store';
+import { flowEditorStore } from './store/flow-editor-store';
 import { GraphView } from './Graph/GraphView';
 import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
 import { ValueLink } from './Link';
@@ -12,6 +12,7 @@ import { transformGraph } from './utils/data-transform/data-transform';
 import { graphService } from './services/graph-service';
 import { InputValuePort, OutputValuePort } from './Node/Ports';
 import _ from 'lodash';
+import FlowContextMenuView from './FlowContextMenu/FlowContextMenuView';
 
 import "./FlowEditor.scss";
 
@@ -22,26 +23,10 @@ const AdditionalDefs = ({}) => {
 }
 
 const EDITOR_KEY_MAP = {
-    'test': ["ctrl+k", "command+k"],
     'run': ["ctrl+enter", "command+enter"],
     'center': ["space"],
     'clear': ["ctrl+backspace", "command+backspace"]
 }
-
-const node = new Node("title1", "tutle", [100, 100]);
-node.addPort(new InputValuePort("input", "key", 0))
-node.addPort(new OutputValuePort("output", "key"))
-store.addNode(node)
-
-const node2 = new Node("title2", "tutle");
-node2.addPort(new InputValuePort("input", "key", 0))
-node2.addPort(new OutputValuePort("output", "key"))
-store.addNode(node2)
-
-const node3 = new Node("title3", "tutle", [300, 0]);
-node3.addPort(new InputValuePort("input", "key", 0))
-node3.addPort(new OutputValuePort("output", "key"))
-store.addNode(node3)
 
 @observer
 class FlowEditor extends React.Component {
@@ -49,48 +34,32 @@ class FlowEditor extends React.Component {
     public render() {
 
         const hotkeyHandler = {
-            'test': (event) => { 
-                event.preventDefault();
-                console.log(store.nodeDefinitions);
-
-                const start = store.nodeDefinitions[5];
-                const log = store.nodeDefinitions[1];
-                const add = store.nodeDefinitions[3];
-                const sendText = store.nodeDefinitions[2];
-                const fetch = store.nodeDefinitions[0];
-                store.nodes.push(createNodeFromDefinition(start, [200, 200]))
-                store.nodes.push(createNodeFromDefinition(add, [250, 250]))
-                store.nodes.push(createNodeFromDefinition(add, [300, 300]))
-                store.nodes.push(createNodeFromDefinition(log, [400, 400]))
-                store.nodes.push(createNodeFromDefinition(sendText, [450, 450]))
-                store.nodes.push(createNodeFromDefinition(fetch, [800, 800]))
-            },
             'run': (event) => {
                 event.preventDefault();
-                const graphData = transformGraph(store.nodes, store.links);
+                const graphData = transformGraph(flowEditorStore.nodes, flowEditorStore.links);
                 console.log(graphData);
                 graphService.runGraph(graphData);
             },
             'center': (event) => {
-                store.graph.reset();
+                flowEditorStore.graph.reset();
             },
             'clear': (event) => {
                 event.preventDefault();
-                store.clear();
+                flowEditorStore.clear();
             }
         };
 
         let source : XYCoords = [0, 0];
         let destination : XYCoords = [0, 0];
 
-        if(!!store.linking) {
-            const link = store.linking;
+        if(!!flowEditorStore.linking) {
+            const link = flowEditorStore.linking;
             if(link.from.ioType === "output") {
                 source = link.sourcePos;
-                destination = store.graph.mousePosition;
+                destination = flowEditorStore.graph.mousePosition;
             } else {
                 destination = link.sourcePos;
-                source = store.graph.mousePosition;
+                source = flowEditorStore.graph.mousePosition;
             }
         }
 
@@ -98,10 +67,10 @@ class FlowEditor extends React.Component {
         return (
             <div className="flow-editor">
                 <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} style={flexStyles}>
-                    <GraphView size={[15000, 15000]} pattern={canvasPattern(200)} graph={store.graph} zoomRange={[.5, 1.5]} defs={<AdditionalDefs />}>
+                    <GraphView size={[15000, 15000]} pattern={canvasPattern(200)} graph={flowEditorStore.graph} zoomRange={[.5, 1.5]} defs={<AdditionalDefs />}>
                         <g id="_connections">
                             {
-                                store.links.map(x => {
+                                flowEditorStore.links.map(x => {
                                     const returnElement = x instanceof ValueLink
                                         ? <ValueLinkView key={x.id} link={x} />
                                         : <FlowLinkView key={x.id} link={x} />;
@@ -109,21 +78,22 @@ class FlowEditor extends React.Component {
                                 })
                             }
                             {
-                                store.linking 
+                                flowEditorStore.linking 
                                     && (
-                                        store.linking.from.type === "flow" 
+                                        flowEditorStore.linking.from.type === "flow" 
                                         ? <DrawFlowLinkView sourcePos={source} destPos={destination} />
                                         : <DrawValueLinkView sourcePos={source} destPos={destination} />
                                     )
                             }
                         </g>
                         <g id="_nodes">
-                            {store.nodes.map(x => 
+                            {flowEditorStore.nodes.map(x => 
                                 <NodeView key={x.id} node={x} defaultWidth={200} />    
                             )}
                         </g>
                     </GraphView>
                 </HotKeys>
+                <FlowContextMenuView />
             </div>
         )
     }

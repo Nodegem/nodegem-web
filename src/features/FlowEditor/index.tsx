@@ -1,1 +1,1 @@
-export { store } from "./store/store";
+export { flowEditorStore } from "./store/flow-editor-store";
