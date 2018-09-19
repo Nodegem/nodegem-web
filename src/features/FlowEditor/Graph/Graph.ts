@@ -83,6 +83,11 @@ class Graph {
             return;
         }
 
+        if(from.ioType === to.ioType) {
+            this.stopLink();
+            return;
+        }
+
         const source = to.ioType === "output" ? to : from;
         const dest = to.ioType === "input" ? to : from;
 
