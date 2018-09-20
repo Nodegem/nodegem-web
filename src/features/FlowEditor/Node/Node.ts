@@ -1,3 +1,4 @@
+import { flowContextStore } from './../store/flow-context-store';
 import { uuid } from "lodash-uuid";
 import { InputValuePort, OutputValuePort, OutputFlowPort, InputFlowPort } from "./Ports";
 import { observable, action } from "mobx";
@@ -8,6 +9,7 @@ import { flowEditorStore } from '..';
 import shortId from 'shortid';
 import * as d3 from "d3";
 import { hasChildWithClass } from "../utils";
+import { Menu } from "../FlowContextMenu/FlowContextMenuView";
 
 class Node
 {
@@ -82,7 +84,22 @@ class Node
 
     public onMount = () => {
         d3.select(`#${this.elementId}`)
+            .on("contextmenu", this.handleContextMenu)
             .on("mousedown", this.handleMouseDown);
+    }
+
+    private handleContextMenu = () => {
+        const e = d3.event;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const menu : Menu = {
+            items: [
+                { label: "Delete", action: () => this.remove() }
+            ]
+        };
+
+        flowContextStore.show(menu, [e.pageX, e.pageY]);
     }
 
     private handleMouseDown = () => {

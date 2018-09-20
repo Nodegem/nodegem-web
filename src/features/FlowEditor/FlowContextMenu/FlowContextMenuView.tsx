@@ -18,8 +18,8 @@ interface SubMenu {
 
 interface Item {
     label: string;
-    disabled: boolean;
     action: () => void;
+    disabled?: boolean;
 }
 
 interface Divider {
@@ -28,10 +28,12 @@ interface Divider {
 
 const onClick = (event: React.MouseEvent, action: () => void) => {
     if(event.button !== 0) return;
+
     action();
+    flowContextStore.hide();
 }
 
-type ItemProps = { label: string, disabled: boolean, action: () => void }
+type ItemProps = { label: string, disabled?: boolean, action: () => void }
 const ItemView = ({ label, disabled, action } : ItemProps) => {
     const classes = classNames({
         "item": true,
@@ -54,7 +56,6 @@ const DividerView = ({}) => {
         <li className="divider"><hr /></li>
     )
 }
-
 
 @observer
 class FlowContextMenuView extends React.Component {

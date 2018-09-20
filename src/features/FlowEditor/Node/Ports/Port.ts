@@ -36,16 +36,6 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
         return this.hasALink || (flowEditorStore.linking && flowEditorStore.linking.from === this)!;
     }
 
-    public updateCenterCoords = action(() => {
-
-        if(!this.portElement) return;
-
-        const { x, y, width, height } = this.portElement.getBoundingClientRect() as DOMRect;
-        const [halfWidth, halfHeight] = [width / 2, height / 2];
-
-        this.centerCoords = [x + halfWidth, y + halfHeight];
-    })
-
     constructor(label: string, key: string) {
         this.label = label;
         this.key = key;
@@ -58,6 +48,16 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
         this.node = node;
         this.elementId = `${node.elementId}-port-${this.uniqueId}`;
     }
+
+    public updateCenterCoords = action(() => {
+
+        if(!this.portElement) return;
+
+        const { x, y, width, height } = this.portElement.getBoundingClientRect() as DOMRect;
+        const [halfWidth, halfHeight] = [width / 2, height / 2];
+
+        this.centerCoords = [x + halfWidth, y + halfHeight];
+    })
 
     public addLink = action((link: LinkOptions) => {
         this.links.push(link);

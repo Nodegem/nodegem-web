@@ -1,6 +1,5 @@
 import { flowEditorStore } from '..';
 import { flowContextStore } from './../store/flow-context-store';
-import { isInput } from './../../../utils';
 import * as d3 from 'd3';
 import { observable, action } from 'mobx';
 import { AnyPort } from '../Node/Ports/types';
@@ -33,17 +32,12 @@ class Graph {
             .on("dblclick.zoom", null);
 
         d3.select(document)
-            .on("mousedown", this.handleMouseDown)
             .on("mousemove", this.handleMouseMove);
 
         this.camera = zoom;
 
         // For some reason I need this for it to actually properly scale
         setTimeout(() => this.mounted = true, 100);
-    }
-
-    private handleMouseDown = () => {
-        flowContextStore.hide();
     }
 
     private handleRightClick = () => {
