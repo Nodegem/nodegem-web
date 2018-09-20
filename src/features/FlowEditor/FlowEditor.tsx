@@ -8,8 +8,8 @@ import { GraphView } from './Graph/GraphView';
 import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
 import { ValueLink } from './Link';
 import { graphService } from './services/graph-service';
-import _ from 'lodash';
 import FlowContextMenuView from './FlowContextMenu/FlowContextMenuView';
+import _ from 'lodash';
 
 import "./FlowEditor.scss";
 import { transformGraph } from './services/data-transform/data-transform';
@@ -45,10 +45,6 @@ class FlowEditor extends React.Component {
             'clear': (event) => {
                 event.preventDefault();
                 flowEditorStore.clear();
-            },
-            'log': (event) => {
-                event.preventDefault();
-                flowEditorStore.logEverything();
             }
         };
 

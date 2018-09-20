@@ -75,11 +75,6 @@ class FlowEditorStore {
         this.graph.reset();
     })
 
-    public logEverything = () => {
-        console.log("Links: ", this.links);
-        console.log("Nodes: ", this.nodes);
-    }
-
 }
 
 export const flowEditorStore = new FlowEditorStore();
