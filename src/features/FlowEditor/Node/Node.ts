@@ -1,3 +1,4 @@
+import { flowEditorStore } from '..';
 import { flowContextStore } from './../store/flow-context-store';
 import { uuid } from "lodash-uuid";
 import { InputValuePort, OutputValuePort, OutputFlowPort, InputFlowPort } from "./Ports";
@@ -5,7 +6,6 @@ import { observable, action } from "mobx";
 import { LinkOptions } from '../Link';
 import { ValuePort, FlowPort, AnyPort } from './Ports/types';
 import _ from 'lodash';
-import { flowEditorStore } from '..';
 import shortId from 'shortid';
 import * as d3 from "d3";
 import { hasChildWithClass } from "../utils";
@@ -19,7 +19,7 @@ class Node
 
     type: string;
     title: string;
-    links: Array<LinkOptions> = [];
+    @observable links: Array<LinkOptions> = [];
     @observable position: XYCoords;
     @observable allPorts: Array<AnyPort> = [];
 
@@ -95,7 +95,7 @@ class Node
 
         const menu : Menu = {
             items: [
-                { label: "Delete", action: () => this.remove() }
+                { label: "Delete Node", action: () => flowEditorStore.removeNode(this) }
             ]
         };
 
@@ -124,13 +124,13 @@ class Node
         this.allPorts.push(port);
     })
 
-    public addLink = (link: LinkOptions) => {
+    public addLink = action((link: LinkOptions) => {
         this.links.push(link);
-    }
+    })
 
-    public removeLink = (link: LinkOptions) => {
+    public removeLink = action((link: LinkOptions) => {
         _.remove(this.links, link);
-    }
+    })
 
     private updatePortsPositions = () => {
         this.allPorts.forEach(x => x.updateCenterCoords());
@@ -148,8 +148,8 @@ class Node
     }
 
     public remove = action(() => {
-        this.links.forEach(x => x.remove());
-        _.remove(flowEditorStore.nodes, this);
+        const links = this.links.copy();
+        links.forEach(x => flowEditorStore.removeLink(x));
     })
 
 }

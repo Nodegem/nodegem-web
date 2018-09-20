@@ -12,7 +12,7 @@ interface Menu {
 }
 
 interface SubMenu {
-    label: string;
+    label: string | JSX.Element;
     items: Array<MenuOptions>;
 }
 
@@ -33,7 +33,7 @@ const onClick = (event: React.MouseEvent, action: () => void) => {
     flowContextStore.hide();
 }
 
-type ItemProps = { label: string, disabled?: boolean, action: () => void }
+type ItemProps = { label: string | JSX.Element, disabled?: boolean, action: () => void }
 const ItemView = ({ label, disabled, action } : ItemProps) => {
     const classes = classNames({
         "item": true,
@@ -44,7 +44,7 @@ const ItemView = ({ label, disabled, action } : ItemProps) => {
     )
 }
 
-type SubMenuProps = { label: string, items: Array<MenuOptions> }
+type SubMenuProps = { label: string | JSX.Element, items: Array<MenuOptions> }
 const SubMenuView = ({ label, items } : SubMenuProps) => {
     return (
         <li className="submenu"><span>{label}</span></li>

@@ -1,6 +1,6 @@
 import { BaseService } from "../../../services/base-service";
-import { NodeDefinition } from "../utils/data-transform/node-definition";
-import { GraphData } from "../utils/data-transform/data-transform";
+import { NodeDefinition } from "./data-transform/node-definition";
+import { GraphData } from "./data-transform/data-transform";
 
 class GraphService extends BaseService {
 

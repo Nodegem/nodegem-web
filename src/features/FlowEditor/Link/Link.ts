@@ -1,3 +1,4 @@
+import { flowContextStore } from './../store/flow-context-store';
 import { OutputFlowPort, InputFlowPort } from "../Node/Ports/FlowPort";
 import { Node } from '../Node';
 import { FlowPort, AnyPort, ValuePort } from "../Node/Ports/types";
@@ -5,7 +6,8 @@ import { OutputValuePort, InputValuePort } from '../Node/Ports/ValuePort';
 import { flowEditorStore } from '..';
 import _ from 'lodash';
 import shortId from 'shortid';
-import { action } from "mobx";
+import * as d3 from "d3";
+import { Menu } from "../FlowContextMenu/FlowContextMenuView";
 
 interface Connection<T extends AnyPort> {
     node: Node;
@@ -22,16 +24,27 @@ class Link<T extends AnyPort> {
     constructor(source: Connection<T>, destination: Connection<T>) {
         this.source = source;
         this.destination = destination;
-
-        this.source.node.addLink(this as LinkOptions);
-        this.destination.node.addLink(this as LinkOptions);
     }
 
-    public remove = action(() => {
-        this.source.node.removeLink(this as LinkOptions);
-        this.destination.node.removeLink(this as LinkOptions);
-        _.remove(flowEditorStore.links, this as LinkOptions);
-    })
+    public onMount = () => {
+        d3.select(`#_${this.id}-handle`)
+            .on("contextmenu", this.onRightClick)
+    }
+
+    private onRightClick = () => {
+        const e = d3.event;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const menu : Menu = {
+            items: [
+                { label: "Delete Link", action: () => flowEditorStore.removeLink(this as LinkOptions) }
+            ]  
+        };
+
+        flowContextStore.show(menu, [e.pageX, e.pageY]);
+    }
 
 }
 

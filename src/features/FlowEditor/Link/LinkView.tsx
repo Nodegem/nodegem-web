@@ -3,6 +3,7 @@ import { FlowLink, ValueLink } from ".";
 import * as d3 from 'd3';
 import { observer } from "mobx-react";
 import { flowEditorStore } from "..";
+import { LinkOptions } from "./Link";
 
 const lineFunc = d3.line()
     .x(d => d[0])
@@ -31,10 +32,21 @@ const FlowMarker = ({}) => {
     )
 }
 
-const LinkHandleView = ({ d } : { d: string }) => {
-    return (
-        <path d={d} className="link-click-handle" fill="none" strokeWidth={12} stroke="transparent" />
-    );
+class LinkHandleView extends React.Component<{ link: LinkOptions, d: string }> {
+
+    componentDidMount() {
+        this.props.link.onMount();
+    }
+
+    public render() {
+
+        const { d, link } = this.props;
+
+        return (
+            <path d={d} className="link-click-handle" id={`_${link.id}-handle`} fill="none" strokeWidth={15} stroke="transparent" />
+        );
+    }
+
 }
 
 const BaseValueLinkView = ({ d, sourcePos, destPos }: { d: string, sourcePos: XYCoords, destPos: XYCoords }) => {
@@ -77,7 +89,7 @@ const FlowLinkView = observer(({ link }: { link: FlowLink }) => {
     return (
         <g>
             <BaseFlowLinkView d={data} />
-            <LinkHandleView d={data} />
+            <LinkHandleView d={data} link={link} />
         </g>
     )
 })
@@ -90,7 +102,7 @@ const ValueLinkView = observer(({ link }: { link: ValueLink }) => {
     return (
         <g>
             <BaseValueLinkView d={data} sourcePos={sourceCoords} destPos={destCoords} />
-            <LinkHandleView d={data} />
+            <LinkHandleView d={data} link={link} />
         </g>
     )
 })

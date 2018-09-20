@@ -8,12 +8,12 @@ import { OutputFlowPort, InputValuePort, OutputValuePort, InputFlowPort } from '
 
 class Graph {
 
-    private camera : any;
+    private camera: any;
 
     @observable
     public mounted: boolean = false;
     @observable
-    public mousePosition : XYCoords = [NaN, NaN];
+    public mousePosition: XYCoords = [NaN, NaN];
 
     public initialize = (size: [number, number], zoomRange: [number, number]) => {
 
@@ -50,29 +50,29 @@ class Graph {
         flowContextStore.show(flowEditorStore.graphContextMenu, position);
     }
 
-    private handleFilter = action(() : boolean => {
+    private handleFilter = action((): boolean => {
 
         const e = d3.event;
         const leftClick = !e.button;
         const isContextVisible = flowContextStore.visible;
 
-        if(!this.isGraph(e.target) || !leftClick) {
+        if (!this.isGraph(e.target) || !leftClick) {
             return false;
         }
 
-        if(isContextVisible && leftClick) {
+        if (isContextVisible && leftClick) {
             flowContextStore.hide();
         }
 
         return leftClick;
     })
 
-    private isGraph = (target : Element) : boolean => {
+    private isGraph = (target: Element): boolean => {
         return target.className === "graph-background" || (target.parentElement && target.parentElement.id === "_graph-view")!;
     }
 
     private handleMouseMove = () => {
-        if(!flowEditorStore.linking) return;
+        if (!flowEditorStore.linking) return;
 
         const { clientX, clientY } = d3.event;
         this.mousePosition = this.convertCoords([clientX, clientY]);
@@ -81,7 +81,7 @@ class Graph {
     public startLink = action((port: AnyPort) => {
         d3.select(document)
             .on("mouseup", this.handleLinkMouseUp);
-        
+
         const { clientX, clientY } = d3.event;
         this.mousePosition = this.convertCoords([clientX, clientY]);
         port.updateCenterCoords();
@@ -96,16 +96,16 @@ class Graph {
 
     public attachLink = action((to: AnyPort) => {
 
-        if(!flowEditorStore.linking) return;
+        if (!flowEditorStore.linking) return;
 
         const { from } = flowEditorStore.linking;
 
-        if(from.type !== to.type) {
+        if (from.type !== to.type) {
             this.stopLink();
             return;
         }
 
-        if(from.ioType === to.ioType) {
+        if (from.ioType === to.ioType) {
             this.stopLink();
             return;
         }
@@ -113,38 +113,36 @@ class Graph {
         const source = to.ioType === "output" ? to : from;
         const dest = to.ioType === "input" ? to : from;
 
-        if(source === dest || source.node === dest.node) {
+        if (source === dest || source.node === dest.node) {
             this.stopLink();
             return;
         }
 
-        if(dest.ioType === "input" && dest.connected) {
+        if (dest.ioType === "input" && dest.connected) {
             this.stopLink();
             return;
         }
 
-        let newLink : LinkOptions;
+        let newLink: LinkOptions;
 
-        if(from.type === "flow") {
+        if (from.type === "flow") {
             newLink = new FlowLink({ port: source as OutputFlowPort, node: source.node }, { port: dest as InputFlowPort, node: dest.node });
         } else {
             newLink = new ValueLink({ port: source as OutputValuePort, node: source.node }, { port: dest as InputValuePort, node: dest.node });
         }
 
         to.updateCenterCoords();
-        source.addLink(newLink);
-        dest.addLink(newLink);
         flowEditorStore.addLink(newLink);
         this.stopLink();
     })
 
     public detachLink = action((from: AnyPort) => {
-        const link = from.getTopMostLink();
-        if(link) {
-            link.source.port.detachLink(link);
-            link.destination.port.detachLink(link);
+        const link = this.getLinkFromPort(from);
+        if (link) {
 
-            if(from.ioType === "input") {
+            flowEditorStore.removeLink(link);
+
+            if (from.ioType === "input" || (from.ioType === "output" && from.type === "flow")) {
                 this.startLink(link.source.port);
             } else {
                 this.startLink(link.destination.port);
@@ -152,11 +150,15 @@ class Graph {
         }
     })
 
+    private getLinkFromPort = (port: AnyPort): LinkOptions | null => {
+        return flowEditorStore.links.filter(x => x.source.port === port || x.destination.port === port).firstOrDefault();
+    }
+
     private handleLinkMouseUp = () => {
         this.stopLink();
     }
 
-    public convertCoords = (coords: XYCoords) : XYCoords => {
+    public convertCoords = (coords: XYCoords): XYCoords => {
         const pt = (d3.select("#_graph").node() as any).createSVGPoint();
         pt.x = coords[0];
         pt.y = coords[1];
@@ -164,7 +166,7 @@ class Graph {
         return [newCoords.x, newCoords.y];
     }
 
-    public reset = () : void => {
+    public reset = (): void => {
         d3.select("#_graph")
             .transition()
             .duration(500)

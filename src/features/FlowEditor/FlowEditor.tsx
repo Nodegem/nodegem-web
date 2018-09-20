@@ -7,14 +7,12 @@ import { flowEditorStore } from './store/flow-editor-store';
 import { GraphView } from './Graph/GraphView';
 import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
 import { ValueLink } from './Link';
-import { createNodeFromDefinition } from './utils/data-transform/node-definition';
-import { transformGraph } from './utils/data-transform/data-transform';
 import { graphService } from './services/graph-service';
-import { InputValuePort, OutputValuePort } from './Node/Ports';
 import _ from 'lodash';
 import FlowContextMenuView from './FlowContextMenu/FlowContextMenuView';
 
 import "./FlowEditor.scss";
+import { transformGraph } from './services/data-transform/data-transform';
 
 const AdditionalDefs = ({}) => {
     return (
@@ -25,7 +23,8 @@ const AdditionalDefs = ({}) => {
 const EDITOR_KEY_MAP = {
     'run': ["ctrl+enter", "command+enter"],
     'center': ["space"],
-    'clear': ["ctrl+backspace", "command+backspace"]
+    'clear': ["ctrl+backspace", "command+backspace"],
+    'log': ["ctrl+space"]
 }
 
 @observer
@@ -46,6 +45,10 @@ class FlowEditor extends React.Component {
             'clear': (event) => {
                 event.preventDefault();
                 flowEditorStore.clear();
+            },
+            'log': (event) => {
+                event.preventDefault();
+                flowEditorStore.logEverything();
             }
         };
 

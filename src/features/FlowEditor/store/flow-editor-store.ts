@@ -3,10 +3,12 @@ import { DrawingConnection } from "../types";
 import { Node } from '../Node';
 import { Graph } from "../Graph";
 import { LinkOptions } from "../Link";
-import { NodeDefinition, createNodeFromDefinition } from "../utils/data-transform/node-definition";
 import { graphService } from "../services/graph-service";
 import { Menu, Item } from "../FlowContextMenu/FlowContextMenuView";
 import { flowContextStore } from "./flow-context-store";
+import { AnyPort } from "../Node/Ports/types";
+import _ from "lodash";
+import { createNodeFromDefinition, NodeDefinition } from "../services/data-transform/node-definition";
 
 class FlowEditorStore {
 
@@ -45,16 +47,38 @@ class FlowEditorStore {
     })
 
     public addLink = action((link: LinkOptions) => {
+        link.source.node.addLink(link);
+        link.destination.node.addLink(link);
         this.links.push(link);
     })
 
+    public removeNode = action((node: Node) => {
+        node.remove();
+        _.remove(this.nodes, node);
+    })
+
+    public removeLink = action((link: LinkOptions) => {
+        link.source.node.removeLink(link);
+        link.destination.node.removeLink(link);
+        _.remove(this.links, link);
+    })
+
+    public isCurrentlyBeingLinked = (port: AnyPort) : boolean => {
+        return !!this.linking && this.linking.from === port;
+    }
+
     public clear = action(() : void => {
-        this.links.forEach(x => x.remove());
-        this.nodes.forEach(x => x.remove());
+        this.links.forEach(x => this.removeLink(x));
+        this.nodes.forEach(x => this.removeNode(x));
         this.links = [];
         this.nodes = [];
         this.graph.reset();
     })
+
+    public logEverything = () => {
+        console.log("Links: ", this.links);
+        console.log("Nodes: ", this.nodes);
+    }
 
 }
 
