@@ -1,14 +1,14 @@
+import { graphService } from './../services/graph-service';
 import { observable, action } from "mobx";
 import { DrawingConnection } from "../types";
 import { Node } from '../Node';
 import { Graph } from "../Graph";
 import { LinkOptions } from "../Link";
-import { graphService } from "../services/graph-service";
 import { Menu, Item } from "../FlowContextMenu/FlowContextMenuView";
 import { flowContextStore } from "./flow-context-store";
 import { AnyPort } from "../Node/Ports/types";
+import { createNodeFromDefinition } from "../services/data-transform/node-definitions";
 import _ from "lodash";
-import { createNodeFromDefinition, NodeDefinition } from "../services/data-transform/node-definition";
 
 class FlowEditorStore {
 
@@ -18,12 +18,32 @@ class FlowEditorStore {
     @observable focused: boolean = false;
 
     graph: Graph = new Graph();
+    nodeDefinitions: { [type: string] : NodeDefinition };
     graphContextMenu: Menu = { items: [] };
 
     constructor() {
-        graphService.getNodeDefinitions().then(data => {
-            this.graphContextMenu = this.generateContextMenu(data);
+        this.init()
+    }
+
+    private async init() {
+        const defs = await graphService.getNodeDefinitions();
+        this.nodeDefinitions = defs.reduce((map, obj) => {
+            map[obj.type] = obj;
+            return map;
+        }, {});
+        this.graphContextMenu = this.generateContextMenu(defs);
+    }
+
+    public loadGraph = (graph: GraphData) : void => {
+        this.nodes = graph.nodes.map(n => {
+            const def = this.nodeDefinitions[n.type];
+            const { x, y } = n.position;
+            return new Node(def.title, n.type, [x, y], n.id);
         });
+
+        // this.links = graph.links.map(l => {
+        //     const node = this.nodes.find(x => x.id === l.sourceId);
+        // });
     }
 
     private generateContextMenu = (nodeDefinitions: Array<NodeDefinition>) : Menu => {

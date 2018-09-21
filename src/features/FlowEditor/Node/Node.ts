@@ -13,7 +13,7 @@ import { Menu } from "../FlowContextMenu/FlowContextMenuView";
 
 class Node
 {
-    id = uuid();
+    id: string;
     
     elementId: string = `node-${shortId()}`;
 
@@ -55,7 +55,8 @@ class Node
         return this.flowPorts.filter(x => x instanceof OutputFlowPort) as Array<OutputFlowPort>;
     }
 
-    constructor(title: string, type: string, position: XYCoords | undefined = undefined) {
+    constructor(title: string, type: string, position: XYCoords | undefined = undefined, id: string | null = null) {
+        this.id = id || uuid();
         this.title = title;
         this.type = type;
         this.position = position || [0, 0];

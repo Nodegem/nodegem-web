@@ -1,6 +1,4 @@
 import { BaseService } from "../../../services/base-service";
-import { NodeDefinition } from "./data-transform/node-definition";
-import { GraphData } from "./data-transform/data-transform";
 
 class GraphService extends BaseService {
 
@@ -9,8 +7,18 @@ class GraphService extends BaseService {
         return response.data;
     }
 
-    public runGraph = async (data: GraphData) : Promise<any> => {
+    public runGraph = async (data: RunGraphData) : Promise<any> => {
         const response = await this.post("node", data);
+        return response.data;
+    }
+
+    public saveGraph = async (data: SaveGraphData) : Promise<GraphData> => {
+        const response = await this.post<GraphData>("graph/save", data);
+        return response.data;
+    }
+
+    public getGraph = async (id: string) : Promise<GraphData> => {
+        const response = await this.get<GraphData>(`graph/${id}`);
         return response.data;
     }
 

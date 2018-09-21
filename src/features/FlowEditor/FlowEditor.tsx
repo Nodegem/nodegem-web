@@ -9,10 +9,10 @@ import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLin
 import { ValueLink } from './Link';
 import { graphService } from './services/graph-service';
 import FlowContextMenuView from './FlowContextMenu/FlowContextMenuView';
+import { transformGraph } from './services/data-transform/run-graph';
 import _ from 'lodash';
 
 import "./FlowEditor.scss";
-import { transformGraph } from './services/data-transform/data-transform';
 
 const AdditionalDefs = ({}) => {
     return (

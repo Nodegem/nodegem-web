@@ -3,6 +3,7 @@ declare global {
     interface Array<T> {
         empty(): boolean;
         firstOrDefault() : T | null;
+        firstOrDefault(predicate : (T) => boolean) : T | null;
         copy() : Array<T>;
     }
 
