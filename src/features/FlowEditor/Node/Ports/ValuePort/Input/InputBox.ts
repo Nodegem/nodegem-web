@@ -1,6 +1,7 @@
 import shortId from 'shortid';
 import { InputValuePort } from "../..";
 import { observable } from 'mobx';
+import { ChangeEvent } from 'react';
 
 class InputBox {
 
@@ -25,9 +26,9 @@ class InputBox {
         }
     }
 
-    public handleChange = (e) => {
+    public handleChange = (e: ChangeEvent) => {
         if(!e.target) return;
-        this.value = e.target.value;
+        this.value = (e.target as any).value;
     }
 
 }

@@ -22,9 +22,10 @@ const AdditionalDefs = ({}) => {
 
 const EDITOR_KEY_MAP = {
     'run': ["ctrl+enter", "command+enter"],
-    'center': ["space"],
+    'center': ["ctrl+space"],
     'clear': ["ctrl+backspace", "command+backspace"],
-    'log': ["ctrl+space"]
+    'save': ["ctrl+s", "command+s"],
+    'load': ["ctrl+l", "command+l"]
 }
 
 @observer
@@ -40,11 +41,18 @@ class FlowEditor extends React.Component {
                 graphService.runGraph(graphData);
             },
             'center': (event) => {
+                event.preventDefault();
                 flowEditorStore.graph.reset();
             },
             'clear': (event) => {
                 event.preventDefault();
                 flowEditorStore.clear();
+            },
+            'save': (event) => {
+                event.preventDefault();
+            },
+            'load': (event) => {
+                event.preventDefault();
             }
         };
 
