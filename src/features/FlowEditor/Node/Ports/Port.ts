@@ -17,9 +17,6 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
     type: PType;
     
     @observable
-    protected links : Array<LinkOptions> = [];
-    
-    @observable
     centerCoords : XYCoords = [NaN, NaN];
     
     uniqueId: string;
@@ -30,6 +27,10 @@ abstract class Port<IOType extends PortIOType, PType extends PortType> {
     @computed
     public get connected(): boolean {
         return flowEditorStore.isCurrentlyBeingLinked(this as AnyPort) || this.portHasLink();
+    }
+
+    public get links(): Array<LinkOptions> {
+        return this.node.links.filter(x => x.source.port === this || x.destination.port === this);
     }
 
     constructor(label: string, key: string) {

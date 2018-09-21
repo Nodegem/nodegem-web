@@ -84,7 +84,18 @@ class Graph {
 
         const { clientX, clientY } = d3.event;
         this.mousePosition = this.convertCoords([clientX, clientY]);
+        
         port.updateCenterCoords();
+        if(port.type === "value" && port.ioType === "output") {
+            port.links.forEach(x => {
+                if(x.source.port !== port) {
+                    x.source.port.updateCenterCoords();
+                } else {
+                    x.destination.port.updateCenterCoords();
+                }
+            })
+        }
+        
         flowEditorStore.linking = { from: port, sourcePos: this.convertCoords(port.centerCoords), mouse: this.convertCoords(this.mousePosition) };
     })
 
