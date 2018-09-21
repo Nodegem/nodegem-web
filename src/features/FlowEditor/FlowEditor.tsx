@@ -24,6 +24,7 @@ const EDITOR_KEY_MAP = {
     'run': ["ctrl+enter", "command+enter"],
     'center': ["ctrl+space"],
     'clear': ["ctrl+backspace", "command+backspace"],
+    'new': ["ctrl+shift+n"],
     'save': ["ctrl+s", "command+s"],
     'load': ["ctrl+l", "command+l"]
 }
@@ -46,18 +47,25 @@ class FlowEditor extends React.Component {
             },
             'clear': (event) => {
                 event.preventDefault();
-                flowEditorStore.clear();
+                flowEditorStore.clearGraph();
+            },
+            'new': (event) => {
+                event.preventDefault();
+                flowEditorStore.saveGraph();
             },
             'save': (event) => {
                 event.preventDefault();
             },
             'load': (event) => {
                 event.preventDefault();
+                flowEditorStore.loadGraph();
             }
         };
 
         let source : XYCoords = [0, 0];
         let destination : XYCoords = [0, 0];
+
+        const { mounted } = flowEditorStore.graph;
 
         if(!!flowEditorStore.linking) {
             const link = flowEditorStore.linking;
@@ -77,12 +85,13 @@ class FlowEditor extends React.Component {
                     <GraphView size={[15000, 15000]} pattern={canvasPattern(200)} graph={flowEditorStore.graph} zoomRange={[.5, 1.5]} defs={<AdditionalDefs />}>
                         <g id="_connections">
                             {
-                                flowEditorStore.links.map(x => {
-                                    const returnElement = x instanceof ValueLink
-                                        ? <ValueLinkView key={x.id} link={x} />
-                                        : <FlowLinkView key={x.id} link={x} />;
-                                    return returnElement;
-                                })
+                                mounted 
+                                && flowEditorStore.links.map(x => {
+                                        const returnElement = x instanceof ValueLink
+                                            ? <ValueLinkView key={x.id} link={x} />
+                                            : <FlowLinkView key={x.id} link={x} />;
+                                        return returnElement;
+                                    })
                             }
                             {
                                 flowEditorStore.linking 

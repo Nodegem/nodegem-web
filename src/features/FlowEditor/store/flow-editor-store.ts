@@ -1,13 +1,15 @@
+import { getSaveGraphData } from './../services/data-transform/save-graph/index';
 import { graphService } from './../services/graph-service';
 import { observable, action } from "mobx";
 import { DrawingConnection } from "../types";
 import { Node } from '../Node';
 import { Graph } from "../Graph";
-import { LinkOptions } from "../Link";
+import { LinkOptions, FlowLink, ValueLink } from "../Link";
 import { Menu, Item } from "../FlowContextMenu/FlowContextMenuView";
 import { flowContextStore } from "./flow-context-store";
 import { AnyPort } from "../Node/Ports/types";
 import { createNodeFromDefinition } from "../services/data-transform/node-definitions";
+import { OutputFlowPort, OutputValuePort, InputFlowPort, InputValuePort } from '../Node/Ports';
 import _ from "lodash";
 
 class FlowEditorStore {
@@ -34,22 +36,49 @@ class FlowEditorStore {
         this.graphContextMenu = this.generateContextMenu(defs);
     }
 
-    public loadGraph = (graph: GraphData) : void => {
-        this.nodes = graph.nodes.map(n => {
+    public saveGraph = async () : Promise<void> => {
+        const saveGraphData = getSaveGraphData("This is a new graph yo", this);
+        console.log(saveGraphData);
+        const graph = await graphService.newGraph(saveGraphData);
+    }
+
+    public loadGraph = async () : Promise<void> => {
+        this.clearGraph();
+        const graph = await graphService.getGraph("1c7b7602-d76a-457b-821c-26066fad0208");
+
+        graph.nodes.forEach(n => {
             const def = this.nodeDefinitions[n.type];
             const { x, y } = n.position;
-            return new Node(def.title, n.type, [x, y], n.id);
+            const node = this.buildNode(def, [x, y]);
+
+            if(n.fieldData) {
+                n.fieldData.forEach(fd => node.setInputPortValue(fd.key, fd.value));
+            }
+            
+            node.setId(n.id);
+            this.addNode(node);
         });
 
-        // this.links = graph.links.map(l => {
-        //     const node = this.nodes.find(x => x.id === l.sourceId);
-        // });
+        graph.links.forEach(l => {
+            const sourceNode = this.nodes.find(x => x.id === l.sourceId)!;
+            const sourcePort = sourceNode.getPortByKey(l.sourceKey);
+            const destinationNode = this.nodes.find(x => x.id === l.destinationId)!;
+            const destinationPort = destinationNode.getPortByKey(l.destinationKey);
+
+            const link = sourcePort.type === "flow" 
+                ? new FlowLink({ node: sourceNode, port: sourcePort as OutputFlowPort }, { node: destinationNode, port: destinationPort as InputFlowPort })
+                : new ValueLink({ node: sourceNode, port: sourcePort as OutputValuePort }, { node: destinationNode, port: destinationPort  as InputValuePort });
+
+            this.addLink(link);
+        });
+
+        this.graph.resetMount(75);
     }
 
     private generateContextMenu = (nodeDefinitions: Array<NodeDefinition>) : Menu => {
         const nodeItems = nodeDefinitions.map(x => ({
             label: x.title,
-            action: () => this.createNodeAction(x, flowContextStore.position),
+            action: () => this.buildAndAddNode(x, flowContextStore.position),
             disabled: false
         } as Item))
 
@@ -58,8 +87,12 @@ class FlowEditorStore {
         };
     }
 
-    private createNodeAction = (node: NodeDefinition, position: XYCoords) => {
-        this.addNode(createNodeFromDefinition(node, this.graph.convertCoords(position)));
+    private buildNode = (node: NodeDefinition, position: XYCoords) : Node => {
+        return createNodeFromDefinition(node, this.graph.convertCoords(position));
+    }
+
+    private buildAndAddNode = (node: NodeDefinition, position: XYCoords) : void => {
+        this.addNode(this.buildNode(node, position));
     }
 
     public addNode = action((node: Node) => {
@@ -87,7 +120,7 @@ class FlowEditorStore {
         return !!this.linking && this.linking.from === port;
     }
 
-    public clear = action(() : void => {
+    public clearGraph = action(() : void => {
         this.links.forEach(x => this.removeLink(x));
         this.nodes.forEach(x => this.removeNode(x));
         this.links = [];

@@ -13,7 +13,7 @@ interface RunConnectionData {
 interface RunNodeData {
     id: string;
     type: string;
-    fields: Array<RunFieldData>;
+    fieldData: Array<RunFieldData>;
 }
 
 interface RunFieldData {

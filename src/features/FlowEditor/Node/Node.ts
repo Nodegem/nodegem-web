@@ -4,7 +4,7 @@ import { uuid } from "lodash-uuid";
 import { InputValuePort, OutputValuePort, OutputFlowPort, InputFlowPort } from "./Ports";
 import { observable, action } from "mobx";
 import { LinkOptions } from '../Link';
-import { ValuePort, FlowPort, AnyPort } from './Ports/types';
+import { ValuePort, FlowPort, AnyPort, PortType } from './Ports/types';
 import _ from 'lodash';
 import shortId from 'shortid';
 import * as d3 from "d3";
@@ -13,7 +13,7 @@ import { Menu } from "../FlowContextMenu/FlowContextMenuView";
 
 class Node
 {
-    id: string;
+    id: string = uuid();
     
     elementId: string = `node-${shortId()}`;
 
@@ -55,11 +55,14 @@ class Node
         return this.flowPorts.filter(x => x instanceof OutputFlowPort) as Array<OutputFlowPort>;
     }
 
-    constructor(title: string, type: string, position: XYCoords | undefined = undefined, id: string | null = null) {
-        this.id = id || uuid();
+    constructor(title: string, type: string, position: XYCoords | undefined = undefined) {
         this.title = title;
         this.type = type;
         this.position = position || [0, 0];
+    }
+
+    public setId = (id: string) : void => {
+        this.id = id;
     }
 
     public handleDragStart = (e: React.MouseEvent) => {
@@ -117,6 +120,25 @@ class Node
 
         if(hasChildWithClass(e.target as Element, "header")) {
             this.handleDragStart(e);
+        }
+    }
+
+    public getInputPortValues = () : Array<{ key: string, value: any }> => {
+        return this.inputValuePorts.filter(iv => !iv.connected).map(x => ({ key: x.key, value: x.value }));
+    }
+
+    public getPortByKey = (key: string) : AnyPort => {
+        const port = this.allPorts.find(x => x.key === key);
+        if(!port) {
+            throw new Error(`Could not find port with provided key: ${key}`);
+        }
+        return port;
+    }
+
+    public setInputPortValue = (key: string, value: any) : void => {
+        const port = this.allPorts.find(x => x.key === key);
+        if(port && port.type === "value" && port.ioType === "input") {
+            (port as InputValuePort).setValue(value);
         }
     }
 

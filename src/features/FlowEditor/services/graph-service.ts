@@ -12,6 +12,11 @@ class GraphService extends BaseService {
         return response.data;
     }
 
+    public newGraph = async (data: SaveGraphData) : Promise<GraphData> => {
+        const response = await this.post<GraphData>("graph/new", data);
+        return response.data;
+    }
+
     public saveGraph = async (data: SaveGraphData) : Promise<GraphData> => {
         const response = await this.post<GraphData>("graph/save", data);
         return response.data;

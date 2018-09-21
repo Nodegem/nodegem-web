@@ -177,6 +177,11 @@ class Graph {
         return [newCoords.x, newCoords.y];
     }
 
+    public resetMount = action((delayTime: number = 100) : void => {
+        this.mounted = false;
+        setTimeout(() => this.mounted = true, delayTime);
+    })
+
     public reset = (): void => {
         d3.select("#_graph")
             .transition()

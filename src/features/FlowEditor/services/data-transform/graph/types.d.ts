@@ -5,10 +5,16 @@ interface GraphData {
     links: Array<LinkData>;
 }
 
+interface FieldData {
+    key: string;
+    value: any;
+}
+
 interface NodeData {
     id: string;
     type: string;
     position: { x: number, y: number };
+    fieldData: Array<FieldData>;
 }
 
 interface LinkData {

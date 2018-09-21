@@ -35,6 +35,10 @@ class InputValuePort extends ValuePort<"input"> {
         this.defaultValue = defaultValue;
         this.inputBox = new InputBox(this, defaultValue);
     }
+
+    public setValue = action((value : any) : void => {
+        this.inputBox.value = value;
+    })
 }
 class OutputValuePort extends ValuePort<"output"> {
 
