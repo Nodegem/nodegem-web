@@ -193,7 +193,17 @@ class Graph {
         const transform = d3.event.transform;
         const canvas = d3.select("#_graph-view");
         canvas.attr("transform", transform);
+
+        this.updateLinkPositions();
     }
+
+    // TODO: Iniffiecient
+    private updateLinkPositions = action(() => {
+        flowEditorStore.links.forEach(x => {
+            x.source.port.updateCenterCoords();
+            x.destination.port.updateCenterCoords();
+        });
+    })
 
 }
 
