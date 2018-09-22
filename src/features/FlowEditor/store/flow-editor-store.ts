@@ -49,7 +49,7 @@ class FlowEditorStore {
         graph.nodes.forEach(n => {
             const def = this.nodeDefinitions[n.type];
             const { x, y } = n.position;
-            const node = this.buildNode(def, [x, y]);
+            const node = this.buildNode(def, [x, y], false);
 
             if(n.fieldData) {
                 n.fieldData.forEach(fd => node.setInputPortValue(fd.key, fd.value));
@@ -87,8 +87,9 @@ class FlowEditorStore {
         };
     }
 
-    private buildNode = (node: NodeDefinition, position: XYCoords) : Node => {
-        return createNodeFromDefinition(node, this.graph.convertCoords(position));
+    private buildNode = (node: NodeDefinition, position: XYCoords, shouldConvertCoords: boolean = true) : Node => {
+        const coords = shouldConvertCoords ? this.graph.convertCoords(position) : position;
+        return createNodeFromDefinition(node, coords);
     }
 
     private buildAndAddNode = (node: NodeDefinition, position: XYCoords) : void => {

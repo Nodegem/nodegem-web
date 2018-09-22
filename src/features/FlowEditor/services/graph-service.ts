@@ -13,7 +13,7 @@ class GraphService extends BaseService {
 
     public runGraph = async (data: RunGraphData) : Promise<any> => {
         try {
-            const response = await this.post("node", data);
+            const response = await this.post("graph", data);
             return response.data;
         } catch(err) {
             throw new Error("Error: " + err);

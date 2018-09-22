@@ -12,6 +12,7 @@
     "axios": "^0.18.0",
     "classnames": "^2.2.6",
     "d3": "^5.5.0",
+    "fuse.js": "^3.2.1",
     "immutability-helper": "^2.7.1",
     "localforage": "^1.7.2",
     "lodash": "^4.17.10",
@@ -25,7 +26,8 @@
     "react-scripts-ts-antd": "2.15.1",
     "resub": "^1.0.8",
     "resub-persist": "^1.2.6",
-    "shortid": "^2.2.13"
+    "shortid": "^2.2.13",
+    "xterm": "^3.7.0"
   },
   "scripts": {
     "start": "react-scripts-ts-antd start",
