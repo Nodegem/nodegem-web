@@ -15,6 +15,7 @@ import _ from 'lodash';
 
 import "./FlowEditor.scss";
 import { XTerm } from './Terminal/XTerm';
+import { stopListeningToTerminal, startListeningToTerminalHub, subscribeToTerminal } from './hubs/terminal-hub';
 
 const AdditionalDefs = ({ }) => {
     return (
@@ -37,7 +38,12 @@ class FlowEditor extends React.Component {
     private terminal: XTerm;
 
     public componentDidMount() {
-        runFakeTerminal(this.terminal);
+        startListeningToTerminalHub(() => {});
+        runTerminal(this.terminal);
+    }
+
+    public componentWillUnmount() {
+        stopListeningToTerminal();
     }
 
     public render() {
@@ -119,7 +125,7 @@ class FlowEditor extends React.Component {
                     </GraphView>
 
                 </HotKeys>
-                <XTerm ref={ref => this.terminal = ref!} options={{ rows: 10 }} addons={['fit', 'search']} />
+                <XTerm ref={ref => this.terminal = ref!} options={{ rows: 10, cursorStyle: "underline" }} addons={['fit', 'search']} />
                 <FlowContextMenuView />
             </div>
         )
@@ -127,39 +133,18 @@ class FlowEditor extends React.Component {
 
 }
 
-function runFakeTerminal(xterm: XTerm) {
+function runTerminal(xterm: XTerm) {
     const term: Terminal = xterm.getTerminal();
-    var shellprompt = '$ ';
 
-    function prompt() {
-        xterm.write('\r\n' + shellprompt);
-    };
-    xterm.writeln('Welcome to xterm.js');
-    xterm.writeln('This is a local terminal emulation, without a real terminal in the back-end.');
-    xterm.writeln('Type some keys and commands to play around.');
-    xterm.writeln('');
-    prompt();
+    subscribeToTerminal(logToTerminal);
 
-    term.on('key', function (key, ev) {
-        var printable = (
-            !ev!.altKey && !ev!.ctrlKey && !ev!.metaKey
-        );
+    term.writeln('Welcome!');
+    term.writeln('');
 
-        if (ev!.keyCode == 13) {
-            prompt();
-            // } else if (ev.keyCode == 8) {
-            //   // Do not delete the prompt
-            //   if (term['x'] > 2) {
-            //     xterm.write('\b \b');
-            //   }
-        } else if (printable) {
-            xterm.write(key);
-        }
-    });
+    function logToTerminal(data) {
+        term.writeln(data);
+    }
 
-    term.on('paste', function (data, ev) {
-        xterm.write(data);
-    });
 }
 
 export default FlowEditor;

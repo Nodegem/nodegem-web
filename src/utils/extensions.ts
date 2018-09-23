@@ -2,11 +2,15 @@ declare global {
 
     interface Array<T> {
         empty(): boolean;
+        removeItem(T): Array<T>;
         firstOrDefault() : T | null;
-        firstOrDefault(predicate : (T) => boolean) : T | null;
         copy() : Array<T>;
     }
 
+}
+
+Array.prototype.removeItem = function<T>(item: T) : Array<T> {
+    return this.filter(x => x !== item);
 }
 
 Array.prototype.empty = function() : boolean {
