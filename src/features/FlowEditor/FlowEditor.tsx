@@ -2,7 +2,7 @@ import * as React from 'react';
 import { observer } from 'mobx-react';
 import { HotKeys } from 'react-hotkeys';
 import { canvasPattern } from './Patterns';
-import { NodeView, Node } from './Node';
+import { NodeView } from './Node';
 import { flowEditorStore } from './store/flow-editor-store';
 import { GraphView } from './Graph/GraphView';
 import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
@@ -11,11 +11,13 @@ import { graphService } from './services/graph-service';
 import FlowContextMenuView from './FlowContextMenu/FlowContextMenuView';
 import { transformGraph } from './services/data-transform/run-graph';
 import { Terminal } from 'xterm';
-import _ from 'lodash';
-
-import "./FlowEditor.scss";
 import { XTerm } from './Terminal/XTerm';
 import { stopListeningToTerminal, startListeningToTerminalHub, subscribeToTerminal } from './hubs/terminal-hub';
+import { startConnectionToFlowGraph, run } from './hubs/graph-hub';
+import _ from 'lodash';
+import moment from 'moment';
+
+import "./FlowEditor.scss";
 
 const AdditionalDefs = ({ }) => {
     return (
@@ -38,6 +40,7 @@ class FlowEditor extends React.Component {
     private terminal: XTerm;
 
     public componentDidMount() {
+        startConnectionToFlowGraph(run);
         startListeningToTerminalHub(() => {});
         runTerminal(this.terminal);
     }
@@ -142,7 +145,7 @@ function runTerminal(xterm: XTerm) {
     term.writeln('');
 
     function logToTerminal(data) {
-        term.writeln(data);
+        term.writeln(`[${moment().format("LTS")}] - ${data}`);
     }
 
 }

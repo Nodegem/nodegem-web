@@ -28,7 +28,7 @@ class FlowEditorStore {
     }
 
     private async init() {
-        const defs = await graphService.getNodeDefinitions();
+        const defs = await Promise.resolve([] as Array<NodeDefinition>);//await graphService.getNodeDefinitions();
         this.nodeDefinitions = defs.reduce((map, obj) => {
             map[obj.type] = obj;
             return map;

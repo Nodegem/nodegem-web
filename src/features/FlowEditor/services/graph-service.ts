@@ -7,7 +7,9 @@ class GraphService extends BaseService {
             const response = await this.get<Array<NodeDefinition>>("graph/nodes");
             return response.data;
         } catch(err) {
-            throw new Error("Error: " + err);
+            // throw new Error("Error: " + err);
+            return Promise.resolve([]);
+
         }
     }
 
@@ -16,7 +18,9 @@ class GraphService extends BaseService {
             const response = await this.post("graph", data);
             return response.data;
         } catch(err) {
-            throw new Error("Error: " + err);
+            // throw new Error("Error: " + err);
+            return Promise.resolve({} as GraphData);
+
         }
     }
 
@@ -25,7 +29,9 @@ class GraphService extends BaseService {
             const response = await this.post<GraphData>("graph/new", data);
             return response.data;
         } catch(err) {
-            throw new Error("Error: " + err);
+            // throw new Error("Error: " + err);
+            return Promise.resolve({} as GraphData);
+
         }
     }
 
@@ -34,7 +40,8 @@ class GraphService extends BaseService {
             const response = await this.post<GraphData>("graph/save", data);
             return response.data;            
         } catch(err) {
-             throw new Error("Error: " + err);
+            //  throw new Error("Error: " + err);
+            return Promise.resolve({} as GraphData);
         }
     }
 
@@ -43,7 +50,7 @@ class GraphService extends BaseService {
             const response = await this.get<GraphData>(`graph/${id}`);
             return response.data;
         } catch(err) {
-            throw new Error("Error: " + err);
+            return Promise.resolve({} as GraphData);
         }
 
     }
@@ -52,7 +59,7 @@ class GraphService extends BaseService {
         try {
             await this.get(`graph/delete/${id}`);
         } catch (err) {
-            throw new Error("Error: " + err)
+            return Promise.resolve();
         }
     }
 
