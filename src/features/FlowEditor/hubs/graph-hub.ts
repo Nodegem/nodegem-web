@@ -9,6 +9,6 @@ export const startConnectionToFlowGraph = (onConnected: () => void) => {
     flowGraphHubConnection.start().then(onConnected);
 }
 
-export const run = () => {
-    flowGraphHubConnection.invoke("Run");
+export const run = (data: RunGraphData) => {
+    flowGraphHubConnection.invoke("Run", data);
 }

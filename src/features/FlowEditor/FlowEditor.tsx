@@ -40,7 +40,7 @@ class FlowEditor extends React.Component {
     private terminal: XTerm;
 
     public componentDidMount() {
-        startConnectionToFlowGraph(run);
+        startConnectionToFlowGraph(() => {});
         startListeningToTerminalHub(() => {});
         runTerminal(this.terminal);
     }
@@ -54,9 +54,7 @@ class FlowEditor extends React.Component {
         const hotkeyHandler = {
             'run': (event) => {
                 event.preventDefault();
-                const graphData = transformGraph(flowEditorStore.nodes, flowEditorStore.links);
-                console.log(graphData);
-                graphService.runGraph(graphData);
+                run(transformGraph(flowEditorStore.nodes, flowEditorStore.links));
             },
             'center': (event) => {
                 event.preventDefault();
@@ -72,7 +70,6 @@ class FlowEditor extends React.Component {
             },
             'save': (event) => {
                 event.preventDefault();
-                this.terminal.resize(2, 2);
             },
             'load': (event) => {
                 event.preventDefault();
