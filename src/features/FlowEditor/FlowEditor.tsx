@@ -138,10 +138,8 @@ function runTerminal(xterm: XTerm) {
 
     subscribeToTerminal(logToTerminal);
 
-    term.writeln('Welcome!');
-    term.writeln('');
-
     function logToTerminal(data) {
+        term.scrollToBottom();
         term.writeln(`[${moment().format("LTS")}] - ${data}`);
     }
 
