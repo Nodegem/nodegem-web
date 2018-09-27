@@ -10,24 +10,24 @@ import { flowContextStore } from "./flow-context-store";
 import { AnyPort } from "../Node/Ports/types";
 import { createNodeFromDefinition } from "../services/data-transform/node-definitions";
 import { OutputFlowPort, OutputValuePort, InputFlowPort, InputValuePort } from '../Node/Ports';
+import { ignore } from 'mobx-sync';
 import _ from "lodash";
 
 class FlowEditorStore {
 
     @observable nodes: Array<Node> = [];
     @observable links: Array<LinkOptions> = [];
+
     @observable linking?: DrawingConnection;
     @observable focused: boolean = false;
 
     graph: Graph = new Graph();
+
     nodeDefinitions: { [type: string] : NodeDefinition };
+
     graphContextMenu: Menu = { items: [] };
 
-    constructor() {
-        this.init()
-    }
-
-    private async init() {
+    public async init() {
         const defs = await graphService.getNodeDefinitions();
         this.nodeDefinitions = defs.reduce((map, obj) => {
             map[obj.type] = obj;

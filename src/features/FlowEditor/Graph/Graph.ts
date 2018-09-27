@@ -5,13 +5,18 @@ import { observable, action } from 'mobx';
 import { AnyPort } from '../Node/Ports/types';
 import { FlowLink, ValueLink, LinkOptions } from '../Link';
 import { OutputFlowPort, InputValuePort, OutputValuePort, InputFlowPort } from '../Node/Ports';
+import { ignore } from 'mobx-sync';
 
 class Graph {
 
+    @ignore
     private camera: any;
 
+    @ignore
     @observable
     public mounted: boolean = false;
+
+    @ignore
     @observable
     public mousePosition: XYCoords = [NaN, NaN];
 

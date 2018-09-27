@@ -4,9 +4,7 @@ class GraphService extends BaseService {
 
     public getNodeDefinitions = async () : Promise<Array<NodeDefinition>> => {
         try {
-            console.log("Hello??")
             const response = await this.get<Array<NodeDefinition>>("graph/nodes");
-            console.log("Responsing! ", response);
             return response.data;
         } catch(err) {
             // throw new Error("Error: " + err);

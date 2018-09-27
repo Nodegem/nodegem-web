@@ -6,6 +6,7 @@ import shortId from 'shortid';
 import * as d3 from 'd3';
 import { LinkOptions } from "../../Link";
 import _ from "lodash";
+import { ignore } from "mobx-sync";
 
 abstract class Port<IOType extends PortIOType, PType extends PortType> {
 

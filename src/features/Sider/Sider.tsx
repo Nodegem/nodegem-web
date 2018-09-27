@@ -1,47 +1,28 @@
 import React from "react";
 import { Menu, Layout, Icon } from "antd";
 import { SiderTheme } from "antd/lib/layout/Sider";
-import { ComponentBase } from "resub";
-import { appStore } from "../../stores/AppStore";
+import { observer } from "mobx-react";
+import { appStore } from "../../stores/app-store";
 
 const AntSider = Layout.Sider;
 
-export interface SiderState {
-    collapsed: boolean;
-    theme: SiderTheme;
-    selectedKeys: string[];
-}
-
-export default class Sider extends ComponentBase<{}, SiderState> {
-
-    protected _buildState() : Partial<SiderState> {
-        return {
-            collapsed: appStore.getSiderCollapsed(),
-            theme: appStore.getSiderTheme(),
-            selectedKeys: appStore.getSelectedKeys()
-        };
-    }
+@observer
+export default class Sider extends React.Component {
 
     handleCollapse = () => {
-        appStore.setSiderCollapsed(!this.state.collapsed);
+        appStore.toggleCollapsed();
     }
 
     handleClick = ({item, key, keyPath}) => {
 
-        if(!keyPath.includes("settings")) {
-            appStore.setSelectedKeys(key);
-        }
-
         if(key === "theme") {
-            const { theme } = this.state;
-            let newTheme : SiderTheme = theme === "dark" ? "light" : "dark";
-            appStore.setSiderTheme(newTheme);
+            appStore.toggleTheme();
         }
     }
 
     public render() {
 
-        const { theme, collapsed } = this.state;
+        const { collapsed, theme } = appStore;
 
         return (
             <AntSider

@@ -10,6 +10,7 @@ import shortId from 'shortid';
 import * as d3 from "d3";
 import { hasChildWithClass } from "../utils";
 import { Menu } from "../FlowContextMenu/FlowContextMenuView";
+import { ignore } from 'mobx-sync';
 
 class Node
 {
@@ -19,6 +20,7 @@ class Node
 
     type: string;
     title: string;
+    
     @observable links: Array<LinkOptions> = [];
     @observable position: XYCoords;
     @observable allPorts: Array<AnyPort> = [];

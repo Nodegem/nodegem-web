@@ -40,6 +40,7 @@ class FlowEditor extends React.Component {
     private terminal: XTerm;
 
     public componentDidMount() {
+        flowEditorStore.init();
         startConnectionToFlowGraph(() => {});
         startListeningToTerminalHub(() => {});
         runTerminal(this.terminal);

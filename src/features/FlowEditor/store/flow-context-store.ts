@@ -5,9 +5,11 @@ import * as d3 from 'd3';
 class FlowContextStore {
     menuElement: Element;
     hideDelay = 250;
+
     @observable visible: boolean = false;
     @observable menu: Menu = { items: [] };
     @observable position: XYCoords = [0, 0];
+    
     private timeoutId: any;
 
     public show = action((menu: Menu, position: XYCoords) => {
