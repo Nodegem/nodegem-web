@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, AxiosInstance } from 'axios';
 
 const axiosInstance = axios.create({
     baseURL: "http://localhost:5000/api/",
@@ -7,19 +7,25 @@ const axiosInstance = axios.create({
 
 abstract class BaseService {
 
-    protected get = <T>(url: string) : Promise<AxiosResponse<T>> => {
+    private instance: AxiosInstance;
+
+    constructor() {
+        this.instance = axiosInstance;
+    }
+
+    protected get = <T>(url: string, params = {}, headers = {}) : Promise<AxiosResponse<T>> => {
         return axiosInstance.get(url);
     }
 
-    public post = <T>(url: string, data: any) : Promise<AxiosResponse<T>> => {
+    protected post = <T>(url: string, data: any, headers = {}) : Promise<AxiosResponse<T>> => {
         return axiosInstance.post(url, data);
     }
 
-    public put = <T>(url: string, data: any) : Promise<AxiosResponse<T>> => {
+    protected put = <T>(url: string, data: any, header = {}) : Promise<AxiosResponse<T>> => {
         return axiosInstance.put(url, data);
     }
 
-    public delete = <T>(url: string) : Promise<AxiosResponse<T>> => {
+    protected delete = <T>(url: string, headers = {}) : Promise<AxiosResponse<T>> => {
         return axiosInstance.delete(url)
     }
 
