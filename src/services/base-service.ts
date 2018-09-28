@@ -16,9 +16,8 @@ abstract class BaseService {
 
     private getToken = (originalHeaders: any = {}) => {
         const headers = {...this.instance.defaults.headers, ...originalHeaders};
-        const userToken = userStore.token;
-        if(userToken) {
-            return {...headers, "Authorization": `Bearer ${userToken}`};
+        if(userStore.isAuthenticated) {
+            return {...headers, "Authorization": `Bearer ${userStore.token}`};
         }
 
         return headers;

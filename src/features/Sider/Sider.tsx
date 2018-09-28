@@ -1,52 +1,59 @@
 import React from "react";
 import { Menu, Layout, Icon } from "antd";
-import { SiderTheme } from "antd/lib/layout/Sider";
 import { observer } from "mobx-react";
 import { appStore } from "../../stores/app-store";
+import { Link } from "react-router-dom";
+
+import './Sider.scss';
 
 const AntSider = Layout.Sider;
 
+interface SiderProps {
+    width?: number;
+}
+
 @observer
-export default class Sider extends React.Component {
+export default class Sider extends React.Component<SiderProps> {
+
+    static defaultProps : SiderProps = {
+        width: 200
+    }
 
     handleCollapse = () => {
         appStore.toggleCollapsed();
     }
 
-    handleClick = ({item, key, keyPath}) => {
-
-        if(key === "theme") {
-            appStore.toggleTheme();
-        }
-    }
-
     public render() {
 
         const { collapsed, theme } = appStore;
+        const { width } = this.props;
 
         return (
             <AntSider
                 theme={theme}
                 collapsed={collapsed}
+                width={width}
                 collapsible
                 onCollapse={this.handleCollapse}
             >
                 <Menu
                     mode="inline"
-                    onClick={this.handleClick}  
                     theme={theme}
                     defaultSelectedKeys={["dashboard"]}
                     selectedKeys={["dashboard"]}
                 >
-                    <Menu.Item key="dashboard">
-                        <Icon type="dashboard" />
-                        <span>Editor</span>
+                    <Menu.Item key="project">
+                        <Link to="/">
+                            <Icon type="project" />
+                            <span>Home</span>
+                        </Link>
                     </Menu.Item>
-                    <Menu.SubMenu key="settings" title={<span><Icon type="setting"/><span>Settings</span></span>}>
-                        <Menu.Item key="theme">
-                            Change Theme
-                        </Menu.Item>
-                    </Menu.SubMenu>
+                    <Menu.Item key="editor">
+                        <Link to="/editor">
+                            <Icon type="dashboard" />
+                            <span>Editor</span>
+                        </Link>
+                    </Menu.Item>
                 </Menu>
             </AntSider>
         );

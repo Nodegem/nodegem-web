@@ -1,5 +1,4 @@
 import { observable, action } from "mobx";
-import { ignore } from "mobx-sync";
 
 class UserStore {
 
@@ -8,6 +7,10 @@ class UserStore {
 
     @observable
     userData: UserData;  
+
+    public get isAuthenticated() : boolean {
+        return !!this.token;
+    }
 
     public setUserData = action((data: UserData) => {
         this.userData = data;
