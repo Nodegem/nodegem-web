@@ -2,7 +2,7 @@ import React from "react";
 import { Menu, Layout, Icon } from "antd";
 import { observer } from "mobx-react";
 import { appStore } from "../../stores/app-store";
-import { Link } from "react-router-dom";
+import { Link, withRouter, RouteComponentProps } from "react-router-dom";
 
 import './Sider.scss';
 
@@ -13,20 +13,29 @@ interface SiderProps {
 }
 
 @observer
-export default class Sider extends React.Component<SiderProps> {
+class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
     static defaultProps : SiderProps = {
         width: 200
     }
 
-    handleCollapse = () => {
+    private handleCollapse = () => {
         appStore.toggleCollapsed();
+    }
+
+    private handleClick = ({ item, key, keyPath }) : void => {
+        appStore.setSelectedPath(keyPath);
     }
 
     public render() {
 
         const { collapsed, theme } = appStore;
-        const { width } = this.props;
+        const { width, location } = this.props;
+
+        let selected = location.pathname.replace("/", "");
+        if(!selected) { 
+            selected = "home";
+        }
 
         return (
             <AntSider
@@ -39,10 +48,11 @@ export default class Sider extends React.Component<SiderProps> {
                 <Menu
                     mode="inline"
                     theme={theme}
-                    defaultSelectedKeys={["dashboard"]}
-                    selectedKeys={["dashboard"]}
+                    onClick={this.handleClick}
+                    defaultSelectedKeys={["project"]}
+                    selectedKeys={[selected]}
                 >
-                    <Menu.Item key="project">
+                    <Menu.Item key="home">
                         <Link to="/">
                             <Icon type="project" />
                             <span>Home</span>
@@ -60,3 +70,5 @@ export default class Sider extends React.Component<SiderProps> {
     }
 
 }
+
+export default withRouter(Sider);

@@ -7,13 +7,12 @@ import { flowEditorStore } from './store/flow-editor-store';
 import { GraphView } from './Graph/GraphView';
 import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
 import { ValueLink } from './Link';
-import { graphService } from './services/graph-service';
 import FlowContextMenuView from './FlowContextMenu/FlowContextMenuView';
 import { transformGraph } from './services/data-transform/run-graph';
 import { Terminal } from 'xterm';
 import { XTerm } from './Terminal/XTerm';
 import { stopListeningToTerminal, startListeningToTerminalHub, subscribeToTerminal } from './hubs/terminal-hub';
-import { startConnectionToFlowGraph, run } from './hubs/graph-hub';
+import { startConnectionToGraphHub, run, disconnectFromGraphHub } from './hubs/graph-hub';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -41,12 +40,13 @@ class FlowEditor extends React.Component {
 
     public componentDidMount() {
         flowEditorStore.init();
-        startConnectionToFlowGraph(() => {});
+        startConnectionToGraphHub(() => {});
         startListeningToTerminalHub(() => {});
         runTerminal(this.terminal);
     }
 
     public componentWillUnmount() {
+        disconnectFromGraphHub(() => {});
         stopListeningToTerminal();
     }
 
@@ -126,7 +126,7 @@ class FlowEditor extends React.Component {
                     </GraphView>
 
                 </HotKeys>
-                <XTerm ref={ref => this.terminal = ref!} options={{ rows: 10, cursorStyle: "underline" }} addons={['fit', 'search']} />
+                <XTerm ref={ref => this.terminal = ref!} options={{ rows: 8, cursorStyle: "underline" }} addons={['fit', 'search']} />
                 <FlowContextMenuView />
             </div>
         )

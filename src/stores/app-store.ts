@@ -8,6 +8,13 @@ class AppStore {
     @observable
     collapsed: boolean = false;
 
+    @observable
+    selectedPaths: Array<string>;
+
+    public setSelectedPath = action((path: any) => {
+        this.selectedPaths = path;
+    });
+
     public toggleCollapsed = action(() => {
         this.collapsed = !this.collapsed;
     })

@@ -3,7 +3,7 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { Layout } from 'antd';
 import Sider from './features/Sider/Sider';
 import FlowEditor from './features/FlowEditor/FlowEditor';
-import { LoginView } from './features/Login/Login';
+import LoginView from './features/Login/Login';
 import { PrivateRoute } from './components/ProtectedRoute/PrivateRoute';
 
 import './App.scss';
@@ -20,11 +20,11 @@ class App extends React.PureComponent {
 
     return (
         <BrowserRouter>
-            <Layout style={{ minHeight: "100vh", height: "auto", margin: 0, padding: 0 }}>
+            <Layout className="app-layout">
               <Header />
               <Layout>
                 <Sider />
-                <Content style={{ padding: "20px", display: "flex", flexDirection: "column", minHeight: "100%" }}>
+                <Content className="app-layout-content" >
                   <Switch>
                     <Route exact path="/" component={FakeDashboard} />
                     <Route path="/login" component={LoginView} />

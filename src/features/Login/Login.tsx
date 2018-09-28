@@ -1,8 +1,9 @@
 import * as React from "react";
 import { loginService } from "./login-service";
 import { userStore } from "../../stores/user-store";
+import { withRouter, RouteComponentProps } from "react-router";
 
-class LoginView extends React.Component {
+class LoginView extends React.Component<RouteComponentProps<any>> {
 
     componentDidMount() {
         const response = loginService.login({ username: "rszemplinski22@gmail.com", password: "Passwordbo!3000" });
@@ -18,4 +19,4 @@ class LoginView extends React.Component {
 
 }
 
-export { LoginView }
+export default withRouter(LoginView)

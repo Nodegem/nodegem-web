@@ -1,13 +1,14 @@
-import { observable, action } from "mobx";
+import { observable, action, computed } from "mobx";
 
 class UserStore {
 
     @observable
-    token: string = "";
+    token?: string = "";
 
     @observable
-    userData: UserData;  
+    userData?: UserData;  
 
+    @computed
     public get isAuthenticated() : boolean {
         return !!this.token;
     }
@@ -18,6 +19,11 @@ class UserStore {
 
     public setToken = action((token: string) => {
         this.token = token;
+    })
+
+    public logout = action(() => {
+        this.token = undefined;
+        this.userData = undefined;
     })
 
 }
