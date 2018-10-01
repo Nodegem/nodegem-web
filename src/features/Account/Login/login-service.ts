@@ -1,5 +1,5 @@
-import { UserData } from './../../stores/user-store';
-import { BaseService } from "../../services/base-service";
+import { BaseService } from "../../../services/base-service";
+import { UserData } from "../../../stores/user-store";
 
 class LoginService extends BaseService {
 

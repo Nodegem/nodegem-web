@@ -1,39 +1,40 @@
 import * as React from 'react';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { Switch, Route, Router } from 'react-router-dom';
 import { Layout } from 'antd';
 import Sider from './features/Sider/Sider';
 import FlowEditor from './features/FlowEditor/FlowEditor';
-import LoginView from './features/Login/Login';
-import { PrivateRoute } from './components/ProtectedRoute/PrivateRoute';
+import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute';
+import LoginView from './features/Account/Login/LoginFormView';
 
 import './App.scss';
-import Header from './features/Header/Header';
+import history from './utils/history';
 
 const { Content } = Layout;
 
 const FakeDashboard = () => <></>;
-const NewEditorPage = () => <FlowEditor />;
+const EditorPage = () => <FlowEditor />;
+
+const LoginPage = () => <LoginView />;
 
 class App extends React.PureComponent {
 
   public render() {
 
     return (
-        <BrowserRouter>
+        <Router history={history}>
             <Layout className="app-layout">
-              <Header />
               <Layout>
                 <Sider />
                 <Content className="app-layout-content" >
                   <Switch>
-                    <Route exact path="/" component={FakeDashboard} />
-                    <Route path="/login" component={LoginView} />
-                    <PrivateRoute path="/editor" component={NewEditorPage} />
+                    <Route path="/login" component={LoginPage} />
+                    <ProtectedRoute exact path="/" component={FakeDashboard} />
+                    <ProtectedRoute path="/editor" component={EditorPage} />
                   </Switch>
                 </Content>
               </Layout>
             </Layout>
-        </BrowserRouter>
+        </Router>
     );
   }
 }

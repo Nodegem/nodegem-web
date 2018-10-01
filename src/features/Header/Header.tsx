@@ -11,16 +11,69 @@ const AntHeader = Layout.Header;
 
 const UserIcon = <span className="user-settings"><Avatar icon="user" size="large" /></span>
 
+interface MenuItemData {
+    key: string;
+    element: JSX.Element;
+}
+
+const MenuLogoutHeaderData: Array<MenuItemData> = [
+    {
+        key: "theme",
+        element: (
+            <>
+                <Icon type="bg-colors" />
+                Change Theme
+            </>
+        )
+    },
+    {
+        key: "settings",
+        element: (
+            <>
+                <Link to='/'>
+                    <Icon type="setting" />
+                    Profile Settings
+                </Link>
+            </>
+        )
+    },
+    {
+        key: "logout",
+        element: (
+            <>
+                <Link to="/">
+                    <Icon type="poweroff" />
+                    Logout
+                </Link>
+            </>
+        )
+    }
+]
+
+const MenuLoginHeaderData: Array<MenuItemData> = [
+    {
+        key: "logout",
+        element: (
+            <>
+                <Link to="/login">
+                    <Icon type="login" />
+                    Login
+                </Link>
+            </>
+        )
+    }
+]
+
 @observer
 class Header extends React.Component<RouteComponentProps<any>> {
 
-    private handleClick = ({ item, key, keyPath }) : void => {
+    private handleClick = ({ item, key, keyPath }): void => {
 
-        switch(key) {
+        switch (key) {
             case "theme":
                 appStore.toggleTheme();
                 break;
-            case "logout": 
+            case "logout":
                 userStore.logout();
                 break;
         }
@@ -29,33 +82,25 @@ class Header extends React.Component<RouteComponentProps<any>> {
     public render() {
 
         const { theme } = appStore;
+        const items = userStore.isAuthenticated ? MenuLogoutHeaderData : MenuLoginHeaderData;
 
         return (
             <AntHeader className="header">
-                <Menu mode="horizontal" 
-                        theme={theme} 
-                        style={{lineHeight: "64px"}} 
-                        onClick={this.handleClick}
-                        defaultSelectedKeys={[]}
-                        selectedKeys={[]}
+                <Menu mode="horizontal"
+                    theme={theme}
+                    style={{ lineHeight: "64px" }}
+                    onClick={this.handleClick}
+                    defaultSelectedKeys={[]}
+                    selectedKeys={[]}
                 >
                     <Menu.SubMenu className="header-user-icon" title={UserIcon}>
-                        <Menu.Item key="theme">
-                            <Icon type="bg-colors" />
-                            Change Theme
-                        </Menu.Item>
-                        <Menu.Item key="settings">
-                            <Link to='/'>
-                                <Icon type="setting" />
-                                Profile Settings
-                            </Link>
-                        </Menu.Item>
-                        <Menu.Item key="logout">
-                            <Link to="/">
-                                <Icon type="poweroff" />
-                                Logout
-                            </Link>
-                        </Menu.Item>
+                    {
+                        items.map(i => 
+                            <Menu.Item key={i.key}>
+                                {i.element}
+                            </Menu.Item>
+                        )
+                    }
                     </Menu.SubMenu>
                 </Menu>
             </AntHeader>

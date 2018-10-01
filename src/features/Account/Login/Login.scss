@@ -1,0 +1,32 @@
+.login-form-container {
+
+    min-height: 75%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .login-form-forgot {
+        float: right;
+    }
+
+    .login-card-container {
+        width: 500px;
+    }
+
+    .login-form-button {
+        width: 100%;
+    }
+
+    .lock-icon {
+        transition: opacity 200ms ease-in;
+        opacity: .25;
+        cursor: pointer;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+}

@@ -8,10 +8,25 @@ class UserStore {
     @observable
     userData?: UserData;  
 
+    @observable
+    rememberMe: boolean = false;
+
+    @observable
+    rememberedData: RememberedUserData;
+
     @computed
     public get isAuthenticated() : boolean {
         return !!this.token;
     }
+
+    public setRememberMe = action((value: boolean) => {
+        console.log(value);
+        this.rememberMe = value;
+    })
+
+    public setRememberedUserData = action((value: RememberedUserData) => {
+        this.rememberedData = value;
+    })
 
     public setUserData = action((data: UserData) => {
         this.userData = data;
@@ -26,6 +41,10 @@ class UserStore {
         this.userData = undefined;
     })
 
+}
+
+export interface RememberedUserData {
+    username: string;
 }
 
 export interface UserData {
