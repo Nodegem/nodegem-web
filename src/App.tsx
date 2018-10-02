@@ -5,9 +5,10 @@ import Sider from './features/Sider/Sider';
 import FlowEditor from './features/FlowEditor/FlowEditor';
 import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute';
 import LoginView from './features/Account/Login/LoginFormView';
+import RegisterView from './features/Account/Register/RegisterFormView';
+import history from './utils/history';
 
 import './App.scss';
-import history from './utils/history';
 
 const { Content } = Layout;
 
@@ -15,6 +16,7 @@ const FakeDashboard = () => <></>;
 const EditorPage = () => <FlowEditor />;
 
 const LoginPage = () => <LoginView />;
+const RegisterPage = () => <RegisterView />;
 
 class App extends React.PureComponent {
 
@@ -28,6 +30,8 @@ class App extends React.PureComponent {
                 <Content className="app-layout-content" >
                   <Switch>
                     <Route path="/login" component={LoginPage} />
+                    <Route path="/register" component={RegisterPage} />
+                    <Route path="/forgot-password" component={RegisterPage} />
                     <ProtectedRoute exact path="/" component={FakeDashboard} />
                     <ProtectedRoute path="/editor" component={EditorPage} />
                   </Switch>

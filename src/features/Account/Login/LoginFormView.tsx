@@ -8,7 +8,8 @@ import './Login.scss';
 import { loginService } from "./login-service";
 import { userStore } from "../../../stores/user-store";
 import { observer } from "mobx-react";
-import classNames from "classnames";
+import { Link } from "react-router-dom";
+import ShowPasswordInput from "../../../components/ShowPasswordInput/ShowPasswordInput";
 
 interface LoginFormData {
     username: string;
@@ -17,11 +18,7 @@ interface LoginFormData {
 }
 
 @observer
-class LoginForm extends React.Component<FormComponentProps & RouteComponentProps<any>, { showPassword: boolean }> {
-
-    state = {
-        showPassword: false
-    }
+class LoginForm extends React.Component<FormComponentProps & RouteComponentProps<any>> {
 
     private handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,26 +50,12 @@ class LoginForm extends React.Component<FormComponentProps & RouteComponentProps
         userStore.setRememberedUserData({ username: target.value });
     }
 
-    private onLockClick = (e: React.MouseEvent) => {
-        this.setState({ showPassword: !this.state.showPassword });
-    }
-
     public render() {
 
-        const { showPassword } = this.state;
         const { getFieldDecorator } = this.props.form;
 
-        const lockIconString = showPassword ? "unlock" : "lock";
-        const passwordType = showPassword ? "text" : "password";
-        
-        const lockClass = classNames({
-            "lock-icon": true,
-            "locked": !showPassword,
-            "unlocked": showPassword
-        });
-
         return (
-            <Form onSubmit={this.handleSubmit} className="login-form">
+                <Form onSubmit={this.handleSubmit} className="login-form">
                     <FormItem>
                         {getFieldDecorator('username', {
                             rules: [{ required: true, message: "Please input your username."}],
@@ -87,7 +70,7 @@ class LoginForm extends React.Component<FormComponentProps & RouteComponentProps
                         {getFieldDecorator('password', {
                             rules: [{ required: true, message: "Please input your password."}],
                         })(
-                            <Input prefix={<Icon type={lockIconString} className={lockClass} onClick={this.onLockClick} />} type={passwordType} placeholder="Password" />
+                            <ShowPasswordInput />
                         )}
                     </FormItem>
                     <FormItem>
@@ -97,12 +80,12 @@ class LoginForm extends React.Component<FormComponentProps & RouteComponentProps
                         })(
                             <Checkbox>Remember me</Checkbox>
                         )}
-                        <a className="login-form-forgot" href="">Forgot Password</a>
+                        <Link to="forgot-password" className="login-form-forgot">Forgot Password?</Link>
                         <Button type="primary" htmlType="submit" className="login-form-button">
                             Log in
                         </Button>
                         <span className="login-register-now">
-                            Or <a href="">Register now!</a>
+                            Or <Link to="/register">Register now!</Link>
                         </span>
                     </FormItem>
                 </Form>
@@ -113,8 +96,7 @@ class LoginForm extends React.Component<FormComponentProps & RouteComponentProps
 
 const LoginFormView = withRouter(Form.create()(LoginForm));
 
-const LoginView = () => {
-    return (
+const LoginView = () => 
         <div className="login-form-container">
             <Card 
                 className="login-card-container"
@@ -122,7 +104,5 @@ const LoginView = () => {
                 <LoginFormView />
             </Card>
         </div>
-    );
-}
 
 export default LoginView;
