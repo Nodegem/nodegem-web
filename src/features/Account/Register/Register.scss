@@ -15,4 +15,14 @@
         width: 100%;
     }
 
+    .lock-icon {
+        transition: opacity 200ms ease-in;
+        opacity: .25;
+        cursor: pointer;
+    
+        &:hover {
+            opacity: 1;
+        }
+    }
+
 }

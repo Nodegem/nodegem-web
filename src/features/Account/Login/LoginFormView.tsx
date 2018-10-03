@@ -9,7 +9,7 @@ import { loginService } from "./login-service";
 import { userStore } from "../../../stores/user-store";
 import { observer } from "mobx-react";
 import { Link } from "react-router-dom";
-import ShowPasswordInput from "../../../components/ShowPasswordInput/ShowPasswordInput";
+import classNames from "classnames";
 
 interface LoginFormData {
     username: string;
@@ -18,7 +18,15 @@ interface LoginFormData {
 }
 
 @observer
-class LoginForm extends React.Component<FormComponentProps & RouteComponentProps<any>> {
+class LoginForm extends React.Component<FormComponentProps & RouteComponentProps<any>, { showPassword: boolean }> {
+
+    state = {
+        showPassword: false
+    }
+
+    private onLockClick = () => {
+        this.setState({ showPassword: !this.state.showPassword });
+    }
 
     private handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,6 +60,17 @@ class LoginForm extends React.Component<FormComponentProps & RouteComponentProps
 
     public render() {
 
+        const { showPassword } = this.state;
+
+        const lockIconString = showPassword ? "unlock" : "lock";
+        const passwordType = showPassword ? "text" : "password";
+        
+        const lockClass = classNames({
+            "lock-icon": true,
+            "locked": !showPassword,
+            "unlocked": showPassword
+        });
+
         const { getFieldDecorator } = this.props.form;
 
         return (
@@ -70,7 +89,7 @@ class LoginForm extends React.Component<FormComponentProps & RouteComponentProps
                         {getFieldDecorator('password', {
                             rules: [{ required: true, message: "Please input your password."}],
                         })(
-                            <ShowPasswordInput />
+                            <Input prefix={<Icon type={lockIconString} className={lockClass} onClick={this.onLockClick} />} type={passwordType} placeholder="Password" />
                         )}
                     </FormItem>
                     <FormItem>
