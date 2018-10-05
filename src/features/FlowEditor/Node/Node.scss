@@ -44,6 +44,10 @@ $nodeHeaderBorder: 1px solid black;
         width: 100%;
         flex-direction: row;
 
+        .flows, .values {
+            width: 100%;
+        }
+
         .ports {
 
             flex: 1;
@@ -78,8 +82,11 @@ $nodeHeaderBorder: 1px solid black;
                 display: flex;
                 flex: 1;
                 flex-direction: column;
-                align-items: flex-end;
                 padding-right: 5px;
+
+                .port {
+                    justify-content: flex-end;
+                }
 
                 .connection {
                     padding-left: $connectionPadding;
