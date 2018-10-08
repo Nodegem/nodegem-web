@@ -100,7 +100,7 @@ class GraphContextMenu extends React.Component<{}, { search: string }> {
                                 <MenuItem onClick={this.onClearClick}><Icon type="delete" />Clear Graph</MenuItem>
                             </>
                         )
-                        : <>Loading Nodes...</>
+                        : <MenuItem disabled><Icon type="loading" />Loading Nodes...</MenuItem>
                 }
             </ContextMenu>
         );
