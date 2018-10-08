@@ -34,10 +34,6 @@ const FlowMarker = ({}) => {
 
 class LinkHandleView extends React.Component<{ link: LinkOptions, d: string }> {
 
-    componentDidMount() {
-        this.props.link.onMount();
-    }
-
     public render() {
 
         const { d, link } = this.props;

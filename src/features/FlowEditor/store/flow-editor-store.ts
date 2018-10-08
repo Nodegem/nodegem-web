@@ -5,8 +5,6 @@ import { DrawingConnection } from "../types";
 import { Node } from '../Node';
 import { Graph } from "../Graph";
 import { LinkOptions, FlowLink, ValueLink } from "../Link";
-import { Menu, Item } from "../FlowContextMenu/FlowContextMenuView";
-import { flowContextStore } from "./flow-context-store";
 import { AnyPort } from "../Node/Ports/types";
 import { createNodeFromDefinition } from "../services/data-transform/node-definitions";
 import { OutputFlowPort, OutputValuePort, InputFlowPort, InputValuePort } from '../Node/Ports';
@@ -21,20 +19,25 @@ class FlowEditorStore {
     @observable linking?: DrawingConnection;
     @observable focused: boolean = false;
 
+    @observable isContextVisible : boolean = false;
+
     graph: Graph = new Graph();
 
-    nodeDefinitions: { [type: string] : NodeDefinition };
+    nodeDefinitions: { [type: string] : NodeDefinition } = {};
 
-    graphContextMenu: Menu = { items: [] };
+    @observable
+    public definitionList: Array<NodeDefinition> = [];
 
-    public async init() {
-        const defs = await graphService.getNodeDefinitions();
-        this.nodeDefinitions = defs.reduce((map, obj) => {
-            map[obj.type] = obj;
-            return map;
-        }, {});
-        this.graphContextMenu = this.generateContextMenu(defs);
-    }
+    public init = action(() => {
+        graphService.getNodeDefinitions()
+            .then((defs) => {
+                this.definitionList = defs;
+                this.nodeDefinitions = defs.reduce((map, obj) => {
+                    map[obj.type] = obj;
+                    return map;
+                }, {});
+            });
+    })
 
     public saveGraph = async () : Promise<void> => {
         const saveGraphData = getSaveGraphData("This is a new graph yo", this);
@@ -75,24 +78,12 @@ class FlowEditorStore {
         this.graph.resetMount(75);
     }
 
-    private generateContextMenu = (nodeDefinitions: Array<NodeDefinition>) : Menu => {
-        const nodeItems = nodeDefinitions.map(x => ({
-            label: x.title,
-            action: () => this.buildAndAddNode(x, flowContextStore.position),
-            disabled: false
-        } as Item))
-
-        return {
-            items: nodeItems
-        };
-    }
-
-    private buildNode = (node: NodeDefinition, position: XYCoords, shouldConvertCoords: boolean = true) : Node => {
+    public buildNode = (node: NodeDefinition, position: XYCoords, shouldConvertCoords: boolean = true) : Node => {
         const coords = shouldConvertCoords ? this.graph.convertCoords(position) : position;
         return createNodeFromDefinition(node, coords);
     }
 
-    private buildAndAddNode = (node: NodeDefinition, position: XYCoords) : void => {
+    public buildAndAddNode = (node: NodeDefinition, position: XYCoords) : void => {
         this.addNode(this.buildNode(node, position));
     }
 

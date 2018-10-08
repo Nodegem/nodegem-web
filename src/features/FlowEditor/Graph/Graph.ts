@@ -1,5 +1,4 @@
 import { flowEditorStore } from '..';
-import { flowContextStore } from './../store/flow-context-store';
 import * as d3 from 'd3';
 import { observable, action } from 'mobx';
 import { AnyPort } from '../Node/Ports/types';
@@ -33,7 +32,6 @@ class Graph {
 
         d3.select("#_graph")
             .call(zoom)
-            .on("contextmenu", this.handleRightClick)
             .on("dblclick.zoom", null);
 
         d3.select(document)
@@ -45,28 +43,13 @@ class Graph {
         setTimeout(() => this.mounted = true, 100);
     }
 
-    private handleRightClick = () => {
-        d3.event.preventDefault();
-        d3.event.stopPropagation();
-
-        const e = d3.event;
-        const position: XYCoords = [e.pageX, e.pageY];
-
-        flowContextStore.show(flowEditorStore.graphContextMenu, position);
-    }
-
     private handleFilter = action((): boolean => {
 
         const e = d3.event;
         const leftClick = !e.button;
-        const isContextVisible = flowContextStore.visible;
 
-        if (!this.isGraph(e.target) || !leftClick) {
+        if (!this.isGraph(e.target) || !leftClick || flowEditorStore.isContextVisible) {
             return false;
-        }
-
-        if (isContextVisible && leftClick) {
-            flowContextStore.hide();
         }
 
         return leftClick;

@@ -1,41 +1,53 @@
-import * as React from 'react';
-import { observer } from 'mobx-react';
-import { HotKeys } from 'react-hotkeys';
-import { canvasPattern } from './Patterns';
-import { NodeView } from './Node';
-import { flowEditorStore } from './store/flow-editor-store';
-import { GraphView } from './Graph/GraphView';
-import { DrawValueLinkView, ValueLinkView, FlowLinkView, FlowMarker, DrawFlowLinkView } from './Link/LinkView';
-import { ValueLink } from './Link';
-import FlowContextMenuView from './FlowContextMenu/FlowContextMenuView';
-import { transformGraph } from './services/data-transform/run-graph';
-import { Terminal } from 'xterm';
-import { XTerm } from './Terminal/XTerm';
-import { stopListeningToTerminal, startListeningToTerminalHub, subscribeToTerminal } from './hubs/terminal-hub';
-import { startConnectionToGraphHub, run, disconnectFromGraphHub } from './hubs/graph-hub';
-import _ from 'lodash';
-import moment from 'moment';
+import * as React from "react";
+import { observer } from "mobx-react";
+import { HotKeys } from "react-hotkeys";
+import { canvasPattern } from "./Patterns";
+import { NodeView } from "./Node";
+import { flowEditorStore } from "./store/flow-editor-store";
+import { GraphView } from "./Graph/GraphView";
+import {
+    DrawValueLinkView,
+    ValueLinkView,
+    FlowLinkView,
+    FlowMarker,
+    DrawFlowLinkView
+} from "./Link/LinkView";
+import { ValueLink } from "./Link";
+import { transformGraph } from "./services/data-transform/run-graph";
+import { Terminal } from "xterm";
+import { XTerm } from "./Terminal/XTerm";
+import {
+    stopListeningToTerminal,
+    startListeningToTerminalHub,
+    subscribeToTerminal
+} from "./hubs/terminal-hub";
+import {
+    startConnectionToGraphHub,
+    run,
+    disconnectFromGraphHub
+} from "./hubs/graph-hub";
+import _ from "lodash";
+import moment from "moment";
+import { ContextMenuTrigger } from "react-contextmenu";
+import { MenuType, AllContextMenus } from "./ContextMenu";
 
 import "./FlowEditor.scss";
 
-const AdditionalDefs = ({ }) => {
-    return (
-        <FlowMarker />
-    )
-}
+const AdditionalDefs = ({}) => {
+    return <FlowMarker />;
+};
 
 const EDITOR_KEY_MAP = {
-    'run': ["ctrl+enter", "command+enter"],
-    'center': ["ctrl+space"],
-    'clear': ["ctrl+backspace", "command+backspace"],
-    'new': ["ctrl+shift+n"],
-    'save': ["ctrl+s", "command+s"],
-    'load': ["ctrl+l", "command+l"]
-}
+    run: ["ctrl+enter", "command+enter"],
+    center: ["ctrl+space"],
+    clear: ["ctrl+backspace", "command+backspace"],
+    new: ["ctrl+shift+n"],
+    save: ["ctrl+s", "command+s"],
+    load: ["ctrl+l", "command+l"]
+};
 
 @observer
 class FlowEditor extends React.Component {
-
     private terminal: XTerm;
 
     public componentDidMount() {
@@ -51,28 +63,29 @@ class FlowEditor extends React.Component {
     }
 
     public render() {
-
         const hotkeyHandler = {
-            'run': (event) => {
+            run: event => {
                 event.preventDefault();
-                run(transformGraph(flowEditorStore.nodes, flowEditorStore.links));
+                run(
+                    transformGraph(flowEditorStore.nodes, flowEditorStore.links)
+                );
             },
-            'center': (event) => {
+            center: event => {
                 event.preventDefault();
                 flowEditorStore.graph.reset();
             },
-            'clear': (event) => {
+            clear: event => {
                 event.preventDefault();
                 flowEditorStore.clearGraph();
             },
-            'new': (event) => {
+            new: event => {
                 event.preventDefault();
                 flowEditorStore.saveGraph();
             },
-            'save': (event) => {
+            save: event => {
                 event.preventDefault();
             },
-            'load': (event) => {
+            load: event => {
                 event.preventDefault();
                 flowEditorStore.loadGraph();
             }
@@ -94,44 +107,79 @@ class FlowEditor extends React.Component {
             }
         }
 
-        const flexStyles: React.CSSProperties = { flex: "inherit", flexDirection: "column", display: "inherit" };
+        const flexStyles: React.CSSProperties = {
+            flex: "inherit",
+            flexDirection: "column",
+            display: "inherit"
+        };
         return (
             <div className="flow-editor">
-                <HotKeys keyMap={EDITOR_KEY_MAP} handlers={hotkeyHandler} style={flexStyles}>
-                    <GraphView size={[15000, 15000]} pattern={canvasPattern(200)} graph={flowEditorStore.graph} zoomRange={[.5, 1.5]} defs={<AdditionalDefs />}>
-                        <g id="_connections">
-                            {
-                                mounted
-                                && flowEditorStore.links.map(x => {
-                                    const returnElement = x instanceof ValueLink
-                                        ? <ValueLinkView key={x.id} link={x} />
-                                        : <FlowLinkView key={x.id} link={x} />;
-                                    return returnElement;
-                                })
-                            }
-                            {
-                                flowEditorStore.linking
-                                && (
-                                    flowEditorStore.linking.from.type === "flow"
-                                        ? <DrawFlowLinkView sourcePos={source} destPos={destination} />
-                                        : <DrawValueLinkView sourcePos={source} destPos={destination} />
-                                )
-                            }
-                        </g>
-                        <g id="_nodes">
-                            {flowEditorStore.nodes.map(x =>
-                                <NodeView key={x.id} node={x} defaultWidth={200} />
-                            )}
-                        </g>
-                    </GraphView>
-
+                <HotKeys
+                    keyMap={EDITOR_KEY_MAP}
+                    handlers={hotkeyHandler}
+                    style={flexStyles}
+                >
+                    <ContextMenuTrigger id={MenuType.GRAPH_MENU}>
+                        <GraphView
+                            size={[15000, 15000]}
+                            pattern={canvasPattern(200)}
+                            graph={flowEditorStore.graph}
+                            zoomRange={[0.5, 1.5]}
+                            defs={<AdditionalDefs />}
+                        >
+                            <g id="_connections">
+                                {mounted &&
+                                    flowEditorStore.links.map(x => {
+                                        const returnElement =
+                                            x instanceof ValueLink ? (
+                                                <ValueLinkView
+                                                    key={x.id}
+                                                    link={x}
+                                                />
+                                            ) : (
+                                                <FlowLinkView
+                                                    key={x.id}
+                                                    link={x}
+                                                />
+                                            );
+                                        return returnElement;
+                                    })}
+                                {flowEditorStore.linking &&
+                                    (flowEditorStore.linking.from.type ===
+                                    "flow" ? (
+                                        <DrawFlowLinkView
+                                            sourcePos={source}
+                                            destPos={destination}
+                                        />
+                                    ) : (
+                                        <DrawValueLinkView
+                                            sourcePos={source}
+                                            destPos={destination}
+                                        />
+                                    ))}
+                            </g>
+                            <g id="_nodes">
+                                {flowEditorStore.nodes.map(x => (
+                                    <NodeView
+                                        key={x.id}
+                                        node={x}
+                                        defaultWidth={200}
+                                    />
+                                ))}
+                            </g>
+                        </GraphView>
+                    </ContextMenuTrigger>
                 </HotKeys>
-                <XTerm ref={ref => this.terminal = ref!} options={{ rows: 8, cursorStyle: "underline" }} addons={['fit', 'search']} />
-                <FlowContextMenuView />
-            </div>
-        )
-    }
 
+                <XTerm
+                    ref={ref => (this.terminal = ref!)}
+                    options={{ rows: 8, cursorStyle: "underline" }}
+                    addons={["fit", "search"]}
+                />
+                <AllContextMenus />
+            </div>
+        );
+    }
 }
 
 function runTerminal(xterm: XTerm) {
@@ -143,7 +191,6 @@ function runTerminal(xterm: XTerm) {
         term.scrollToBottom();
         term.writeln(`[${moment().format("LTS")}] - ${data}`);
     }
-
 }
 
 export default FlowEditor;

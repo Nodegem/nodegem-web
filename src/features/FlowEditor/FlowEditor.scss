@@ -25,3 +25,9 @@ $nodeHeaderBorder: 1px solid black;
         height: stretch;
     }
 }
+
+.react-contextmenu-wrapper {
+    flex: inherit;
+    flex-direction: column;
+    display: inherit;
+}
