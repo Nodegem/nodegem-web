@@ -12,7 +12,7 @@ interface FieldData {
 
 interface NodeData {
     id: string;
-    type: string;
+    namespace: string;
     position: { x: number, y: number };
     fieldData: Array<FieldData>;
 }

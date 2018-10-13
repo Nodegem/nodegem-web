@@ -1,5 +1,5 @@
 interface NodeDefinition {
-    type: string;
+    namespace: string;
     title: string;
     description: string;
     flowInputs: Array<FlowInputDefinition>;

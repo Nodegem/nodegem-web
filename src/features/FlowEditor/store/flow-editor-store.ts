@@ -33,7 +33,7 @@ class FlowEditorStore {
             .then((defs) => {
                 this.definitionList = defs;
                 this.nodeDefinitions = defs.reduce((map, obj) => {
-                    map[obj.type] = obj;
+                    map[obj.namespace] = obj;
                     return map;
                 }, {});
             });
@@ -50,7 +50,7 @@ class FlowEditorStore {
         const graph = await graphService.getGraph("1c7b7602-d76a-457b-821c-26066fad0208");
 
         graph.nodes.forEach(n => {
-            const def = this.nodeDefinitions[n.type];
+            const def = this.nodeDefinitions[n.namespace];
             const { x, y } = n.position;
             const node = this.buildNode(def, [x, y], false);
 
