@@ -18,8 +18,8 @@ interface NodeData {
 }
 
 interface LinkData {
-    sourceId: string;
+    sourceNode: string;
     sourceKey: string;
-    destinationId: string;
+    destinationNode: string;
     destinationKey: string;
 }

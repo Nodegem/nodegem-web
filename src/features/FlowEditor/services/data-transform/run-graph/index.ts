@@ -7,8 +7,8 @@ export const transformGraph = (nodes: Array<Node>, links: Array<LinkOptions>) : 
             .map(x => 
             ({ id: x.id, namespace: x.type, fieldData: x.getInputPortValues() })
         ),
-        connections: links.map(x => 
-            ({ source: x.source.node.id, sourceKey: x.source.port.key, destination: x.destination.node.id, destinationKey: x.destination.port.key })
+        links: links.map(x => 
+            ({ sourceNode: x.source.node.id, sourceKey: x.source.port.key, destinationNode: x.destination.node.id, destinationKey: x.destination.port.key })
         )
     }
 }

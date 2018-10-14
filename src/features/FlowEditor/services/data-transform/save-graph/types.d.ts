@@ -17,8 +17,8 @@ interface SaveFieldData {
 }
 
 interface SaveLinkData {
-    sourceId: string;
+    sourceNode: string;
     sourceKey: string;
-    destinationId: string;
+    destinationNode: string;
     destinationKey: string;
 }

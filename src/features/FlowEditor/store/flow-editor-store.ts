@@ -63,9 +63,9 @@ class FlowEditorStore {
         });
 
         graph.links.forEach(l => {
-            const sourceNode = this.nodes.find(x => x.id === l.sourceId)!;
+            const sourceNode = this.nodes.find(x => x.id === l.sourceNode)!;
             const sourcePort = sourceNode.getPortByKey(l.sourceKey);
-            const destinationNode = this.nodes.find(x => x.id === l.destinationId)!;
+            const destinationNode = this.nodes.find(x => x.id === l.destinationNode)!;
             const destinationPort = destinationNode.getPortByKey(l.destinationKey);
 
             const link = sourcePort.type === "flow" 

@@ -1,12 +1,12 @@
 interface RunGraphData {
     nodes: Array<RunNodeData>;
-    connections: Array<RunConnectionData>;
+    links: Array<RunConnectionData>;
 }
 
 interface RunConnectionData {
-    source: string;
+    sourceNode: string;
     sourceKey: string;
-    destination: string;
+    destinationNode: string;
     destinationKey: string;
 }
 
