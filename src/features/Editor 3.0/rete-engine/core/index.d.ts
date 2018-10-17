@@ -1,0 +1,1 @@
+type XYPosition = { x: number, y: number };

@@ -4,7 +4,15 @@ import { Zoom } from './zoom';
 
 export class Area extends Emitter {
 
-    constructor(container, emitter: Emitter) {
+    el: HTMLElement;
+    container: HTMLElement;
+    transform: { k: number, x: number, y: number };
+    mouse: XYPosition;
+    _startPosition: XYPosition;
+    _zoom: Zoom;
+    _drag: Drag;
+
+    constructor(container: HTMLElement, emitter: Emitter) {
         super(emitter);
         
         const el = this.el = document.createElement('div');
@@ -15,7 +23,7 @@ export class Area extends Emitter {
 
         el.style.transformOrigin = '0 0';
 
-        this._startPosition = null;
+        this._startPosition = { x: 0, y: 0 };
         this._zoom = new Zoom(container, el, 0.1, this.onZoom.bind(this));
         this._drag = new Drag(container, this.onTranslate.bind(this), this.onStart.bind(this));
         this.container.addEventListener('mousemove', this.mousemove.bind(this));
@@ -40,7 +48,7 @@ export class Area extends Emitter {
     }
 
     onStart() {
-        this._startPosition = { ...this.transform };
+        this._startPosition = this.transform;
     }
 
     onTranslate(dx, dy) {

@@ -2,9 +2,9 @@ import { Node } from './node';
 
 export class Control {
 
-    private key: any;
-    private data: object;
-    private parent: any;
+    public key: any;
+    public data: object;
+    public parent: any;
 
     constructor(key) {
         if (this.constructor === Control)

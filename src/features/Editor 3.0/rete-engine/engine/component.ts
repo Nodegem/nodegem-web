@@ -15,5 +15,5 @@ export abstract class Component {
         this.engine = null;
     }
 
-    worker(node: any, inputs: any[][], outputs: any[]) { }
+    worker(node: any, inputs: any, outputs: any, ...args: any[]) { }
 }

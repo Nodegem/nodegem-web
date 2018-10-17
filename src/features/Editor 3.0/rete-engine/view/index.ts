@@ -7,7 +7,14 @@ import { Node as ViewNode } from './node';
 
 export class EditorView extends Emitter {
 
-    constructor(container: HTMLElement, components: Object, emitter: Emitter) {
+    container: HTMLElement;
+    components: any;
+    emitter: Emitter;
+    nodes: Map<Node, ViewNode>;
+    connections: Map<Connection, ViewConnection>;
+    area: Area;
+
+    constructor(container: HTMLElement, components: any, emitter: Emitter) {
         super(emitter);
 
         this.container = container;
@@ -36,15 +43,15 @@ export class EditorView extends Emitter {
     }
 
     removeNode(node: Node) {
-        const nodeView = this.nodes.get(node);
+        const nodeView = this.nodes.get(node)!;
 
         this.nodes.delete(node);
         this.area.removeChild(nodeView.el);
     }
 
     addConnection(connection: Connection) {
-        const viewInput = this.nodes.get(connection.input.node);
-        const viewOutput = this.nodes.get(connection.output.node);
+        const viewInput = this.nodes.get(connection.input.node!)!;
+        const viewOutput = this.nodes.get(connection.output.node!)!;
         const connView = new ViewConnection(connection, viewInput, viewOutput, this);
 
         this.connections.set(connection, connView);
@@ -52,7 +59,7 @@ export class EditorView extends Emitter {
     }
 
     removeConnection(connection: Connection) {
-        const connView = this.connections.get(connection);
+        const connView = this.connections.get(connection)!;
 
         this.connections.delete(connection);
         this.area.removeChild(connView.el);
@@ -60,14 +67,14 @@ export class EditorView extends Emitter {
 
     updateConnections({ node }) {
         node.getConnections().map(conn => {
-            this.connections.get(conn).update();
+            this.connections.get(conn)!.update();
         });
     }
 
     resize() {
         const { container } = this;
-        const width = container.parentElement.clientWidth;
-        const height = container.parentElement.clientHeight;
+        const width = container.parentElement!.clientWidth;
+        const height = container.parentElement!.clientHeight;
 
         container.style.width = width + 'px';
         container.style.height = height + 'px';

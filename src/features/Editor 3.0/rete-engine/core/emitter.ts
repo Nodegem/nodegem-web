@@ -20,7 +20,7 @@ export class Emitter {
         return this;
     }
 
-    public trigger(name: string, params) : any {
+    public trigger(name: string, params: any = {}) : any {
         if (!(name in this.events))
             throw new Error(`The event ${name} cannot be triggered`);
 

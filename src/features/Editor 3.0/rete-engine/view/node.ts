@@ -1,13 +1,24 @@
+import { Component } from './../component';
 import { Control } from '../control';
 import { Drag } from './drag';
 import { Emitter } from '../core/emitter';
 import { IO } from '../io';
 import { Control as ViewControl } from './control';
 import { Socket as ViewSocket } from './socket';
+import { Node as NodeData } from '../node';
 
 export class Node extends Emitter {
 
-    constructor(node, component, emitter) {
+    node: NodeData;
+    component: Component;
+    sockets: Map<IO, ViewSocket>;
+    controls: Map<Control, ViewControl>;
+    el: HTMLElement;
+    
+    private _drag: Drag;
+    private _startPosition: [number, number];
+
+    constructor(node: NodeData, component: Component, emitter: Emitter) {
         super(emitter);
 
         this.node = node;
@@ -19,7 +30,7 @@ export class Node extends Emitter {
 
         this.el.addEventListener('contextmenu', e => this.trigger('contextmenu', { e, node: this.node }));
 
-        this._startPosition = null;
+        this._startPosition = [0, 0];
         this._drag = new Drag(this.el, this.onTranslate.bind(this), this.onSelect.bind(this));
 
         this.trigger('rendernode', {
@@ -42,11 +53,11 @@ export class Node extends Emitter {
     }
 
     getSocketPosition(io) {
-        return this.sockets.get(io).getPosition(this.node);
+        return this.sockets.get(io)!.getPosition(this.node);
     }
 
     onSelect(e) {        
-        this._startPosition = [...this.node.position];
+        this._startPosition = [...this.node.position] as [number, number];
         this.trigger('selectnode', { node: this.node, accumulate: e.ctrlKey });
     }
 

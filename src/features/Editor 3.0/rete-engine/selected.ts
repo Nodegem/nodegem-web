@@ -2,11 +2,13 @@ import { Node } from './node';
 
 export class Selected {
 
+    private list: any[];
+
     constructor() {
         this.list = [];
     }
 
-    add(item: Node, accumulate = false) {
+    add(item: Node, accumulate: boolean = false) {
         if (accumulate) {
             if (this.contains(item))
                 this.remove(item);
@@ -14,7 +16,9 @@ export class Selected {
                 this.list.push(item);
         }
         else
+        {
             this.list = [item];    
+        }
     }
 
     clear() {
@@ -34,4 +38,5 @@ export class Selected {
     each(callback) {
         this.list.forEach(callback);
     }
+
 }

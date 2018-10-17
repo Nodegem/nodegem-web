@@ -35,9 +35,9 @@ export class Output extends IO {
 
     toJSON() {
         return {
-            'connections': this.connections.map(c => {
+            connections: this.connections.map(c => {
                 return {
-                    node: c.input.node.id,
+                    node: c!.input!.node!.id,
                     input: c.input.key,
                     data: c.data
                 }

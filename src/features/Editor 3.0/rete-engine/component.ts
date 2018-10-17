@@ -27,7 +27,7 @@ export class Component extends ComponentWorker {
         return node;
     }
 
-    async createNode(data = {}) {
+    async createNode(data: any = {}) {
         const node = new Node(this.name);
         
         node.data = data;

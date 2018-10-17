@@ -43,7 +43,7 @@ export class Engine extends Context {
         this.trigger('componentregister', component);
     }
 
-    async throwError (message, data = null) {
+    async throwError (message: string, data : any = null) {
         await this.abort();
         this.trigger('error', { message, data });
         this.processDone();
@@ -119,7 +119,7 @@ export class Engine extends Context {
         });
     }
 
-    async lock(node) {
+    private async lock(node) {
         return new Promise(res => {
             node.unlockPool = node.unlockPool || [];
             if (node.busy && !node.outputData)
@@ -131,13 +131,13 @@ export class Engine extends Context {
         });    
     }
 
-    unlock(node) {
+    private unlock(node) {
         node.unlockPool.forEach(a => a());
         node.unlockPool = [];
         node.busy = false;
     }
 
-    async extractInputData(node) {
+    private async extractInputData(node) {
         const obj = {};
 
         for (let key of Object.keys(node.inputs)) {
@@ -160,13 +160,13 @@ export class Engine extends Context {
         return obj;
     }
 
-    async processWorker(node) {
+    private async processWorker(node) {
         var inputData = await this.extractInputData(node);
         var component = this.components.find(c => c.name === node.name);
         var outputData = {};
 
         try {
-            await component.worker(node, inputData, outputData, ...this.args);
+            await component!.worker(node, inputData, outputData, ...this.args);
         } catch (e) {
             this.abort();
             this.trigger('warn', e);
@@ -205,7 +205,7 @@ export class Engine extends Context {
         }));
     }
 
-    copy(data) {
+    private copy(data) {
         data = Object.assign({}, data);
         data.nodes = Object.assign({}, data.nodes);
         
@@ -229,7 +229,7 @@ export class Engine extends Context {
         return true;
     }
 
-    async processStartNode(id) {
+    private async processStartNode(id) {
         if (id) {
             let startNode = this.data.nodes[id];
 
@@ -239,9 +239,11 @@ export class Engine extends Context {
             await this.processNode(startNode);
             await this.forwardProcess(startNode);
         }
+
+        return await this.throwError("Id was invalid");
     }
 
-    async processUnreachable() {
+    private async processUnreachable() {
         for (var i in this.data.nodes) // process nodes that have not been reached
             if (typeof this.data.nodes[i].outputData === 'undefined') {
                 var node = this.data.nodes[i];
@@ -251,9 +253,9 @@ export class Engine extends Context {
             }
     }
 
-    async process(data: Object, startId: ?number = null, ...args) {
+    public async process(data: Object, startId: number | null = null, ...args) {
         if (!this.processStart()) return;
-        if (!this.validate(data)) return;    
+        if (!this.validate(data)) return;
         
         this.data = this.copy(data);
         this.args = args;
@@ -261,6 +263,6 @@ export class Engine extends Context {
         await this.processStartNode(startId);
         await this.processUnreachable();
         
-        return this.processDone()?'success':'aborted';
+        return this.processDone() ? 'success' : 'aborted';
     }
 }

@@ -1,12 +1,24 @@
 import { Control } from './control';
 import { Input } from './input';
 import { Output } from './output';
+import { uuid } from 'lodash-uuid';
 
 export class Node {
+
+    public data: any;
+    public meta: any;
+    public name: string;
+    public id: string;
+    position: [number, number];
+
+    public inputs: Map<string, Input>;
+    public outputs: Map<string, Output>;
+    public controls: Map<string, Control>;
+
    
     constructor(name: string) {
         this.name = name;
-        this.id = Node.incrementId();
+        this.id = uuid();
         this.position = [0.0, 0.0];
 
         this.inputs = new Map();
@@ -64,20 +76,12 @@ export class Node {
     }
 
     getConnections() {
-        const ios = [...this.inputs.values(), ...this.outputs.values()];
+        const ios = [...Array.from(this.inputs.values()), ...Array.from(this.outputs.values())];
         const connections = ios.reduce((arr, io) => {
             return [...arr, ...io.connections];
         }, []);
     
         return connections;
-    }
-
-    static incrementId() {
-        if (!this.latestId)
-            this.latestId = 1
-        else
-            this.latestId++
-        return this.latestId
     }
 
     toJSON() {
@@ -91,14 +95,13 @@ export class Node {
         }
     }
 
-    static fromJSON(json: Object) {
+    static fromJSON(json: any) {
         const node = new Node(json.name);
 
         node.id = json.id;
         node.data = json.data;
         node.position = json.position;
         node.name = json.name;
-        Node.latestId = Math.max(node.id, Node.latestId);
 
         return node;
     }

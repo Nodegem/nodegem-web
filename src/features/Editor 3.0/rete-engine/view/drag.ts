@@ -1,12 +1,22 @@
+export type DragStartEvent = (e: MouseEvent) => void;
+export type DragTranslateEvent = (x: number, y: number, e: MouseEvent) => void;
+export type DragUpEvent = (e: MouseEvent) => void;
+
 export class Drag {
 
-    constructor(el, onTranslate = () => {}, onStart = () => {}, onDrag = () => {}) {
+    mouseStart: [number, number] | null;
+    el: HTMLElement;
+    onTranslate: DragTranslateEvent;
+    onStart: DragStartEvent;
+    onDragUp: DragUpEvent;
+
+    constructor(el: HTMLElement, onTranslate: DragTranslateEvent = () => {}, onStart: DragStartEvent = () => {}, onDragUp: DragUpEvent = () => {}) {
         this.mouseStart = null;
 
         this.el = el;
         this.onTranslate = onTranslate;
         this.onStart = onStart;
-        this.onDrag = onDrag;
+        this.onDragUp = onDragUp;
 
         this.initEvents(el);
     }
@@ -23,7 +33,7 @@ export class Drag {
         window.addEventListener('touchend', this.up.bind(this));
     }
 
-    getCoords(e) {
+    getCoords(e) : [number, number] {
         const props = e.touches ? e.touches[0] : e;
 
         return [props.pageX, props.pageY];
@@ -52,6 +62,6 @@ export class Drag {
         if (!this.mouseStart) return;
         
         this.mouseStart = null;
-        this.onDrag(e);
+        this.onDragUp(e);
     }
 }

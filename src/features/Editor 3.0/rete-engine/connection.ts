@@ -1,8 +1,11 @@
+import { Input } from './input';
+import { Output } from './output';
+
 export class Connection {
 
-    output: any;
-    input: any;
-    data: object;
+    public input: Input;
+    public output: Output;
+    public data: object;
 
     constructor(output, input) {
         this.output = output;
