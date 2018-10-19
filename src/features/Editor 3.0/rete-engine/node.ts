@@ -86,12 +86,12 @@ export class Node {
 
     toJSON() {
         return {
-            'id': this.id,
-            'data': this.data,
-            'inputs': Array.from(this.inputs).reduce((obj, [key, input]) => (obj[key] = input.toJSON(), obj), {}),
-            'outputs': Array.from(this.outputs).reduce((obj, [key, output]) => (obj[key] = output.toJSON(), obj), {}),
-            'position': this.position,
-            'name': this.name
+            id: this.id,
+            data: this.data,
+            inputs: Array.from(this.inputs).reduce((obj, [key, input]) => (obj[key] = input.toJSON(), obj), {}),
+            outputs: Array.from(this.outputs).reduce((obj, [key, output]) => (obj[key] = output.toJSON(), obj), {}),
+            position: this.position,
+            name: this.name
         }
     }
 

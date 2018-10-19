@@ -12,7 +12,7 @@ import { Validator } from './core/validator';
 export class NodeEditor extends Context {
 
     nodes: Array<Node>;
-    components: any;
+    components: Map<string, Component>;
 
     selected: Selected;
     view: EditorView;
@@ -136,12 +136,12 @@ export class NodeEditor extends Context {
 
     async fromJSON(json: any) {
         if (!this.beforeImport(json)) return false;
-        var nodes = {};
+        let nodes = {};
 
         try {
             await Promise.all(Object.keys(json.nodes).map(async id => {
-                var node = json.nodes[id];
-                var component = this.getComponent(node.name);
+                const node = json.nodes[id];
+                const component = this.getComponent(node.name);
 
                 nodes[id] = await component.build(Node.fromJSON(node));
                 this.addNode(nodes[id]);

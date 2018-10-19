@@ -8,7 +8,7 @@ export class Area extends Emitter {
     container: HTMLElement;
     transform: { k: number, x: number, y: number };
     mouse: XYPosition;
-    _startPosition: XYPosition;
+    _startPosition: XYPosition | null;
     _zoom: Zoom;
     _drag: Drag;
 
@@ -23,7 +23,7 @@ export class Area extends Emitter {
 
         el.style.transformOrigin = '0 0';
 
-        this._startPosition = { x: 0, y: 0 };
+        this._startPosition = null;
         this._zoom = new Zoom(container, el, 0.1, this.onZoom.bind(this));
         this._drag = new Drag(container, this.onTranslate.bind(this), this.onStart.bind(this));
         this.container.addEventListener('mousemove', this.mousemove.bind(this));
@@ -52,7 +52,7 @@ export class Area extends Emitter {
     }
 
     onTranslate(dx, dy) {
-        this.translate(this._startPosition.x + dx, this._startPosition.y + dy)
+        this.translate(this._startPosition!.x + dx, this._startPosition!.y + dy)
     }
 
     onZoom(delta, ox, oy) {

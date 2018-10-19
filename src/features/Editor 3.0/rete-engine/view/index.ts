@@ -1,18 +1,22 @@
-import { Area } from './area';
+import { Area as AreaView } from './area';
 import { Connection } from '../connection';
 import { Emitter } from '../core/emitter';
 import { Node } from '../node';
-import { Connection as ViewConnection } from './connection';
-import { Node as ViewNode } from './node';
+import { Connection as ConnectionView } from './connection';
+import { Node as NodeView } from './node';
+import { Socket as SocketView } from './socket';
+import { Control as ControlView } from './control';
+import { Zoom } from './zoom';
+import { Drag } from './drag';
 
-export class EditorView extends Emitter {
+class EditorView extends Emitter {
 
     container: HTMLElement;
     components: any;
     emitter: Emitter;
-    nodes: Map<Node, ViewNode>;
-    connections: Map<Connection, ViewConnection>;
-    area: Area;
+    nodes: Map<Node, NodeView>;
+    connections: Map<Connection, ConnectionView>;
+    area: AreaView;
 
     constructor(container: HTMLElement, components: any, emitter: Emitter) {
         super(emitter);
@@ -31,12 +35,12 @@ export class EditorView extends Emitter {
 
         this.on('nodetranslated', this.updateConnections.bind(this));
             
-        this.area = new Area(container, this);
+        this.area = new AreaView(container, this);
         this.container.appendChild(this.area.el);
     }
 
     addNode(node: Node) {
-        const nodeView = new ViewNode(node, this.components.get(node.name), this);
+        const nodeView = new NodeView(node, this.components.get(node.name), this);
 
         this.nodes.set(node, nodeView);
         this.area.appendChild(nodeView.el);
@@ -52,7 +56,7 @@ export class EditorView extends Emitter {
     addConnection(connection: Connection) {
         const viewInput = this.nodes.get(connection.input.node!)!;
         const viewOutput = this.nodes.get(connection.output.node!)!;
-        const connView = new ViewConnection(connection, viewInput, viewOutput, this);
+        const connView = new ConnectionView(connection, viewInput, viewOutput, this);
 
         this.connections.set(connection, connView);
         this.area.appendChild(connView.el);
@@ -86,4 +90,15 @@ export class EditorView extends Emitter {
         if (container !== e.target) return;
         if (!this.trigger('click', { e, container })) return;
     }
+}
+
+export {
+    EditorView,
+    AreaView,
+    NodeView,
+    SocketView,
+    ControlView,
+    ConnectionView,
+    Drag,
+    Zoom
 }
