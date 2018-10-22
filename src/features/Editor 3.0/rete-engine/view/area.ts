@@ -8,7 +8,7 @@ export class Area extends Emitter {
     container: HTMLElement;
     transform: { k: number, x: number, y: number };
     mouse: XYPosition;
-    _startPosition: XYPosition | null;
+    _startPosition: XYPosition;
     _zoom: Zoom;
     _drag: Drag;
 
@@ -23,7 +23,7 @@ export class Area extends Emitter {
 
         el.style.transformOrigin = '0 0';
 
-        this._startPosition = null;
+        this._startPosition = { x: this.transform.x, y: this.transform.y };
         this._zoom = new Zoom(container, el, 0.1, this.onZoom.bind(this));
         this._drag = new Drag(container, this.onTranslate.bind(this), this.onStart.bind(this));
         this.container.addEventListener('mousemove', this.mousemove.bind(this));
@@ -48,16 +48,16 @@ export class Area extends Emitter {
     }
 
     onStart() {
-        this._startPosition = this.transform;
+        this._startPosition = { x: this.transform.x, y: this.transform.y };
     }
 
     onTranslate(dx, dy) {
-        this.translate(this._startPosition!.x + dx, this._startPosition!.y + dy)
+        const {x, y} = this._startPosition;
+        this.translate(x + dx, y + dy)
     }
 
     onZoom(delta, ox, oy) {
         this.zoom(this.transform.k * (1 + delta), ox, oy);
-
         this.update();
     }
 
@@ -66,8 +66,8 @@ export class Area extends Emitter {
 
         if (!this.trigger('translate', params)) return;
 
-        this.transform.x = params.x;
-        this.transform.y = params.y;
+        this.transform.x = x;
+        this.transform.y = y;
 
         this.update();
         this.trigger('translated');
