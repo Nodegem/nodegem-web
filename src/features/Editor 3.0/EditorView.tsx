@@ -6,9 +6,11 @@ import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ContextMenuPlugin from 'rete-context-menu-plugin';
 import ReteConnectionPlugin from 'rete-connection-plugin';
 import { Output } from "./rete-engine/output";
+import { Input } from "./rete-engine/input";
 import { Socket } from "./rete-engine/socket";
 import { Component } from "./rete-engine/component";
 import { Control } from "./rete-engine/control";
+import { Node } from "./rete-engine/node";
 // import { NodeEditor } from "./rete-engine";
 
 const json = 
@@ -20,14 +22,12 @@ const json =
             "data": {
               "num": 2
             },
-            "inputs": {},
+            "inputs": {
+              "num": {
+              }  
+            },
             "outputs": {
               "num": {
-                "connections": [{
-                  "node": 6,
-                  "input": "num1",
-                  "data": {}
-                }]
               }
             },
             "position": [80, 200],
@@ -72,10 +72,13 @@ class NumComponent extends Component {
         super("Number");
     }
 
-    builder(node) {
+    async builder(node: Node) {
+        var in1 = new Input('num', 'Test', sockets.num);
         var out1 = new Output('num', "Number", sockets.num);
 
-        return node.addControl(new FieldControl(this.editor, 'num', 'number', false)).addOutput(out1);
+        return node.addControl(new FieldControl(this.editor, 'num', 'number', false))
+            .addInput(in1)
+            .addOutput(out1);
     }
 
     worker(node, inputs, outputs) {

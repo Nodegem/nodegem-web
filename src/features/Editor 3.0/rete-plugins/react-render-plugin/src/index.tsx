@@ -4,18 +4,19 @@ import { NodeEditor } from '../../../rete-engine/editor';
 import NodeView from './NodeView';
 import SocketView from './SocketView';
 
-function createReactElement(el, ReactComponent) {
-    return ReactDOM.render(<ReactComponent />, el);
+function createReactElement(el: HTMLElement, ReactComponent: any, props: any = {}) {
+    return ReactDOM.render(<ReactComponent {...props} />, el);
 }
 
 function createNode(editor, { el, node, component, bindSocket, bindControl }) {
     const nodeComponent = component.component || NodeView;
-    return createReactElement(el, nodeComponent);
+    return createReactElement(el, nodeComponent, { node, bindSocket, bindControl });
 } 
 
 function createSocket(editor, { el, control }) {
-    const socketComponent = control.component || SocketView;
-    return createReactElement(el, socketComponent);
+    console.log(el, control);
+    // const socketComponent = control && control.component || SocketView;
+    // return createReactElement(el, socketComponent);
 }
 
 function install(editor: NodeEditor, params: any) {
@@ -25,7 +26,8 @@ function install(editor: NodeEditor, params: any) {
     });
 
     editor.on("rendercontrol", ({ el, control }) => {
-        control._react = createSocket(editor, { el, control });
+        createSocket(editor, { el, control })
+        // control._react = createSocket(editor, { el, control });
     });
 
     editor.on('connectioncreated connectionremoved', connection => {

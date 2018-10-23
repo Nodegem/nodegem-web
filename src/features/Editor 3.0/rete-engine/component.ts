@@ -12,7 +12,7 @@ export abstract class Component extends ComponentWorker {
         this.data = {};
     }
 
-    async builder(node: Node) { }
+    async builder(node: Node) : Promise<any> { }
 
     created(node: Node) { }
 
