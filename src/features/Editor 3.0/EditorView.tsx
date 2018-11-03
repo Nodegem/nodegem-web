@@ -13,6 +13,8 @@ import { Control } from "./rete-engine/control";
 import { Node } from "./rete-engine/node";
 // import { NodeEditor } from "./rete-engine";
 
+import "./EditorView.less";
+
 const json = 
 {
     "id": "main-editor@0.0.1",
@@ -114,7 +116,9 @@ class EditorView extends React.Component {
 
     public render() {
         return (
-            <div id="editor-container" />
+            <div id="editor-container">
+                <div className="background" />
+            </div>
         )
     }
 

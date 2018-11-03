@@ -35,9 +35,9 @@ class App extends React.PureComponent {
                     <Route path="/login" component={LoginPage} />
                     <Route path="/register" component={RegisterPage} />
                     <Route path="/forgot-password" component={RegisterPage} />
-                    <Route path="/editor-three" component={NewEditorPage} />
+                    <Route path="/editor" component={NewEditorPage} />
                     <ProtectedRoute exact path="/" component={FakeDashboard} />
-                    <ProtectedRoute path="/editor" component={EditorPage} />
+                    <ProtectedRoute path="/editor-old" component={EditorPage} />
                   </Switch>
                 </Content>
               </Layout>

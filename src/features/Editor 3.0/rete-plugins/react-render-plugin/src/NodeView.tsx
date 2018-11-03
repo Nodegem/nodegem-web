@@ -1,6 +1,9 @@
 import * as React from "react";
 import { Node } from "src/features/Editor 3.0/rete-engine/node";
 import "./NodeView.less";
+import SocketView from "./SocketView";
+import { Input } from "src/features/Editor 3.0/rete-engine/input";
+import { Socket } from "src/features/Editor 3.0/rete-engine/socket";
 
 // const InputList = ({
 //     flowInputs,
@@ -60,14 +63,11 @@ type NodeViewProps = { node: Node, bindControl: any, bindSocket: any };
 export default class NodeView extends React.Component<NodeViewProps> {
 
     componentDidMount() {
-        const { bindControl, bindSocket } = this.props;
-        console.log(bindControl);
-        bindControl();
     }
 
     public render() {
 
-        const { node } = this.props;
+        const { node, bindSocket } = this.props;
         const { inputs, outputs } = node;
 
         return (
@@ -78,22 +78,15 @@ export default class NodeView extends React.Component<NodeViewProps> {
                 <div className="content">
                     <div className="ports">
                         {
-                            inputs && Array.from(inputs.values()).map(x => 
-                                null
+                            inputs && Array.from(inputs.values()).map(x =>
+                                <SocketView bindSocket={bindSocket} io={x} type="input" />
                             )
                         }
-                        {/* {node.numInputs > 0 && (
-                            <InputList
-                                flowInputs={node.inputFlowPorts}
-                                valueInputs={node.inputValuePorts}
-                            />
-                        )}
-                        {node.numOutputs > 0 && (
-                            <OutputList
-                                flowOutputs={node.outputFlowPorts}
-                                valueOutputs={node.outputValuePorts}
-                            />
-                        )} */}
+                        {
+                            outputs && Array.from(outputs.values()).map(x => 
+                                <SocketView bindSocket={bindSocket} io={x} type="output" />
+                            )
+                        }
                     </div>
                 </div>
             </div>
