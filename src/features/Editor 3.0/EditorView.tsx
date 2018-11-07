@@ -39,7 +39,7 @@ const json =
 }
 
 const sockets = {
-    num: new Socket('Number value'),
+    num: new Socket('Number'),
     action: new Socket('Action'),
     data: new Socket('Data'),
     package: new Socket('Package')

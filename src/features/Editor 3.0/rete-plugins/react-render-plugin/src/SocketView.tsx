@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { IO } from 'src/features/Editor 3.0/rete-engine/io';
+import './Socket.less';
 
 type SocketViewProps = { bindSocket: Function, io: IO, type: string };
 class SocketView extends React.Component<SocketViewProps> {
@@ -11,10 +12,9 @@ class SocketView extends React.Component<SocketViewProps> {
     }
 
     public render() {
+        const {type, io} = this.props;
         return (
-            <div ref={(el) => this.container = el!}>
-                I'm a socket
-            </div>
+            <div ref={(el) => this.container = el!} className={`socket ${type} ${io.socket.name.toLowerCase()}`} />
         )
     }
 

@@ -1,0 +1,42 @@
+.node {
+
+    user-select: none;
+    background: #1E5188;
+    border-radius: 5px;
+    -webkit-box-shadow: 4px 7px 5px 0px rgba(0,0,0,0.5);
+    -moz-box-shadow: 4px 7px 5px 0px rgba(0,0,0,0.5);
+    box-shadow: 4px 5px 7px 0px rgba(0,0,0,0.5);
+
+    .header {
+
+        color: rgb(245, 245, 245);
+        padding: 3px 10px;
+        justify-content: left;
+        border-bottom: 1px solid black;
+        cursor: move;
+
+        .title {
+            font-weight: bold;
+            text-transform: capitalize;
+            font-size: 15px;
+        }
+    }
+    
+    .content {
+        display: flex;
+        flex-direction: row;
+        flex: 1;
+    }
+    
+    .inputs, .outputs {
+        width: 50%;
+        flex-direction: column;
+    }
+
+    .label-input, .label-output {
+        flex: 1;
+        flex-direction: row;
+        display: inline-flex;
+    }
+    
+}

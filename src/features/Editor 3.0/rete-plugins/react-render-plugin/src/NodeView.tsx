@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Node } from "src/features/Editor 3.0/rete-engine/node";
-import "./NodeView.less";
+import "./Node.less";
 import SocketView from "./SocketView";
 import { Input } from "src/features/Editor 3.0/rete-engine/input";
 import { Socket } from "src/features/Editor 3.0/rete-engine/socket";
@@ -59,14 +59,11 @@ import { Socket } from "src/features/Editor 3.0/rete-engine/socket";
 //     );
 // };
 
-type NodeViewProps = { node: Node, bindControl: any, bindSocket: any };
+type NodeViewProps = { node: Node; bindControl: any; bindSocket: any };
 export default class NodeView extends React.Component<NodeViewProps> {
-
-    componentDidMount() {
-    }
+    componentDidMount() {}
 
     public render() {
-
         const { node, bindSocket } = this.props;
         const { inputs, outputs } = node;
 
@@ -76,17 +73,31 @@ export default class NodeView extends React.Component<NodeViewProps> {
                     <span className="title">{node.name}</span>
                 </div>
                 <div className="content">
-                    <div className="ports">
-                        {
-                            inputs && Array.from(inputs.values()).map(x =>
-                                <SocketView bindSocket={bindSocket} io={x} type="input" />
-                            )
-                        }
-                        {
-                            outputs && Array.from(outputs.values()).map(x => 
-                                <SocketView bindSocket={bindSocket} io={x} type="output" />
-                            )
-                        }
+                    <div className="inputs">
+                        {inputs &&
+                            Array.from(inputs.values()).map(x => (
+                                <div className="label-input">
+                                    <SocketView
+                                        bindSocket={bindSocket}
+                                        io={x}
+                                        type="input"
+                                    />
+                                    {x.name}
+                                </div>
+                            ))}
+                    </div>
+                    <div className="outputs">
+                        {outputs &&
+                            Array.from(outputs.values()).map(x => (
+                                <div className="label-output">
+                                    {x.name}
+                                    <SocketView
+                                        bindSocket={bindSocket}
+                                        io={x}
+                                        type="output"
+                                    />
+                                </div>
+                            ))}
                     </div>
                 </div>
             </div>
