@@ -40,11 +40,8 @@ const json =
 
 const sockets = {
     num: new Socket('Number'),
-    action: new Socket('Action'),
-    data: new Socket('Data'),
-    package: new Socket('Package')
+    action: new Socket('Action')
 }
-
 
 class FieldControl extends Control {
 
@@ -75,11 +72,15 @@ class NumComponent extends Component {
     }
 
     async builder(node: Node) {
+        var flow1 = new Input('test', 'In', sockets.action);
+        var flow2 = new Output('testout', 'Out', sockets.action);
         var in1 = new Input('num', 'Test', sockets.num);
         var out1 = new Output('num', "Number", sockets.num);
 
         return node.addControl(new FieldControl(this.editor, 'num', 'number', false))
+            .addInput(flow1)
             .addInput(in1)
+            .addOutput(flow2)
             .addOutput(out1);
     }
 

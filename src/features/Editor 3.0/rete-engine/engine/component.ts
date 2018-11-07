@@ -6,7 +6,7 @@ export abstract class Component {
     data: object;
     engine: Engine | null;
 
-    constructor(name) {
+    constructor(name: string) {
         if (this.constructor === Component)
             throw new TypeError('Can not construct abstract class.');
         

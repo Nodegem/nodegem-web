@@ -6,7 +6,7 @@ export abstract class Component extends ComponentWorker {
     editor: any;
     data: object;
 
-    constructor(name) {
+    constructor(name: string) {
         super(name);
         this.editor = null;
         this.data = {};

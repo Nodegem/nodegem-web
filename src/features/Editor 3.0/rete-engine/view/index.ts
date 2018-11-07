@@ -77,11 +77,9 @@ class EditorView extends Emitter {
 
     resize() {
         const { container } = this;
-        const width = container.parentElement!.clientWidth;
-        const height = container.parentElement!.clientHeight;
 
-        container.style.width = width + 'px';
-        container.style.height = height + 'px';
+        container.style.width = 100 + '%';
+        container.style.height = 100 + '%';
     }
 
     click(e) {

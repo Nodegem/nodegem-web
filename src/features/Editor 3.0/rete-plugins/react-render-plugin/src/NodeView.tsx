@@ -61,7 +61,6 @@ import { Socket } from "src/features/Editor 3.0/rete-engine/socket";
 
 type NodeViewProps = { node: Node; bindControl: any; bindSocket: any };
 export default class NodeView extends React.Component<NodeViewProps> {
-    componentDidMount() {}
 
     public render() {
         const { node, bindSocket } = this.props;
@@ -76,7 +75,7 @@ export default class NodeView extends React.Component<NodeViewProps> {
                     <div className="inputs">
                         {inputs &&
                             Array.from(inputs.values()).map(x => (
-                                <div className="label-input">
+                                <div className="label-input" key={x.key}>
                                     <SocketView
                                         bindSocket={bindSocket}
                                         io={x}
@@ -89,9 +88,10 @@ export default class NodeView extends React.Component<NodeViewProps> {
                     <div className="outputs">
                         {outputs &&
                             Array.from(outputs.values()).map(x => (
-                                <div className="label-output">
+                                <div className="label-output" key={x.key}>
                                     <span>{x.name}</span>
                                     <SocketView
+                                        key={x.key}
                                         bindSocket={bindSocket}
                                         io={x}
                                         type="output"
