@@ -82,7 +82,7 @@ export default class NodeView extends React.Component<NodeViewProps> {
                                         io={x}
                                         type="input"
                                     />
-                                    {x.name}
+                                    <span>{x.name}</span>
                                 </div>
                             ))}
                     </div>
@@ -90,7 +90,7 @@ export default class NodeView extends React.Component<NodeViewProps> {
                         {outputs &&
                             Array.from(outputs.values()).map(x => (
                                 <div className="label-output">
-                                    {x.name}
+                                    <span>{x.name}</span>
                                     <SocketView
                                         bindSocket={bindSocket}
                                         io={x}
