@@ -4,6 +4,7 @@ import "./Node.less";
 import SocketView from "./SocketView";
 import { Input } from "src/features/Editor 3.0/rete-engine/input";
 import { Socket } from "src/features/Editor 3.0/rete-engine/socket";
+import { Component } from "src/features/Editor 3.0/rete-engine/component";
 
 // const InputList = ({
 //     flowInputs,
@@ -59,17 +60,17 @@ import { Socket } from "src/features/Editor 3.0/rete-engine/socket";
 //     );
 // };
 
-type NodeViewProps = { node: Node; bindControl: any; bindSocket: any };
+type NodeViewProps = { node: Node; component: any, bindControl: Function; bindSocket: Function };
 export default class NodeView extends React.Component<NodeViewProps> {
 
     public render() {
-        const { node, bindSocket } = this.props;
+        const { node, bindSocket, component } = this.props;
         const { inputs, outputs } = node;
 
         return (
             <div className="node">
                 <div className="header">
-                    <span className="title">{node.name}</span>
+                    <span className="title">{component.title}</span>
                 </div>
                 <div className="content">
                     <div className="inputs">

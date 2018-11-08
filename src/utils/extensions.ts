@@ -3,6 +3,7 @@ declare global {
     empty(): boolean;
     removeItem(T): Array<T>;
     firstOrDefault(): T | null;
+    lastOrDefault(): T | null;
     copy(): Array<T>;
   }
 }
@@ -17,6 +18,10 @@ Array.prototype.empty = function(): boolean {
 
 Array.prototype.firstOrDefault = function<T>(): T | null {
   return !this.empty() ? this[0] : null;
+};
+
+Array.prototype.lastOrDefault = function<T>(): T | null {
+  return !this.empty() ? this[this.length - 1] : null;
 };
 
 Array.prototype.copy = function<T>(): Array<T> {

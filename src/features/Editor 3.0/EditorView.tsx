@@ -14,6 +14,8 @@ import { Node } from "./rete-engine/node";
 // import { NodeEditor } from "./rete-engine";
 
 import "./EditorView.less";
+import { GenericComponent } from "./generic-component";
+import { utilsService } from "./services/utils-service";
 
 const json = 
 {
@@ -33,61 +35,61 @@ const json =
               }
             },
             "position": [80, 200],
-            "name": "Number"
+            "name": "Core.Util.Log"
         }
     }
 }
 
-const sockets = {
-    num: new Socket('Number'),
-    action: new Socket('Action')
-}
+// const sockets = {
+//     num: new Socket('Number'),
+//     action: new Socket('Action')
+// }
 
-class FieldControl extends Control {
+// class FieldControl extends Control {
 
-    component: any;
-    props: any;
-    vueContext: any;
+//     component: any;
+//     props: any;
+//     vueContext: any;
 
-    constructor(emitter, key, type, readonly) {
-        super(key);
-        this.props = { emitter, ikey: key, type, readonly, change: () => this.onChange() };
-    }
+//     constructor(emitter, key, type, readonly) {
+//         super(key);
+//         this.props = { emitter, ikey: key, type, readonly, change: () => this.onChange() };
+//     }
 
-    setValue(value) {
-        const ctx = this.vueContext || this.props;
+//     setValue(value) {
+//         const ctx = this.vueContext || this.props;
 
-        ctx.value = value;
-    }
+//         ctx.value = value;
+//     }
 
-    onChange() {}
-}
+//     onChange() {}
+// }
 
-class NumComponent extends Component {
+// class NumComponent extends Component {
 
-    CustomFieldControl: any;
+//     CustomFieldControl: any;
 
-    constructor() {
-        super("Number");
-    }
+//     constructor() {
+//         super("Number");
+//     }
 
-    async builder(node: Node) {
-        var flow1 = new Input('test', 'In', sockets.action);
-        var flow2 = new Output('testout', 'Out', sockets.action);
-        var in1 = new Input('num', 'Test', sockets.num);
-        var out1 = new Output('num', "Number", sockets.num);
+//     async builder(node: Node) {
+//         var flow1 = new Input('test', 'In', sockets.action);
+//         var flow2 = new Output('testout', 'Out', sockets.action);
+//         var in1 = new Input('num', 'Test', sockets.num);
+//         var out1 = new Output('num', "Number", sockets.num);
 
-        return node.addControl(new FieldControl(this.editor, 'num', 'number', false))
-            .addInput(flow1)
-            .addInput(in1)
-            .addOutput(flow2)
-            .addOutput(out1);
-    }
+//         return node.addControl(new FieldControl(this.editor, 'num', 'number', false))
+//             .addInput(flow1)
+//             .addInput(in1)
+//             .addOutput(flow2)
+//             .addOutput(out1);
+//     }
 
-    worker(node, inputs, outputs) {
-        outputs['num'] = node.data.num;
-    }
-}
+//     worker(node, inputs, outputs) {
+//         outputs['num'] = node.data.num;
+//     }
+// }
 
 @observer
 class EditorView extends React.Component {
@@ -103,15 +105,24 @@ class EditorView extends React.Component {
         this.nodeEditor.use(ContextMenuPlugin);
         this.nodeEditor.use(ReteConnectionPlugin);
 
-        [
-            new NumComponent
-        ].map(x => {
-            this.nodeEditor.register(x)
-        })
+        utilsService.getNodeDefinitions()
+            .then(definitions => {
+                console.log(definitions);
 
-        this.nodeEditor.fromJSON(json)
+                definitions.reduce((pV, cV) => {
+                    pV.push(new GenericComponent(cV.namespace, cV.flowInputs, cV.flowOutputs, cV.valueInputs, cV.valueOutputs));
+                    return pV;
+                }, [] as GenericComponent[])
+                .map(x => {
+                    this.nodeEditor.register(x)
+                })
+        
+                this.nodeEditor.fromJSON(json)
+            });
 
         this.nodeEditor.view.resize();
+
+        window.addEventListener("keydown", e => console.log(this.nodeEditor.toJSON()));
         // AreaPlugin.zoomAt(this.nodeEditor);
     }
 

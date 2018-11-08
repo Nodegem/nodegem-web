@@ -9,8 +9,8 @@ function createReactElement(el: HTMLElement, ReactComponent: any, props: any = {
 }
 
 function createNode(editor, { el, node, component, bindSocket, bindControl }) {
-    const nodeComponent = component.component || NodeView;
-    return createReactElement(el, nodeComponent, { node, bindSocket, bindControl });
+    const nodeComponent = component.reactComponent || NodeView;
+    return createReactElement(el, nodeComponent, { node, component, bindSocket, bindControl });
 } 
 
 function createSocket(editor, { el, control }) {

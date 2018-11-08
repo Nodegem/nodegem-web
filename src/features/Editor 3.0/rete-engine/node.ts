@@ -9,13 +9,12 @@ export class Node {
     public meta: any;
     public name: string;
     public id: string;
-    position: [number, number];
+    public position: [number, number];
 
     public inputs: Map<string, Input>;
     public outputs: Map<string, Output>;
     public controls: Map<string, Control>;
 
-   
     constructor(name: string) {
         this.name = name;
         this.id = uuid();
