@@ -7,8 +7,8 @@ export class Input extends IO {
    
     control: Control | null;
 
-    constructor(key: string, title: string, socket: Socket, multiConns: boolean = false) {
-        super(key, title, socket, multiConns);
+    constructor(key: string, name: string, socket: Socket, multiConns: boolean = false) {
+        super(key, name, socket, multiConns);
         this.control = null;
     }
 

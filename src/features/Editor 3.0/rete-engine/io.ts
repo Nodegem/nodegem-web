@@ -8,7 +8,6 @@ export class IO {
     public multipleConnections: boolean;
     public connections: Connection[];
 
-    public title: string;
     public socket: Socket;
     
     key: string;

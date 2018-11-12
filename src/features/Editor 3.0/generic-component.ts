@@ -1,5 +1,9 @@
 import { Component } from "./rete-engine/component";
 import { Socket } from "./rete-engine/socket";
+import { Input } from "./rete-engine/input";
+import { Node } from "./rete-engine/node";
+import { ReactControl } from "./rete-plugins/react-render-plugin/src/react-control";
+import { Output } from "./rete-engine/output";
 
 const sockets = {
     flow: new Socket("Flow"),
@@ -8,27 +12,36 @@ const sockets = {
 
 export class GenericComponent extends Component {
 
-    public flowInputs: any;
-    public flowOutputs: any;
-    public valueInputs: any;
-    public valueOutputs: any;
+    private nodeDefinition: NodeDefinition;
 
-    constructor(namespace: string, flowInputs: any, flowOutputs: any, valueInputs: any, valueOutputs: any) {
-        super(namespace);
+    constructor(nodeDefinition: NodeDefinition) {
+        super(nodeDefinition.namespace);
 
         this.data = {
-            namespace: namespace,
-            title: namespace.split('.').lastOrDefault(),
+            namespace: nodeDefinition.namespace,
+            title: nodeDefinition.namespace.split('.').lastOrDefault(),
             component: this
         }
 
-        this.flowInputs = flowInputs;
-        this.flowOutputs = flowOutputs;
-        this.valueInputs = valueInputs;
-        this.valueOutputs = valueOutputs;
+        this.nodeDefinition = nodeDefinition;
     }
 
-    async builder() {
+    async builder(node: Node) {
+
+        const { flowInputs, flowOutputs, valueInputs, valueOutputs } = this.nodeDefinition;
+
+        let inputs: Input[] = [];
+        let outputs: Output[] = [];
+        
+        flowInputs.forEach(x => inputs.push(new Input(x.key, x.label, sockets.flow, false)));
+        flowOutputs.forEach(x => outputs.push(new Output(x.key, x.label, sockets.flow, false)));
+        valueInputs.forEach(x => inputs.push(new Input(x.key, x.label, sockets.value, false)));
+        valueOutputs.forEach(x => outputs.push(new Output(x.key, x.label, sockets.value, true)));
+
+        inputs.forEach(x => node.addInput(x));
+        outputs.forEach(x => node.addOutput(x));
+
+        return node;
     }
 
 }

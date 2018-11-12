@@ -13,10 +13,9 @@ function createNode(editor, { el, node, component, bindSocket, bindControl }) {
     return createReactElement(el, nodeComponent, { node, component, bindSocket, bindControl });
 } 
 
-function createSocket(editor, { el, control }) {
-    console.log(el, control);
-    // const socketComponent = control && control.component || SocketView;
-    // return createReactElement(el, socketComponent);
+function createControl(editor, { el, control }) {
+    // const controlComponent = control.reactComponent || ;
+    // return createReactElement(el, controlComponent, { control });
 }
 
 function install(editor: NodeEditor, params: any) {
@@ -26,8 +25,7 @@ function install(editor: NodeEditor, params: any) {
     });
 
     editor.on("rendercontrol", ({ el, control }) => {
-        createSocket(editor, { el, control })
-        // control._react = createSocket(editor, { el, control });
+        control._react = createControl(editor, { el, control });
     });
 
     editor.on('connectioncreated connectionremoved', connection => {

@@ -110,7 +110,7 @@ class EditorView extends React.Component {
                 console.log(definitions);
 
                 definitions.reduce((pV, cV) => {
-                    pV.push(new GenericComponent(cV.namespace, cV.flowInputs, cV.flowOutputs, cV.valueInputs, cV.valueOutputs));
+                    pV.push(new GenericComponent(cV));
                     return pV;
                 }, [] as GenericComponent[])
                 .map(x => {

@@ -2,7 +2,8 @@ import * as React from 'react';
 import { IO } from 'src/features/Editor 3.0/rete-engine/io';
 import './Socket.less';
 
-type SocketViewProps = { bindSocket: Function, io: IO, type: string };
+type SocketType = "input" | "output";
+type SocketViewProps = { bindSocket: Function, io: IO, type: SocketType };
 class SocketView extends React.Component<SocketViewProps> {
     
     container: HTMLDivElement;
