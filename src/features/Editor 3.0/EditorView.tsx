@@ -122,7 +122,7 @@ class EditorView extends React.Component {
 
         this.nodeEditor.view.resize();
 
-        window.addEventListener("keydown", e => console.log(this.nodeEditor.toJSON()));
+        // window.addEventListener("keydown", e => console.log(this.nodeEditor.toJSON()));
         // AreaPlugin.zoomAt(this.nodeEditor);
     }
 

@@ -66,6 +66,11 @@ export class Zoom {
     }
 
     dblclick(e) {
+
+        const target = e.target || e.srcElement;
+        if (target.tagName.toUpperCase() === 'INPUT' 
+            || target.tagName.toUpperCase() === "AREA") return;
+
         e.preventDefault();
         
         var rect = this.el.getBoundingClientRect();

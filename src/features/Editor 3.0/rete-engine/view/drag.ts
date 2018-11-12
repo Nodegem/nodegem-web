@@ -40,6 +40,11 @@ export class Drag {
     }
 
     down(e) {
+
+        const target = e.target || e.srcElement;
+        if (target.tagName.toUpperCase() === 'INPUT' 
+            || target.tagName.toUpperCase() === "AREA") return;
+
         e.stopPropagation();
         this.mouseStart = this.getCoords(e);
 

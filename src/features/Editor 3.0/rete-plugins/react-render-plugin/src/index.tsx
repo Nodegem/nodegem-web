@@ -10,30 +10,38 @@ function createReactElement(el: HTMLElement, ReactComponent: any, props: any = {
 
 function createNode(editor, { el, node, component, bindSocket, bindControl }) {
     const nodeComponent = component.reactComponent || NodeView;
-    return createReactElement(el, nodeComponent, { node, component, bindSocket, bindControl });
+    return createReactElement(el, nodeComponent, { ...component.props, node, editor, bindSocket, bindControl });
 } 
 
 function createControl(editor, { el, control }) {
-    // const controlComponent = control.reactComponent || ;
-    // return createReactElement(el, controlComponent, { control });
+    const controlComponent = control.reactComponent;
+    const props = { ...control.props, getData: control.getData.bind(control), putData: control.putData.bind(control) };
+    return createReactElement(el, controlComponent, props);
+}
+
+const update = (node) => {
+    if(node.reactContext) {
+        node.reactContext.forceUpdate();
+    }
 }
 
 function install(editor: NodeEditor, params: any) {
 
     editor.on("rendernode", ({ el, node, component, bindSocket, bindControl }) => {
-        node._react = createNode(editor, { el, node, component, bindSocket, bindControl });
+        node.reactContext = createNode(editor, { el, node, component, bindSocket, bindControl });
     });
 
     editor.on("rendercontrol", ({ el, control }) => {
-        control._react = createControl(editor, { el, control });
+        control.reactContext = createControl(editor, { el, control });
     });
 
     editor.on('connectioncreated connectionremoved', connection => {
-
+        update(connection.output.node);
+        update(connection.input.node);
     });
 
     editor.on('nodeselected', () => {
-        
+        editor.nodes.map(update);
     });
 }
 

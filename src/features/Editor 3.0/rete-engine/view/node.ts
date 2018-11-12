@@ -36,7 +36,7 @@ export class Node extends Emitter {
         this.trigger('rendernode', {
             el: this.el, 
             node, 
-            component: component.data, 
+            component: component, 
             bindSocket: this.bindSocket.bind(this),
             bindControl: this.bindControl.bind(this)
         });

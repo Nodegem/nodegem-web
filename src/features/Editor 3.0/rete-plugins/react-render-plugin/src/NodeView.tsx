@@ -2,72 +2,26 @@ import * as React from "react";
 import { Node } from "src/features/Editor 3.0/rete-engine/node";
 import "./Node.less";
 import SocketView from "./SocketView";
+import GenericControlView from "./GenericControlView";
+import classNames from "classnames";
+import { NodeEditor } from "src/features/Editor 3.0/rete-engine/editor";
 
-// const InputList = ({
-//     flowInputs,
-//     valueInputs
-// }: {
-//     flowInputs: Array<InputFlowPort>;
-//     valueInputs: Array<InputValuePort>;
-// }) => {
-//     return (
-//         <div className="inputs">
-//             <ul className="flows">
-//                 {flowInputs.map(x => (
-//                     <li className="port" key={x.uniqueId}>
-//                         <InputFlowPortView port={x} />
-//                     </li>
-//                 ))}
-//             </ul>
-//             <ul className="values">
-//                 {valueInputs.map(x => (
-//                     <li className="port" key={x.uniqueId}>
-//                         <InputValuePortView port={x} />
-//                     </li>
-//                 ))}
-//             </ul>
-//         </div>
-//     );
-// };
-
-// const OutputList = ({
-//     flowOutputs,
-//     valueOutputs
-// }: {
-//     flowOutputs: Array<OutputFlowPort>;
-//     valueOutputs: Array<OutputValuePort>;
-// }) => {
-//     return (
-//         <div className="outputs">
-//             <ul className="flows">
-//                 {flowOutputs.map(x => (
-//                     <li className="port" key={x.uniqueId}>
-//                         <OutputFlowPortView port={x} />
-//                     </li>
-//                 ))}
-//             </ul>
-//             <ul className="values">
-//                 {valueOutputs.map(x => (
-//                     <li className="port" key={x.uniqueId}>
-//                         <OutputValuePortView port={x} />
-//                     </li>
-//                 ))}
-//             </ul>
-//         </div>
-//     );
-// };
-
-type NodeViewProps = { node: Node; component: any, bindSocket: Function; bindControl: Function };
+type NodeViewProps = { node: Node, editor: NodeEditor, title: string, bindSocket: Function; bindControl: Function };
 export default class NodeView extends React.Component<NodeViewProps> {
 
     public render() {
-        const { node, bindSocket, component, bindControl } = this.props;
+        const { node, editor, bindSocket, title, bindControl } = this.props;
         const { inputs, outputs } = node;
 
+        const nodeClasses = classNames({
+            "node": true,
+            "selected": editor.selected.contains(node)
+        })
+
         return (
-            <div className="node">
+            <div className={nodeClasses}>
                 <div className="header">
-                    <span className="title">{component.title}</span>
+                    <span className="title">{title}</span>
                 </div>
                 <div className="content">
                     {
@@ -82,7 +36,7 @@ export default class NodeView extends React.Component<NodeViewProps> {
                                             io={x}
                                             type="input"
                                         />
-                                        <span>{x.name}</span>
+                                        { (x.control && x.showControl()) ? <GenericControlView bindControl={bindControl} control={x.control} /> : <span>{x.name}</span> }
                                     </div>
                                 )
                             })
