@@ -5,10 +5,10 @@ export const transformGraph = (nodes: Array<Node>, links: Array<LinkOptions>) : 
     return {
         nodes: nodes.filter(n => links.some(l => l.source.node === n || l.destination.node === n))
             .map(x => 
-            ({ id: x.id, type: x.type, fieldData: x.getInputPortValues() })
+            ({ id: x.id, namespace: x.type, fieldData: x.getInputPortValues() })
         ),
-        connections: links.map(x => 
-            ({ source: x.source.node.id, sourceKey: x.source.port.key, destination: x.destination.node.id, destinationKey: x.destination.port.key })
+        links: links.map(x => 
+            ({ sourceNode: x.source.node.id, sourceKey: x.source.port.key, destinationNode: x.destination.node.id, destinationKey: x.destination.port.key })
         )
     }
 }
