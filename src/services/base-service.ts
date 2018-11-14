@@ -1,9 +1,12 @@
 import axios, { AxiosResponse, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { userStore } from '../stores/user-store';
 
+const baseUrl = process.env.REACT_APP_API_BASE_URL;
+const apiTimeout = parseInt(process.env.REACT_APP_API_TIMEOUT || "3000");
+
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:5000/api/",
-    timeout: 3000
+    baseURL: baseUrl,
+    timeout: apiTimeout
 });
 
 abstract class BaseService {

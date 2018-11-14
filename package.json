@@ -26,7 +26,7 @@
     "react-dom": "^16.4.1",
     "react-hotkeys": "^1.1.4",
     "react-router-dom": "^4.3.1",
-    "react-scripts-ts-antd": "2.15.1",
+    "react-scripts-ts-antd": "^2.17.0",
     "rete-area-plugin": "^0.2.0",
     "rete-connection-plugin": "^0.2.1",
     "rete-context-menu-plugin": "^0.1.4",
