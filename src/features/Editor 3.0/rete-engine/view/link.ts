@@ -1,17 +1,17 @@
 import { Emitter } from '../core/emitter';
 import { Node as ViewNode } from './node';
-import { Connection as ConnectionData } from '../connection';
+import { Link as LinkData } from '../link';
 
-export class Connection extends Emitter {
+export class Link extends Emitter {
 
-    connection: ConnectionData;
+    link: LinkData;
     inputNode: ViewNode;
     outputNode: ViewNode;
     el: HTMLElement;
 
-    constructor(connection: ConnectionData, inputNode: ViewNode, outputNode: ViewNode, emitter: Emitter) {
+    constructor(link: LinkData, inputNode: ViewNode, outputNode: ViewNode, emitter: Emitter) {
         super(emitter);
-        this.connection = connection;
+        this.link = link;
         this.inputNode = inputNode;
         this.outputNode = outputNode;
 
@@ -19,24 +19,24 @@ export class Connection extends Emitter {
         this.el.style.position = 'absolute';
         this.el.style.zIndex = '-1';
 
-        this.trigger('renderconnection', { 
+        this.trigger('renderlink', { 
             el: this.el, 
-            connection: this.connection, 
+            link: this.link, 
             points: this.getPoints()
         });
     }
 
     getPoints() {
-        const [x1, y1] = this.outputNode.getSocketPosition(this.connection.output);
-        const [x2, y2] = this.inputNode.getSocketPosition(this.connection.input);
+        const [x1, y1] = this.outputNode.getSocketPosition(this.link.output);
+        const [x2, y2] = this.inputNode.getSocketPosition(this.link.input);
 
         return [x1, y1, x2, y2];
     }
 
     update() {
-        this.trigger('updateconnection', { 
+        this.trigger('updatelink', { 
             el: this.el, 
-            connection: this.connection, 
+            link: this.link, 
             points: this.getPoints()
         });
     }

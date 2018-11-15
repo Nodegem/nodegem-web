@@ -1,17 +1,18 @@
 import { Component } from './component';
-import { Connection } from './connection';
+import { Link, LinkImportExport } from './link';
 import { Context } from './core/context';
 import { EditorEvents } from './events';
 import { EditorView } from './view/index';
 import { Input } from './input';
-import { Node } from './node';
+import { Node, NodeImportExport } from './node';
 import { Output } from './output';
 import { Selected } from './selected';
-import { Validator } from './core/validator';
 
+export type EditorImportExport = { nodes: NodeImportExport[], links: LinkImportExport[] }
 export class NodeEditor extends Context {
 
     nodes: Array<Node>;
+    links: Array<Link>;
     components: Map<string, Component>;
 
     selected: Selected;
@@ -45,7 +46,7 @@ export class NodeEditor extends Context {
     removeNode(node: Node) {
         if (!this.trigger('noderemove', node)) return;
 
-        node.getConnections().forEach(c => this.removeConnection(c));
+        node.getLinks().forEach(c => this.removeLink(c));
 
         this.nodes.splice(this.nodes.indexOf(node), 1);
         this.view.removeNode(node);
@@ -54,27 +55,27 @@ export class NodeEditor extends Context {
     }
 
     connect(output: Output, input: Input, data = {}) {
-        if (!this.trigger('connectioncreate', { output, input })) return;
+        if (!this.trigger('linkcreate', { output, input })) return;
 
         try {
-            const connection = output.connectTo(input);
+            const link = output.connectTo(input);
 
-            connection.data = data;
-            this.view.addConnection(connection);
+            link.data = data;
+            this.view.addLink(link);
 
-            this.trigger('connectioncreated', connection);
+            this.trigger('linkcreated', link);
         } catch (e) {
             this.trigger('warn', e)
         }
     }
 
-    removeConnection(connection: Connection) {
-        if (!this.trigger('connectionremove', connection)) return;
+    removeLink(link: Link) {
+        if (!this.trigger('linkremove', link)) return;
             
-        this.view.removeConnection(connection);
-        connection.remove();
+        this.view.removeLink(link);
+        link.remove();
 
-        this.trigger('connectionremoved', connection);
+        this.trigger('linkremoved', link);
     }
 
     selectNode(node: Node, accumulate: boolean = false) {
@@ -107,21 +108,20 @@ export class NodeEditor extends Context {
         [...this.nodes].map(node => this.removeNode(node));
     }
 
-    toJSON() {
-        const data = { id: this.id, nodes: {} };
-        
-        this.nodes.forEach(node => data.nodes[node.id] = node.toJSON());
-        this.trigger('export', data);
-        return data;
+    toJSON() : EditorImportExport {
+        let editorExport = { nodes: [], links: [] };
+
+        this.trigger('export', editorExport);
+        return editorExport;
     }
 
     beforeImport(json: Object) {
-        var checking = Validator.validate(this.id, json);
+        // var checking = Validator.validate(this.id, json);
         
-        if (!checking.success) {
-            this.trigger('warn', checking.msg);
-            return false;
-        }
+        // if (!checking.success) {
+        //     this.trigger('warn', checking.msg);
+        //     return false;
+        // }
         
         this.silent = true;
         this.clear();
@@ -147,24 +147,26 @@ export class NodeEditor extends Context {
                 this.addNode(nodes[id]);
             }));
         
-            Object.keys(json.nodes).forEach(id => {
-                var jsonNode = json.nodes[id];
-                var node = nodes[id];
+            // Object.keys(json.nodes).forEach(id => {
+            //     var jsonNode = json.nodes[id];
+            //     var node = nodes[id];
+            //     console.log(node, jsonNode);
                 
-                Object.keys(jsonNode.outputs).forEach(key => {
-                    var outputJson = jsonNode.outputs[key];
-
-                    outputJson.connections.forEach(jsonConnection => {
-                        var nodeId = jsonConnection.node;
-                        var data = jsonConnection.data;
-                        var targetOutput = node.outputs.get(key);
-                        var targetInput = nodes[nodeId].inputs.get(jsonConnection.input);
-
-                        this.connect(targetOutput, targetInput, data);
-                    });
-                });
-
-            });
+            //     if(jsonNode.outputs) {
+            //         Object.keys(jsonNode.outputs).forEach(key => {
+            //             var outputJson = jsonNode.outputs[key];
+    
+            //             outputJson.connections.forEach(jsonConnection => {
+            //                 var nodeId = jsonConnection.node;
+            //                 var data = jsonConnection.data;
+            //                 var targetOutput = node.outputs.get(key);
+            //                 var targetInput = nodes[nodeId].inputs.get(jsonConnection.input);
+    
+            //                 this.connect(targetOutput, targetInput, data);
+            //             });
+            //         });
+            //     }
+            // });
         }
         catch (e) {
             this.trigger('warn', e);

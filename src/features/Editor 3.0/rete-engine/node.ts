@@ -3,6 +3,7 @@ import { Input } from './input';
 import { Output } from './output';
 import { uuid } from 'lodash-uuid';
 
+export type NodeImportExport = { id: string, name: string, position: [number, number] }
 export class Node {
 
     public data: any;
@@ -51,7 +52,7 @@ export class Node {
     }
 
     removeInput(input: Input) {
-        input.removeConnections();
+        input.removeLinks();
         input.node = null;
 
         this.inputs.delete(input.key);
@@ -68,19 +69,19 @@ export class Node {
     }
 
     removeOutput(output: Output) {
-        output.removeConnections();
+        output.removeLinks();
         output.node = null;
 
         this.outputs.delete(output.key);
     }
 
-    getConnections() {
+    getLinks() {
         const ios = [...Array.from(this.inputs.values()), ...Array.from(this.outputs.values())];
-        const connections = ios.reduce((arr, io) => {
-            return [...arr, ...io.connections];
+        const links = ios.reduce((arr, io) => {
+            return [...arr, ...io.links];
         }, []);
     
-        return connections;
+        return links;
     }
 
     toJSON() {

@@ -1,4 +1,4 @@
-import { Connection } from './connection';
+import { Link } from './link';
 import { Control } from './control';
 import { IO } from './io';
 import { Socket } from './socket';
@@ -12,14 +12,14 @@ export class Input extends IO {
         this.control = null;
     }
 
-    public hasConnection() {
-        return this.connections.length > 0;
+    public hasLink() {
+        return this.links.length > 0;
     }
 
-    public addConnection(connection: Connection) {
-        if (!this.multipleConnections && this.hasConnection())
-            throw new Error('Multiple connections not allowed');
-        this.connections.push(connection);
+    public addLink(link: Link) {
+        if (!this.multipleLinks && this.hasLink())
+            throw new Error('Multiple links not allowed');
+        this.links.push(link);
     }
 
     public addControl(control: Control) {
@@ -28,12 +28,12 @@ export class Input extends IO {
     }
 
     public showControl() {
-        return !this.hasConnection() && this.control !== null;
+        return !this.hasLink() && this.control !== null;
     }
 
     public toJSON() {
         return {
-            connections: this.connections.map(c => {
+            links: this.links.map(c => {
                 return {
                     node: c!.output!.node!.id,
                     output: c.output.key,

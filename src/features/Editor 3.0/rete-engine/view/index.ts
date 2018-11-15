@@ -1,8 +1,8 @@
 import { Area as AreaView } from './area';
-import { Connection } from '../connection';
+import { Link } from '../link';
 import { Emitter } from '../core/emitter';
 import { Node } from '../node';
-import { Connection as ConnectionView } from './connection';
+import { Link as LinkView } from './link';
 import { Node as NodeView } from './node';
 import { Socket as SocketView } from './socket';
 import { Control as ControlView } from './control';
@@ -15,7 +15,7 @@ class EditorView extends Emitter {
     components: any;
     emitter: Emitter;
     nodes: Map<Node, NodeView>;
-    connections: Map<Connection, ConnectionView>;
+    links: Map<Link, LinkView>;
     area: AreaView;
 
     constructor(container: HTMLElement, components: any, emitter: Emitter) {
@@ -27,13 +27,13 @@ class EditorView extends Emitter {
         this.container.style.overflow = 'hidden';
 
         this.nodes = new Map();
-        this.connections = new Map();
+        this.links = new Map();
 
         this.container.addEventListener('click', this.click.bind(this));
         this.container.addEventListener('contextmenu', e => this.trigger('contextmenu', { e, view: this }));
         window.addEventListener('resize', this.resize.bind(this));
 
-        this.on('nodetranslated', this.updateConnections.bind(this));
+        this.on('nodetranslated', this.updateLinks.bind(this));
             
         this.area = new AreaView(container, this);
         this.container.appendChild(this.area.el);
@@ -53,25 +53,25 @@ class EditorView extends Emitter {
         this.area.removeChild(nodeView.el);
     }
 
-    addConnection(connection: Connection) {
-        const viewInput = this.nodes.get(connection.input.node!)!;
-        const viewOutput = this.nodes.get(connection.output.node!)!;
-        const connView = new ConnectionView(connection, viewInput, viewOutput, this);
+    addLink(link: Link) {
+        const viewInput = this.nodes.get(link.input.node!)!;
+        const viewOutput = this.nodes.get(link.output.node!)!;
+        const connView = new LinkView(link, viewInput, viewOutput, this);
 
-        this.connections.set(connection, connView);
+        this.links.set(link, connView);
         this.area.appendChild(connView.el);
     }
 
-    removeConnection(connection: Connection) {
-        const connView = this.connections.get(connection)!;
+    removeLink(link: Link) {
+        const connView = this.links.get(link)!;
 
-        this.connections.delete(connection);
+        this.links.delete(link);
         this.area.removeChild(connView.el);
     }
 
-    updateConnections({ node }) {
-        node.getConnections().map(conn => {
-            this.connections.get(conn)!.update();
+    updateLinks({ node }) {
+        node.getLinks().map(conn => {
+            this.links.get(conn)!.update();
         });
     }
 
@@ -96,7 +96,7 @@ export {
     NodeView,
     SocketView,
     ControlView,
-    ConnectionView,
+    LinkView,
     Drag,
     Zoom
 }

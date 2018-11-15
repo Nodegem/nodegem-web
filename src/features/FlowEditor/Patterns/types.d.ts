@@ -1,1 +1,0 @@
-type Pattern = { pattern: JSX.Element, patternId: string }

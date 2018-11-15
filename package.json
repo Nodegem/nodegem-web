@@ -28,7 +28,6 @@
     "react-router-dom": "^4.3.1",
     "react-scripts-ts-antd": "2.15.1",
     "rete-area-plugin": "^0.2.0",
-    "rete-connection-plugin": "^0.2.1",
     "rete-context-menu-plugin": "^0.1.4",
     "shortid": "^2.2.13",
     "xterm": "^3.7.0"

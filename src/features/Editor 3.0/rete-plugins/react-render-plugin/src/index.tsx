@@ -35,9 +35,9 @@ function install(editor: NodeEditor, params: any) {
         control.reactContext = createControl(editor, { el, control });
     });
 
-    editor.on('connectioncreated connectionremoved', connection => {
-        update(connection.output.node);
-        update(connection.input.node);
+    editor.on('linkcreated linkremoved', link => {
+        update(link.output.node);
+        update(link.input.node);
     });
 
     editor.on('nodeselected', () => {

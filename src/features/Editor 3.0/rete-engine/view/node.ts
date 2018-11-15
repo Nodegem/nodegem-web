@@ -84,7 +84,7 @@ export class Node extends Emitter {
     }
 
     update() {
-        this.el.style.transform = `translate(${this.node.position[0]}px, ${this.node.position[1]}px)`;
+        this.el.style.transform = `translate3d(${this.node.position[0]}px, ${this.node.position[1]}px, 0)`;
     }
 
     remove() {

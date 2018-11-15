@@ -1,4 +1,4 @@
-import { Connection } from './connection';
+import { Link } from './link';
 import { IO } from './io';
 import { Input } from './input';
 import { Socket } from './socket';
@@ -9,33 +9,33 @@ export class Output extends IO {
         super(key, name, socket, multiConns);
     }
     
-    hasConnection() {
-        return this.connections.length > 0;
+    hasLink() {
+        return this.links.length > 0;
     }
 
     connectTo(input: Input) {
         if (!this.socket.compatibleWith(input.socket))
             throw new Error('Sockets not compatible');
-        if (!input.multipleConnections && input.hasConnection())
-            throw new Error('Input already has one connection');
-        if (!this.multipleConnections && this.hasConnection())
-            throw new Error('Output already has one connection');
+        if (!input.multipleLinks && input.hasLink())
+            throw new Error('Input already has one link');
+        if (!this.multipleLinks && this.hasLink())
+            throw new Error('Output already has one link');
 
-        var connection = new Connection(this, input);
+        var link = new Link(this, input);
 
-        this.connections.push(connection);
-        return connection;
+        this.links.push(link);
+        return link;
     }
 
     connectedTo(input: Input) {
-        return this.connections.some((item) => {
+        return this.links.some((item) => {
             return item.input === input;
         });
     }
 
     toJSON() {
         return {
-            connections: this.connections.map(c => {
+            links: this.links.map(c => {
                 return {
                     node: c!.input!.node!.id,
                     input: c.input.key,

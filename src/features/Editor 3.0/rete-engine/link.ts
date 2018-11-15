@@ -1,7 +1,8 @@
 import { Input } from './input';
 import { Output } from './output';
 
-export class Connection {
+export type LinkImportExport = { };
+export class Link {
 
     public input: Input;
     public output: Output;
@@ -12,11 +13,11 @@ export class Connection {
         this.input = input;
         this.data = {};
 
-        this.input.addConnection(this);
+        this.input.addLink(this);
     }
 
     remove() {
-        this.input.removeConnection(this);
-        this.output.removeConnection(this);
+        this.input.removeLink(this);
+        this.output.removeLink(this);
     }
 }
