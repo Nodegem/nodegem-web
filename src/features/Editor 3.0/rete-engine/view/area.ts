@@ -34,7 +34,7 @@ export class Area extends Emitter {
     update() {
         const t = this.transform;
 
-        this.el.style.transform = `translate3d(${t.x}px, ${t.y}px, 0) scale(${t.k})`;
+        this.el.style.transform = `translate(${t.x}px, ${t.y}px) scale(${t.k})`;
     }
 
     mousemove(e) {
