@@ -53,7 +53,7 @@ export class Engine extends Context {
 
     extractInputNodes(node, nodes) : any[] {
         return Object.keys(node.inputs).reduce((a, key) => {
-            return [...a, ...(node.inputs[key].connections || []).reduce((b, c) => [...b, nodes[c.node]], [])]
+            return [...a, ...(node.inputs[key].links || []).reduce((b, c) => [...b, nodes[c.node]], [])]
         }, []);
     }
 
@@ -142,8 +142,8 @@ export class Engine extends Context {
 
         for (let key of Object.keys(node.inputs)) {
             let input = node.inputs[key];
-            var conns = input.connections;
-            let connData = await Promise.all(conns.map(async (c) => {
+            var links = input.links;
+            let linkData = await Promise.all(links.map(async (c) => {
                 const prevNode = this.data.nodes[c.node];
 
                 let outputs = await this.processNode(prevNode);
@@ -154,7 +154,7 @@ export class Engine extends Context {
                     return outputs[c.output];
             }));
 
-            obj[key] = connData;
+            obj[key] = linkData;
         }
 
         return obj;
@@ -196,7 +196,7 @@ export class Engine extends Context {
         return await Promise.all(Object.keys(node.outputs).map(async (key) => {
             const output = node.outputs[key];
 
-            return await Promise.all(output.connections.map(async (c) => {
+            return await Promise.all(output.links.map(async (c) => {
                 const nextNode = this.data.nodes[c.node];
 
                 await this.processNode(nextNode);
@@ -216,10 +216,10 @@ export class Engine extends Context {
     }
 
     async validate(data) {
-        var checking = Validator.validate(this.id, data);
+        // var checking = Validator.validate(this.id, data);
 
-        if (!checking.success)
-            return await this.throwError(checking.msg);  
+        // if (!checking.success)
+        //     return await this.throwError(checking.msg);  
         
         var recurentNodes = this.detectRecursions(data.nodes);
 

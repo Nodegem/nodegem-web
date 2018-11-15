@@ -1,9 +1,9 @@
 interface RunGraphData {
     nodes: Array<RunNodeData>;
-    links: Array<RunConnectionData>;
+    links: Array<RunLinkData>;
 }
 
-interface RunConnectionData {
+interface RunLinkData {
     sourceNode: string;
     sourceKey: string;
     destinationNode: string;

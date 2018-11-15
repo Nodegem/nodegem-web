@@ -1,12 +1,12 @@
-import { Connection } from './connection';
+import { Link } from './link';
 import { Socket } from './socket';
 import { Node } from './node';
 
 export class IO {
 
     public node: Node | null;
-    public multipleConnections: boolean;
-    public connections: Connection[];
+    public multipleLinks: boolean;
+    public links: Link[];
 
     public socket: Socket;
     
@@ -15,19 +15,19 @@ export class IO {
 
     constructor(key: string, name: string, socket: Socket, multiConns: boolean) {
 	    this.node = null;
-        this.multipleConnections = multiConns;
-        this.connections = [];
+        this.multipleLinks = multiConns;
+        this.links = [];
 	   
         this.key = key;
         this.name = name;
         this.socket = socket;
     }
     
-    removeConnection(connection: Connection) {
-        this.connections.splice(this.connections.indexOf(connection), 1);
+    removeLink(link: Link) {
+        this.links.splice(this.links.indexOf(link), 1);
     }
 
-    removeConnections() {
-        this.connections.map(connection => this.removeConnection(connection));
+    removeLinks() {
+        this.links.map(link => this.removeLink(link));
     }
 }
