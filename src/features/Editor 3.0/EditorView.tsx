@@ -1,15 +1,9 @@
 import * as React from "react";
 import { observer } from "mobx-react";
 import { NodeEditor } from "./rete-engine/editor";
-import AreaPlugin from 'rete-area-plugin';
 import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ContextMenuPlugin from 'rete-context-menu-plugin';
 import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
-import { Output } from "./rete-engine/output";
-import { Input } from "./rete-engine/input";
-import { Socket } from "./rete-engine/socket";
-import { Component } from "./rete-engine/component";
-import { Control } from "./rete-engine/control";
 
 import "./EditorView.less";
 import { GenericComponent } from "./generic-component";
