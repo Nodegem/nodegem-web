@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Input } from "antd";
 
-type NumControlProps = { name: string, controlKey: string, getData: Function, putData: Function }
+type NumControlProps = { name: string, controlKey: string, getData: (key: string) => void, putData: (key: string, value: any) => void }
 class NumControl extends React.Component<NumControlProps> {
 
     private handleChange = (e) => {

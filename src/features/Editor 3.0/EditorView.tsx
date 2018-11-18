@@ -1,6 +1,6 @@
 import * as React from "react";
 import { observer } from "mobx-react";
-import { NodeEditor } from "./rete-engine/editor";
+import { NodeEditor, EditorImportExport } from "./rete-engine/editor";
 import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ContextMenuPlugin from 'rete-context-menu-plugin';
 import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
@@ -9,43 +9,31 @@ import "./EditorView.less";
 import { GenericComponent } from "./generic-component";
 import { utilsService } from "./services/utils-service";
 import { Node } from "./rete-engine/node";
+import { LinkImportExport } from "./rete-engine/link";
 
-const json = 
+const json : EditorImportExport = 
 {
-    "id": "main-editor@0.0.1",
-    "nodes": {
-        "23e83110b-b1ce-4f93-8fdb-cc61eecb7022": {
-            "id": "23e83110b-b1ce-4f93-8fdb-cc61eecb7022",
-            "position": [300, 200],
-            "inputs": {
-                "in": {
-                    "connections": [{
-                        "node": "21f1d466-c6c0-417a-8238-3fc9371af63e",
-                        "output": "start"
-                    }]
-                }
-            },
-            "name": "Core.Util.Log"
+    id: "main-editor@0.0.1",
+    nodes: [
+        {
+            id: "21f1d466-c6c0-417a-8238-3fc9371af63e",
+            position: [20, 200],
+            namespace: "Core.Control.Start"
         },
-        "21f1d466-c6c0-417a-8238-3fc9371af63e": {
-            "id": "21f1d466-c6c0-417a-8238-3fc9371af63e",
-            "position": [20, 200],
-            "outputs": {
-                "start": {
-                    "connections": [{
-                        "node": "23e83110b-b1ce-4f93-8fdb-cc61eecb7022",
-                        "input": "in"
-                    }]
-                }
-            },
-            "name": "Core.Control.Start"
+        {
+            id: "23e83110b-b1ce-4f93-8fdb-cc61eecb7022",
+            position: [300, 200],
+            namespace: "Core.Util.Log"
         }
-    }
-}
-
-const convertEditorJson = (nodes: Node[]) => {
-    const links = nodes.map(x => x.getLinks());
-    console.log(links);
+    ],
+    links: [
+        {
+            sourceNode: "21f1d466-c6c0-417a-8238-3fc9371af63e",
+            sourceKey: "start",
+            destinationNode: "23e83110b-b1ce-4f93-8fdb-cc61eecb7022",
+            destinationKey: "in"
+        }
+    ]
 }
 
 @observer
@@ -76,7 +64,7 @@ class EditorView extends React.Component {
 
         this.nodeEditor.view.resize();
 
-        window.addEventListener("keydown", e => convertEditorJson(this.nodeEditor.nodes));
+        // window.addEventListener("keydown", e => console.log(this.nodeEditor.toJSON()));
         // AreaPlugin.zoomAt(this.nodeEditor);
     }
 

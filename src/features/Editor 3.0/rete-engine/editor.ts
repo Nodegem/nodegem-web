@@ -8,7 +8,7 @@ import { Node, NodeImportExport } from './node';
 import { Output } from './output';
 import { Selected } from './selected';
 
-export type EditorImportExport = { nodes: NodeImportExport[], links: LinkImportExport[] }
+export type EditorImportExport = { id: string, nodes: NodeImportExport[], links: LinkImportExport[] }
 export class NodeEditor extends Context {
 
     nodes: Array<Node>;
@@ -21,6 +21,7 @@ export class NodeEditor extends Context {
     constructor(id: string, container: HTMLElement) {
         super(id, new EditorEvents());
         
+        this.links = [];
         this.nodes = [];
         this.components = new Map();
 
@@ -62,6 +63,7 @@ export class NodeEditor extends Context {
 
             link.data = data;
             this.view.addLink(link);
+            this.links.push(link);
 
             this.trigger('linkcreated', link);
         } catch (e) {
@@ -73,6 +75,7 @@ export class NodeEditor extends Context {
         if (!this.trigger('linkremove', link)) return;
             
         this.view.removeLink(link);
+        this.links.removeItem(link);
         link.remove();
 
         this.trigger('linkremoved', link);
@@ -109,7 +112,11 @@ export class NodeEditor extends Context {
     }
 
     toJSON() : EditorImportExport {
-        let editorExport = { nodes: [], links: [] };
+        const editorExport = { 
+            id: this.id, 
+            nodes: this.nodes.map(x => x.toJSON()), 
+            links: this.links.map(x => x.toJson()) 
+        };
 
         this.trigger('export', editorExport);
         return editorExport;
@@ -134,39 +141,32 @@ export class NodeEditor extends Context {
         return true;
     }
 
-    async fromJSON(json: any) {
+    async fromJSON(json: EditorImportExport) {
         if (!this.beforeImport(json)) return false;
-        let nodes = {};
+        let nodes : Map<string, Node> = new Map();
 
         try {
-            await Promise.all(Object.keys(json.nodes).map(async id => {
-                const node = json.nodes[id];
-                const component = this.getComponent(node.name);
+            await Promise.all(json.nodes.map(async node => {
+                const component = this.getComponent(node.namespace);
+                const newNode = await component.build(Node.fromJSON(node));
 
-                nodes[id] = await component.build(Node.fromJSON(node));
-                this.addNode(nodes[id]);
+                nodes.set(newNode.id, newNode);
+                this.addNode(newNode);
             }));
-        
-            // Object.keys(json.nodes).forEach(id => {
-            //     var jsonNode = json.nodes[id];
-            //     var node = nodes[id];
-            //     console.log(node, jsonNode);
-                
-            //     if(jsonNode.outputs) {
-            //         Object.keys(jsonNode.outputs).forEach(key => {
-            //             var outputJson = jsonNode.outputs[key];
-    
-            //             outputJson.connections.forEach(jsonConnection => {
-            //                 var nodeId = jsonConnection.node;
-            //                 var data = jsonConnection.data;
-            //                 var targetOutput = node.outputs.get(key);
-            //                 var targetInput = nodes[nodeId].inputs.get(jsonConnection.input);
-    
-            //                 this.connect(targetOutput, targetInput, data);
-            //             });
-            //         });
-            //     }
-            // });
+
+            json.links.map(link => {
+                const sourceNode = nodes.get(link.sourceNode);
+                const destinationNode = nodes.get(link.destinationNode);
+
+                if(sourceNode && destinationNode) {
+                    const output = sourceNode.outputs.get(link.sourceKey);
+                    const input = destinationNode.inputs.get(link.destinationKey);
+
+                    if(output && input) {
+                        this.connect(output, input);
+                    }
+                }
+            });
         }
         catch (e) {
             this.trigger('warn', e);

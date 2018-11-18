@@ -2,28 +2,6 @@ import { BaseService } from "../../../services/base-service";
 
 class GraphService extends BaseService {
 
-    public getNodeDefinitions = async () : Promise<Array<NodeDefinition>> => {
-        try {
-            const response = await this.get<Array<NodeDefinition>>("utils/nodes/all");
-            return response.data;
-        } catch(err) {
-            // throw new Error("Error: " + err);
-            return Promise.resolve([]);
-
-        }
-    }
-
-    public runGraph = async (data: RunGraphData) : Promise<any> => {
-        try {
-            const response = await this.post("graph", data);
-            return response.data;
-        } catch(err) {
-            // throw new Error("Error: " + err);
-            return Promise.resolve({} as GraphData);
-
-        }
-    }
-
     public newGraph = async (data: SaveGraphData) : Promise<GraphData> => {
         try {
             const response = await this.post<GraphData>("graph/new", data);

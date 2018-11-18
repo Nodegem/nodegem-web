@@ -3,10 +3,11 @@ import { Input } from './input';
 import { Output } from './output';
 import { uuid } from 'lodash-uuid';
 
-export type NodeImportExport = { id: string, name: string, position: [number, number] }
+export type NodeKeyValueData = { key: string, value: any };
+export type NodeImportExport = { id: string, namespace: string, position: [number, number], fieldData?: Array<NodeKeyValueData> }
 export class Node {
 
-    public data: any;
+    public data: Array<NodeKeyValueData>;
     public meta: any;
     public name: string;
     public id: string;
@@ -24,7 +25,7 @@ export class Node {
         this.inputs = new Map();
         this.outputs = new Map();
         this.controls = new Map();
-        this.data = {};
+        this.data = [];
         this.meta = {};
     }
 
@@ -84,24 +85,24 @@ export class Node {
         return links;
     }
 
-    toJSON() {
+    toJSON() : NodeImportExport {
         return {
             id: this.id,
-            data: this.data,
-            inputs: Array.from(this.inputs).reduce((obj, [key, input]) => (obj[key] = input.toJSON(), obj), {}),
-            outputs: Array.from(this.outputs).reduce((obj, [key, output]) => (obj[key] = output.toJSON(), obj), {}),
+            fieldData: Object.keys(this.data).map(x => ({
+                key: x,
+                value: this.data[x]
+            })),
             position: this.position,
-            name: this.name
+            namespace: this.name
         }
     }
 
-    static fromJSON(json: any) {
-        const node = new Node(json.name);
+    static fromJSON(json: NodeImportExport) {
+        const node = new Node(json.namespace);
 
         node.id = json.id;
-        node.data = json.data;
+        node.data = json.fieldData || [];
         node.position = json.position;
-        node.name = json.name;
 
         return node;
     }

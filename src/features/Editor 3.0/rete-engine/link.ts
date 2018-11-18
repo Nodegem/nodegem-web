@@ -1,7 +1,7 @@
 import { Input } from './input';
 import { Output } from './output';
 
-export type LinkImportExport = { };
+export type LinkImportExport = { sourceNode: string, sourceKey: string, destinationNode: string, destinationKey: string };
 export class Link {
 
     public input: Input;
@@ -14,6 +14,15 @@ export class Link {
         this.data = {};
 
         this.input.addLink(this);
+    }
+
+    toJson() : LinkImportExport {
+        return {
+            sourceNode: this.output.node!.id,
+            sourceKey: this.output.key,
+            destinationNode: this.input.node!.id,
+            destinationKey: this.input.key
+        };
     }
 
     remove() {
