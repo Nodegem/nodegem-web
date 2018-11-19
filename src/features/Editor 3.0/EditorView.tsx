@@ -10,27 +10,31 @@ import { GenericComponent } from "./generic-component";
 import { utilsService } from "./services/utils-service";
 import { Node } from "./rete-engine/node";
 import { LinkImportExport } from "./rete-engine/link";
+import { graphService } from "./services/graph-service";
+import { startConnectionToGraphHub, run } from "./hubs/graph-hub";
+import { startListeningToTerminalHub, subscribeToTerminal } from "./hubs/terminal-hub";
+import { transformGraph } from "./services/data-transform/run-graph";
 
 const json : EditorImportExport = 
 {
     id: "main-editor@0.0.1",
     nodes: [
         {
-            id: "21f1d466-c6c0-417a-8238-3fc9371af63e",
+            id: "8d5995d2-0163-4e02-b32b-943391f092fe",
             position: [20, 200],
             namespace: "Core.Control.Start"
         },
         {
-            id: "23e83110b-b1ce-4f93-8fdb-cc61eecb7022",
+            id: "3af4047b-a1d2-414a-8a80-e5b4962778b7",
             position: [300, 200],
             namespace: "Core.Util.Log"
         }
     ],
     links: [
         {
-            sourceNode: "21f1d466-c6c0-417a-8238-3fc9371af63e",
+            sourceNode: "8d5995d2-0163-4e02-b32b-943391f092fe",
             sourceKey: "start",
-            destinationNode: "23e83110b-b1ce-4f93-8fdb-cc61eecb7022",
+            destinationNode: "3af4047b-a1d2-414a-8a80-e5b4962778b7",
             destinationKey: "in"
         }
     ]
@@ -42,6 +46,10 @@ class EditorView extends React.Component {
     private nodeEditor: NodeEditor;
 
     public componentDidMount() {
+        startConnectionToGraphHub(() => {});
+        startListeningToTerminalHub(() => {});
+        subscribeToTerminal(a => console.log(a));
+
         const container = document.querySelector("#editor-container") as HTMLElement;
         this.nodeEditor = new NodeEditor("main-editor@0.0.1", container);
 
@@ -64,7 +72,12 @@ class EditorView extends React.Component {
 
         this.nodeEditor.view.resize();
 
-        // window.addEventListener("keydown", e => console.log(this.nodeEditor.toJSON()));
+        window.addEventListener("keydown", e => {
+            if(e.altKey && e.keyCode == 13) {
+                const graphData = this.nodeEditor.toJSON();
+                run(transformGraph("d4a88dda-bc6a-4d14-992a-3aa1e199b92c", graphData.nodes, graphData.links));
+            }
+        });
         // AreaPlugin.zoomAt(this.nodeEditor);
     }
 

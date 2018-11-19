@@ -1,4 +1,5 @@
 interface RunGraphData {
+    id: string;
     nodes: Array<RunNodeData>;
     links: Array<RunLinkData>;
 }
@@ -13,7 +14,7 @@ interface RunLinkData {
 interface RunNodeData {
     id: string;
     namespace: string;
-    fieldData: Array<RunFieldData>;
+    fieldData?: Array<RunFieldData>;
 }
 
 interface RunFieldData {

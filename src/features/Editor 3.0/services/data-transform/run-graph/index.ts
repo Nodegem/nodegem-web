@@ -1,14 +1,20 @@
-// import { LinkOptions } from "../../../Link";
-// import { Node } from "../../../Node";
+import { LinkImportExport } from './../../../rete-engine/link';
+import { NodeImportExport } from "src/features/Editor 3.0/rete-engine/node";
 
-// export const transformGraph = (nodes: Array<Node>, links: Array<LinkOptions>) : RunGraphData => {
-//     return {
-//         nodes: nodes.filter(n => links.some(l => l.source.node === n || l.destination.node === n))
-//             .map(x => 
-//             ({ id: x.id, namespace: x.type, fieldData: x.getInputPortValues() })
-//         ),
-//         links: links.map(x => 
-//             ({ sourceNode: x.source.node.id, sourceKey: x.source.port.key, destinationNode: x.destination.node.id, destinationKey: x.destination.port.key })
-//         )
-//     }
-// }
+export const transformGraph = (id: string, nodes: Array<NodeImportExport>, links: Array<LinkImportExport>) : RunGraphData => {
+    return {
+        id: id,
+        nodes: nodes.reduce((prev, cur) => {
+            prev.push({
+                id: cur.id,
+                namespace: cur.namespace,
+                fieldData: cur.fieldData
+            } as RunNodeData);
+            return prev;
+        }, [] as Array<RunNodeData>),
+        links: links.reduce((prev, cur) => {
+            prev.push(cur);
+            return prev;
+        }, [] as Array<RunLinkData>)
+    }
+}
