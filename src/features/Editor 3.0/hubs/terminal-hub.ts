@@ -1,8 +1,10 @@
 import { SimpleObservable, SimpleObservableAction } from './utils/simple-observable';
 import * as signalR from '@aspnet/signalr';
 
+const baseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+
 const terminalHubConnection = new signalR.HubConnectionBuilder()
-    .withUrl("http://localhost:5000/terminalHub")
+    .withUrl(`${baseUrl}/terminalHub`)
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
