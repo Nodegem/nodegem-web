@@ -1,6 +1,6 @@
 import { Emitter } from './rete-engine/core/emitter';
 import { Control } from "./rete-engine/control";
-import { NumControl } from "./ControlViews";
+import { ReteControlView } from './rete-react-controls/ControlViews';
 
 export class GenericControl extends Control {
 
@@ -13,11 +13,12 @@ export class GenericControl extends Control {
 
         this.props = {
             name: name,
-            controlKey: key
+            controlKey: key,
+            defaultValue: defaultValue
         };
 
         this.emitter = emitter;
-        this.reactComponent = NumControl;
+        this.reactComponent = ReteControlView;
     }
 
 }

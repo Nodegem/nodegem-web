@@ -2,61 +2,38 @@
 
     cursor: pointer;
     user-select: none;
-    background: #1E5188;
-    border-radius: 5px;
     min-width: 140px;
-    -webkit-box-shadow: 4px 7px 5px 0px rgba(0,0,0,0.5);
-    -moz-box-shadow: 4px 7px 5px 0px rgba(0,0,0,0.5);
-    box-shadow: 4px 5px 7px 0px rgba(0,0,0,0.5);
 
     .header {
 
         color: rgb(245, 245, 245);
         padding: 3px 10px;
         justify-content: left;
-        border-bottom: 1px solid black;
 
         .title {
             font-weight: bold;
             text-transform: capitalize;
-            font-size: 15px;
+            font-size: 17px;
         }
     }
 
     .content {
-        flex: 1;
-        flex-direction: row;
-        display: flex;
-    }
+        color: white;
 
-    .outputs {
-        width: auto;
-        align-items: flex-end;
-        padding-left: 5px;
-    }
-
-    .label-input {
-
-        .control-container {
-            margin-left: 18px;
+        ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
         }
 
-        .socket {
-            float: left;
+        li > * {
+            display: inline-block;
         }
-    }
 
-    .label-output {
-        text-align: right;
-        .socket {
-            float: right;
+        .outputs {
+            text-align: right;
         }
-    }
 
-    /*
-    .label-input, .label-output {
-        width: 100%;
     }
-    */
 
 }

@@ -53,6 +53,11 @@ class EditorView extends React.Component {
         const container = document.querySelector("#editor-container") as HTMLElement;
         this.nodeEditor = new NodeEditor("main-editor@0.0.1", container);
 
+        const areaViewContainer = document.querySelector(".area-view-container") as HTMLDivElement;
+        const background = document.createElement('div');
+        background.setAttribute("class", "background flow-background");
+        areaViewContainer.appendChild(background);
+
         this.nodeEditor.use(ReactRenderPlugin);
         this.nodeEditor.use(ContextMenuPlugin);
         this.nodeEditor.use(ReteLinkPlugin);
@@ -83,9 +88,7 @@ class EditorView extends React.Component {
 
     public render() {
         return (
-            <div id="editor-container">
-                <div className="background" />
-            </div>
+            <div id="editor-container" />
         )
     }
 

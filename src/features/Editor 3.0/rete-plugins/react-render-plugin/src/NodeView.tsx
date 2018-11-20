@@ -24,37 +24,37 @@ export default class NodeView extends React.Component<NodeViewProps> {
                     <span className="title">{title}</span>
                 </div>
                 <div className="content">
-                    <div className="inputs">
-                    {
-                        Array.from(inputs.values()).map(x => {
-                            return (
-                                <div className="label-input" key={x.key}>
-                                    <SocketView
-                                        bindSocket={bindSocket}
-                                        io={x}
-                                        type="input"
-                                    />
-                                    { (x.control && x.showControl()) ? <GenericControlView bindControl={bindControl} control={x.control} /> : <span className="control-label">{x.name}</span> }
-                                </div>
-                            )
-                        })
-                    }
-                    </div>
-                    <div className="outputs">
+                    <ul className="outputs">
                     {
                         Array.from(outputs.values()).map(x => (
-                            <div className="label-output" key={x.key}>
-                                <span>{x.name}</span>
+                            <li className="field output" key={x.key}>
+                                <span className="field-label">{x.name}</span>
                                 <SocketView
                                     key={x.key}
                                     bindSocket={bindSocket}
                                     io={x}
                                     type="output"
                                 />
-                            </div>
+                            </li>
                         ))
                     }
-                    </div>
+                    </ul>
+                    <ul className="inputs">
+                    {
+                        Array.from(inputs.values()).map(x => {
+                            return (
+                                <li className="field input" key={x.key}>
+                                    <SocketView
+                                        bindSocket={bindSocket}
+                                        io={x}
+                                        type="input"
+                                    />
+                                    { (x.control && x.showControl()) ? <GenericControlView bindControl={bindControl} control={x.control} /> : <span className="field-label">{x.name}</span> }
+                                </li>
+                            )
+                        })
+                    }
+                    </ul>
                 </div>
             </div>
         );

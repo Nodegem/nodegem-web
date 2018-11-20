@@ -16,6 +16,7 @@ export class Area extends Emitter {
         super(emitter);
         
         const el = this.el = document.createElement('div');
+        el.setAttribute("class", "area-view-container")
 
         this.container = container;
         this.transform = { k: 1, x: 0, y: 0 };
