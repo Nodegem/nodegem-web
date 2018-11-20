@@ -24,43 +24,37 @@ export default class NodeView extends React.Component<NodeViewProps> {
                     <span className="title">{title}</span>
                 </div>
                 <div className="content">
+                    <div className="inputs">
                     {
-                        inputs.size > 0 && 
-                        <div className="inputs">
-                        {
-                            Array.from(inputs.values()).map(x => {
-                                return (
-                                    <div className="label-input" key={x.key}>
-                                        <SocketView
-                                            bindSocket={bindSocket}
-                                            io={x}
-                                            type="input"
-                                        />
-                                        { (x.control && x.showControl()) ? <GenericControlView bindControl={bindControl} control={x.control} /> : <span>{x.name}</span> }
-                                    </div>
-                                )
-                            })
-                        }
-                        </div>
+                        Array.from(inputs.values()).map(x => {
+                            return (
+                                <div className="label-input" key={x.key}>
+                                    <SocketView
+                                        bindSocket={bindSocket}
+                                        io={x}
+                                        type="input"
+                                    />
+                                    { (x.control && x.showControl()) ? <GenericControlView bindControl={bindControl} control={x.control} /> : <span className="control-label">{x.name}</span> }
+                                </div>
+                            )
+                        })
                     }
+                    </div>
+                    <div className="outputs">
                     {
-                        outputs.size > 0 &&
-                        <div className="outputs">
-                        {
-                                Array.from(outputs.values()).map(x => (
-                                    <div className="label-output" key={x.key}>
-                                        <span>{x.name}</span>
-                                        <SocketView
-                                            key={x.key}
-                                            bindSocket={bindSocket}
-                                            io={x}
-                                            type="output"
-                                        />
-                                    </div>
-                                ))
-                        }
-                        </div>
+                        Array.from(outputs.values()).map(x => (
+                            <div className="label-output" key={x.key}>
+                                <span>{x.name}</span>
+                                <SocketView
+                                    key={x.key}
+                                    bindSocket={bindSocket}
+                                    io={x}
+                                    type="output"
+                                />
+                            </div>
+                        ))
                     }
+                    </div>
                 </div>
             </div>
         );

@@ -8,7 +8,7 @@ export class GenericControl extends Control {
     emitter: Emitter;
     props: object;
 
-    constructor(emitter: Emitter, key: string, name: string) {
+    constructor(emitter: Emitter, key: string, name: string, defaultValue: any = null) {
         super(key);
 
         this.props = {

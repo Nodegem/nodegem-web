@@ -33,15 +33,4 @@ export class Output extends IO {
         });
     }
 
-    toJSON() {
-        return {
-            links: this.links.map(c => {
-                return {
-                    node: c!.input!.node!.id,
-                    input: c.input.key,
-                    data: c.data
-                }
-            })
-        };
-    }
 }

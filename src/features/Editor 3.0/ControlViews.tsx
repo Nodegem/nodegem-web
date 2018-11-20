@@ -1,8 +1,13 @@
 import * as React from "react";
 import { Input } from "antd";
 
-type NumControlProps = { name: string, controlKey: string, getData: (key: string) => void, putData: (key: string, value: any) => void }
+type NumControlProps = { name: string, controlKey: string, defaultValue: any, getData: (key: string) => void, putData: (key: string, value: any) => void }
 class NumControl extends React.Component<NumControlProps> {
+
+    componentDidMount() {
+        const { putData, controlKey, defaultValue } = this.props;
+        putData(controlKey, defaultValue);
+    }
 
     private handleChange = (e) => {
         if(e.target) {
@@ -12,7 +17,6 @@ class NumControl extends React.Component<NumControlProps> {
     }
 
     public render() {
-
         const { name } = this.props;
 
         return (

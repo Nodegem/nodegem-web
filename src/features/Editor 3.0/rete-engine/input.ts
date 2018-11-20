@@ -31,15 +31,4 @@ export class Input extends IO {
         return !this.hasLink() && this.control !== null;
     }
 
-    public toJSON() {
-        return {
-            links: this.links.map(c => {
-                return {
-                    node: c!.output!.node!.id,
-                    output: c.output.key,
-                    data: c.data
-                };
-            })
-        };
-    }
 }

@@ -22,20 +22,41 @@
             font-size: 15px;
         }
     }
-    
+
     .content {
-    }
-    
-    .inputs, .outputs {
-        width: 100%;
+        flex: 1;
+        flex-direction: row;
+        display: flex;
     }
 
-    .label-input, .label-output {
-        width: 100%;
+    .outputs {
+        width: auto;
+        align-items: flex-end;
+        padding-left: 5px;
+    }
+
+    .label-input {
+
+        .control-container {
+            margin-left: 18px;
+        }
+
+        .socket {
+            float: left;
+        }
     }
 
     .label-output {
-        justify-content: flex-end;
+        text-align: right;
+        .socket {
+            float: right;
+        }
     }
-    
+
+    /*
+    .label-input, .label-output {
+        width: 100%;
+    }
+    */
+
 }

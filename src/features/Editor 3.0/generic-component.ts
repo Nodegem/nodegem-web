@@ -38,6 +38,8 @@ export class GenericComponent extends Component {
         flowInputs.forEach(x => inputs.push(new Input(x.key, x.label, sockets.flow, false)));
         flowOutputs.forEach(x => outputs.push(new Output(x.key, x.label, sockets.flow, false)));
 
+        console.log(valueInputs);
+
         valueInputs.forEach(x => {
             const input = new Input(x.key, x.label, sockets.value, false);
             input.addControl(new GenericControl(editor, x.key, x.label))

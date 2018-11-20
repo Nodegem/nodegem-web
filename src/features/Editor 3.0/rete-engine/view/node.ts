@@ -56,7 +56,7 @@ export class Node extends Emitter {
         return this.sockets.get(io)!.getPosition(this.node);
     }
 
-    onSelect(e) {        
+    onSelect(e) {
         this._startPosition = [...this.node.position] as [number, number];
         this.trigger('selectnode', { node: this.node, accumulate: e.ctrlKey });
     }
