@@ -1,3 +1,5 @@
+import { isInput } from './../../../../utils/index';
+
 export type DragStartEvent = (e: MouseEvent) => void;
 export type DragTranslateEvent = (x: number, y: number, e: MouseEvent) => void;
 export type DragUpEvent = (e: MouseEvent) => void;
@@ -42,8 +44,7 @@ export class Drag {
     down(e) {
 
         const target = e.target || e.srcElement;
-        if (target.tagName.toUpperCase() === 'INPUT' 
-            || target.tagName.toUpperCase() === "AREA") return;
+        if(isInput(target)) return;
 
         e.stopPropagation();
         this.mouseStart = this.getCoords(e);

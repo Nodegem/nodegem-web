@@ -4,6 +4,7 @@ import { Input } from "./rete-engine/input";
 import { Node } from "./rete-engine/node";
 import { Output } from "./rete-engine/output";
 import { GenericControl } from "./generic-control";
+import { NodeDefinition } from "./services/data-transform/node-definitions/types";
 
 const sockets = {
     flow: new Socket("Flow"),
@@ -40,7 +41,7 @@ export class GenericComponent extends Component {
 
         valueInputs.forEach(x => {
             const input = new Input(x.key, x.label, sockets.value, false);
-            input.addControl(new GenericControl(editor, x.key, x.label, x.defaultValue))
+            input.addControl(new GenericControl(editor, x.key, x.label, x.defaultValue, x.valueType))
             inputs.push(input);
         });
         valueOutputs.forEach(x => outputs.push(new Output(x.key, x.label, sockets.value, true)));

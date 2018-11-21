@@ -1,4 +1,5 @@
 import { BaseService } from "src/services/base-service";
+import { NodeDefinition } from "./data-transform/node-definitions/types";
 
 class UtilsService extends BaseService {
 

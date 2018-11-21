@@ -1,3 +1,4 @@
+import { ValueType } from './../../../value-types';
 interface NodeDefinition {
     namespace: string;
     title: string;
@@ -23,6 +24,7 @@ interface FlowOutputDefinition extends FieldDefinition {
 
 interface ValueInputDefinition extends FieldDefinition {
     defaultValue: any;
+    valueType: ValueType;
 }
 
 interface ValueOutputDefinition extends FieldDefinition {

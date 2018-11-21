@@ -1,3 +1,4 @@
+import { isInput } from './../../../../utils/index';
 export class Zoom {
 
     el: Element;
@@ -68,8 +69,7 @@ export class Zoom {
     dblclick(e) {
 
         const target = e.target || e.srcElement;
-        if (target.tagName.toUpperCase() === 'INPUT' 
-            || target.tagName.toUpperCase() === "AREA") return;
+        if(isInput(target)) return;
 
         e.preventDefault();
         
