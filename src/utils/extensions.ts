@@ -9,7 +9,7 @@ declare global {
 }
 
 Array.prototype.removeItem = function<T>(item: T): Array<T> {
-  return this.filter(x => x !== item);
+  return this.splice(this.indexOf(item), 1);
 };
 
 Array.prototype.empty = function(): boolean {

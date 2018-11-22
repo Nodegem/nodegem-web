@@ -16,6 +16,25 @@
     stroke: @link-color;
 }
 
+.editor-view {
+
+    display: inherit;
+    flex: inherit;
+    flex-direction: inherit;
+    overflow: hidden;
+
+    .editor {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    .ant-tabs-bar {
+        margin-bottom: 5px;
+    }
+}
+
 .node {
 
     -webkit-box-shadow: 4px 7px 5px 0px rgba(0,0,0,0.5);

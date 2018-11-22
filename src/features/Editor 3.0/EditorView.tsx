@@ -14,6 +14,8 @@ import { graphService } from "./services/graph-service";
 import { startConnectionToGraphHub, run } from "./hubs/graph-hub";
 import { startListeningToTerminalHub, subscribeToTerminal } from "./hubs/terminal-hub";
 import { transformGraph } from "./services/data-transform/run-graph";
+import { Tabs } from "antd";
+import { editorStore } from "./stores/editor-store";
 
 const json : EditorImportExport = 
 {
@@ -40,6 +42,15 @@ const json : EditorImportExport =
     ]
 }
 
+const TabPane = Tabs.TabPane;
+
+const applyBackground = () => {
+    const areaViewContainer = document.querySelector(".area-view-container") as HTMLDivElement;
+    const background = document.createElement('div');
+    background.setAttribute("class", "background flow-background");
+    areaViewContainer.appendChild(background);
+}
+
 @observer
 class EditorView extends React.Component {
 
@@ -50,13 +61,10 @@ class EditorView extends React.Component {
         startListeningToTerminalHub(() => {});
         subscribeToTerminal(a => console.log(a));
 
-        const container = document.querySelector("#editor-container") as HTMLElement;
+        const container = document.querySelector(".editor") as HTMLElement;
         this.nodeEditor = new NodeEditor("main-editor@0.0.1", container);
 
-        const areaViewContainer = document.querySelector(".area-view-container") as HTMLDivElement;
-        const background = document.createElement('div');
-        background.setAttribute("class", "background flow-background");
-        areaViewContainer.appendChild(background);
+        applyBackground();
 
         this.nodeEditor.use(ReactRenderPlugin);
         this.nodeEditor.use(ContextMenuPlugin);
@@ -80,15 +88,50 @@ class EditorView extends React.Component {
         window.addEventListener("keydown", e => {
             if(e.altKey && e.keyCode == 13) {
                 const graphData = this.nodeEditor.toJSON();
+                console.log(graphData);
                 run(transformGraph("d4a88dda-bc6a-4d14-992a-3aa1e199b92c", graphData.nodes, graphData.links));
             }
         });
-        // AreaPlugin.zoomAt(this.nodeEditor);
+    }
+
+    private onTabChange = (key) => {
+        console.log(key);
+    }
+
+    private onTabAdd = () => {
+
+    }
+
+    private onTabRemove = (key) => {
+
     }
 
     public render() {
+
+        const { tabs } = editorStore;
+
         return (
-            <div id="editor-container" />
+            <div className="editor-view">
+                <Tabs
+                    type="editable-card"
+                    onChange={this.onTabChange}
+                >
+                    {
+                        Object.keys(tabs).map(x => {
+                            const tab = tabs[x];
+                            return (
+                                <TabPane
+                                    key={x}
+                                    tab={tab.title}
+                                    closable={tab.closable}
+                                >
+                                    <div className="editor" id={`editor-${x}`} />
+                                </TabPane>
+                            )
+                        }) 
+                    }
+                </Tabs>
+            </div>
         )
     }
 

@@ -7,7 +7,7 @@ import LoginView from './features/Account/Login/LoginFormView';
 import RegisterView from './features/Account/Register/RegisterFormView';
 import history from './utils/history';
 
-import './App.scss';
+import './App.less';
 import { EditorView } from './features/Editor 3.0/EditorView';
 
 const { Content } = Layout;

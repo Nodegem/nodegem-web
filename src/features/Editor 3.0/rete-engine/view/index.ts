@@ -78,8 +78,7 @@ class EditorView extends Emitter {
     resize() {
         const { container } = this;
 
-        container.style.width = 100 + '%';
-        container.style.height = 100 + '%';
+        container.style.width = '100%';
     }
 
     click(e) {

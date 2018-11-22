@@ -49,7 +49,7 @@ export class NodeEditor extends Context {
 
         node.getLinks().forEach(c => this.removeLink(c));
 
-        this.nodes.splice(this.nodes.indexOf(node), 1);
+        this.nodes.removeItem(node);
         this.view.removeNode(node);
 
         this.trigger('noderemoved', node);

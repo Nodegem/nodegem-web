@@ -2,6 +2,7 @@ import { userStore } from './user-store';
 import { appStore } from './app-store';
 import { ignore } from 'mobx-sync';
 import { observable } from 'mobx';
+import { editorStore } from 'src/features/Editor 3.0/stores/editor-store';
 
 export class RootStore {
 
@@ -9,7 +10,7 @@ export class RootStore {
     @observable
     isLoaded: boolean = false;
     
-    editor: any = { nodes: [], links: [] };
+    editor = editorStore;
     app = appStore;
     user = userStore;
 
