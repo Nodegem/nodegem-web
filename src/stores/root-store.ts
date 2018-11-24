@@ -2,7 +2,7 @@ import { userStore } from './user-store';
 import { appStore } from './app-store';
 import { ignore } from 'mobx-sync';
 import { observable } from 'mobx';
-import { editorStore } from 'src/features/Editor 3.0/stores/editor-store';
+import { editorStore } from 'src/features/Editor/stores/editor-store';
 
 export class RootStore {
 

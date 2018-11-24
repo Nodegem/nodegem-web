@@ -8,17 +8,10 @@ import RegisterView from './features/Account/Register/RegisterFormView';
 import history from './utils/history';
 
 import './App.less';
-import { EditorView } from './features/Editor 3.0/EditorView';
+import EditorView from './features/Editor/EditorView';
+import DashboardView from './features/Dashboard/DashboardView';
 
 const { Content } = Layout;
-
-const FakeDashboard = () => <></>;
-// const EditorPage = () => <FlowEditor />;
-
-const LoginPage = () => <LoginView />;
-const RegisterPage = () => <RegisterView />;
-
-const NewEditorPage = () => <EditorView />;
 
 class App extends React.PureComponent {
 
@@ -31,12 +24,11 @@ class App extends React.PureComponent {
                 <Sider />
                 <Content className="app-layout-content" >
                   <Switch>
-                    <Route path="/login" component={LoginPage} />
-                    <Route path="/register" component={RegisterPage} />
-                    <Route path="/forgot-password" component={RegisterPage} />
-                    <Route path="/editor" component={NewEditorPage} />
-                    <ProtectedRoute exact path="/" component={FakeDashboard} />
-                    {/* <ProtectedRoute path="/editor-old" component={EditorPage} /> */}
+                    <Route path="/login" component={LoginView} />
+                    <Route path="/register" component={RegisterView} />
+                    <Route path="/forgot-password" component={RegisterView} />
+                    <Route path="/editor" component={EditorView} />
+                    <ProtectedRoute exact path="/" component={DashboardView} />
                   </Switch>
                 </Content>
               </Layout>

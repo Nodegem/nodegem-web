@@ -33,19 +33,19 @@ abstract class BaseService {
         };
     }
 
-    protected get = <T>(url: string, params = {}, headers = {}) : Promise<AxiosResponse<T>> => {
+    protected get<T>(url: string, params = {}, headers = {}) : Promise<AxiosResponse<T>> {
         return axiosInstance.get(url, this.createRequestConfig(params, headers));
     }
 
-    protected post = <T>(url: string, data: any, params = {}, headers = {}) : Promise<AxiosResponse<T>> => {
+    protected post<T>(url: string, data: any, params = {}, headers = {}) : Promise<AxiosResponse<T>> {
         return axiosInstance.post(url, data, this.createRequestConfig(params ,headers));
     }
 
-    protected put = <T>(url: string, data: any, params = {}, headers = {}) : Promise<AxiosResponse<T>> => {
+    protected put<T>(url: string, data: any, params = {}, headers = {}) : Promise<AxiosResponse<T>> {
         return axiosInstance.put(url, data, this.createRequestConfig(params ,headers));
     }
 
-    protected delete = <T>(url: string, params = {}, headers = {}) : Promise<AxiosResponse<T>> => {
+    protected delete<T>(url: string, params = {}, headers = {}) : Promise<AxiosResponse<T>> {
         return axiosInstance.delete(url, this.createRequestConfig(params ,headers))
     }
 
