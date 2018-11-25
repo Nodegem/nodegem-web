@@ -1,4 +1,4 @@
-import { BaseService } from "../../../services/base-service";
+import { BaseService } from "../base-service";
 
 class GraphService extends BaseService {
 
@@ -20,6 +20,15 @@ class GraphService extends BaseService {
         } catch(err) {
             //  throw new Error("Error: " + err);
             return Promise.resolve({} as GraphData);
+        }
+    }
+
+    public async getAllGraphs() : Promise<Array<GraphData>> {
+        try {
+            const response = await this.get<Array<GraphData>>("graph/all");
+            return response.data;
+        } catch(err) {
+            return Promise.resolve([]);
         }
     }
 

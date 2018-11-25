@@ -2,7 +2,7 @@ import * as React from "react";
 import { Input, Tooltip, Modal, InputNumber } from "antd";
 
 import './ControlViews.less';
-import { ValueType } from "../value-types";
+import { ValueType } from "../../../services/graph/value-types";
 import { TextAreaModal } from "./TextAreaModal";
 import { NumericInput } from "./NumericInput";
 

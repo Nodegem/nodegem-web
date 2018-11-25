@@ -89,10 +89,13 @@ class EditorView extends React.Component {
 
     private keyDown = (e) => {
         if(e.altKey && e.keyCode == 13) {
-            const graphData = this.nodeEditor.toJSON();
+            const graphData = transformGraph(this.nodeEditor.toJSON());
             console.log(graphData);
-            this.flowGraphHub
-                .runGraph(transformGraph(graphData));
+
+            if(!graphData.links.empty() || !graphData.nodes.empty()) {
+                this.flowGraphHub
+                    .runGraph(graphData);
+            }
         }
     }
 

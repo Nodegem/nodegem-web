@@ -1,4 +1,5 @@
-import { ValueType } from './../../../value-types';
+import { ValueType } from "../value-types";
+
 interface NodeDefinition {
     namespace: string;
     title: string;
