@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Input, Tooltip, Modal, InputNumber } from "antd";
+import { Input, Tooltip, Modal, InputNumber, Checkbox, Switch } from "antd";
 
 import './ControlViews.less';
 import { ValueType } from "../../../services/graph/value-types";
@@ -51,6 +51,9 @@ class ReteControlView extends React.Component<ReteControlProps, { value: any }> 
         const { value } = this.state;
 
         switch(valueType) {
+
+            case ValueType.Boolean: 
+                return <Switch onChange={this.handleValueChange} checked={value} />
 
             case ValueType.Number:
                 return <NumericInput onChange={this.handleValueChange} onBlur={this.handleBlur} size="small" placeholder={name} value={value} />

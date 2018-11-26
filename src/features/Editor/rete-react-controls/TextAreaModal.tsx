@@ -27,13 +27,25 @@ class TextAreaModal extends React.Component<TextAreaModalProps, { isOpen: boolea
         this.setState({ isOpen: true, value: value });
     }
 
-    private handleOk = () => {
+    private closeModal = () => {
         this.setState({ isOpen: false });
+    }
+
+    private handleOk = () => {
+        this.closeModal();
         this.props.onChange(this.state.value);
     }
 
     private handleCancel = () => {
-        this.setState({ isOpen: false });
+        this.closeModal();
+    }
+
+    private handleKeyPress = (e: React.KeyboardEvent) => {
+        const ctrlHeld = e.ctrlKey || e.metaKey;
+        if(ctrlHeld && e.which === 13) {
+            this.closeModal();
+            this.props.onChange(this.state.value);
+        }
     }
 
     public render() {
@@ -44,16 +56,16 @@ class TextAreaModal extends React.Component<TextAreaModalProps, { isOpen: boolea
         return (
             <div>
                 <Button size="small" type="primary" onClick={this.showModal}>
-                    Edit Text
+                    { `Edit ${label}` }
                 </Button>
                 <Modal
-                    title={title}
+                    title={`Edit ${label}`}
                     visible={isOpen}
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     centered
                 >
-                    <TextArea onChange={this.handleChange} placeholder={label} value={this.state.value} rows={6} cols={6} />
+                    <TextArea onChange={this.handleChange} placeholder={label} value={this.state.value} rows={6} cols={6} onKeyPress={this.handleKeyPress} />
                 </Modal>
             </div>
         );

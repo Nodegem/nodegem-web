@@ -55,7 +55,7 @@ class EditorView extends React.Component {
     private flowGraphHub: FlowGraphHub = new FlowGraphHub();
     private terminalHub: TerminalHub = new TerminalHub();
 
-    public componentDidMount() {
+    public async componentDidMount() {
 
         this.terminalHub.start();
         this.flowGraphHub.start();
@@ -69,26 +69,23 @@ class EditorView extends React.Component {
         this.nodeEditor.use(ContextMenuPlugin);
         this.nodeEditor.use(ReteLinkPlugin);
 
-        utilsService.getNodeDefinitions()
-            .then(definitions => {
-                definitions.reduce((pV, cV) => {
-                    pV.push(new GenericComponent(cV));
-                    return pV;
-                }, [] as GenericComponent[])
-                .map(x => {
-                    this.nodeEditor.register(x)
-                })
-        
-                this.nodeEditor.fromJSON(json)
-            });
+        const definitions = await utilsService.getNodeDefinitions()
 
+        definitions.reduce((pV, cV) => {
+            pV.push(new GenericComponent(cV));
+            return pV;
+        }, [] as GenericComponent[])
+        .forEach(x => {
+            this.nodeEditor.register(x)
+        })
+
+        this.nodeEditor.fromJSON(json)
         this.nodeEditor.view.resize();
-
         window.addEventListener("keydown", this.keyDown);
     }
 
     private keyDown = (e) => {
-        if(e.altKey && e.keyCode == 13) {
+        if(e.altKey && e.keyCode === 13) {
             const graphData = transformGraph(this.nodeEditor.toJSON());
             console.log(graphData);
 
