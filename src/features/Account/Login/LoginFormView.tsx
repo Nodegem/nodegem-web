@@ -49,12 +49,15 @@ class LoginForm extends React.Component<FormComponentProps & RouteComponentProps
                     const newLocation = location.state && location.state.from ? location.state.from.pathname : "/";
                     this.props.history.push(newLocation)
                 } catch(err) {
-                    const response = err.response as AxiosResponse;
-
-                    if(response.status === 400 || response.status === 401) {
-                        this.showErrorNotification("Invalid username or password.")
+                    if(err && err.response as AxiosResponse) {
+                        const response = err.response as AxiosResponse;
+                        if(response.status === 400 || response.status === 401) {
+                            this.showErrorNotification("Invalid username or password.")
+                        } else {
+                            this.showErrorNotification("An unknown error has occurred.")
+                        }
                     } else {
-                        this.showErrorNotification("An unknown error has occurred.")
+                        this.showErrorNotification("Unable to connect to service.")
                     }
                 }
             }
