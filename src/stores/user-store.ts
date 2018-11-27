@@ -20,7 +20,6 @@ class UserStore {
     }
 
     public setRememberMe = action((value: boolean) => {
-        console.log(value);
         this.rememberMe = value;
     })
 

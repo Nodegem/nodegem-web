@@ -1,6 +1,6 @@
 import * as React from "react";
 import { withRouter, RouteComponentProps } from "react-router";
-import { Form, Input, Icon, Button, Checkbox, Card } from "antd";
+import { Form, Input, Icon, Button, Checkbox, Card, notification, message } from "antd";
 import FormItem from "antd/lib/form/FormItem";
 import { FormComponentProps } from "antd/lib/form/Form";
 
@@ -10,6 +10,8 @@ import { userStore } from "../../../stores/user-store";
 import { observer } from "mobx-react";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
+import { AxiosResponse } from "axios";
+import { displayErrorNotification } from "src/utils/notification-helper";
 
 interface LoginFormData {
     username: string;
@@ -28,24 +30,33 @@ class LoginForm extends React.Component<FormComponentProps & RouteComponentProps
         this.setState({ showPassword: !this.state.showPassword });
     }
 
+    private showErrorNotification = (description: string) => {
+        displayErrorNotification("Unable to login", description);
+    }
+
     private handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         const { form } = this.props;
-        form.validateFields((err, values: LoginFormData) => {
+        form.validateFields(async (err, values: LoginFormData) => {
             if(!err) {
-                loginService.login(values)
-                .then(data => {
-                    userStore.setToken(data.token);
-                    userStore.setUserData(data.user);
-
+                try {
+                    const loginData = await loginService.login(values);
+                    userStore.setToken(loginData.token);
+                    userStore.setUserData(loginData.user);
+    
                     const { location } = this.props;
                     const newLocation = location.state && location.state.from ? location.state.from.pathname : "/";
                     this.props.history.push(newLocation)
-                }).catch(reason => {
-                    console.log(reason);
-                });
-                return;
+                } catch(err) {
+                    const response = err.response as AxiosResponse;
+
+                    if(response.status === 400 || response.status === 401) {
+                        this.showErrorNotification("Invalid username or password.")
+                    } else {
+                        this.showErrorNotification("An unknown error has occurred.")
+                    }
+                }
             }
 
             userStore.setRememberMe(values.remember);

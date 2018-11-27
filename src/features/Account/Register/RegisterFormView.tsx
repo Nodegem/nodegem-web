@@ -10,6 +10,14 @@ import classNames from 'classnames';
 import { registerService } from './register-service';
 import { userStore } from '../../../stores/user-store';
 import history from '../../../utils/history';
+import { AxiosResponse } from 'axios';
+import { displayErrorNotification } from 'src/utils/notification-helper';
+import { Link } from 'react-router-dom';
+
+enum RegisterErrorCode {
+    DuplicateUserName = "DuplicateUserName",
+    DuplicateEmail = "DuplicateEmail"
+}
 
 interface RegisterFormState {
     isDirty: boolean;
@@ -36,42 +44,68 @@ class RegisterForm extends React.Component<FormComponentProps & RouteComponentPr
     private submitForm = (e: React.FormEvent) => {
 
         e.preventDefault();
-        this.props.form.validateFields((err, values) => {
+        this.props.form.validateFields(async (err, values) => {
             if(!err) {
-                registerService.registerUser({ userName: values.username, email: values.email,
-                    password: values.password, firstName: values.firstName, lastName: values.lastName })
-                    .then(data => {
-                        userStore.setToken(data.token);
-                        userStore.setUserData(data.user)
-                        history.push("/");
-                    }).catch(reason => {
-                        console.log(reason);
-                    });
+
+                try {
+                    const registerResult = await registerService.registerUser(values);
+                    userStore.setToken(registerResult.token);
+                    userStore.setUserData(registerResult.user)
+                    history.push("/");
+                } catch(err) {
+                    const response = err.response as AxiosResponse;
+                    if(response.status === 400) {
+                        const data = response.data.reduce((prev, cur) => {
+                            prev.push(cur.code);
+                            return prev;
+                        }, []);
+
+                        if(data.includes(RegisterErrorCode.DuplicateUserName) || data.includes(RegisterErrorCode.DuplicateEmail)) {
+                            this.showErrorNotification("Username and/or email already taken.");
+                        } else {
+                            this.showErrorNotification("Something went wrong during registration.");
+                        }
+                    } else {
+                        this.showErrorNotification("Unable to register users at this time.")
+                    }
+                }
             }
         });
     }
 
+    private showErrorNotification = (description: string) => {
+        displayErrorNotification("Unable to register", description);
+    }
+
+    private validatePassword = (password: string) : boolean => {
+        const passwordRegex = new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$");
+        return passwordRegex.test(password);
+    }
+
     private validateWithConfirm = (rule, value, callback) => {
         const form = this.props.form;
+
+        if(!this.validatePassword(value)) {
+            callback("Password must contain at least one lowercase, uppercase, number and special character")
+            return;
+        }
+
         if(value && this.state.isDirty) {
-            form.validateFields(['confirmPassword'], () => {})
+            form.validateFields(['confirmPassword'], { force: true })
         }
         callback();
     }
 
     private validateWithOriginal = (rule, value, callback) => {
         const form = this.props.form;
-        if(value && value !== form.getFieldValue('password')) {
-            callback("Two passwords that you entered are not the same.");
+
+        if(!this.validatePassword(value)) {
+            callback("Password must contain at least one lowercase, uppercase, number and special character")
             return;
         }
-        callback();
-    }
-    
 
-    private validateUsername = (rule, value, callback) => {
-        if(value && value.length < 6) {
-            callback("Username is too short. (min length: 6)")
+        if(value && value !== form.getFieldValue('password')) {
+            callback("Two passwords that you entered are not the same.");
             return;
         }
         callback();
@@ -98,7 +132,7 @@ class RegisterForm extends React.Component<FormComponentProps & RouteComponentPr
             <Form onSubmit={this.submitForm} className="register-form">
                 <FormItem label="Username" hasFeedback>
                     {getFieldDecorator('username', {
-                        rules: [{ required: true, message: "Please input a username."}, { validator: this.validateUsername }]
+                        rules: [{ required: true, message: "Please input a username."}, { min: 6, message: "Username must be at least 6 characters" }]
                     })(
                         <Input prefix={<Icon type="user" style={iconStyle} />} placeholder="Username" />
                     )}
@@ -123,21 +157,26 @@ class RegisterForm extends React.Component<FormComponentProps & RouteComponentPr
                         <Input placeholder="Last Name" />
                     )}
                 </FormItem>
-                <FormItem label="Password" hasFeedback>
+                <FormItem label="Password" hasFeedback required>
                     {getFieldDecorator('password', {
-                        rules: [{ required: true, message: "Please input a password."}, { min: 8, validator: this.validateWithConfirm }]
+                        rules: [{ min: 8, validator: this.validateWithConfirm }]
                     })(
                         <Input prefix={<Icon type={lockIconString} className={lockClass} onClick={this.onLockClick} />} type={passwordType} placeholder="Password" />
                     )}
                 </FormItem>
-                <FormItem label="Confirm Password" hasFeedback>
+                <FormItem label="Confirm Password" hasFeedback required>
                     {getFieldDecorator('confirmPassword', {
-                        rules: [{ required: true, message: "Please input confirm password."}, { min: 8, validator: this.validateWithOriginal }]
+                        rules: [{ min: 8, validator: this.validateWithOriginal }]
                     })(
                         <Input prefix={<Icon type={lockIconString} className={lockClass} onClick={this.onLockClick} />} onBlur={this.handleBlur} type={passwordType} placeholder="Confirm Password" />
                     )}
                 </FormItem>
                 <Button type="primary" htmlType="submit" className="register-form-button">Register</Button>
+                <br />
+                <br />
+                <span>
+                    <Link to="/login">&#8592; Back to login</Link>
+                </span>
             </Form>
         );
     }
