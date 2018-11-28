@@ -17,36 +17,77 @@ abstract class BaseService {
         this.instance = axiosInstance;
     }
 
-    private getToken = (originalHeaders: any = {}) => {
-        const headers = {...this.instance.defaults.headers, ...originalHeaders};
+    private getTokenHeaders = () => {
+        const headers = {...this.instance.defaults.headers};
         if(userStore.isAuthenticated) {
-            return {...headers, "Authorization": `Bearer ${userStore.token}`};
+            return {...headers, Authorization: `Bearer ${userStore.token}`, RefreshToken: userStore.refreshToken};
         }
 
         return headers;
     }
-
+    
     private createRequestConfig = (params = {}, headers = {}) : AxiosRequestConfig => {
         return {
             params: params,
-            headers: this.getToken(headers)
+            headers: this.getTokenHeaders()
         };
     }
 
-    protected get<T>(url: string, params = {}, headers = {}) : Promise<AxiosResponse<T>> {
-        return axiosInstance.get(url, this.createRequestConfig(params, headers));
+    protected async get<T>(url: string, params = {}) : Promise<AxiosResponse<T>> {
+        return await this.instance.get(url, this.createRequestConfig(params));
     }
 
-    protected post<T>(url: string, data: any, params = {}, headers = {}) : Promise<AxiosResponse<T>> {
-        return axiosInstance.post(url, data, this.createRequestConfig(params ,headers));
+    protected async getWithCredentials<T>(url: string, params = {}) : Promise<AxiosResponse<T>> {
+        return await this.fetchWithCredentials(() => this.get(url, params));
     }
 
-    protected put<T>(url: string, data: any, params = {}, headers = {}) : Promise<AxiosResponse<T>> {
-        return axiosInstance.put(url, data, this.createRequestConfig(params ,headers));
+    protected async post<T>(url: string, data: any, params = {}) : Promise<AxiosResponse<T>> {
+        return await this.instance.post(url, data, this.createRequestConfig(params));
     }
 
-    protected delete<T>(url: string, params = {}, headers = {}) : Promise<AxiosResponse<T>> {
-        return axiosInstance.delete(url, this.createRequestConfig(params ,headers))
+    protected async postWithCredentials<T>(url: string, data: any, params = {}) : Promise<AxiosResponse<T>> {
+        return await this.fetchWithCredentials(() => this.post(url, data, params));
+    }
+
+    protected async put<T>(url: string, data: any, params = {}) : Promise<AxiosResponse<T>> {
+        return await this.instance.put(url, data, this.createRequestConfig(params));
+    }
+
+    protected async delete<T>(url: string, params = {}) : Promise<AxiosResponse<T>> {
+        return await this.instance.delete(url, this.createRequestConfig(params))
+    }
+
+    private async fetchWithCredentials(call: () => Promise<AxiosResponse<any>>) : Promise<any> {
+        let response = await call();
+
+        console.log(response);
+
+        if(response.status === 200) {
+            return response;
+        }
+
+        if(response.status === 401 && response.headers.has("Token-Expired")) {
+
+            let refreshTokenResponse = await this.refreshToken(userStore.token!, userStore.refreshToken!);
+            if(refreshTokenResponse.status !== 200) {
+                return response;
+            }
+
+            console.log(refreshTokenResponse.headers);
+
+            return await call();
+        }
+
+        return response;
+    }
+
+    private async refreshToken(token: string, refreshToken: string) : Promise<AxiosResponse<any>> {
+        return await this.instance.get("account/token/refresh", {
+            headers: {
+                Token: token,
+                RefreshToken: refreshToken
+            }
+        });
     }
 
 }

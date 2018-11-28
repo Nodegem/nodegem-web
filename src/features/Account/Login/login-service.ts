@@ -1,18 +1,20 @@
 import { BaseService } from "../../../services/base-service";
-import { UserData } from "../../../stores/user-store";
+import { UserData, userStore } from "../../../stores/user-store";
 
 class LoginService extends BaseService {
 
-    public login = async (loginDto: LoginDto) : Promise<LoginResponse> => {
+    public async login(loginDto: LoginDto) : Promise<LoginResponse> {
         const response = await this.post<LoginResponse>("account/login", loginDto);
+
+        console.log(response);
+        userStore.setToken(response.headers["token"]);
+        userStore.setRefreshToken(response.headers["refreshtoken"]);
         return response.data;
     }
 
 }
 
-interface LoginResponse {
-    token: string;
-    user: UserData
+interface LoginResponse extends UserData {
 }
 
 export interface LoginDto {

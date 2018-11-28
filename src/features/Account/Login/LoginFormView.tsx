@@ -42,8 +42,7 @@ class LoginForm extends React.Component<FormComponentProps & RouteComponentProps
             if(!err) {
                 try {
                     const loginData = await loginService.login(values);
-                    userStore.setToken(loginData.token);
-                    userStore.setUserData(loginData.user);
+                    userStore.setUserData(loginData);
     
                     const { location } = this.props;
                     const newLocation = location.state && location.state.from ? location.state.from.pathname : "/";

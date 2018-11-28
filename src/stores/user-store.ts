@@ -6,6 +6,9 @@ class UserStore {
     token?: string = "";
 
     @observable
+    refreshToken?: string = "";
+
+    @observable
     userData?: UserData;  
 
     @observable
@@ -16,7 +19,7 @@ class UserStore {
 
     @computed
     public get isAuthenticated() : boolean {
-        return !!this.token;
+        return !!this.token && !!this.refreshToken;
     }
 
     public setRememberMe = action((value: boolean) => {
@@ -33,6 +36,10 @@ class UserStore {
 
     public setToken = action((token: string) => {
         this.token = token;
+    })
+
+    public setRefreshToken = action((token: string) => {
+        this.refreshToken = token;
     })
 
     public logout = action(() => {
