@@ -69,8 +69,7 @@ class EditorView extends React.Component {
         this.nodeEditor.use(ContextMenuPlugin);
         this.nodeEditor.use(ReteLinkPlugin);
 
-        const definitions = await utilsService.getNodeDefinitions()
-
+        const definitions = await utilsService.getNodeDefinitions();
         definitions.reduce((pV, cV) => {
             pV.push(new GenericComponent(cV));
             return pV;

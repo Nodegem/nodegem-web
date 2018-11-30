@@ -1,5 +1,6 @@
 import axios, { AxiosResponse, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { userStore } from '../stores/user-store';
+import history from 'src/utils/history';
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 const apiTimeout = parseInt(process.env.REACT_APP_API_TIMEOUT || "3000");
@@ -57,32 +58,33 @@ abstract class BaseService {
         return await this.instance.delete(url, this.createRequestConfig(params))
     }
 
-    private async fetchWithCredentials(call: () => Promise<AxiosResponse<any>>) : Promise<any> {
-        let response = await call();
+    private async fetchWithCredentials(call: () => Promise<AxiosResponse<any>>) : Promise<AxiosResponse<any>> {
 
-        console.log(response);
+        try {
+            return await call();
+        } catch(err) {
+            const response = err.response as AxiosResponse;
 
-        if(response.status === 200) {
+            if(response.status === 401) {
+
+                const refreshTokenResponse = await this.refreshToken(userStore.token!, userStore.refreshToken!);
+                if(refreshTokenResponse.status !== 200) {
+                    console.log(refreshTokenResponse);
+                    history.push("login");
+                    return response;
+                }
+    
+                return await call();
+            }
+    
+            history.push("login");
             return response;
         }
-
-        if(response.status === 401 && response.headers.has("Token-Expired")) {
-
-            let refreshTokenResponse = await this.refreshToken(userStore.token!, userStore.refreshToken!);
-            if(refreshTokenResponse.status !== 200) {
-                return response;
-            }
-
-            console.log(refreshTokenResponse.headers);
-
-            return await call();
-        }
-
-        return response;
     }
 
     private async refreshToken(token: string, refreshToken: string) : Promise<AxiosResponse<any>> {
         return await this.instance.get("account/token/refresh", {
+            validateStatus: status => status >= 200,
             headers: {
                 Token: token,
                 RefreshToken: refreshToken
