@@ -7,6 +7,7 @@ import { userStore } from "../../stores/user-store";
 import history from "../../utils/history";
 
 import './Sider.scss';
+import { loginService } from "../Account/Login/login-service";
 
 const AntSider = Layout.Sider;
 
@@ -26,8 +27,8 @@ const themeClick = () => {
     appStore.toggleTheme();
 }
 
-const logoutClick = () => {
-    history.push("/");
+const logoutClick = async () => {
+    loginService.logout();
     userStore.logout();
 }
 

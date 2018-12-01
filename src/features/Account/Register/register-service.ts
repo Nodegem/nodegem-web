@@ -1,10 +1,12 @@
 import { BaseService } from "../../../services/base-service";
-import { UserData } from "../../../stores/user-store";
+import { UserData, userStore } from "../../../stores/user-store";
 
 class RegisterService extends BaseService {
 
     public registerUser = async (registerDto: RegisterDto) : Promise<RegisterResponse> => {
         const response = await this.post<RegisterResponse>("account/register", registerDto);
+        const { token, refreshtoken } = response.headers;
+        userStore.setTokens(token, refreshtoken);
         return response.data;
     }
 

@@ -1,6 +1,5 @@
 import axios, { AxiosResponse, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { userStore } from '../stores/user-store';
-import history from 'src/utils/history';
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 const apiTimeout = parseInt(process.env.REACT_APP_API_TIMEOUT || "3000");
@@ -69,20 +68,21 @@ abstract class BaseService {
 
                 const refreshTokenResponse = await this.refreshToken(userStore.token!, userStore.refreshToken!);
                 if(refreshTokenResponse.status !== 200) {
-                    console.log(refreshTokenResponse);
-                    history.push("login");
-                    return response;
+                    userStore.logout();
+                    throw new Error(`Unable to refresh token. Error Status: ${refreshTokenResponse.status}, Message: ${refreshTokenResponse.data}`)
                 }
-    
+                
+                const { accessToken, token } = refreshTokenResponse.data;
+                userStore.setTokens(accessToken, token);
                 return await call();
             }
-    
-            history.push("login");
-            return response;
+
+            userStore.logout();
+            throw new Error(`Unable to refresh token. Error Status: ${response.status}, Message: ${response.data}`)
         }
     }
 
-    private async refreshToken(token: string, refreshToken: string) : Promise<AxiosResponse<any>> {
+    private async refreshToken(token: string, refreshToken: string) : Promise<AxiosResponse<{ accessToken: string, token: string }>> {
         return await this.instance.get("account/token/refresh", {
             validateStatus: status => status >= 200,
             headers: {

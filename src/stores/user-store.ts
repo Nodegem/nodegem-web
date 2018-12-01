@@ -1,4 +1,5 @@
 import { observable, action, computed } from "mobx";
+import history from "src/utils/history";
 
 class UserStore {
 
@@ -34,17 +35,15 @@ class UserStore {
         this.userData = data;
     })
 
-    public setToken = action((token: string) => {
-        this.token = token;
-    })
-
-    public setRefreshToken = action((token: string) => {
-        this.refreshToken = token;
+    public setTokens = action((accessToken: string, refreshToken?: string) => {
+        this.token = accessToken;
+        this.refreshToken = refreshToken;
     })
 
     public logout = action(() => {
         this.token = undefined;
         this.userData = undefined;
+        history.push("/login");
     })
 
 }

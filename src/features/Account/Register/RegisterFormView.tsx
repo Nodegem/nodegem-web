@@ -49,8 +49,7 @@ class RegisterForm extends React.Component<FormComponentProps & RouteComponentPr
 
                 try {
                     const registerResult = await registerService.registerUser(values);
-                    userStore.setToken(registerResult.token);
-                    userStore.setUserData(registerResult.user)
+                    userStore.setUserData(registerResult.user);
                     history.push("/");
                 } catch(err) {
                     const response = err.response as AxiosResponse;
