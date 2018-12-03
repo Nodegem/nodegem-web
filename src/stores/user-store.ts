@@ -1,10 +1,12 @@
 import { observable, action, computed } from "mobx";
 import history from "src/utils/history";
+import { rootStore } from "./root-store";
+import { ignore } from "mobx-sync";
 
 class UserStore {
 
     @observable
-    token?: string = "";
+    accessToken?: string = "";
 
     @observable
     refreshToken?: string = "";
@@ -18,33 +20,54 @@ class UserStore {
     @observable
     rememberedData: RememberedUserData;
 
+    @ignore
+    @observable
+    private lastRefreshTime: Date = new Date();
+
     @computed
-    public get isAuthenticated() : boolean {
-        return !!this.token && !!this.refreshToken;
+    public get shouldRefresh() : boolean {
+        return Math.abs(new Date().getUTCMilliseconds() - this.lastRefreshTime.getUTCMilliseconds()) >= 5000;
     }
 
-    public setRememberMe = action((value: boolean) => {
+    @computed
+    public get isAuthenticated() : boolean {
+        return !!this.accessToken && !!this.refreshToken;
+    }
+
+    @action
+    public setRememberMe = (value: boolean) => {
         this.rememberMe = value;
-    })
+    }
 
-    public setRememberedUserData = action((value: RememberedUserData) => {
+    @action
+    public setRememberedUserData = (value: RememberedUserData) => {
         this.rememberedData = value;
-    })
+    }
 
-    public setUserData = action((data: UserData) => {
+    @action
+    public setUserData = (data: UserData) => {
         this.userData = data;
-    })
+    }
 
-    public setTokens = action((accessToken: string, refreshToken?: string) => {
-        this.token = accessToken;
+    @action
+    public setTokens = (accessToken: string, refreshToken?: string) => {
+        this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-    })
+        this.lastRefreshTime = new Date();
+    }
 
-    public logout = action(() => {
-        this.token = undefined;
+    @action
+    public updateRefreshTime = () => {
+        this.lastRefreshTime = new Date();
+    }
+
+    @action
+    public logout = () => {
+        this.accessToken = undefined;
+        this.refreshToken = undefined;
         this.userData = undefined;
         history.push("/login");
-    })
+    }
 
 }
 

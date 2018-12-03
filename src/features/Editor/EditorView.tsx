@@ -57,17 +57,8 @@ class EditorView extends React.Component {
 
     public async componentDidMount() {
 
-        this.terminalHub.start();
-        this.flowGraphHub.start();
-
         const container = document.querySelector(".editor") as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
-
-        applyBackground();
-
-        this.nodeEditor.use(ReactRenderPlugin);
-        this.nodeEditor.use(ContextMenuPlugin);
-        this.nodeEditor.use(ReteLinkPlugin);
 
         const definitions = await utilsService.getNodeDefinitions();
         definitions.reduce((pV, cV) => {
@@ -77,6 +68,15 @@ class EditorView extends React.Component {
         .forEach(x => {
             this.nodeEditor.register(x)
         })
+
+        await this.terminalHub.start();
+        await this.flowGraphHub.start();
+
+        applyBackground();
+
+        this.nodeEditor.use(ReactRenderPlugin);
+        this.nodeEditor.use(ContextMenuPlugin);
+        this.nodeEditor.use(ReteLinkPlugin);
 
         this.nodeEditor.fromJSON(json)
         this.nodeEditor.view.resize();

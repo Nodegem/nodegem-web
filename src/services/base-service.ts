@@ -1,5 +1,6 @@
 import axios, { AxiosResponse, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { userStore } from '../stores/user-store';
+import { rootStore } from 'src/stores/root-store';
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 const apiTimeout = parseInt(process.env.REACT_APP_API_TIMEOUT || "3000");
@@ -20,7 +21,7 @@ abstract class BaseService {
     private getTokenHeaders = () => {
         const headers = {...this.instance.defaults.headers};
         if(userStore.isAuthenticated) {
-            return {...headers, Authorization: `Bearer ${userStore.token}`, RefreshToken: userStore.refreshToken};
+            return {...headers, Authorization: `Bearer ${userStore.accessToken}`, RefreshToken: userStore.refreshToken};
         }
 
         return headers;
@@ -64,21 +65,29 @@ abstract class BaseService {
         } catch(err) {
             const response = err.response as AxiosResponse;
 
-            if(response.status === 401) {
-
-                const refreshTokenResponse = await this.refreshToken(userStore.token!, userStore.refreshToken!);
-                if(refreshTokenResponse.status !== 200) {
-                    userStore.logout();
-                    throw new Error(`Unable to refresh token. Error Status: ${refreshTokenResponse.status}, Message: ${refreshTokenResponse.data}`)
-                }
-                
-                const { accessToken, token } = refreshTokenResponse.data;
-                userStore.setTokens(accessToken, token);
+            if(response && response.status === 401) {
+                await this.updateTokens(true);
                 return await call();
             }
 
             userStore.logout();
             throw new Error(`Unable to refresh token. Error Status: ${response.status}, Message: ${response.data}`)
+        }
+    }
+
+    protected async updateTokens(forceRefresh: boolean = false) {
+        if(forceRefresh || userStore.shouldRefresh) {
+
+            userStore.updateRefreshTime();
+            const refreshTokenResponse = await this.refreshToken(userStore.accessToken!, userStore.refreshToken!);
+            if(refreshTokenResponse.status !== 200) {
+                userStore.logout();
+                throw new Error(`Unable to refresh token. Error Status: ${refreshTokenResponse.status}, Message: ${refreshTokenResponse.data}`)
+            }
+            
+            const { accessToken, token } = refreshTokenResponse.data;
+            userStore.setTokens(accessToken, token);
+            return Promise.resolve();
         }
     }
 

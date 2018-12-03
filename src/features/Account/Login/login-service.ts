@@ -21,6 +21,10 @@ class LoginService extends BaseService {
         userStore.logout();
     }
 
+    public async refreshTokens() {
+        await this.updateTokens();
+    }
+
 }
 
 export interface LoginDto {

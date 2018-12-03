@@ -1,13 +1,15 @@
+import { loginService } from 'src/features/Account/Login/login-service';
 import { SimpleObservable } from './../utils/simple-observable';
 import * as signalR from '@aspnet/signalr';
 import { getBaseApiUrl } from 'src/utils';
+import { userStore } from 'src/stores/user-store';
 
 abstract class BaseHub {
 
     private connection: signalR.HubConnection;
 
     public onConnected : SimpleObservable;
-    public onDisconnected : SimpleObservable<Error | undefined>;
+    public onDisconnected : SimpleObservable;
     public onException: SimpleObservable<(reason: any) => void>;
 
     private connected: boolean = false;
@@ -19,40 +21,73 @@ abstract class BaseHub {
     constructor(hub: string, logLevel: signalR.LogLevel = signalR.LogLevel.Information) {
 
         this.onConnected = new SimpleObservable();
-        this.onDisconnected = new SimpleObservable<Error | undefined>();
+        this.onDisconnected = new SimpleObservable();
         this.onException = new SimpleObservable<(reason: any) => void>();
 
         const baseUrl = getBaseApiUrl();
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl(`${baseUrl}/${hub}`)
+            .withUrl(`${baseUrl}/${hub}`, {
+                accessTokenFactory: () => { 
+                    console.log(userStore);
+                    return userStore.accessToken || ""
+                }
+            })
             .configureLogging(logLevel)
             .build();
 
-        this.connection.onclose(async err => {
+        this.connection.onclose(async () => {
             this.connected = false;
-            this.onDisconnected.execute(err);
+            this.onDisconnected.execute(undefined);
         })
     }
 
-    protected on(method: string, callback: any) {
-        this.connection.on(method, callback);
-    }
+    protected async on(method: string, callback: any) {
 
-    protected invoke(method: string, data: any) {
-        this.connection.invoke(method, data);
-    }
-
-    public start() {
-        if(!this.connected) {
-            this.connection.start().then(async () => {
-                this.onConnected.execute(undefined); 
-                this.connected = true;
-            }).catch(this.onException.execute);
+        try {
+            await this.connection.on(method, callback);
+        } catch(err) {
+            console.warn(err);
         }
     }
 
-    public disconnect() {
-        this.connection.stop().catch(this.onException.execute);
+    protected async invoke(method: string, data: any) {
+        if(this.isConnected) {
+
+            try {
+                await this.connection.invoke(method, data);
+            } catch(err) {
+                this.connected = false;
+                setTimeout(() => this.start(), 1000);
+                console.warn(err);
+            }
+
+        } else {
+            this.connected = false;
+            setTimeout(() => this.start(), 1000);
+            console.warn("No connection established. Unable to invoke.")
+        }
+    }
+
+    public async start() {
+        if(!this.connected) {
+
+            try {
+                await this.connection.start();
+                this.connected = true;
+                this.onConnected.execute(undefined);
+            } catch(err) {
+                console.warn(err);
+                this.onException.execute(err)
+            }
+        }
+    }
+
+    public async disconnect() {
+        try {
+            await this.connection.stop();
+        } catch(err) {
+            this.onException.execute(err);
+        }
     }
 
     public dispose() {

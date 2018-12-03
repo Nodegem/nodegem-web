@@ -1,4 +1,4 @@
-interface GraphData {
+interface GraphEditorData {
     id: string;
     name: string;
     nodes: Array<NodeData>;
@@ -22,4 +22,13 @@ interface LinkData {
     sourceKey: string;
     destinationNode: string;
     destinationKey: string;
+}
+
+interface Graph {
+    id: string,
+    name: string,
+    description: string,
+    isDeactivated: boolean,
+    lastUpdated: Date,
+    createdOn: Date
 }
