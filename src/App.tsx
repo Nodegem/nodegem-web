@@ -9,7 +9,7 @@ import history from './utils/history';
 
 import './App.less';
 import EditorView from './features/Editor/EditorView';
-import DashboardView from './features/Dashboard/DashboardView';
+import { DashboardView } from './features/Dashboard/DashboardView';
 
 const { Content } = Layout;
 

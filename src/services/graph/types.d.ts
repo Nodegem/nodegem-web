@@ -28,7 +28,11 @@ interface Graph {
     id: string,
     name: string,
     description: string,
-    isDeactivated: boolean,
-    lastUpdated: Date,
-    createdOn: Date
+    isActive: boolean,
+    createdOn: Date,
+    lastUpdated: Date
+}
+
+interface Macro extends Graph {
+    flowInputs: Array<any>
 }

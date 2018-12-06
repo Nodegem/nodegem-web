@@ -1,7 +1,9 @@
 import { observable, action, computed } from "mobx";
 import history from "src/utils/history";
-import { rootStore } from "./root-store";
 import { ignore } from "mobx-sync";
+import { loginService } from "src/features/Account/Login/login-service";
+
+const refreshBufferTime = parseInt(process.env.REACT_APP_TOKEN_BUFFER_TIME_IN_SECONDS!) * 1000;
 
 class UserStore {
 
@@ -22,11 +24,14 @@ class UserStore {
 
     @ignore
     @observable
-    private lastRefreshTime: Date = new Date();
+    private refreshBuffer: number = 0;
+
+    @ignore
+    private refreshTimerId?: NodeJS.Timeout;
 
     @computed
-    public get shouldRefresh() : boolean {
-        return Math.abs(new Date().getUTCMilliseconds() - this.lastRefreshTime.getUTCMilliseconds()) >= 5000;
+    public get canRefresh() : boolean {
+        return performance.now() - this.refreshBuffer >= refreshBufferTime;
     }
 
     @computed
@@ -50,15 +55,14 @@ class UserStore {
     }
 
     @action
-    public setTokens = (accessToken: string, refreshToken?: string) => {
+    public setTokens = (accessToken: string, refreshToken: string) => {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-        this.lastRefreshTime = new Date();
     }
 
     @action
-    public updateRefreshTime = () => {
-        this.lastRefreshTime = new Date();
+    public updateRefreshBuffer = () => {
+        this.refreshBuffer = performance.now();
     }
 
     @action
@@ -67,6 +71,13 @@ class UserStore {
         this.refreshToken = undefined;
         this.userData = undefined;
         history.push("/login");
+    }
+
+    public setRefreshTokenInterval = () => {
+        if(!this.refreshTimerId) {
+            const refreshTokenTime = parseInt(process.env.REACT_APP_TOKEN_REFRESH_TIME_IN_SECONDS!) * 1000;
+            this.refreshTimerId = setInterval(() => loginService.refreshTokens(), refreshTokenTime);
+        }
     }
 
 }

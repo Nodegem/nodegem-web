@@ -1,9 +1,8 @@
 import axios, { AxiosResponse, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { userStore } from '../stores/user-store';
-import { rootStore } from 'src/stores/root-store';
 
-const baseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
-const apiTimeout = parseInt(process.env.REACT_APP_API_TIMEOUT || "3000");
+const baseUrl = process.env.REACT_APP_API_BASE_URL;
+const apiTimeout = parseInt(process.env.REACT_APP_API_TIMEOUT!);
 
 const axiosInstance = axios.create({
     baseURL: `${baseUrl}/api/`,
@@ -20,8 +19,9 @@ abstract class BaseService {
 
     private getTokenHeaders = () => {
         const headers = {...this.instance.defaults.headers};
+        const { accessToken } = userStore;
         if(userStore.isAuthenticated) {
-            return {...headers, Authorization: `Bearer ${userStore.accessToken}`, RefreshToken: userStore.refreshToken};
+            return {...headers, Authorization: `Bearer ${accessToken}`};
         }
 
         return headers;
@@ -58,6 +58,11 @@ abstract class BaseService {
         return await this.instance.delete(url, this.createRequestConfig(params))
     }
 
+    protected async deleteWithCredentials<T>(url: string, params = {}) : Promise<AxiosResponse<T>> {
+        return await this.fetchWithCredentials(() => this.delete(url, params));
+    }
+
+
     private async fetchWithCredentials(call: () => Promise<AxiosResponse<any>>) : Promise<AxiosResponse<any>> {
 
         try {
@@ -71,18 +76,17 @@ abstract class BaseService {
             }
 
             userStore.logout();
-            throw new Error(`Unable to refresh token. Error Status: ${response.status}, Message: ${response.data}`)
+            return err;
         }
     }
 
     protected async updateTokens(forceRefresh: boolean = false) {
-        if(forceRefresh || userStore.shouldRefresh) {
+        if(forceRefresh || userStore.canRefresh) {
 
-            userStore.updateRefreshTime();
+            userStore.updateRefreshBuffer();
             const refreshTokenResponse = await this.refreshToken(userStore.accessToken!, userStore.refreshToken!);
             if(refreshTokenResponse.status !== 200) {
                 userStore.logout();
-                throw new Error(`Unable to refresh token. Error Status: ${refreshTokenResponse.status}, Message: ${refreshTokenResponse.data}`)
             }
             
             const { accessToken, token } = refreshTokenResponse.data;

@@ -1,121 +1,118 @@
 import * as React from "react";
 import { observer } from "mobx-react";
 import { graphService } from "src/services/graph/graph-service";
-import { Tabs, Button, Row, Card, Col, Icon } from "antd";
+import { Button, Card, List } from "antd";
 import './Dashboard.less';
-import AddGraphForm from "./AddGraphForm";
 import { withRouter, RouteComponentProps } from "react-router";
-import { Meta } from "antd/lib/list/Item";
+import { DashboardItem } from "./DashboardItem";
+import { dashboardStore } from "./dashboard-store";
+import ModalMacroForm from "./Modals/ModalMacroForm";
+import ModalGraphForm from "./Modals/ModalGraphForm";
 
-interface DashboardViewState {
-    graphs: Array<Graph>;
-    macros: Array<any>,
-    key: string,
-    modalVisible: boolean,
+interface ButtonProps { name: string, onAdd: (e: React.MouseEvent) => void }
+const AddButton : React.SFC<ButtonProps> = props => 
+    <Button type="primary" onClick={props.onAdd}>{`Add ${props.name}`}</Button>
+
+const closeModal = (key: string) => {
+    dashboardStore.modalOptions[key] = { visible: false };
 }
 
-const AddButton = ({content, onClick} : { content: string, onClick: (e) => void }) => (
-    <Button className="btn btn-add" type="primary" onClick={onClick}>{content}</Button>
-)
+const onSuccess = async (key: string, values: any, resetFields) => {
 
-const operations = (onClick: (e) => void) => ({
-    graph: <AddButton content="Add Graph" onClick={onClick} />,
-    macro: <AddButton content="Add Macro" onClick={onClick} />
-})
+    try {
 
-const modalTitles = ({
-    graph: "Create Graph",
-    macro: "Create Macro"
-})
+        const newGraph = await graphService.createGraph(values);
+        dashboardStore.addGraph(newGraph);
 
-const modalContent = (visible: boolean, onSubmit: (success: boolean, values: any) => void, onCancel: () => void) => ({
-    graph: <AddGraphForm visible={visible} onSubmit={onSubmit} onCancel={onCancel} />,
-    macro: <AddGraphForm visible={visible} onSubmit={onSubmit} onCancel={onCancel} />
-})
-
-const cardActions = ([
-    <Icon type="build" theme="twoTone" />,
-    <Icon type="edit" theme="twoTone" />,
-    <Icon type="ellipsis" />
-])
-
-const TabPane = Tabs.TabPane;
-
-@observer
-class DashboardView extends React.Component<RouteComponentProps<any>, DashboardViewState> {
-    state: DashboardViewState = {
-        graphs: [],
-        macros: [],
-        key: "graph",
-        modalVisible: false,
-    };
-
-    public async componentDidMount() {
-        this.setState({
-            graphs: await graphService.getAllGraphs()
-        }, () => console.log(this.state.graphs));
+    } catch(e) {
+        
     }
 
-    private onButtonClick = (e: React.MouseEvent) => {
-        this.setState({ modalVisible: true })
+    resetFields();
+    closeModal(key);
+}
+
+const onFailure = (key: string, values: any, error: any) => {
+    closeModal(key);
+}
+
+const onOpenModal = (key: string, value?: object) => {
+    dashboardStore.modalOptions[key] = { visible: true, value };
+}
+
+const onCancel = (key: string) => {
+    closeModal(key);
+}
+
+const onBuild = () => {
+
+}
+
+const onEdit = (item) => {
+    if(isMacro(item)) {
+        onOpenModal("macro", item);
+    } else {
+        onOpenModal("graph", item);
     }
+}
 
-    private onModalOk = async (success: boolean, values: any) => {
+const onDelete = async (item) => {
+    try {
+        await graphService.deleteGraph(item.id);
+        dashboardStore.removeGraph(item);
+    } catch(e) {
 
-        if(success) {
-            try {
-                const newGraph = await graphService.createGraph(values);
-                this.setState({ 
-                    modalVisible: false,
-                    graphs: [...this.state.graphs, newGraph]
-                });
-            } catch(err) {
-                console.warn(err.response);
-            }
-        } else {
+    }
+}
 
+function isMacro(arg: any): arg is Macro {
+    return arg.flowInputs !== undefined;
+} 
+
+dashboardStore.loadGraphs();
+
+export const DashboardView : React.SFC = observer(props => {
+
+    const { graphs, macros, modalOptions } = dashboardStore;
+    const modalProps = { onSuccess, onFailure, onCancel };
+
+    const data = [
+        {
+            modalKey: "graph",
+            title: "Graph",
+            collection: graphs,
+        },
+        {
+            modalKey: "macro",
+            title: "Macro",
+            collection: macros
         }
-    }
+    ]
 
-    private onModalCancel = () => {
-        this.setState({ modalVisible: false })
-    }
-
-    private onTabChange = (key) => {
-        this.setState({ key });
-    }
-
-    public render() {
-        const { graphs, key, modalVisible } = this.state;
-
-        return (
-            <div className="dashboard">
-                <Tabs size="large" activeKey={key} onChange={this.onTabChange} tabBarExtraContent={operations(this.onButtonClick)[key]}>
-                    <TabPane tab="Graphs" key="graph">
-                        <div className="content">
-                            <Row gutter={16}>
-                                {graphs.map((g, index) => (
-                                    <Col span={3} key={index}>
-                                        <Card
-                                            bordered
-                                            actions={cardActions}>
-                                            <Meta 
-                                                title={g.name}
-                                                description={g.description}
-                                            />
-                                        </Card>
-                                    </Col>
-                                ))}
-                            </Row>
-                        </div>
-                    </TabPane>
-                    <TabPane tab="Macros" key="macro">
-                    </TabPane>
-                </Tabs>
-                {modalContent(modalVisible, this.onModalOk, this.onModalCancel)[key]}
-            </div>
-        );
-    }
-}
-
-export default withRouter(DashboardView);
+    return (
+        <div className="dashboard">
+            {
+                data.map((x, index) => 
+                    (
+                        <Card
+                        key={index}
+                        title={`${x.title}s`}
+                        extra={<AddButton name={x.title} onAdd={e => onOpenModal(x.modalKey)} />}>
+                            <List
+                                grid={{ gutter: 16, xs: 1, sm: 2, md: 4, lg: 4, xl: 6 }}
+                                dataSource={x.collection}
+                                renderItem={(item: any) => (
+                                    <List.Item>
+                                        <DashboardItem item={...item} onBuild={onBuild} onEdit={onEdit} onDelete={onDelete} />
+                                    </List.Item>
+                                )}
+                            />
+                        </Card>
+                    )
+                )
+            }
+            <ModalGraphForm modalkey="graph" visible={modalOptions["graph"].visible} model={modalOptions["graph"].value} {...modalProps} />
+            <ModalMacroForm modalkey="macro" visible={modalOptions["macro"].visible} model={modalOptions["macro"].value} {...modalProps} />
+        </div>
+    );
+})

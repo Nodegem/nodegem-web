@@ -27,10 +27,7 @@ abstract class BaseHub {
         const baseUrl = getBaseApiUrl();
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseUrl}/${hub}`, {
-                accessTokenFactory: () => { 
-                    console.log(userStore);
-                    return userStore.accessToken || ""
-                }
+                accessTokenFactory: () => userStore.accessToken || ""
             })
             .configureLogging(logLevel)
             .build();
@@ -57,21 +54,23 @@ abstract class BaseHub {
                 await this.connection.invoke(method, data);
             } catch(err) {
                 this.connected = false;
-                setTimeout(() => this.start(), 1000);
-                console.warn(err);
+                await loginService.refreshTokens();
+                await this.connection.invoke(method, data);
             }
 
         } else {
             this.connected = false;
-            setTimeout(() => this.start(), 1000);
             console.warn("No connection established. Unable to invoke.")
+            await this.disconnect();
+            await this.start();
+            await this.invoke(method, data);
         }
     }
 
     public async start() {
         if(!this.connected) {
-
             try {
+                await loginService.refreshTokens();
                 await this.connection.start();
                 this.connected = true;
                 this.onConnected.execute(undefined);

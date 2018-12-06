@@ -9,7 +9,7 @@ export class RootStore {
     @ignore
     @observable
     isLoaded: boolean = false;
-    
+
     editor = editorStore;
     app = appStore;
     user = userStore;

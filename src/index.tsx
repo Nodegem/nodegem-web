@@ -8,6 +8,7 @@ import './utils/extensions';
 import { AsyncTrunk } from 'mobx-sync';
 import { rootStore } from './stores/root-store';
 import MobXPersistGate from './components/MobXPersistGate/MobXPersistGate';
+import { userStore } from './stores/user-store';
 
 const trunk = new AsyncTrunk(rootStore, {
   storage: localStorage,
@@ -17,6 +18,10 @@ const trunk = new AsyncTrunk(rootStore, {
 trunk.init().then(() => {
   rootStore.isLoaded = true;
 });
+
+if(userStore.isAuthenticated) {
+  userStore.setRefreshTokenInterval();
+}
 
 ReactDOM.render(
   (
