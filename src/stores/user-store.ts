@@ -1,8 +1,8 @@
 import { observable, computed, action } from "mobx";
 
-class UserStore implements IUserStore {
+class UserStore {
 
-    @observable user?: User;
+    @observable user?: User = {} as User;
 
     @computed get isLoggedIn() : boolean { return !!this.user; }
 
@@ -13,3 +13,4 @@ class UserStore implements IUserStore {
 }
 
 export default new UserStore();
+export { UserStore }

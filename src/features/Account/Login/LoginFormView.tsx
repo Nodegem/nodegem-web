@@ -61,7 +61,7 @@ class LoginForm extends React.Component<
         return (
             <Row>
                 <Form onSubmit={this.handleSubmit} className="login-form">
-                    <FormItem help="dasdsa">
+                    <FormItem>
                         {getFieldDecorator("username", {
                             rules: [
                                 {

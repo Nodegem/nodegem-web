@@ -1,13 +1,14 @@
+import superagentPromise from 'superagent-promise';
 import _superagent, { SuperAgentRequest } from 'superagent';
 import commonStore from 'src/stores/common-store';
 
-const superagent = _superagent;
+const superagent = superagentPromise(_superagent, global.Promise);
 
 const ROOT_URL = process.env.REACT_APP_API_BASE_URL;
 
-const combinePath = url => `${ROOT_URL}${url}`;
+const combinePath = url => `${ROOT_URL}/api${url}`;
 
-const tokenPlugin = (req: _superagent.Request) => {
+const tokenPlugin = (req: SuperAgentRequest) => {
     if(commonStore.accessToken) {
         req.set("Authorization", `Bearer ${commonStore.accessToken}`);
     }
@@ -26,28 +27,28 @@ const handleErrors = err => {
 const requests = {
     get: url => 
         superagent
-        .get(combinePath(url))
-        .use(tokenPlugin)
-        .end(handleErrors)
-        .then(responseBody),
+            .get(combinePath(url))
+            .use(tokenPlugin)
+            .end(handleErrors)
+            .then(responseBody),
     post: (url, body) => 
         superagent
-        .post(combinePath(url), body)
-        .use(tokenPlugin)
-        .end(handleErrors)
-        .then(responseBody),
+            .post(combinePath(url), body)
+            .use(tokenPlugin)
+            .end(handleErrors)
+            .then(responseBody),
     put: (url, body) =>
         superagent
-        .put(combinePath(url), body)
-        .use(tokenPlugin)
-        .end(handleErrors)
-        .then(responseBody),
+            .put(combinePath(url), body)
+            .use(tokenPlugin)
+            .end(handleErrors)
+            .then(responseBody),
     del: url =>
         superagent
-        .del(combinePath(url))
-        .use(tokenPlugin)
-        .end(handleErrors)
-        .then(responseBody)
+            .del(combinePath(url))
+            .use(tokenPlugin)
+            .end(handleErrors)
+            .then(responseBody)
 }
 
 export { requests }

@@ -1,6 +1,6 @@
 import { requests } from "../agent";
 
-const Graph = {
+const GraphService = {
     getAll: () : Promise<Array<Graph>> => 
         requests.get("/graph/all"),
     delete: (id: string) : Promise<void> => 
@@ -12,4 +12,4 @@ const Graph = {
 
 }
 
-export { Graph }
+export { GraphService }

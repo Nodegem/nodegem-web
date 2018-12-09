@@ -9255,6 +9255,11 @@ subarg@^1.0.0:
   dependencies:
     minimist "^1.1.0"
 
+superagent-promise@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/superagent-promise/-/superagent-promise-1.1.0.tgz#baf22d8bbdd439a9b07dd10f8c08f54fe2503533"
+  integrity sha1-uvIti73UOamwfdEPjAj1T+JQNTM=
+
 superagent@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/superagent/-/superagent-4.0.0.tgz#b9de499c0363acb53879cc42bd14ec26751050bb"

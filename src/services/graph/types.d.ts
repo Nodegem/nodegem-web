@@ -1,5 +1,7 @@
 interface Graph {
     id: string,
+    name: string,
+    description: string,
     createdOn: Date,
     lastUpdated: Date
 }

@@ -7,13 +7,14 @@ import RegisterView from "./features/Account/Register/RegisterFormView";
 
 import "./App.less";
 import EditorView from "./features/Editor/EditorView";
-import { DashboardView } from "./features/Dashboard/DashboardView";
+import DashboardView from "./features/Dashboard/DashboardView";
 import { inject, observer } from "mobx-react";
+import { UserStore } from "./stores/user-store";
 
 const { Content } = Layout;
 
 interface IAppProps {
-    userStore?: IUserStore;
+    userStore?: UserStore;
 }
 
 @inject("userStore")
@@ -25,7 +26,7 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
         return (
             <Layout className="app-layout">
                 {userStore!.isLoggedIn ? (
-                    <Layout>
+                    <Layout hasSider>
                         <Sider />
                         <Content className="app-layout-content">
                             <Switch>

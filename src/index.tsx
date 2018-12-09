@@ -16,6 +16,7 @@ import authStore from "./stores/auth-store";
 import appStore from "./stores/app-store";
 import userStore from "./stores/user-store";
 import { BrowserRouter, HashRouter } from "react-router-dom";
+import dashboardStore from "./stores/dashboard-store";
 
 const syncStores = {
     commonStore,
@@ -36,7 +37,8 @@ const stores = {
   commonStore,
   authStore,
   appStore,
-  userStore
+  userStore,
+  dashboardStore
 }
 
 ReactDOM.render((

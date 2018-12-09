@@ -1,8 +1,8 @@
 import { requests } from "../agent";
 
-const Utils = {
+const UtilService = {
     getAllNodeDefinitions: () : Promise<Array<NodeDefinition>> =>
         requests.get("/utils/nodes/all")
 }
 
-export { Utils };
+export { UtilService };

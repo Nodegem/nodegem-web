@@ -6,6 +6,10 @@ declare global {
     lastOrDefault(): T | null;
     copy(): Array<T>;
   }
+
+  interface String {
+    upperCaseFirst(): string
+  }
 }
 
 Array.prototype.removeItem = function<T>(item: T): Array<T> {
@@ -27,5 +31,9 @@ Array.prototype.lastOrDefault = function<T>(): T | null {
 Array.prototype.copy = function<T>(): Array<T> {
   return this.slice(0);
 };
+
+String.prototype.upperCaseFirst = function jsUcfirst(): string {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+}
 
 export {};

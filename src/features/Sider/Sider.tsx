@@ -4,22 +4,29 @@ import { observer, inject } from "mobx-react";
 import { Link, withRouter, RouteComponentProps } from "react-router-dom";
 
 import './Sider.scss';
+import { AppStore } from "src/stores/app-store";
+import { UserStore } from "src/stores/user-store";
+import { CollapseType } from "antd/lib/layout/Sider";
 
 const AntSider = Layout.Sider;
 
 const SettingsIcon = <span><Icon type="setting" /><span>Settings</span></span>;
 
 interface SiderProps {
-    appStore?: IAppStore,
-    userStore?: IUserStore
+    appStore?: AppStore,
+    userStore?: UserStore
 }
 
 @inject('appStore', 'userStore')
 @observer
 class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
-    private handleCollapse = () => {
-        this.props.appStore!.toggleCollapsed();
+    private handleCollapse = (collapsed) => {
+        this.props.appStore!.toggleCollapsed(collapsed);
+    }
+
+    private handleBreakpoint = (broken: boolean) => {
+        this.props.appStore!.setBreakpoint(broken);
     }
 
     private themeClick = () => {
@@ -30,6 +37,8 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
         const { location, appStore, userStore } = this.props;
 
+        const { collapseWidth, collapsed, siderWidth, theme } = appStore!;
+
         let selected = location.pathname.replace("/", "");
         if(!selected) { 
             selected = "home";
@@ -37,12 +46,14 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
         return (
             <AntSider
-                theme={appStore!.theme}
-                collapsed={appStore!.collapsed}
-                breakpoint="lg"
-                collapsedWidth={0}
-                width={200}
+                theme={theme}
+                collapsed={collapsed}
+                defaultCollapsed={true}
+                breakpoint="sm"
+                width={siderWidth}
+                collapsedWidth={collapseWidth}
                 collapsible
+                onBreakpoint={this.handleBreakpoint}
                 onCollapse={this.handleCollapse}
             >
                 <div className="logo-container">
@@ -51,7 +62,7 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
                 <Menu
                     mode="inline"
-                    theme={appStore!.theme}
+                    theme={theme}
                     defaultSelectedKeys={["project"]}
                     selectedKeys={[selected]}
                 >  
