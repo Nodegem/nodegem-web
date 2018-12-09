@@ -1,28 +1,19 @@
-import { SiderTheme } from 'antd/lib/layout/Sider';
-import { action, observable } from 'mobx';
-class AppStore {
+import { observable, action } from "mobx";
+import { MenuTheme } from "antd/lib/menu";
 
-    @observable
-    theme: SiderTheme = 'dark';
+class AppStore implements IAppStore {
 
-    @observable
-    collapsed: boolean = false;
+    @observable collapsed: boolean = false;
+    @observable theme: MenuTheme = "dark";
 
-    @observable
-    selectedPaths: Array<string>;
+    @action changeTheme() {
+        this.theme = this.theme === "dark" ? "light" : "dark";
+    }
 
-    public setSelectedPath = action((path: any) => {
-        this.selectedPaths = path;
-    });
-
-    public toggleCollapsed = action(() => {
+    @action toggleCollapsed() {
         this.collapsed = !this.collapsed;
-    })
-
-    public toggleTheme = action(() => {
-        this.theme = this.theme === 'dark' ? 'light' : 'dark';
-    })
+    }
 
 }
 
-export const appStore = new AppStore();
+export default new AppStore();

@@ -1,4 +1,4 @@
-export enum ValueType {
+declare enum ValueType {
     Object = 0,
     Color = 1,
     Time = 2,

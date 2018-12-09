@@ -1,4 +1,3 @@
-import { ValueType } from "../value-types";
 
 interface NodeDefinition {
     namespace: string;

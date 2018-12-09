@@ -19,7 +19,7 @@
     "baseUrl": ".",
     "typeRoots": [
       "node_modules/@types",
-      "utils/types.d.ts"
+      "**/*"
     ]
   },
   "exclude": [

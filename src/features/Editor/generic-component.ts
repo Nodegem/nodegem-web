@@ -4,7 +4,6 @@ import { Input } from "./rete-engine/input";
 import { Node } from "./rete-engine/node";
 import { Output } from "./rete-engine/output";
 import { GenericControl } from "./generic-control";
-import { NodeDefinition } from "src/services/graph/node-definitions/types";
 
 const sockets = {
     flow: new Socket("Flow"),

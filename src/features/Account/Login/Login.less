@@ -1,18 +1,14 @@
 .login-form-container {
 
-    min-height: 75%;
+    margin: auto;
+    width: 600px;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    @media screen and (max-width: 1023px) {
+        width: 100%;
+    }
 
     .login-form-forgot {
         float: right;
-    }
-
-    .login-card-container {
-        width: 500px;
     }
 
     .login-form-button {

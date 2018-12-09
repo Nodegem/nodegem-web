@@ -1,91 +1,34 @@
 import React from "react";
 import { Menu, Layout, Icon } from "antd";
-import { observer } from "mobx-react";
-import { appStore } from "../../stores/app-store";
+import { observer, inject } from "mobx-react";
 import { Link, withRouter, RouteComponentProps } from "react-router-dom";
-import { userStore } from "../../stores/user-store";
-import history from "../../utils/history";
 
 import './Sider.scss';
-import { loginService } from "../Account/Login/login-service";
 
 const AntSider = Layout.Sider;
 
 const SettingsIcon = <span><Icon type="setting" /><span>Settings</span></span>;
 
 interface SiderProps {
-    width?: number;
+    appStore?: IAppStore,
+    userStore?: IUserStore
 }
 
-interface MenuItemData {
-    key: string;
-    onClick?: (e: React.MouseEvent) => void;
-    element: JSX.Element;
-}
-
-const themeClick = () => {
-    appStore.toggleTheme();
-}
-
-const logoutClick = async () => {
-    loginService.logout();
-    userStore.logout();
-}
-
-const MenuItemData: Array<MenuItemData> = [
-    {
-        key: "theme",
-        onClick: themeClick, 
-        element: (
-            <>
-                <Icon type="bg-colors" />
-                Change Theme
-            </>
-        )
-    },
-    {
-        key: "settings",
-        onClick: () => {},
-        element: (
-            <>
-                <Link to='/'>
-                    <Icon type="setting" />
-                    Profile Settings
-                </Link>
-            </>
-        )
-    },
-    {
-        key: "logout",
-        onClick: logoutClick,
-        element: (
-            <>
-                <Icon type="poweroff" />
-                Logout
-            </>
-        )
-    }
-]
-
+@inject('appStore', 'userStore')
 @observer
 class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
-    static defaultProps : SiderProps = {
-        width: 200
-    }
-
     private handleCollapse = () => {
-        appStore.toggleCollapsed();
+        this.props.appStore!.toggleCollapsed();
     }
 
-    private handleClick = ({ item, key, keyPath }) : void => {
-        appStore.setSelectedPath(keyPath);
+    private themeClick = () => {
+        this.props.appStore!.changeTheme();
     }
 
     public render() {
 
-        const { collapsed, theme } = appStore;
-        const { width, location } = this.props;
+        const { location, appStore, userStore } = this.props;
 
         let selected = location.pathname.replace("/", "");
         if(!selected) { 
@@ -94,9 +37,11 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
         return (
             <AntSider
-                theme={theme}
-                collapsed={collapsed}
-                width={width}
+                theme={appStore!.theme}
+                collapsed={appStore!.collapsed}
+                breakpoint="lg"
+                collapsedWidth={0}
+                width={200}
                 collapsible
                 onCollapse={this.handleCollapse}
             >
@@ -106,8 +51,7 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
                 <Menu
                     mode="inline"
-                    theme={theme}
-                    onClick={this.handleClick}
+                    theme={appStore!.theme}
                     defaultSelectedKeys={["project"]}
                     selectedKeys={[selected]}
                 >  
@@ -124,16 +68,13 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
                         </Link>
                     </Menu.Item>
                     {
-                        userStore.isAuthenticated && (
+                        userStore!.isLoggedIn && (
                             <Menu.SubMenu title={SettingsIcon} key="settings">
-                                {
-                                    MenuItemData.map(i => 
-                                        <Menu.Item key={i.key} onClick={i.onClick}>
-                                            {i.element}
-                                        </Menu.Item>    
-                                    )
-                                }
-                            </Menu.SubMenu>        
+                                <Menu.Item key="theme" onClick={this.themeClick}>
+                                    <Icon type="bg-colors" />
+                                    Change Theme
+                                </Menu.Item>    
+                            </Menu.SubMenu>
                         )
                     }
                 </Menu>

@@ -1,8 +1,6 @@
-import { loginService } from 'src/features/Account/Login/login-service';
-import { SimpleObservable } from './../utils/simple-observable';
+import { SimpleObservable } from '../utils/simple-observable';
 import * as signalR from '@aspnet/signalr';
 import { getBaseApiUrl } from 'src/utils';
-import { userStore } from 'src/stores/user-store';
 
 abstract class BaseHub {
 
@@ -27,7 +25,7 @@ abstract class BaseHub {
         const baseUrl = getBaseApiUrl();
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseUrl}/${hub}`, {
-                accessTokenFactory: () => userStore.accessToken || ""
+                accessTokenFactory: () => ""
             })
             .configureLogging(logLevel)
             .build();
@@ -54,7 +52,6 @@ abstract class BaseHub {
                 await this.connection.invoke(method, data);
             } catch(err) {
                 this.connected = false;
-                await loginService.refreshTokens();
                 await this.connection.invoke(method, data);
             }
 
@@ -70,7 +67,6 @@ abstract class BaseHub {
     public async start() {
         if(!this.connected) {
             try {
-                await loginService.refreshTokens();
                 await this.connection.start();
                 this.connected = true;
                 this.onConnected.execute(undefined);

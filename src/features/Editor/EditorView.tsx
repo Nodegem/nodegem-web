@@ -7,7 +7,6 @@ import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
 
 import "./EditorView.less";
 import { GenericComponent } from "./generic-component";
-import { utilsService } from "./services/utils-service";
 import FlowGraphHub from "./hubs/graph-hub";
 import TerminalHub from "./hubs/terminal-hub";
 import { transformGraph } from "./services/data-transform/run-graph";
@@ -60,7 +59,7 @@ class EditorView extends React.Component {
         const container = document.querySelector(".editor") as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
 
-        const definitions = await utilsService.getNodeDefinitions();
+        const definitions = [];
         definitions.reduce((pV, cV) => {
             pV.push(new GenericComponent(cV));
             return pV;

@@ -1,4 +1,4 @@
-import { BaseHub } from 'src/services/base-hub';
+import { BaseHub } from 'src/hubs/base-hub';
 
 const flowGraphPath = process.env.REACT_APP_FLOW_HUB as string;
 class FlowGraphHub extends BaseHub {
