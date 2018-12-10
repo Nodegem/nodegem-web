@@ -1,5 +1,5 @@
 import * as React from "react";
-import { observer } from "mobx-react";
+import { observer, inject } from "mobx-react";
 import { NodeEditor, EditorImportExport } from "./rete-engine/editor";
 import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ContextMenuPlugin from 'rete-context-menu-plugin';
@@ -11,7 +11,8 @@ import FlowGraphHub from "./hubs/graph-hub";
 import TerminalHub from "./hubs/terminal-hub";
 import { transformGraph } from "./services/data-transform/run-graph";
 import { Tabs } from "antd";
-import { editorStore } from "./stores/editor-store";
+import { RouteComponentProps } from "react-router";
+import { EditorStore } from "src/stores/editor-store";
 
 const json : EditorImportExport = 
 {
@@ -47,14 +48,25 @@ const applyBackground = () => {
     areaViewContainer.appendChild(background);
 }
 
+interface EditorProps {
+    editorStore?: EditorStore
+}
+
+@inject('editorStore')
 @observer
-class EditorView extends React.Component {
+class EditorView extends React.Component<EditorProps & RouteComponentProps<any>> {
 
     private nodeEditor: NodeEditor;
     private flowGraphHub: FlowGraphHub = new FlowGraphHub();
     private terminalHub: TerminalHub = new TerminalHub();
 
     public async componentDidMount() {
+
+        // Maybe prompt user to select a graph?
+        if(!this.props.editorStore!.hasGraph) {
+            this.props.history.push("/");
+            return;
+        }
 
         const container = document.querySelector(".editor") as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
@@ -102,6 +114,8 @@ class EditorView extends React.Component {
         this.flowGraphHub.dispose();
 
         window.removeEventListener("keydown", this.keyDown);
+
+        this.props.editorStore!.setGraph(undefined);
     }
 
     private onTabChange = (key) => {
@@ -118,7 +132,7 @@ class EditorView extends React.Component {
 
     public render() {
 
-        const { tabs } = editorStore;
+        const { tabs } = this.props.editorStore!;
 
         return (
             <div className="editor-view">

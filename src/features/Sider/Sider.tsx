@@ -4,40 +4,38 @@ import { observer, inject } from "mobx-react";
 import { Link, withRouter, RouteComponentProps } from "react-router-dom";
 
 import './Sider.scss';
-import { AppStore } from "src/stores/app-store";
 import { UserStore } from "src/stores/user-store";
-import { CollapseType } from "antd/lib/layout/Sider";
+import { CommonStore } from "src/stores/common-store";
 
 const AntSider = Layout.Sider;
 
 const SettingsIcon = <span><Icon type="setting" /><span>Settings</span></span>;
 
 interface SiderProps {
-    appStore?: AppStore,
+    commonStore?: CommonStore,
     userStore?: UserStore
 }
 
-@inject('appStore', 'userStore')
+@inject('commonStore', 'userStore')
 @observer
 class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
-    private handleCollapse = (collapsed) => {
-        this.props.appStore!.toggleCollapsed(collapsed);
+    private handleCollapse = () => {
+        this.props.commonStore!.toggleCollapsed();
     }
 
     private handleBreakpoint = (broken: boolean) => {
-        this.props.appStore!.setBreakpoint(broken);
+        this.props.commonStore!.setBreakpoint(broken);
     }
 
     private themeClick = () => {
-        this.props.appStore!.changeTheme();
+        this.props.commonStore!.changeTheme();
     }
 
     public render() {
 
-        const { location, appStore, userStore } = this.props;
-
-        const { collapseWidth, collapsed, siderWidth, theme } = appStore!;
+        const { location, commonStore, userStore } = this.props;
+        const { collapseWidth, collapsed, siderWidth, theme } = commonStore!;
 
         let selected = location.pathname.replace("/", "");
         if(!selected) { 
@@ -48,7 +46,6 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
             <AntSider
                 theme={theme}
                 collapsed={collapsed}
-                defaultCollapsed={true}
                 breakpoint="sm"
                 width={siderWidth}
                 collapsedWidth={collapseWidth}

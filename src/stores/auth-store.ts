@@ -1,4 +1,3 @@
-import commonStore from 'src/stores/common-store';
 import { observable, action } from "mobx";
 import { AuthService } from "src/services";
 import userStore from './user-store';
@@ -22,7 +21,7 @@ class AuthStore {
         try {
             const username = this.values.username ? this.values.username : this.values.email;
             const user = await AuthService.login(username, this.values.password);
-            commonStore.setToken(user);
+            userStore.setToken(user);
             userStore.setUser(user);
         } catch(e) {
             if(e.response && e.response.body && e.response.body.errors) {
@@ -34,7 +33,7 @@ class AuthStore {
     @action async register() {
         try {
             const user = await AuthService.register(this.values);
-            commonStore.setToken(user);
+            userStore.setToken(user);
             userStore.setUser(user);
         } catch(e) {
             if(e.response && e.response.body && e.response.body.errors) {

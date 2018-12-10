@@ -16,16 +16,35 @@ class DashboardStore {
         try {
             const graphs = await GraphService.getAll();
             runInAction(() => {
-                this.graphs = graphs;
+                this.graphs = graphs as Array<Graph>;
             });
         } catch(e) {
-            console.log(e);
+            console.warn(e);
         } finally {
             runInAction(() => {
                 this.loadingGraphs = false;
             })
         }
 
+    }
+
+    @action
+    async deleteGraph(graph: Graph) {
+
+        this.loadingGraphs = true;
+
+        try {
+            await GraphService.delete(graph.id);
+            runInAction(() => {
+                this.graphs.removeItem(x => x !== graph);
+            })
+        } catch(e) {
+            console.warn(e);
+        } finally {
+            runInAction(() => {
+                this.loadingGraphs = false;
+            })
+        }
     }
 
     @action 

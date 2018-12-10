@@ -1,47 +1,38 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import App from "./App";
-import "./index.less";
-import registerServiceWorker from "./registerServiceWorker";
+import './index.less';
+import './utils/extensions';
 
-import history from "./utils/history";
+import LocalForage from 'localforage';
+import { Provider } from 'mobx-react';
+import DevTools from 'mobx-react-devtools';
+import { AsyncTrunk } from 'mobx-sync';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { Router } from 'react-router';
 
-import { AsyncTrunk } from "mobx-sync";
-import DevTools from "mobx-react-devtools";
-import { Router } from "react-router";
-import LocalForage from "localforage";
-import { Provider } from "mobx-react";
-import commonStore from "./stores/common-store";
-import authStore from "./stores/auth-store";
-import appStore from "./stores/app-store";
-import userStore from "./stores/user-store";
-import { BrowserRouter, HashRouter } from "react-router-dom";
-import dashboardStore from "./stores/dashboard-store";
-
-const syncStores = {
-    commonStore,
-    appStore,
-    userStore
-}
-
-const trunk = new AsyncTrunk(
-    syncStores,
-    {
-        storage: LocalForage as any
-    }
-);
-
-trunk.init().then(() => {});
+import App from './App';
+import registerServiceWorker from './registerServiceWorker';
+import {
+    authStore, commonStore, dashboardStore, editorStore, persistStore, userStore
+} from './stores';
+import history from './utils/history';
 
 const stores = {
-  commonStore,
-  authStore,
-  appStore,
-  userStore,
-  dashboardStore
-}
+    authStore,
+    dashboardStore,
+    commonStore,
+    userStore,
+    editorStore
+};
 
-ReactDOM.render((
+const trunk = new AsyncTrunk(persistStore, {
+    storage: LocalForage as any
+});
+
+trunk.init().then(() => {
+    persistStore.isLoaded = true;
+});
+
+ReactDOM.render(
     <>
         <Provider {...stores}>
             <Router history={history}>
@@ -49,8 +40,7 @@ ReactDOM.render((
             </Router>
         </Provider>
         <DevTools />
-    </>
-    ),
+    </>,
     document.getElementById("root") as HTMLElement
 );
 registerServiceWorker();

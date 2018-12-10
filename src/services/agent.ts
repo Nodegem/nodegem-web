@@ -1,6 +1,6 @@
 import superagentPromise from 'superagent-promise';
 import _superagent, { SuperAgentRequest } from 'superagent';
-import commonStore from 'src/stores/common-store';
+import { userStore } from 'src/stores';
 
 const superagent = superagentPromise(_superagent, global.Promise);
 
@@ -9,8 +9,8 @@ const ROOT_URL = process.env.REACT_APP_API_BASE_URL;
 const combinePath = url => `${ROOT_URL}/api${url}`;
 
 const tokenPlugin = (req: SuperAgentRequest) => {
-    if(commonStore.accessToken) {
-        req.set("Authorization", `Bearer ${commonStore.accessToken}`);
+    if(userStore.accessToken) {
+        req.set("Authorization", `Bearer ${userStore.accessToken}`);
     }
 }
 

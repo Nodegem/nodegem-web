@@ -5,21 +5,24 @@ import { DashboardStore } from "src/stores/dashboard-store";
 import { List, Card, Tooltip, Icon, Button, Spin } from "antd";
 import 'src/utils/extensions';
 import DashboardCard from "./DashboardCard";
+import { withRouter, RouteComponentProps } from "react-router";
+import { EditorStore } from "src/stores/editor-store";
 
 interface DashboardProps {
-    dashboardStore?: DashboardStore
+    dashboardStore?: DashboardStore,
+    editorStore?: EditorStore
 }
 
-@inject('dashboardStore')
+@inject('dashboardStore', 'editorStore')
 @observer
-class DashboardView extends React.Component<DashboardProps> {
+class DashboardView extends React.Component<DashboardProps & RouteComponentProps<any>> {
 
     async componentDidMount() {
         await this.props.dashboardStore!.fetchGraphs();
     }
 
     onDelete = (item: Graph) => {
-        console.log(item.id);
+        this.props.dashboardStore!.deleteGraph(item);
     }
 
     onEdit = (item: Graph) => {
@@ -27,7 +30,8 @@ class DashboardView extends React.Component<DashboardProps> {
     }
 
     onBuild = (item: Graph) => {
-
+        this.props.editorStore!.setGraph(item);
+        this.props.history.push(`editor`);
     }
 
     public render() {
@@ -76,4 +80,4 @@ class DashboardView extends React.Component<DashboardProps> {
 
 }
 
-export default DashboardView;
+export default withRouter(DashboardView);
