@@ -1,10 +1,10 @@
-import * as React from "react";
-import { Input, Tooltip, Modal, InputNumber, Checkbox, Switch } from "antd";
-
 import './ControlViews.less';
-import { TextAreaModal } from "./TextAreaModal";
-import { NumericInput } from "./NumericInput";
 
+import { Input, Switch, Tooltip } from 'antd';
+import * as React from 'react';
+
+import { NumericInput } from './NumericInput';
+import { TextAreaModal } from './TextAreaModal';
 
 interface ReteControlProps { 
     name: string;
@@ -51,16 +51,16 @@ class ReteControlView extends React.Component<ReteControlProps, { value: any }> 
 
         switch(valueType) {
 
-            case ValueType.Boolean: 
+            case "Boolean": 
                 return <Switch onChange={this.handleValueChange} checked={value} />
 
-            case ValueType.Number:
+            case "Number":
                 return <NumericInput onChange={this.handleValueChange} onBlur={this.handleBlur} size="small" placeholder={name} value={value} />
 
-            case ValueType.TextArea:
+            case "TextArea":
                 return <TextAreaModal onChange={this.handleValueChange} value={value} label={name} title={name} />
 
-            case ValueType.Text:
+            case "Text":
             default:
                 return <Input onChange={this.handleChange} placeholder={name} value={value} type="text" size="small" />
         }

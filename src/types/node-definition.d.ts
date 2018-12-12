@@ -1,4 +1,3 @@
-
 interface NodeDefinition {
     namespace: string;
     title: string;
@@ -24,7 +23,7 @@ interface FlowOutputDefinition extends FieldDefinition {
 
 interface ValueInputDefinition extends FieldDefinition {
     defaultValue: any;
-    valueType: ValueType;
+    valueType: number;
 }
 
 interface ValueOutputDefinition extends FieldDefinition {

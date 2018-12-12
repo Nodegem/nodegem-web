@@ -33,15 +33,18 @@
     "test": "react-scripts-ts-antd test --env=jsdom",
     "eject": "react-scripts-ts-antd eject"
   },
+  "resolutions": {
+    "@types/react": "^16.6.3"
+  },
   "devDependencies": {
     "@types/classnames": "^2.2.6",
     "@types/jest": "^23.3.1",
     "@types/localforage": "^0.0.34",
     "@types/lodash": "^4.14.116",
-    "@types/node": "^10.12.8",
-    "@types/react": "^16.4.7",
-    "@types/react-dom": "^16.0.6",
-    "@types/react-router-dom": "^4.3.0",
+    "@types/node": "^10.12.12",
+    "@types/react": "^16.6.3",
+    "@types/react-dom": "^16.0.11",
+    "@types/react-router": "^4.4.2",
     "@types/shortid": "^0.0.29",
     "@types/superagent": "^3.8.5",
     "typescript": "^3.0.0"

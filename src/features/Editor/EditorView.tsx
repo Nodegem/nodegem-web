@@ -11,8 +11,9 @@ import FlowGraphHub from "./hubs/graph-hub";
 import TerminalHub from "./hubs/terminal-hub";
 import { transformGraph } from "./services/data-transform/run-graph";
 import { Tabs } from "antd";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps, withRouter } from "react-router";
 import { EditorStore } from "src/stores/editor-store";
+import { toJS } from "mobx";
 
 const json : EditorImportExport = 
 {
@@ -53,6 +54,7 @@ interface EditorProps {
 }
 
 @inject('editorStore')
+@(withRouter as any)
 @observer
 class EditorView extends React.Component<EditorProps & RouteComponentProps<any>> {
 
@@ -62,8 +64,11 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
 
     public async componentDidMount() {
 
+        const { editorStore } = this.props;
+        const { hasGraph, nodeDefinitions } = editorStore!;
+
         // Maybe prompt user to select a graph?
-        if(!this.props.editorStore!.hasGraph) {
+        if(!hasGraph) {
             this.props.history.push("/");
             return;
         }
@@ -71,7 +76,7 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
         const container = document.querySelector(".editor") as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
 
-        const definitions = [];
+        const definitions = nodeDefinitions;
         definitions.reduce((pV, cV) => {
             pV.push(new GenericComponent(cV));
             return pV;
@@ -97,7 +102,6 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
     private keyDown = (e) => {
         if(e.altKey && e.keyCode === 13) {
             const graphData = transformGraph(this.nodeEditor.toJSON());
-            console.log(graphData);
 
             if(!graphData.links.empty() || !graphData.nodes.empty()) {
                 this.flowGraphHub

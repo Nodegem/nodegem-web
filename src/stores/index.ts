@@ -18,6 +18,24 @@ class PersistStore  {
 
 }
 
+class RootStore {
+
+    @ignore
+    @observable
+    isLoaded: boolean = false;
+
+    userStore = userStore;
+    commonStore = commonStore;
+    authStore = authStore;
+    editorStore = editorStore;
+    dashboardStore = dashboardStore;
+
+    constructor() {
+        
+    }
+
+}
+
 const persistStore = new PersistStore();
 
 export {

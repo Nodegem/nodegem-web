@@ -1,6 +1,7 @@
+import { Control } from './rete-engine/control';
 import { Emitter } from './rete-engine/core/emitter';
-import { Control } from "./rete-engine/control";
 import { ReteControlView } from './rete-react-controls/ControlViews';
+import { mapToValueType } from 'src/utils/value-type-mapper';
 
 export class GenericControl extends Control {
 
@@ -8,14 +9,14 @@ export class GenericControl extends Control {
     emitter: Emitter;
     props: object;
 
-    constructor(emitter: Emitter, key: string, name: string, defaultValue: any = null, valueType: ValueType) {
+    constructor(emitter: Emitter, key: string, name: string, defaultValue: any = null, valueType: number) {
         super(key);
 
         this.props = {
             name: name,
             controlKey: key,
             defaultValue: defaultValue,
-            valueType: valueType
+            valueType: mapToValueType(valueType)
         };
 
         this.emitter = emitter;
