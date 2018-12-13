@@ -6,6 +6,8 @@ import { Link, withRouter, RouteComponentProps } from "react-router-dom";
 import './Sider.scss';
 import { UserStore } from "src/stores/user-store";
 import { CommonStore } from "src/stores/common-store";
+import { AuthStore } from "src/stores/auth-store";
+import { rootStore } from "src/stores";
 
 const AntSider = Layout.Sider;
 
@@ -13,10 +15,11 @@ const SettingsIcon = <span><Icon type="setting" /><span>Settings</span></span>;
 
 interface SiderProps {
     commonStore?: CommonStore,
-    userStore?: UserStore
+    userStore?: UserStore,
+    authStore?: AuthStore
 }
 
-@inject('commonStore', 'userStore')
+@inject('commonStore', 'userStore', 'authStore')
 @observer
 class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
@@ -30,6 +33,10 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
     private themeClick = () => {
         this.props.commonStore!.changeTheme();
+    }
+
+    private logout = () => {
+        this.props.authStore!.logout();
     }
 
     public render() {
@@ -81,7 +88,11 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
                                 <Menu.Item key="theme" onClick={this.themeClick}>
                                     <Icon type="bg-colors" />
                                     Change Theme
-                                </Menu.Item>    
+                                </Menu.Item>
+                                <Menu.Item key="logout" onClick={this.logout}>
+                                    <Icon type="logout" />
+                                    Logout
+                                </Menu.Item>
                             </Menu.SubMenu>
                         )
                     }

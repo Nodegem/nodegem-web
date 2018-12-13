@@ -4,6 +4,11 @@ import { ignore } from "mobx-sync";
 
 class CommonStore {
 
+    // This is a hack around some weird sider bug with ant-design
+    @ignore
+    @observable
+    collapsedToggleOnce = false;
+    
     @observable collapsed: boolean;
     @observable theme: SiderTheme = "dark";
 
@@ -36,6 +41,16 @@ class CommonStore {
     }
 
     @action toggleCollapsed() {
+
+        // This bullshit is because of some ant design bug
+        // where this function gets called twice on load and toggles off
+        if(!this.collapsedToggleOnce && this.collapsed) {
+            this.collapsedToggleOnce = true;
+            return;
+        } else {
+            this.collapsedToggleOnce = true;
+        }
+
         this.collapsed = !this.collapsed;
     }
 

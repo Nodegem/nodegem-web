@@ -1,44 +1,76 @@
 import { observable, action } from "mobx";
 import { AuthService } from "src/services";
 import userStore from './user-store';
+import { notification } from "antd";
+import history from "src/utils/history";
 
-const initialState : RegisterRequestData = {
-    username: "",
-    email: "",
-    password: ""
-};
+interface RegisterErrorResponse {
+    code: string,
+    description: string
+}
 
 class AuthStore {
 
-    @observable values: RegisterRequestData = initialState
-    @observable errors: any;
-
-    @action reset() {
-        this.values = initialState;
+    @observable rememberMe: boolean = false;
+    @observable savedCredentials = {
+        username: ""
     }
 
-    @action async login() {
+    @action async login({ userName, password } : LoginRequestData) {
         try {
-            const username = this.values.username ? this.values.username : this.values.email;
-            const user = await AuthService.login(username, this.values.password);
+            const user = await AuthService.login(userName, password);
             userStore.setToken(user);
             userStore.setUser(user);
+            history.push('/');
         } catch(e) {
-            if(e.response && e.response.body && e.response.body.errors) {
-                this.errors = e.response.body.errors;
+
+            let errorMessage = "Unable to connect to service.";
+            if(e.status) {
+                if(e.status === 400 || e.status === 401) {
+                    errorMessage = "Invalid username or password.";
+                } else {
+                    errorMessage = "An unknown error has occurred.";
+                }
             }
+
+            notification.error({ message: "Unable to login", description: errorMessage })
         }
     }
 
-    @action async register() {
+    @action setRememberMe(rememberMe: boolean, savedCreds) {
+        this.rememberMe = rememberMe;
+        
+        if(rememberMe) {
+            this.savedCredentials = savedCreds;
+        }
+    }
+
+    @action async logout() {
         try {
-            const user = await AuthService.register(this.values);
+            await AuthService.logout();
+        } catch(e) {
+            console.warn(e);
+        } finally {
+            userStore.logout();
+            history.push('/login');
+        }
+    }
+
+    @action async register(registerRequest : RegisterRequestData) {
+        try {
+            const user = await AuthService.register(registerRequest);
             userStore.setToken(user);
             userStore.setUser(user);
+            history.push('/');
         } catch(e) {
-            if(e.response && e.response.body && e.response.body.errors) {
-                this.errors = e.response.body.errors;
+            let errorMessage = "Unable to connect to service.";
+
+            if(e.response && e.status === 400) {
+                const responseText = JSON.parse(e.response.text) as Array<RegisterErrorResponse>;
+                errorMessage = responseText.map(x => x.description).join('\n');
             }
+
+            notification.error({ message: "Unable to register account", description: errorMessage });
         }
     }
 

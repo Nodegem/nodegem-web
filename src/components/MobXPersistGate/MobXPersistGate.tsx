@@ -2,7 +2,7 @@ import * as React from "react";
 import { observer } from "mobx-react";
 
 interface PersistGateProps {
-    persistStore: { isLoaded: boolean };
+    rootStore: { isLoaded: boolean };
     loading?: JSX.Element;
 }
 
@@ -11,10 +11,10 @@ export default class MobXPersistGate extends React.Component<PersistGateProps> {
 
     public render() {
 
-        const { persistStore, loading, children } = this.props;
+        const { rootStore, loading, children } = this.props;
 
         return (
-            !persistStore.isLoaded
+            !rootStore.isLoaded
                 ? loading
                 : children
         );

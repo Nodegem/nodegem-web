@@ -2,7 +2,7 @@ import { observable, computed, action } from "mobx";
 
 class UserStore {
 
-    @observable user?: User = {} as User;
+    @observable user?: User;
 
     @computed get isLoggedIn() : boolean { return !!this.user; }
 
@@ -10,12 +10,18 @@ class UserStore {
     @observable refreshToken: string = "";
 
     @action setToken({ accessToken, refreshToken }) { 
-        this.accessToken = accessToken; 
+        this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }
 
-    @action setUser(user: User) {
+    @action setUser(user?: User) {
         this.user = user;
+    }
+
+    @action logout() {
+        this.accessToken = "";
+        this.refreshToken = "";
+        this.user = undefined;
     }
 
 }

@@ -1,4 +1,4 @@
-import { ModalFormType } from 'src/stores/dashboard-store';
+import { ModalFormType } from 'src/features/Dashboard/dashboard-store';
 import { action, observable, runInAction } from "mobx";
 import { GraphService } from "src/services";
 

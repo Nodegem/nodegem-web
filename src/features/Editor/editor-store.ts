@@ -1,4 +1,4 @@
-import { observable, action, computed } from "mobx";
+import { observable, action, computed, runInAction } from "mobx";
 import { UtilService } from "src/services";
 
 class EditorStore {
@@ -8,6 +8,7 @@ class EditorStore {
     @observable
     currentGraph?: Graph;
 
+    @observable loadingDefinitions: boolean = false;
     @observable
     nodeDefinitions: Array<NodeDefinition> = [];
 
@@ -25,7 +26,19 @@ class EditorStore {
 
     @action 
     async loadDefinitions() {
-        this.nodeDefinitions = await UtilService.getAllNodeDefinitions();
+        this.loadingDefinitions = true;
+        try {
+            const definitions = await UtilService.getAllNodeDefinitions();
+            runInAction(() => {
+                this.nodeDefinitions = definitions;
+            })
+        } catch(e) {
+            console.warn(e);
+        } finally {
+            runInAction(() => {
+                this.loadingDefinitions = false;
+            });
+        }
     }
 
     @action setGraph(graph?: Graph) {

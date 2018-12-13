@@ -10,9 +10,9 @@ import { GenericComponent } from "./generic-component";
 import FlowGraphHub from "./hubs/graph-hub";
 import TerminalHub from "./hubs/terminal-hub";
 import { transformGraph } from "./services/data-transform/run-graph";
-import { Tabs } from "antd";
+import { Tabs, Spin } from "antd";
 import { RouteComponentProps, withRouter } from "react-router";
-import { EditorStore } from "src/stores/editor-store";
+import { EditorStore } from "src/features/Editor/editor-store";
 import { toJS } from "mobx";
 
 const json : EditorImportExport = 
@@ -76,6 +76,10 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
         const container = document.querySelector(".editor") as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
 
+        if(!nodeDefinitions || nodeDefinitions.empty()) {
+            await editorStore!.loadDefinitions();
+        }
+
         const definitions = nodeDefinitions;
         definitions.reduce((pV, cV) => {
             pV.push(new GenericComponent(cV));
@@ -118,8 +122,6 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
         this.flowGraphHub.dispose();
 
         window.removeEventListener("keydown", this.keyDown);
-
-        this.props.editorStore!.setGraph(undefined);
     }
 
     private onTabChange = (key) => {
@@ -136,29 +138,31 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
 
     public render() {
 
-        const { tabs } = this.props.editorStore!;
+        const { tabs, loadingDefinitions } = this.props.editorStore!;
 
         return (
             <div className="editor-view">
-                <Tabs
-                    type="editable-card"
-                    onChange={this.onTabChange}
-                >
-                    {
-                        Object.keys(tabs).map(x => {
-                            const tab = tabs[x];
-                            return (
-                                <TabPane
-                                    key={x}
-                                    tab={tab.title}
-                                    closable={tab.closable}
-                                >
-                                    <div className="editor" id={`editor-${x}`} />
-                                </TabPane>
-                            )
-                        }) 
-                    }
-                </Tabs>
+                <Spin spinning={loadingDefinitions} size="large">
+                    <Tabs
+                        type="editable-card"
+                        onChange={this.onTabChange}
+                    >
+                        {
+                            Object.keys(tabs).map(x => {
+                                const tab = tabs[x];
+                                return (
+                                    <TabPane
+                                        key={x}
+                                        tab={tab.title}
+                                        closable={tab.closable}
+                                    >
+                                        <div className="editor" id={`editor-${x}`} />
+                                    </TabPane>
+                                )
+                            }) 
+                        }
+                    </Tabs>
+                </Spin>
             </div>
         )
     }

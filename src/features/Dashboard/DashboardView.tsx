@@ -1,12 +1,12 @@
 import * as React from "react";
 import { observer, inject } from "mobx-react";
 import './Dashboard.less';
-import { DashboardStore, ModalFormType } from "src/stores/dashboard-store";
+import { DashboardStore, ModalFormType } from "src/features/Dashboard/dashboard-store";
 import { List, Card, Tooltip, Icon, Button, Spin } from "antd";
 import 'src/utils/extensions';
 import DashboardCard from "./DashboardCard";
 import { withRouter, RouteComponentProps } from "react-router";
-import { EditorStore } from "src/stores/editor-store";
+import { EditorStore } from "src/features/Editor/editor-store";
 import GraphModalForm from "./GraphModalForm";
 import { toJS } from "mobx";
 import MacroModalForm from "./MacroModalForm";

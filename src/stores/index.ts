@@ -2,21 +2,10 @@ import { observable } from 'mobx';
 import { ignore } from 'mobx-sync';
 
 import authStore from './auth-store';
-import commonStore from './common-store';
-import dashboardStore from './dashboard-store';
-import editorStore from './editor-store';
 import userStore from './user-store';
-
-class PersistStore  {
-
-    @ignore
-    @observable
-    isLoaded: boolean = false;
-
-    userStore = userStore;
-    commonStore = commonStore;
-
-}
+import editorStore from 'src/features/Editor/editor-store';
+import dashboardStore from 'src/features/Dashboard/dashboard-store';
+import commonStore from './common-store';
 
 class RootStore {
 
@@ -27,19 +16,15 @@ class RootStore {
     userStore = userStore;
     commonStore = commonStore;
     authStore = authStore;
-    editorStore = editorStore;
-    dashboardStore = dashboardStore;
 
-    constructor() {
-        
-    }
-
+    @ignore editorStore = editorStore;
+    @ignore dashboardStore = dashboardStore;
 }
 
-const persistStore = new PersistStore();
+const rootStore = new RootStore();
 
 export {
-    persistStore,
+    rootStore,
     userStore,
     commonStore,
     authStore,

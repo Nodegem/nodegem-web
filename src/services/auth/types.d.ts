@@ -12,14 +12,13 @@ interface UserResponseData {
 }
 
 interface LoginRequestData {
-    username?: string,
-    email?: string,
+    userName?: string,
     password: string
 }
 
 interface RegisterRequestData extends LoginRequestData {
-    username: string,
+    userName: string,
     email: string,
     firstName?: string,
-    lastName?: string
+    lastName?: string,
 }

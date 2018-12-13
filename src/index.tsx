@@ -11,34 +11,29 @@ import { Router } from 'react-router';
 
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import {
-    authStore, commonStore, dashboardStore, editorStore, persistStore, userStore
-} from './stores';
 import history from './utils/history';
+import { rootStore } from './stores';
+import MobXPersistGate from './components/MobXPersistGate/MobXPersistGate';
 
-const stores = {
-    authStore,
-    dashboardStore,
-    commonStore,
-    userStore,
-    editorStore
-};
-
-const trunk = new AsyncTrunk(persistStore, {
+const trunk = new AsyncTrunk(rootStore, {
     storage: LocalForage as any
 });
 
 trunk.init().then(() => {
-    persistStore.isLoaded = true;
+    rootStore.isLoaded = true;
 });
+
+const LoadingIcon = <></>;
 
 ReactDOM.render(
     <>
-        <Provider {...stores}>
-            <Router history={history}>
-                <App />
-            </Router>
-        </Provider>
+        <MobXPersistGate rootStore={rootStore} loading={LoadingIcon}>
+            <Provider {...rootStore}>
+                <Router history={history}>
+                    <App />
+                </Router>
+            </Provider>
+        </MobXPersistGate>
         <DevTools />
     </>,
     document.getElementById("root") as HTMLElement

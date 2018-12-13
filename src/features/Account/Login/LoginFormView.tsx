@@ -15,54 +15,49 @@ import { FormComponentProps } from "antd/lib/form/Form";
 import "./Login.less";
 import { observer, inject } from "mobx-react";
 import { Link } from "react-router-dom";
-import classNames from "classnames";
-import { displayErrorNotification } from "src/utils/notification-helper";
+import PasswordInput from "src/components/PasswordInput/PasswordInput";
+import { AuthStore } from "src/stores/auth-store";
+
+interface LoginFormProps extends FormComponentProps {
+    authStore?: AuthStore;
+}
 
 @inject('authStore')
 @observer
-class LoginForm extends React.Component<
-    FormComponentProps & RouteComponentProps<any>,
-    { showPassword: boolean }
-> {
-    state = {
-        showPassword: false
-    };
-
-    private onLockClick = () => {
-        this.setState({ showPassword: !this.state.showPassword });
-    };
-
-    private showErrorNotification = (description: string) => {
-        displayErrorNotification("Unable to login", description);
-    };
+class LoginForm extends React.Component<LoginFormProps & RouteComponentProps<any>> {
 
     private handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-    };
 
-    private onUsernameChange = (e: React.FormEvent<HTMLInputElement>) => {
-        const target = e.target as HTMLInputElement;
+        const { form, authStore } = this.props;
+        form.validateFields(async (err, values) => {
+
+            authStore!.setRememberMe(values.rememberMe, { username: values.userName });
+
+            if(err) return;
+
+            try {
+                await authStore!.login(values);
+
+
+            } catch(e) {
+                console.log(e.response);
+            }
+        })
     };
 
     public render() {
-        const { showPassword } = this.state;
-
-        const lockIconString = showPassword ? "unlock" : "lock";
-        const passwordType = showPassword ? "text" : "password";
-
-        const lockClass = classNames({
-            "lock-icon": true,
-            locked: !showPassword,
-            unlocked: showPassword
-        });
-
+        const { authStore } = this.props;
         const { getFieldDecorator } = this.props.form;
+
+        const { rememberMe, savedCredentials } = authStore!;
 
         return (
             <Row>
                 <Form onSubmit={this.handleSubmit} className="login-form">
                     <FormItem>
-                        {getFieldDecorator("username", {
+                        {getFieldDecorator("userName", {
+                            initialValue: savedCredentials['username'],
                             rules: [
                                 {
                                     required: true,
@@ -71,14 +66,12 @@ class LoginForm extends React.Component<
                             ]
                         })(
                             <Input
-                                
                                 prefix={
                                     <Icon
                                         type="user"
                                         style={{ color: "rgba(0,0,0,.25)" }}
                                     />
                                 }
-                                onChange={this.onUsernameChange}
                                 placeholder="Username"
                             />
                         )}
@@ -91,25 +84,13 @@ class LoginForm extends React.Component<
                                     message: "Please input your password."
                                 }
                             ]
-                        })(
-                            <Input
-                                prefix={
-                                    <Icon
-                                        type={lockIconString}
-                                        className={lockClass}
-                                        onClick={this.onLockClick}
-                                    />
-                                }
-                                type={passwordType}
-                                placeholder="Password"
-                            />
-                        )}
+                        })(<PasswordInput />)}
                     </FormItem>
                     <FormItem>
-                        {getFieldDecorator("remember", {
+                        {getFieldDecorator("rememberMe", {
                             valuePropName: "checked",
-                            initialValue: false
-                        })(<Checkbox>Remember me</Checkbox>)}
+                            initialValue: rememberMe
+                        })(<Checkbox >Remember me</Checkbox>)}
                         <Link
                             to="forgot-password"
                             className="login-form-forgot"

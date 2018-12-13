@@ -1,37 +1,34 @@
-import * as React from "react";
-import { observer } from "mobx-react";
-import { withRouter, RouteComponentProps } from "react-router";
-import { Card, Form, Input, Icon, Button, Row, Col } from "antd";
-import { FormComponentProps } from "antd/lib/form";
-import FormItem from "antd/lib/form/FormItem";
+import './Register.less';
 
-import "./Register.less";
-import classNames from "classnames";
-import { displayErrorNotification } from "src/utils/notification-helper";
-import { Link } from "react-router-dom";
+import { Button, Card, Col, Form, Icon, Input, Row } from 'antd';
+import { FormComponentProps } from 'antd/lib/form';
+import FormItem from 'antd/lib/form/FormItem';
+import { inject, observer } from 'mobx-react';
+import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
+import PasswordInput from 'src/components/PasswordInput/PasswordInput';
+import { AuthStore } from 'src/stores/auth-store';
 
 enum RegisterErrorCode {
     DuplicateUserName = "DuplicateUserName",
     DuplicateEmail = "DuplicateEmail"
 }
 
-interface RegisterFormState {
-    isDirty: boolean;
-    showPassword: boolean;
+interface RegisterFormProps extends FormComponentProps {
+    authStore?: AuthStore;
 }
 
-@observer
-class RegisterForm extends React.Component<
-    FormComponentProps & RouteComponentProps<any>,
-    RegisterFormState
-> {
-    state = {
-        isDirty: false,
-        showPassword: false
-    };
+interface RegisterFormState {
+    isDirty: boolean;
+}
 
-    private onLockClick = () => {
-        this.setState({ showPassword: !this.state.showPassword });
+@inject('authStore')
+@observer
+class RegisterForm extends React.Component<RegisterFormProps & RouteComponentProps<any>, RegisterFormState> {
+
+    state = {
+        isDirty: false
     };
 
     private handleBlur = e => {
@@ -41,10 +38,13 @@ class RegisterForm extends React.Component<
 
     private submitForm = (e: React.FormEvent) => {
         e.preventDefault();
-    };
+        const { form, authStore } = this.props;
 
-    private showErrorNotification = (description: string) => {
-        displayErrorNotification("Unable to register", description);
+        form.validateFields(async (err, values) => {
+            if(err) return;
+
+            await authStore!.register(values);
+        })
     };
 
     private validatePassword = (password: string): boolean => {
@@ -88,16 +88,6 @@ class RegisterForm extends React.Component<
     };
 
     public render() {
-        const { showPassword } = this.state;
-
-        const lockIconString = showPassword ? "unlock" : "lock";
-        const passwordType = showPassword ? "text" : "password";
-
-        const lockClass = classNames({
-            "lock-icon": true,
-            locked: !showPassword,
-            unlocked: showPassword
-        });
 
         const { getFieldDecorator } = this.props.form;
         const iconStyle: React.CSSProperties = { color: "rgba(0,0,0,.25)" };
@@ -166,19 +156,7 @@ class RegisterForm extends React.Component<
                                     validator: this.validateWithConfirm
                                 }
                             ]
-                        })(
-                            <Input
-                                prefix={
-                                    <Icon
-                                        type={lockIconString}
-                                        className={lockClass}
-                                        onClick={this.onLockClick}
-                                    />
-                                }
-                                type={passwordType}
-                                placeholder="Password"
-                            />
-                        )}
+                        })(<PasswordInput />)}
                     </FormItem>
                     <FormItem label="Confirm Password" hasFeedback required>
                         {getFieldDecorator("confirmPassword", {
@@ -188,20 +166,7 @@ class RegisterForm extends React.Component<
                                     validator: this.validateWithOriginal
                                 }
                             ]
-                        })(
-                            <Input
-                                prefix={
-                                    <Icon
-                                        type={lockIconString}
-                                        className={lockClass}
-                                        onClick={this.onLockClick}
-                                    />
-                                }
-                                onBlur={this.handleBlur}
-                                type={passwordType}
-                                placeholder="Confirm Password"
-                            />
-                        )}
+                        })(<PasswordInput onBlur={this.handleBlur} placeholder="Confirm Password" />)}
                     </FormItem>
                     <Button
                         type="primary"
