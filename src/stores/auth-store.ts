@@ -18,8 +18,8 @@ class AuthStore {
 
     @action async login({ userName, password } : LoginRequestData) {
         try {
-            const { refreshToken, accessToken, user } = await AuthService.login(userName, password);
-            userStore.setToken({ accessToken, refreshToken });
+            const { tokens, user } = await AuthService.login(userName, password);
+            userStore.setToken(tokens);
             userStore.setUser(user);
             history.push('/');
         } catch(e) {
@@ -39,8 +39,8 @@ class AuthStore {
 
     @action async register(registerRequest : RegisterRequestData) {
         try {
-            const { refreshToken, accessToken, user } = await AuthService.register(registerRequest);
-            userStore.setToken({ accessToken, refreshToken });
+            const { tokens, user } = await AuthService.register(registerRequest);
+            userStore.setToken(tokens);
             userStore.setUser(user);
             history.push('/');
         } catch(e) {

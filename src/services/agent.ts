@@ -9,8 +9,8 @@ const ROOT_URL = process.env.REACT_APP_API_BASE_URL;
 const combinePath = url => `${ROOT_URL}/api${url}`;
 
 const tokenPlugin = (req: SuperAgentRequest) => {
-    if(userStore && userStore.accessToken) {
-        req.set("Authorization", `Bearer ${userStore.accessToken}`);
+    if(userStore && userStore.tokens && userStore.tokens.accessToken) {
+        req.set("Authorization", `Bearer ${userStore.tokens.accessToken}`);
     }
 }
 

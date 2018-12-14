@@ -10,8 +10,11 @@ import EditorView from "./features/Editor/EditorView";
 import DashboardView from "./features/Dashboard/DashboardView";
 import { inject, observer } from "mobx-react";
 import { UserStore } from "./stores/user-store";
+import ProfileView from "./features/Profile/ProfileView";
 
 const { Content } = Layout;
+
+const ForgotPassword = <div>Welp, that sucks duude</div>
 
 interface IAppProps {
     userStore?: UserStore;
@@ -36,6 +39,7 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
                                     exact
                                 />
                                 <Route path="/editor" component={EditorView} />
+                                <Route path="/profile" component={ProfileView} />
                             </Switch>
                         </Content>
                     </Layout>
@@ -45,6 +49,7 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
                             <Route exact path="/" component={LoginView} />
                             <Route path="/login" component={LoginView} />
                             <Route path="/register" component={RegisterView} />
+                            <Route path="/forgot-password" component={ForgotPassword} />
                         </Switch>
                     </Content>
                 )}

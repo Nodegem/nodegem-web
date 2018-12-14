@@ -7,7 +7,6 @@ import './Sider.scss';
 import { UserStore } from "src/stores/user-store";
 import { CommonStore } from "src/stores/common-store";
 import { AuthStore } from "src/stores/auth-store";
-import { rootStore } from "src/stores";
 
 const AntSider = Layout.Sider;
 
@@ -23,19 +22,19 @@ interface SiderProps {
 @observer
 class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
 
-    private handleCollapse = () => {
+    handleCollapse = () => {
         this.props.commonStore!.toggleCollapsed();
     }
 
-    private handleBreakpoint = (broken: boolean) => {
+    handleBreakpoint = (broken: boolean) => {
         this.props.commonStore!.setBreakpoint(broken);
     }
 
-    private themeClick = () => {
+    themeClick = () => {
         this.props.commonStore!.changeTheme();
     }
 
-    private logout = () => {
+    logout = () => {
         this.props.authStore!.logout();
     }
 
@@ -82,20 +81,22 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
                             <span>Editor</span>
                         </Link>
                     </Menu.Item>
-                    {
-                        userStore!.isLoggedIn && (
-                            <Menu.SubMenu title={SettingsIcon} key="settings">
-                                <Menu.Item key="theme" onClick={this.themeClick}>
-                                    <Icon type="bg-colors" />
-                                    Change Theme
-                                </Menu.Item>
-                                <Menu.Item key="logout" onClick={this.logout}>
-                                    <Icon type="logout" />
-                                    Logout
-                                </Menu.Item>
-                            </Menu.SubMenu>
-                        )
-                    }
+                    <Menu.SubMenu title={SettingsIcon} key="settings">
+                        <Menu.Item key="profile">
+                            <Link to="/profile">
+                                <Icon type="profile" />
+                                Profile Settings
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item key="theme" onClick={this.themeClick}>
+                            <Icon type="bg-colors" />
+                            Change Theme
+                        </Menu.Item>
+                        <Menu.Item key="logout" onClick={this.logout}>
+                            <Icon type="logout" />
+                            Logout
+                        </Menu.Item>
+                    </Menu.SubMenu>
                 </Menu>
             </AntSider>
         );

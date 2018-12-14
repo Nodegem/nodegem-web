@@ -10,9 +10,15 @@ interface UserResponseData {
     refreshToken: string
 }
 
-interface LoginResponseData {
+interface Tokens {
     accessToken: string,
     refreshToken: string,
+    issuedUtc: Date,
+    expiresUtc: Date
+}
+
+interface LoginResponseData {
+    tokens: Tokens,
     user: UserResponseData
 }
 
