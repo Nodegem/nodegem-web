@@ -1,6 +1,7 @@
 import { ModalFormType } from 'src/features/Dashboard/dashboard-store';
-import { action, observable, runInAction } from "mobx";
+import { action, observable, runInAction, toJS } from "mobx";
 import { GraphService } from "src/services";
+import { userStore } from 'src/stores';
 
 export type ModalFormType = "graph" | "macro";
 
@@ -45,12 +46,12 @@ class DashboardStore {
     }
 
     @action 
-    async createNewGraph(graph: Graph) {
+    async createNewGraph(graph: CreateGraph) {
         this.loadingGraphs = true;
 
         try {
-            
-            const newGraph = await GraphService.create(graph);
+            const { id } = userStore.user!;
+            const newGraph = await GraphService.create({ ...graph, userId: id });
             runInAction(() => {
                 this.graphs.push(newGraph);
             })
@@ -68,8 +69,8 @@ class DashboardStore {
     async updateGraph(graph: Graph) {
         this.loadingGraphs = true;
         try {
-            
-            const updatedGraph = await GraphService.update(graph);
+            const { id } = userStore.user!;
+            const updatedGraph = await GraphService.update({ ...graph, userId: id });
             runInAction(() => {
                 const index = this.graphs.findIndex(x => x.id === graph.id);
                 if(index >= 0) {
@@ -109,7 +110,8 @@ class DashboardStore {
         this.loadingGraphs = true;
 
         try {
-            const graphs = await GraphService.getAll();
+            const { id } = userStore.user!;
+            const graphs = await GraphService.getAll(id);
             runInAction(() => {
                 this.graphs = graphs as Array<Graph>;
             });

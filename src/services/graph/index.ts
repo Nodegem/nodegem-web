@@ -1,8 +1,8 @@
 import { requests } from "../agent";
 
 const GraphService = {
-    getAll: () : Promise<Array<Graph>> => 
-        requests.get("/graph/all"),
+    getAll: (userId: string) : Promise<Array<Graph>> => 
+        requests.get(`/graph/all/${userId}`),
     delete: (id: string) : Promise<void> => 
         requests.del(`/graph/${id}`),
     get: (id: string) : Promise<Graph> => 

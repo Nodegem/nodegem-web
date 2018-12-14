@@ -1,10 +1,12 @@
-import { observable, computed, action } from "mobx";
+import { observable, computed, action, toJS } from "mobx";
 
 class UserStore {
 
     @observable user?: User;
 
-    @computed get isLoggedIn() : boolean { return !!this.user; }
+    @computed get isLoggedIn() : boolean { 
+        return !!this.user && Object.keys(this.user).length > 0; 
+    }
 
     @observable accessToken: string = "";
     @observable refreshToken: string = "";
@@ -18,7 +20,7 @@ class UserStore {
         this.user = user;
     }
 
-    @action logout() {
+    @action deleteUserInfo() {
         this.accessToken = "";
         this.refreshToken = "";
         this.user = undefined;

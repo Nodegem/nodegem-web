@@ -1,5 +1,4 @@
 interface UserResponseData {
-
     id: string,
     userName: string,
     email: string,
@@ -9,6 +8,16 @@ interface UserResponseData {
     lastUpdated: Date,
     accessToken: string,
     refreshToken: string
+}
+
+interface LoginResponseData {
+    accessToken: string,
+    refreshToken: string,
+    user: UserResponseData
+}
+
+interface RegisterResponseData extends LoginResponseData {
+    
 }
 
 interface LoginRequestData {

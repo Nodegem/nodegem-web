@@ -18,8 +18,8 @@ class AuthStore {
 
     @action async login({ userName, password } : LoginRequestData) {
         try {
-            const user = await AuthService.login(userName, password);
-            userStore.setToken(user);
+            const { refreshToken, accessToken, user } = await AuthService.login(userName, password);
+            userStore.setToken({ accessToken, refreshToken });
             userStore.setUser(user);
             history.push('/');
         } catch(e) {
@@ -37,6 +37,24 @@ class AuthStore {
         }
     }
 
+    @action async register(registerRequest : RegisterRequestData) {
+        try {
+            const { refreshToken, accessToken, user } = await AuthService.register(registerRequest);
+            userStore.setToken({ accessToken, refreshToken });
+            userStore.setUser(user);
+            history.push('/');
+        } catch(e) {
+            let errorMessage = "Unable to connect to service.";
+
+            if(e.response && e.status === 400) {
+                const responseText = JSON.parse(e.response.text) as Array<RegisterErrorResponse>;
+                errorMessage = responseText.map(x => x.description).join('\n');
+            }
+
+            notification.error({ message: "Unable to register account", description: errorMessage });
+        }
+    }
+
     @action setRememberMe(rememberMe: boolean, savedCreds) {
         this.rememberMe = rememberMe;
         
@@ -51,26 +69,8 @@ class AuthStore {
         } catch(e) {
             console.warn(e);
         } finally {
-            userStore.logout();
+            userStore.deleteUserInfo();
             history.push('/login');
-        }
-    }
-
-    @action async register(registerRequest : RegisterRequestData) {
-        try {
-            const user = await AuthService.register(registerRequest);
-            userStore.setToken(user);
-            userStore.setUser(user);
-            history.push('/');
-        } catch(e) {
-            let errorMessage = "Unable to connect to service.";
-
-            if(e.response && e.status === 400) {
-                const responseText = JSON.parse(e.response.text) as Array<RegisterErrorResponse>;
-                errorMessage = responseText.map(x => x.description).join('\n');
-            }
-
-            notification.error({ message: "Unable to register account", description: errorMessage });
         }
     }
 

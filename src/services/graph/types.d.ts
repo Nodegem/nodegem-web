@@ -4,10 +4,12 @@ interface Graph {
     isActive: boolean,
     description: string,
     createdOn: Date,
-    lastUpdated: Date
+    lastUpdated: Date,
+    userId: string
 }
 
 interface CreateGraph {
     name: string,
-    description: string
+    description: string,
+    userId: string
 }
