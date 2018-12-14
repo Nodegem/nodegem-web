@@ -39,7 +39,6 @@
   "devDependencies": {
     "@types/classnames": "^2.2.6",
     "@types/jest": "^23.3.1",
-    "@types/localforage": "^0.0.34",
     "@types/lodash": "^4.14.116",
     "@types/node": "^10.12.12",
     "@types/react": "^16.6.3",
