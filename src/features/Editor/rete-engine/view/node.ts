@@ -1,11 +1,11 @@
-import { Component } from './../component';
+import { Component } from '../component';
 import { Control } from '../control';
-import { Drag } from './drag';
 import { Emitter } from '../core/emitter';
 import { IO } from '../io';
-import { Control as ViewControl } from './control';
-import { Socket as ViewSocket } from './socket';
 import { Node as NodeData } from '../node';
+import { Control as ViewControl } from './control';
+import { Drag } from './drag';
+import { Socket as ViewSocket } from './socket';
 
 export class Node extends Emitter {
 

@@ -1,5 +1,5 @@
-import { observable, action, computed, runInAction } from "mobx";
-import { UtilService } from "src/services";
+import { action, computed, observable, runInAction } from 'mobx';
+import { UtilService } from 'src/services';
 
 class EditorStore {
 
@@ -20,13 +20,15 @@ class EditorStore {
         0: { title: "Tab 1", closable: false }
     };
 
-    constructor() {
-        this.loadDefinitions();
-    }
-
     @action 
     async loadDefinitions() {
         this.loadingDefinitions = true;
+
+        if(this.nodeDefinitions && this.nodeDefinitions.length > 0) {
+            this.loadingDefinitions = false;
+            return;
+        }
+
         try {
             const definitions = await UtilService.getAllNodeDefinitions();
             runInAction(() => {
@@ -39,6 +41,14 @@ class EditorStore {
                 this.loadingDefinitions = false;
             });
         }
+    }
+
+    getDefinitionByNamespace = (namespace: string) : NodeDefinition => {
+        return this.nodeDefinitions.filter(x => x.namespace === namespace).firstOrDefault()!;
+    }
+
+    getStartNodeDefinition = () : NodeDefinition => {
+        return this.nodeDefinitions.filter(x => x.namespace.includes("Control.Start")).firstOrDefault()!;
     }
 
     @action setGraph(graph?: Graph) {

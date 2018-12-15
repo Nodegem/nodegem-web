@@ -1,8 +1,8 @@
-import * as React from 'react';
 import { Modal } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import Form, { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
 import { ModalProps } from 'antd/lib/modal';
+import * as React from 'react';
 
 type FieldDecorator = <T extends Object = {}>(id: keyof T, options?: GetFieldDecoratorOptions) => (node: React.ReactNode) => React.ReactNode;
 

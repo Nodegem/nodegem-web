@@ -1,6 +1,6 @@
-import * as React from "react";
-import { Input } from "antd";
-import { InputProps } from "antd/lib/input";
+import { Input } from 'antd';
+import { InputProps } from 'antd/lib/input';
+import * as React from 'react';
 
 // function formatNumber(value) {
 //     value += "";

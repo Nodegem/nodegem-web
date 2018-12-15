@@ -1,5 +1,6 @@
-import { LinkImportExport } from './../../../rete-engine/link';
 import { NodeImportExport } from 'src/features/Editor/rete-engine/node';
+
+import { LinkImportExport } from '../../../rete-engine/link';
 
 export const transformGraph = ({id, nodes, links} : { id: string, nodes: Array<NodeImportExport>, links: Array<LinkImportExport>}) : RunGraphData => {
     return {

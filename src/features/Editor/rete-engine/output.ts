@@ -1,6 +1,6 @@
-import { Link } from './link';
-import { IO } from './io';
 import { Input } from './input';
+import { IO } from './io';
+import { Link } from './link';
 import { Socket } from './socket';
 
 export class Output extends IO {

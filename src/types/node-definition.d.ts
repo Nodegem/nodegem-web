@@ -2,6 +2,7 @@ interface NodeDefinition {
     namespace: string;
     title: string;
     description: string;
+    canBeDeleted: boolean;
     flowInputs: Array<FlowInputDefinition>;
     flowOutputs: Array<FlowOutputDefinition>;
     valueInputs: Array<ValueInputDefinition>;

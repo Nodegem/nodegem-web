@@ -1,12 +1,12 @@
-import React from "react";
-import { Menu, Layout, Icon } from "antd";
-import { observer, inject } from "mobx-react";
-import { Link, withRouter, RouteComponentProps } from "react-router-dom";
-
 import './Sider.scss';
-import { UserStore } from "src/stores/user-store";
-import { CommonStore } from "src/stores/common-store";
-import { AuthStore } from "src/stores/auth-store";
+
+import { Icon, Layout, Menu } from 'antd';
+import { inject, observer } from 'mobx-react';
+import React from 'react';
+import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
+import { AuthStore } from 'src/stores/auth-store';
+import { CommonStore } from 'src/stores/common-store';
+import { UserStore } from 'src/stores/user-store';
 
 const AntSider = Layout.Sider;
 

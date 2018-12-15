@@ -1,9 +1,9 @@
-import { Component } from "./rete-engine/component";
-import { Socket } from "./rete-engine/socket";
-import { Input } from "./rete-engine/input";
-import { Node } from "./rete-engine/node";
-import { Output } from "./rete-engine/output";
-import { GenericControl } from "./generic-control";
+import { GenericControl } from './generic-control';
+import { Component } from './rete-engine/component';
+import { Input } from './rete-engine/input';
+import { Node } from './rete-engine/node';
+import { Output } from './rete-engine/output';
+import { Socket } from './rete-engine/socket';
 
 const sockets = {
     flow: new Socket("Flow"),
@@ -12,7 +12,7 @@ const sockets = {
 
 export class GenericComponent extends Component {
 
-    private nodeDefinition: NodeDefinition;
+    public nodeDefinition: NodeDefinition;
     public props: object;
 
     constructor(nodeDefinition: NodeDefinition) {

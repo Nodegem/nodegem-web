@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route, Redirect } from 'react-router';
+import { Redirect, Route } from 'react-router';
 
 export const ProtectedRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={props => (

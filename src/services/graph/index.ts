@@ -1,4 +1,4 @@
-import { requests } from "../agent";
+import { requests } from '../agent';
 
 const GraphService = {
     getAll: (userId: string) : Promise<Array<Graph>> => 

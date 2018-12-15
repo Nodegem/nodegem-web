@@ -1,13 +1,14 @@
+import { uuid } from 'lodash-uuid';
+
 import { Component } from './component';
-import { Link, LinkImportExport } from './link';
 import { Context } from './core/context';
 import { EditorEvents } from './events';
-import { EditorView } from './view/index';
 import { Input } from './input';
+import { Link, LinkImportExport } from './link';
 import { Node, NodeImportExport } from './node';
 import { Output } from './output';
 import { Selected } from './selected';
-import { uuid } from 'lodash-uuid';
+import { EditorView } from './view/index';
 
 export type EditorImportExport = { id: string, nodes: NodeImportExport[], links: LinkImportExport[] }
 export class NodeEditor extends Context {
@@ -31,6 +32,8 @@ export class NodeEditor extends Context {
 
         this.selected = new Selected();
         this.view = new EditorView(container, this.components, this);
+
+        this.bind('clear');
 
         window.addEventListener('keydown', e => this.trigger('keydown', e));
         window.addEventListener('keyup', e => this.trigger('keyup', e));
@@ -114,6 +117,7 @@ export class NodeEditor extends Context {
 
     clear() {
         [...this.nodes].map(node => this.removeNode(node));
+        this.trigger('clear');
     }
 
     private deselectAllNodes = (e, container: HTMLElement) => {

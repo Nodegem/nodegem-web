@@ -1,7 +1,7 @@
 import { Icon, Input } from 'antd';
+import { InputProps } from 'antd/lib/input';
 import classNames from 'classnames';
 import * as React from 'react';
-import { InputProps } from 'antd/lib/input';
 
 class PasswordInput extends React.Component<InputProps, { showPassword: boolean }> {
 

@@ -1,4 +1,4 @@
-import { requests } from "../agent";
+import { requests } from '../agent';
 
 const AuthService = {
     login: (username, password) : Promise<LoginResponseData> => 

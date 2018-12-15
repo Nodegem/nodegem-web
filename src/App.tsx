@@ -1,16 +1,17 @@
-import * as React from "react";
-import { Switch, Route, withRouter, RouteComponentProps } from "react-router-dom";
-import { Layout } from "antd";
-import Sider from "./features/Sider/Sider";
-import LoginView from "./features/Account/Login/LoginFormView";
-import RegisterView from "./features/Account/Register/RegisterFormView";
+import './App.less';
 
-import "./App.less";
-import EditorView from "./features/Editor/EditorView";
-import DashboardView from "./features/Dashboard/DashboardView";
-import { inject, observer } from "mobx-react";
-import { UserStore } from "./stores/user-store";
-import ProfileView from "./features/Profile/ProfileView";
+import { Layout } from 'antd';
+import { inject, observer } from 'mobx-react';
+import * as React from 'react';
+import { Route, RouteComponentProps, Switch, withRouter } from 'react-router-dom';
+
+import LoginView from './features/Account/Login/LoginFormView';
+import RegisterView from './features/Account/Register/RegisterFormView';
+import DashboardView from './features/Dashboard/DashboardView';
+import EditorView from './features/Editor/EditorView';
+import ProfileView from './features/Profile/ProfileView';
+import Sider from './features/Sider/Sider';
+import { UserStore } from './stores/user-store';
 
 const { Content } = Layout;
 

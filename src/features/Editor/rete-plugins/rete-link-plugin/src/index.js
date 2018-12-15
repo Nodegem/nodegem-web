@@ -94,6 +94,7 @@ function install(editor) {
 }
 
 export default {
+    name: 'rete-link-plugin',
     install,
     defaultPath
 }

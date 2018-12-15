@@ -1,5 +1,5 @@
-import { Drag } from './drag';
 import { Emitter } from '../core/emitter';
+import { Drag } from './drag';
 import { Zoom } from './zoom';
 
 export class Area extends Emitter {

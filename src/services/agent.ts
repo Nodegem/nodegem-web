@@ -1,6 +1,6 @@
-import superagentPromise from 'superagent-promise';
-import _superagent, { SuperAgentRequest, SuperAgentStatic } from 'superagent';
 import { userStore } from 'src/stores';
+import _superagent, { SuperAgentRequest, SuperAgentStatic } from 'superagent';
+import superagentPromise from 'superagent-promise';
 
 const superagent = superagentPromise(_superagent, global.Promise) as SuperAgentStatic;
 

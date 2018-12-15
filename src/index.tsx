@@ -10,10 +10,10 @@ import * as ReactDOM from 'react-dom';
 import { Router } from 'react-router';
 
 import App from './App';
-import registerServiceWorker from './registerServiceWorker';
-import history from './utils/history';
-import { rootStore } from './stores';
 import MobXPersistGate from './components/MobXPersistGate/MobXPersistGate';
+import registerServiceWorker from './registerServiceWorker';
+import { rootStore } from './stores';
+import history from './utils/history';
 
 const trunk = new AsyncTrunk(rootStore, {
     storage: LocalForage as any
@@ -34,7 +34,7 @@ ReactDOM.render(
                 </Router>
             </Provider>
         </MobXPersistGate>
-        <DevTools />
+        <DevTools noPanel />
     </>,
     document.getElementById("root") as HTMLElement
 );

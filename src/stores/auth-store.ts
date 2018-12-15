@@ -1,8 +1,9 @@
-import { observable, action } from "mobx";
-import { AuthService } from "src/services";
+import { notification } from 'antd';
+import { action, observable } from 'mobx';
+import { AuthService } from 'src/services';
+import history from 'src/utils/history';
+
 import userStore from './user-store';
-import { notification } from "antd";
-import history from "src/utils/history";
 
 interface RegisterErrorResponse {
     code: string,

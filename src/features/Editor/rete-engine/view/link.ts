@@ -1,6 +1,6 @@
 import { Emitter } from '../core/emitter';
-import { Node as ViewNode } from './node';
 import { Link as LinkData } from '../link';
+import { Node as ViewNode } from './node';
 
 export class Link extends Emitter {
 

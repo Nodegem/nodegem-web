@@ -1,13 +1,13 @@
-import { Area as AreaView } from './area';
-import { Link } from '../link';
 import { Emitter } from '../core/emitter';
+import { Link } from '../link';
 import { Node } from '../node';
+import { Area as AreaView } from './area';
+import { Control as ControlView } from './control';
+import { Drag } from './drag';
 import { Link as LinkView } from './link';
 import { Node as NodeView } from './node';
 import { Socket as SocketView } from './socket';
-import { Control as ControlView } from './control';
 import { Zoom } from './zoom';
-import { Drag } from './drag';
 
 class EditorView extends Emitter {
 

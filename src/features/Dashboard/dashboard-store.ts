@@ -1,7 +1,8 @@
+import { action, observable, runInAction, toJS } from 'mobx';
 import { ModalFormType } from 'src/features/Dashboard/dashboard-store';
-import { action, observable, runInAction, toJS } from "mobx";
-import { GraphService } from "src/services";
+import { GraphService } from 'src/services';
 import { userStore } from 'src/stores';
+import { getHeapStatistics } from 'v8';
 
 export type ModalFormType = "graph" | "macro";
 
@@ -108,6 +109,11 @@ class DashboardStore {
     @action 
     async fetchGraphs() {
         this.loadingGraphs = true;
+
+        if(this.graphs && !this.graphs.empty()) {
+            this.loadingGraphs = false;
+            return;
+        }
 
         try {
             const { id } = userStore.user!;

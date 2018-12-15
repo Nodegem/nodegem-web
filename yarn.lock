@@ -300,11 +300,6 @@ ajv@^6.1.0, ajv@^6.5.5:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-alight@^0.14.1:
-  version "0.14.1"
-  resolved "https://registry.yarnpkg.com/alight/-/alight-0.14.1.tgz#ba9a16b683777c93dff3ec5dc26230332097215a"
-  integrity sha1-upoWtoN3fJPf8+xdwmIwMyCXIVo=
-
 align-text@^0.1.1, align-text@^0.1.3:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/align-text/-/align-text-0.1.4.tgz#0cd90a561093f35d0a99256c22b7069433fad117"
@@ -7988,6 +7983,14 @@ react-app-rewired@^1.4.1:
     cross-spawn "^5.1.0"
     dotenv "^4.0.0"
 
+react-contextmenu@^2.10.0:
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/react-contextmenu/-/react-contextmenu-2.10.0.tgz#3a5338a552964db85c300072f719bc1f6b969838"
+  integrity sha512-neiZGpfxfYFjqbcIExi69qruqhB7l0LKEguHDXeizgyTGbJHTwbq1GplXCHIafUAkbGZH8FfD9PBeUcSRG78+Q==
+  dependencies:
+    classnames "^2.2.5"
+    object-assign "^4.1.0"
+
 react-dev-utils@^5.0.1:
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-5.0.3.tgz#92f97668f03deb09d7fa11ea288832a8c756e35e"
@@ -8537,13 +8540,6 @@ ret@~0.1.10:
   version "0.1.15"
   resolved "https://registry.yarnpkg.com/ret/-/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
   integrity sha512-TTlYpa+OL+vMMNG24xSlQGEJ3B/RzEfUlLct7b5G/ytav+wPrplCpVMFuwzXbkecJrb6IYo1iFb0S9v37754mg==
-
-rete-context-menu-plugin@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/rete-context-menu-plugin/-/rete-context-menu-plugin-0.1.4.tgz#ff0dac6dd4faa35618c3ca44b8ebf8b8c3563f69"
-  integrity sha512-TyWMJSIT7YAcfb5ExPd3tRAHgbJV7xRCukv37fPxYGBXeXPgJW8kSQ0UMBFKzvSTF0lzw75hpvEej80wptC6Cg==
-  dependencies:
-    alight "^0.14.1"
 
 right-align@^0.1.1:
   version "0.1.3"

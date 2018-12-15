@@ -1,7 +1,8 @@
+import { uuid } from 'lodash-uuid';
+
 import { Control } from './control';
 import { Input } from './input';
 import { Output } from './output';
-import { uuid } from 'lodash-uuid';
 
 export type NodeKeyValueData = { key: string, value: any };
 export type NodeImportExport = { id: string, namespace: string, position: [number, number], fieldData?: Array<NodeKeyValueData> }

@@ -1,6 +1,8 @@
-import { SimpleObservable } from '../utils/simple-observable';
-import * as signalR from '@aspnet/signalr';
 import { getBaseApiUrl } from 'src/utils';
+
+import * as signalR from '@aspnet/signalr';
+
+import { SimpleObservable } from '../utils/simple-observable';
 
 abstract class BaseHub {
 

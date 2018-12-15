@@ -1,11 +1,11 @@
 import { observable } from 'mobx';
 import { ignore } from 'mobx-sync';
+import dashboardStore from 'src/features/Dashboard/dashboard-store';
+import editorStore from 'src/features/Editor/editor-store';
 
 import authStore from './auth-store';
-import userStore from './user-store';
-import editorStore from 'src/features/Editor/editor-store';
-import dashboardStore from 'src/features/Dashboard/dashboard-store';
 import commonStore from './common-store';
+import userStore from './user-store';
 
 class RootStore {
 

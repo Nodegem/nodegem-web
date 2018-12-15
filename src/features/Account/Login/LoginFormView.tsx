@@ -1,22 +1,14 @@
-import * as React from "react";
-import { withRouter, RouteComponentProps } from "react-router";
-import {
-    Form,
-    Input,
-    Icon,
-    Button,
-    Checkbox,
-    Card,
-    Row
-} from "antd";
-import FormItem from "antd/lib/form/FormItem";
-import { FormComponentProps } from "antd/lib/form/Form";
+import './Login.less';
 
-import "./Login.less";
-import { observer, inject } from "mobx-react";
-import { Link } from "react-router-dom";
-import PasswordInput from "src/components/PasswordInput/PasswordInput";
-import { AuthStore } from "src/stores/auth-store";
+import { Button, Card, Checkbox, Form, Icon, Input, Row } from 'antd';
+import { FormComponentProps } from 'antd/lib/form/Form';
+import FormItem from 'antd/lib/form/FormItem';
+import { inject, observer } from 'mobx-react';
+import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
+import PasswordInput from 'src/components/PasswordInput/PasswordInput';
+import { AuthStore } from 'src/stores/auth-store';
 
 interface LoginFormProps extends FormComponentProps {
     authStore?: AuthStore;

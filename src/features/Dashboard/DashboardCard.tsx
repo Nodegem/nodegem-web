@@ -1,6 +1,6 @@
-import * as React from "react";
-import { Card, Tooltip, Icon } from "antd";
-import { ModalFormType } from "src/features/Dashboard/dashboard-store";
+import { Card, Icon, Tooltip } from 'antd';
+import * as React from 'react';
+import { ModalFormType } from 'src/features/Dashboard/dashboard-store';
 
 interface DashboardCardProps {
     item: Graph,

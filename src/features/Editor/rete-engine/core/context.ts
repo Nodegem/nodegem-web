@@ -1,4 +1,4 @@
-import { Emitter } from './emitter'
+import { Emitter } from './emitter';
 import { Events } from './events';
 
 export class Context extends Emitter {

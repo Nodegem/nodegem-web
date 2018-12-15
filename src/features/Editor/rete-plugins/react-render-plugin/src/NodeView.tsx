@@ -1,10 +1,12 @@
-import * as React from "react";
-import { Node } from "src/features/Editor/rete-engine/node";
-import "./Node.less";
-import SocketView from "./SocketView";
-import GenericControlView from "./GenericControlView";
-import classNames from "classnames";
-import { NodeEditor } from "src/features/Editor/rete-engine/editor";
+import './Node.less';
+
+import classNames from 'classnames';
+import * as React from 'react';
+import { NodeEditor } from 'src/features/Editor/rete-engine/editor';
+import { Node } from 'src/features/Editor/rete-engine/node';
+
+import GenericControlView from './GenericControlView';
+import SocketView from './SocketView';
 
 type NodeViewProps = { node: Node, editor: NodeEditor, title: string, bindSocket: Function; bindControl: Function };
 export default class NodeView extends React.Component<NodeViewProps> {

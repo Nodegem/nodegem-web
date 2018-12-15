@@ -1,8 +1,8 @@
+import { Form, Input } from 'antd';
+import FormItem from 'antd/lib/form/FormItem';
+import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import ModalForm, { ModalFormProps } from 'src/components/ModalForm/ModalForm';
-import { inject, observer } from 'mobx-react';
-import FormItem from 'antd/lib/form/FormItem';
-import { Input, Form } from 'antd';
 import { DashboardStore, ModalFormType } from 'src/features/Dashboard/dashboard-store';
 
 interface ModalProps extends ModalFormProps {

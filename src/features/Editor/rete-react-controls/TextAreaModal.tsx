@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { Button, Modal } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
+import * as React from 'react';
 
 interface TextAreaModalProps { 
     title: string;

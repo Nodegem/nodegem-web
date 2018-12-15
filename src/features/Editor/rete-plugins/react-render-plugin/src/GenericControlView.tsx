@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 type GenericControlProps = { control: any, bindControl: Function }
 export default class GenericControlView extends React.Component<GenericControlProps> {

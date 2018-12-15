@@ -1,7 +1,8 @@
+import { mapToValueType } from 'src/utils/value-type-mapper';
+
 import { Control } from './rete-engine/control';
 import { Emitter } from './rete-engine/core/emitter';
 import { ReteControlView } from './rete-react-controls/ControlViews';
-import { mapToValueType } from 'src/utils/value-type-mapper';
 
 export class GenericControl extends Control {
 

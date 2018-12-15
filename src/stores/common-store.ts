@@ -1,6 +1,6 @@
-import { observable, action } from "mobx";
-import { SiderTheme } from "antd/lib/layout/Sider";
-import { ignore } from "mobx-sync";
+import { SiderTheme } from 'antd/lib/layout/Sider';
+import { action, observable } from 'mobx';
+import { ignore } from 'mobx-sync';
 
 class CommonStore {
 

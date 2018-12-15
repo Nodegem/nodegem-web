@@ -1,6 +1,6 @@
-import { Link } from './link';
 import { Control } from './control';
 import { IO } from './io';
+import { Link } from './link';
 import { Socket } from './socket';
 
 export class Input extends IO {

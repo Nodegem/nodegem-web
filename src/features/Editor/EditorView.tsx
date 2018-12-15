@@ -1,19 +1,21 @@
-import * as React from "react";
-import { observer, inject } from "mobx-react";
-import { NodeEditor, EditorImportExport } from "./rete-engine/editor";
-import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
-import ContextMenuPlugin from 'rete-context-menu-plugin';
-import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
+import './EditorView.less';
 
-import "./EditorView.less";
-import { GenericComponent } from "./generic-component";
-import FlowGraphHub from "./hubs/graph-hub";
-import TerminalHub from "./hubs/terminal-hub";
-import { transformGraph } from "./services/data-transform/run-graph";
-import { Tabs, Spin } from "antd";
-import { RouteComponentProps, withRouter } from "react-router";
-import { EditorStore } from "src/features/Editor/editor-store";
-import { toJS } from "mobx";
+import { Spin, Tabs } from 'antd';
+import { inject, observer } from 'mobx-react';
+import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { EditorStore } from 'src/features/Editor/editor-store';
+
+import { GenericComponent } from './generic-component';
+import FlowGraphHub from './hubs/graph-hub';
+import TerminalHub from './hubs/terminal-hub';
+import { EditorImportExport, NodeEditor } from './rete-engine/editor';
+import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
+import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
+import ReteReactMenu from './rete-plugins/rete-react-menu/src';
+import { transformGraph } from './services/data-transform/run-graph';
+import { toJS } from 'mobx';
+import { createNode } from './utils';
 
 const json : EditorImportExport = 
 {
@@ -65,20 +67,12 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
     public async componentDidMount() {
 
         const { editorStore } = this.props;
-        const { hasGraph, nodeDefinitions } = editorStore!;
-
-        // Maybe prompt user to select a graph?
-        if(!hasGraph) {
-            this.props.history.push("/");
-            return;
-        }
+        await editorStore!.loadDefinitions();
+        
+        const { nodeDefinitions } = editorStore!;
 
         const container = document.querySelector(".editor") as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
-
-        if(!nodeDefinitions || nodeDefinitions.empty()) {
-            await editorStore!.loadDefinitions();
-        }
 
         const definitions = nodeDefinitions;
         definitions.reduce((pV, cV) => {
@@ -94,23 +88,25 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
 
         applyBackground();
 
-        this.nodeEditor.use(ReactRenderPlugin);
-        this.nodeEditor.use(ContextMenuPlugin);
-        this.nodeEditor.use(ReteLinkPlugin);
-
         this.nodeEditor.fromJSON(json)
-        this.nodeEditor.view.resize();
-        window.addEventListener("keydown", this.keyDown);
+
+        this.nodeEditor.use(ReactRenderPlugin);
+        this.nodeEditor.use(ReteLinkPlugin);
+        this.nodeEditor.use(ReteReactMenu, {
+            definitions: nodeDefinitions.filter(x => x !== editorStore!.getStartNodeDefinition())
+        });
+
+        this.nodeEditor.on('clear', async () => await createNode(this.nodeEditor, editorStore!.getStartNodeDefinition(), { x: 20, y: 20 }))
+        this.nodeEditor.on('process', async () => {
+            this.runGraph();
+        });
     }
 
-    private keyDown = (e) => {
-        if(e.altKey && e.keyCode === 13) {
-            const graphData = transformGraph(this.nodeEditor.toJSON());
-
-            if(!graphData.links.empty() || !graphData.nodes.empty()) {
-                this.flowGraphHub
-                    .runGraph(graphData);
-            }
+    private runGraph = () => {
+        const graphData = transformGraph(this.nodeEditor.toJSON());
+        if(!graphData.links.empty() || !graphData.nodes.empty()) {
+            this.flowGraphHub
+                .runGraph(graphData);
         }
     }
 
@@ -120,8 +116,6 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
 
         this.terminalHub.dispose();
         this.flowGraphHub.dispose();
-
-        window.removeEventListener("keydown", this.keyDown);
     }
 
     private onTabChange = (key) => {

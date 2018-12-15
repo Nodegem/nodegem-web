@@ -1,4 +1,5 @@
-import { isInput } from './../../../../utils/index';
+import { isInput } from '../../../../utils/index';
+
 export class Zoom {
 
     el: Element;
