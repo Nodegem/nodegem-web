@@ -24,12 +24,12 @@ const json : EditorImportExport =
         {
             id: "8d5995d2-0163-4e02-b32b-943391f092fe",
             position: [20, 200],
-            namespace: "Core.Control.Start"
+            fullName: "Core.Control.Start"
         },
         {
             id: "3af4047b-a1d2-414a-8a80-e5b4962778b7",
             position: [300, 200],
-            namespace: "Core.Util.Logging.LogWarn"
+            fullName: "Core.Util.Logging.LogWarn"
         }
     ],
     links: [
@@ -74,6 +74,8 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
         const container = document.querySelector(".editor") as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
 
+        this.nodeEditor.bind("dispose")
+
         const definitions = nodeDefinitions;
         definitions.reduce((pV, cV) => {
             pV.push(new GenericComponent(cV));
@@ -111,6 +113,9 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
     }
 
     componentWillUnmount() {
+
+        this.nodeEditor.trigger("dispose")
+
         this.terminalHub.disconnect();
         this.flowGraphHub.disconnect();
 

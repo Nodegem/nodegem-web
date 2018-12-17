@@ -16,7 +16,7 @@ export class GenericComponent extends Component {
     public props: object;
 
     constructor(nodeDefinition: NodeDefinition) {
-        super(nodeDefinition.namespace);
+        super(nodeDefinition.fullName);
 
         this.props = {
             namespace: nodeDefinition.namespace,

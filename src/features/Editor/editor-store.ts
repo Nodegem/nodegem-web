@@ -48,7 +48,7 @@ class EditorStore {
     }
 
     getStartNodeDefinition = () : NodeDefinition => {
-        return this.nodeDefinitions.filter(x => x.namespace.includes("Control.Start")).firstOrDefault()!;
+        return this.nodeDefinitions.filter(x => x.title.startsWith("Start")).firstOrDefault()!;
     }
 
     @action setGraph(graph?: Graph) {

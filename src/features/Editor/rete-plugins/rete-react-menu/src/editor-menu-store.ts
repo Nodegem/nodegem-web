@@ -1,5 +1,3 @@
-import { observable, action } from "mobx";
-
 class EditorMenuStore {
 
     

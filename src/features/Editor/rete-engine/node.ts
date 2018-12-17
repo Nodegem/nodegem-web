@@ -5,7 +5,7 @@ import { Input } from './input';
 import { Output } from './output';
 
 export type NodeKeyValueData = { key: string, value: any };
-export type NodeImportExport = { id: string, namespace: string, position: [number, number], fieldData?: Array<NodeKeyValueData> }
+export type NodeImportExport = { id: string, fullName: string, position: [number, number], fieldData?: Array<NodeKeyValueData> }
 export class Node {
 
     public data: Array<NodeKeyValueData>;
@@ -94,12 +94,12 @@ export class Node {
                 value: this.data[x]
             })),
             position: this.position,
-            namespace: this.name
+            fullName: this.name
         }
     }
 
     static fromJSON(json: NodeImportExport) {
-        const node = new Node(json.namespace);
+        const node = new Node(json.fullName);
 
         node.id = json.id;
         node.data = json.fieldData || [];

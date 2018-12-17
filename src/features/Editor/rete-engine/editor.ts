@@ -176,7 +176,7 @@ export class NodeEditor extends Context {
 
         try {
             await Promise.all(json.nodes.map(async node => {
-                const component = this.getComponent(node.namespace);
+                const component = this.getComponent(node.fullName);
                 const newNode = await component.build(Node.fromJSON(node));
 
                 nodes.set(newNode.id, newNode);

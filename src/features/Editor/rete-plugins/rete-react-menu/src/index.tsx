@@ -8,6 +8,7 @@ import { NodeMenu, nodeMenuId } from './NodeMenu';
 import { editorMenuId, EditorMenu } from './EditorMenu';
 import nodeMenuStore from './node-menu-store';
 import editorMenuStore from './editor-menu-store';
+import { isDescendant } from 'src/utils';
 
 interface MenuProps {
     definitions: Array<NodeDefinition>
@@ -21,14 +22,12 @@ interface OnContextMenuProps {
 function install(editor: NodeEditor, params: MenuProps) {
 
     const editorMenuContainer = document.createElement('div');
-    editorMenuContainer.className = "editor-context-menu";
-    editor.view.container.appendChild(editorMenuContainer);
-    ReactDOM.render(<EditorMenu editor={editor} definitions={params.definitions || []} />, editorMenuContainer);
+    editor.view.container.parentElement!.appendChild(editorMenuContainer);
+    const editorMenuReact = ReactDOM.render(<EditorMenu editor={editor} definitions={params.definitions || []} />, editorMenuContainer);
 
     const nodeMenuContainer = document.createElement('div');
-    nodeMenuContainer.className = "node-context-menu";
-    editor.view.container.appendChild(nodeMenuContainer);
-    ReactDOM.render(<NodeMenu editor={editor} />, nodeMenuContainer);
+    editor.view.container.parentElement!.appendChild(nodeMenuContainer);
+    const nodeMenuReact = ReactDOM.render(<NodeMenu editor={editor} />, nodeMenuContainer);
 
     editor.bind('hidecontextmenu');
 
@@ -46,11 +45,9 @@ function install(editor: NodeEditor, params: MenuProps) {
     editor.on('click contextmenu', ({ container, e }) => {
 
         const target = e.target;
-        if(target && target.className.includes("editor-menu-search")) {
-            return;
+        if(target && isDescendant(container, target)) {
+            editor.trigger('hidecontextmenu');
         }
-        
-        editor.trigger('hidecontextmenu');
     })
 
     editor.on('contextmenu', ({e, node} : OnContextMenuProps) => {

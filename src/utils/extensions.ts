@@ -1,3 +1,5 @@
+import { string } from "prop-types";
+
 declare global {
   interface Array<T> {
     empty(): boolean;
@@ -5,6 +7,7 @@ declare global {
     firstOrDefault(): T | null;
     lastOrDefault(): T | null;
     copy(): Array<T>;
+    toDictionary<T>(array: Array<T>, indexKey: keyof T) : { [key : string] : T };
   }
 
   interface String {
@@ -30,6 +33,15 @@ Array.prototype.lastOrDefault = function<T>(): T | null {
 
 Array.prototype.copy = function<T>(): Array<T> {
   return this.slice(0);
+};
+
+Array.prototype.toDictionary = function <T>(array: Array<T>, indexKey: keyof T) {
+  const normalizedObject: any = {}
+  for (let i = 0; i < array.length; i++) {
+       const key = array[i][indexKey]
+       normalizedObject[key] = array[i]
+  }
+  return normalizedObject as { [key: string]: T }
 };
 
 String.prototype.upperCaseFirst = function jsUcfirst(): string {

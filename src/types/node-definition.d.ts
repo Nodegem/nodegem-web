@@ -1,4 +1,5 @@
 interface NodeDefinition {
+    fullName: string;
     namespace: string;
     title: string;
     description: string;

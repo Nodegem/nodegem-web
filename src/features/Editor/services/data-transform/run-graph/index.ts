@@ -9,7 +9,7 @@ export const transformGraph = ({id, nodes, links} : { id: string, nodes: Array<N
             .reduce((prev, cur) => {
                 prev.push({
                     id: cur.id,
-                    namespace: cur.namespace,
+                    namespace: cur.fullName,
                     fieldData: cur.fieldData
                 } as RunNodeData);
                 return prev;
