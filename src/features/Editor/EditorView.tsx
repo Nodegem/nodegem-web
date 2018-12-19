@@ -14,8 +14,8 @@ import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
 import ReteReactMenu from './rete-plugins/rete-react-menu/src';
 import { transformGraph } from './services/data-transform/run-graph';
-import { toJS } from 'mobx';
 import { createNode } from './utils';
+import { ContextMenuTrigger, ContextMenu, MenuItem } from 'react-contextmenu';
 
 const json : EditorImportExport = 
 {

@@ -8,7 +8,6 @@ import { createNode } from 'src/features/Editor/utils';
 import { observer } from 'mobx-react';
 import editorMenuStore from './editor-menu-store';
 import _ from 'lodash';
-import { toJS } from 'mobx';
 
 const buildNode = (e, { editor, definition }: NodeCreateProps) => {
     const { position } = editorMenuStore;

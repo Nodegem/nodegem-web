@@ -1,5 +1,4 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
 import { NodeEditor } from 'src/features/Editor/rete-engine/editor';
 import { Node } from 'src/features/Editor/rete-engine/node';
 import { showMenu, hideMenu } from 'react-contextmenu';
@@ -9,6 +8,8 @@ import { editorMenuId, EditorMenu } from './EditorMenu';
 import nodeMenuStore from './node-menu-store';
 import editorMenuStore from './editor-menu-store';
 import { isDescendant } from 'src/utils';
+
+import { contextMenu } from './context-menu';
 
 interface MenuProps {
     definitions: Array<NodeDefinition>
@@ -21,13 +22,13 @@ interface OnContextMenuProps {
 
 function install(editor: NodeEditor, params: MenuProps) {
 
-    const editorMenuContainer = document.createElement('div');
-    editor.view.container.parentElement!.appendChild(editorMenuContainer);
-    const editorMenuReact = ReactDOM.render(<EditorMenu editor={editor} definitions={params.definitions || []} />, editorMenuContainer);
+    // const editorMenuContainer = document.createElement('div');
+    // editor.view.container.parentElement!.appendChild(editorMenuContainer);
+    // const editorMenuReact = ReactDOM.render(<EditorMenu editor={editor} definitions={params.definitions || []} />, editorMenuContainer);
 
-    const nodeMenuContainer = document.createElement('div');
-    editor.view.container.parentElement!.appendChild(nodeMenuContainer);
-    const nodeMenuReact = ReactDOM.render(<NodeMenu editor={editor} />, nodeMenuContainer);
+    // const nodeMenuContainer = document.createElement('div');
+    // editor.view.container.parentElement!.appendChild(nodeMenuContainer);
+    // const nodeMenuReact = ReactDOM.render(<NodeMenu editor={editor} />, nodeMenuContainer);
 
     editor.bind('hidecontextmenu');
 
@@ -59,6 +60,7 @@ function install(editor: NodeEditor, params: MenuProps) {
         const { clientX, clientY } = e;
 
         if(node) {
+            contextMenu.show([] as any, { x: 0, y: 0})
             nodeMenuStore.setSelectedNode(node);
             showMenu({ position: { x: clientX, y: clientY }, id: nodeMenuId });
         } else {
