@@ -12,10 +12,9 @@ import TerminalHub from './hubs/terminal-hub';
 import { EditorImportExport, NodeEditor } from './rete-engine/editor';
 import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
-import ReteReactMenu from './rete-plugins/rete-react-menu/src';
+import ReteEditorMenu from './rete-plugins/rete-editor-menu/src';
 import { transformGraph } from './services/data-transform/run-graph';
 import { createNode } from './utils';
-import { ContextMenuTrigger, ContextMenu, MenuItem } from 'react-contextmenu';
 
 const json : EditorImportExport = 
 {
@@ -94,7 +93,7 @@ class EditorView extends React.Component<EditorProps & RouteComponentProps<any>>
 
         this.nodeEditor.use(ReactRenderPlugin);
         this.nodeEditor.use(ReteLinkPlugin);
-        this.nodeEditor.use(ReteReactMenu, {
+        this.nodeEditor.use(ReteEditorMenu, {
             definitions: nodeDefinitions.filter(x => x !== editorStore!.getStartNodeDefinition())
         });
 

@@ -1,12 +1,6 @@
 import * as React from 'react';
 import { NodeEditor } from 'src/features/Editor/rete-engine/editor';
 import { Node } from 'src/features/Editor/rete-engine/node';
-import { showMenu, hideMenu } from 'react-contextmenu';
-
-import { NodeMenu, nodeMenuId } from './NodeMenu';
-import { editorMenuId, EditorMenu } from './EditorMenu';
-import nodeMenuStore from './node-menu-store';
-import editorMenuStore from './editor-menu-store';
 import { isDescendant } from 'src/utils';
 
 import { contextMenu } from './context-menu';
@@ -33,14 +27,9 @@ function install(editor: NodeEditor, params: MenuProps) {
     editor.bind('hidecontextmenu');
 
     editor.on('hidecontextmenu', () => {
-        editorMenuStore.setTracking(true);
-        hideMenu();
     });
 
     editor.on('mousemove', ({x, y}) => {
-        if(editorMenuStore.trackPosition) {
-            editorMenuStore.setPosition(x, y);
-        }
     })
 
     editor.on('click contextmenu', ({ container, e }) => {
@@ -55,16 +44,14 @@ function install(editor: NodeEditor, params: MenuProps) {
         e.preventDefault();
         e.stopPropagation();
 
-        editorMenuStore.setTracking(false);
-
         const { clientX, clientY } = e;
 
         if(node) {
-            contextMenu.show([] as any, { x: 0, y: 0})
-            nodeMenuStore.setSelectedNode(node);
-            showMenu({ position: { x: clientX, y: clientY }, id: nodeMenuId });
+            contextMenu.show([{
+                label: "hello",
+                action: () => console.log("dsad")
+            }], { x: 0, y: 0})
         } else {
-            showMenu({ position: { x: clientX, y: clientY }, id: editorMenuId });
         }
     })
 

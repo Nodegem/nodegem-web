@@ -3,7 +3,7 @@ interface NodeDefinition {
     namespace: string;
     title: string;
     description: string;
-    canBeDeleted: boolean;
+    isRequired: boolean;
     flowInputs: Array<FlowInputDefinition>;
     flowOutputs: Array<FlowOutputDefinition>;
     valueInputs: Array<ValueInputDefinition>;

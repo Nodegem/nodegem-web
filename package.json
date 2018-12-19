@@ -47,6 +47,6 @@
     "@types/react-router": "^4.4.2",
     "@types/shortid": "^0.0.29",
     "@types/superagent": "^3.8.5",
-    "typescript": "^3.0.0"
+    "typescript": "^3.2.2"
   }
 }
