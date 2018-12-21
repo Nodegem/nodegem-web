@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { NodeEditor } from 'src/features/Editor/rete-engine/editor';
 import { Node } from 'src/features/Editor/rete-engine/node';
-import { isDescendant } from 'src/utils';
 
 import contextMenu, { MenuContents, SubMenu, MenuItem } from './editor-menu';
 import { createNode } from 'src/features/Editor/utils';
