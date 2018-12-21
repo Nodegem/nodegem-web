@@ -1,0 +1,87 @@
+.editor-menu {
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
+    color: #373a3c;
+    font-size: 0.9rem;
+    font-weight: 400;
+    min-width: 160px;
+    outline: none;
+    opacity: 0;
+    pointer-events: none;
+    text-align: left;
+    user-select: none;
+    padding: 5px 0px;
+
+    &.editor-menu--visible {
+        opacity: 1;
+        pointer-events: auto;
+        z-index: 9999;
+        transition: opacity 250ms ease !important;
+    }
+
+    input.editor-menu-input {
+        margin: 5px;
+        padding: 0.4rem;
+        border-radius: 0.5rem;
+        border: none;
+        background-color: rgba(0, 0, 0, 0.05);
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .editor-menu-menuitem {
+        cursor: pointer;
+        padding: 3px 20px;
+
+        &:hover {
+            background: lightblue;
+        }
+    }
+
+    .editor-menu-submenu {
+        &:after {
+            content: '>';
+            float: right;
+        }
+    }
+
+    .editor-menu-menuitem--disabled {
+        background-color: transparent;
+        border-color: rgba(0, 0, 0, 0.15);
+        color: #878a8c;
+
+        &:hover {
+            background-color: transparent;
+            cursor: not-allowed;
+        }
+    }
+
+    .editor-menu-menuitem--divider {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+        cursor: inherit;
+        margin-bottom: 3px;
+        padding: 2px 0;
+
+        &:hover {
+            background-color: transparent;
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+    }
+
+    .editor-menu-goback {
+        &:before {
+            padding-right: 8px;
+            content: '<';
+        }
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+}

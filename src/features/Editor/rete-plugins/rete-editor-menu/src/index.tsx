@@ -3,61 +3,126 @@ import { NodeEditor } from 'src/features/Editor/rete-engine/editor';
 import { Node } from 'src/features/Editor/rete-engine/node';
 import { isDescendant } from 'src/utils';
 
-import { contextMenu } from './context-menu';
+import contextMenu, { MenuContents, SubMenu, MenuItem } from './editor-menu';
+import { createNode } from 'src/features/Editor/utils';
+import HierarchicalNode from './hierarchical-node';
+import { GenericComponent } from 'src/features/Editor/generic-component';
+
+const nodeMenuContents = (
+    deleteNodeFunc: Function,
+    canDelete: boolean
+): MenuContents => ({
+    otherItems: [
+        {
+            label: 'Delete',
+            action: deleteNodeFunc,
+            disabled: !canDelete,
+        },
+    ],
+});
+
+const definitionToTree = (definitions: Array<NodeDefinition>) => {
+    const root = new HierarchicalNode<NodeDefinition>();
+    definitions.forEach(x => root.addObject(x.namespace.split('.'), x));
+    return root;
+};
+
+const convertToItems = (
+    children: { [key: string]: HierarchicalNode<NodeDefinition> },
+    editor: NodeEditor,
+    addNodeFunc: (definition: NodeDefinition) => void
+): Array<SubMenu> =>
+    Object.keys(children).map(x => {
+        const item = children[x] as HierarchicalNode<NodeDefinition>;
+
+        return {
+            label: x,
+            items: [
+                ...(item.children &&
+                    convertToItems(item.children, editor, addNodeFunc)),
+                ...item.items.map(
+                    i =>
+                        ({
+                            label: i.title,
+                            action: () => addNodeFunc(i),
+                        } as MenuItem)
+                ),
+            ],
+        } as SubMenu;
+    });
+
+const editorMenuContents = (
+    definitionTree: HierarchicalNode<NodeDefinition>,
+    editor: NodeEditor,
+    position: XYPosition
+): MenuContents => {
+    const addNode = (definition: NodeDefinition) => {
+        createNode(editor, definition, { ...position });
+    };
+
+    return {
+        filterableItems: convertToItems(
+            definitionTree.children,
+            editor,
+            addNode
+        ),
+        otherItems: [
+            {
+                label: 'Clear',
+                action: () => editor.clear(),
+            },
+            {
+                label: 'Run',
+                action: () => editor.trigger('process'),
+            },
+        ],
+    };
+};
 
 interface MenuProps {
-    definitions: Array<NodeDefinition>
+    definitions: Array<NodeDefinition>;
 }
 
 interface OnContextMenuProps {
     e: React.MouseEvent;
-    node?: Node
+    node?: Node;
 }
 
 function install(editor: NodeEditor, params: MenuProps) {
+    const tree = definitionToTree(params.definitions);
 
-    // const editorMenuContainer = document.createElement('div');
-    // editor.view.container.parentElement!.appendChild(editorMenuContainer);
-    // const editorMenuReact = ReactDOM.render(<EditorMenu editor={editor} definitions={params.definitions || []} />, editorMenuContainer);
-
-    // const nodeMenuContainer = document.createElement('div');
-    // editor.view.container.parentElement!.appendChild(nodeMenuContainer);
-    // const nodeMenuReact = ReactDOM.render(<NodeMenu editor={editor} />, nodeMenuContainer);
-
-    editor.bind('hidecontextmenu');
-
-    editor.on('hidecontextmenu', () => {
-    });
-
-    editor.on('mousemove', ({x, y}) => {
-    })
-
-    editor.on('click contextmenu', ({ container, e }) => {
-
-        const target = e.target;
-        if(target && isDescendant(container, target)) {
-            editor.trigger('hidecontextmenu');
-        }
-    })
-
-    editor.on('contextmenu', ({e, node} : OnContextMenuProps) => {
+    editor.on('contextmenu', ({ e, node }: OnContextMenuProps) => {
         e.preventDefault();
         e.stopPropagation();
 
         const { clientX, clientY } = e;
 
-        if(node) {
-            contextMenu.show([{
-                label: "hello",
-                action: () => console.log("dsad")
-            }], { x: 0, y: 0})
-        } else {
-        }
-    })
+        if (node) {
+            const deleteNode = () => {
+                editor.removeNode(node);
+            };
 
+            const canDelete = !(editor.getComponent(
+                node.name
+            ) as GenericComponent).nodeDefinition.isRequired;
+
+            contextMenu.show(nodeMenuContents(deleteNode, canDelete), {
+                x: clientX,
+                y: clientY,
+            });
+        } else {
+            contextMenu.show(
+                editorMenuContents(tree, editor, editor.view.area.mouse),
+                {
+                    x: clientX,
+                    y: clientY,
+                }
+            );
+        }
+    });
 }
 
 export default {
     name: 'rete-react-menu',
-    install
-}
+    install,
+};

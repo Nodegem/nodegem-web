@@ -34,7 +34,6 @@ ReactDOM.render(
                 </Router>
             </Provider>
         </MobXPersistGate>
-        <DevTools noPanel />
     </>,
     document.getElementById("root") as HTMLElement
 );
