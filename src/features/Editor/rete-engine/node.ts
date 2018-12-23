@@ -4,11 +4,10 @@ import { Control } from './control';
 import { Input } from './input';
 import { Output } from './output';
 
-export type NodeKeyValueData = { key: string, value: any };
-export type NodeImportExport = { id: string, fullName: string, position: [number, number], fieldData?: Array<NodeKeyValueData> }
+export type NodeImportExport = { id: string, fullName: string, position: [number, number], fieldData?: { [key: string]: any } }
 export class Node {
 
-    public data: Array<NodeKeyValueData>;
+    public data: { [key: string]: any };
     public meta: any;
     public name: string;
     public id: string;
@@ -102,7 +101,7 @@ export class Node {
         const node = new Node(json.fullName);
 
         node.id = json.id;
-        node.data = json.fieldData || [];
+        node.data = json.fieldData || {};
         node.position = json.position;
 
         return node;

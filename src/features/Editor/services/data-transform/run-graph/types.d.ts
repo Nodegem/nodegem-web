@@ -13,7 +13,7 @@ interface RunLinkData {
 
 interface RunNodeData {
     id: string;
-    namespace: string;
+    fullName: string;
     fieldData?: Array<RunFieldData>;
 }
 

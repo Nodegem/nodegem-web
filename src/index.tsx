@@ -12,11 +12,12 @@ import { Router } from 'react-router';
 import App from './App';
 import MobXPersistGate from './components/MobXPersistGate/MobXPersistGate';
 import registerServiceWorker from './registerServiceWorker';
-import { rootStore } from './stores';
+import { rootStore, rootStoreKey } from './stores';
 import history from './utils/history';
 
 const trunk = new AsyncTrunk(rootStore, {
-    storage: LocalForage as any
+    storage: LocalForage as any,
+    storageKey: rootStoreKey
 });
 
 trunk.init().then(() => {

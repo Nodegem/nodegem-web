@@ -10,9 +10,12 @@ import { Output } from './output';
 import { Selected } from './selected';
 import { EditorView } from './view/index';
 
-export type EditorImportExport = { id: string, nodes: NodeImportExport[], links: LinkImportExport[] }
+export type EditorImportExport = {
+    id: string;
+    nodes: NodeImportExport[];
+    links: LinkImportExport[];
+};
 export class NodeEditor extends Context {
-
     nodes: Array<Node>;
     links: Array<Link>;
     components: Map<string, Component>;
@@ -37,10 +40,18 @@ export class NodeEditor extends Context {
 
         window.addEventListener('keydown', e => this.trigger('keydown', e));
         window.addEventListener('keyup', e => this.trigger('keyup', e));
-        this.on('nodecreated', node => this.getComponent(node.name).created(node));
-        this.on('noderemoved', node => this.getComponent(node.name).destroyed(node));
-        this.on('selectnode', ({ node, accumulate }) => this.selectNode(node, accumulate));
-        this.on('click', ({ e, container}) => this.deselectAllNodes(e, container));
+        this.on('nodecreated', node =>
+            this.getComponent(node.name).created(node)
+        );
+        this.on('noderemoved', node =>
+            this.getComponent(node.name).destroyed(node)
+        );
+        this.on('selectnode', ({ node, accumulate }) =>
+            this.selectNode(node, accumulate)
+        );
+        this.on('click', ({ e, container }) =>
+            this.deselectAllNodes(e, container)
+        );
     }
 
     addNode(node: Node) {
@@ -48,7 +59,7 @@ export class NodeEditor extends Context {
 
         this.nodes.push(node);
         this.view.addNode(node);
-        
+
         this.trigger('nodecreated', node);
     }
 
@@ -75,13 +86,13 @@ export class NodeEditor extends Context {
 
             this.trigger('linkcreated', link);
         } catch (e) {
-            this.trigger('warn', e)
+            this.trigger('warn', e);
         }
     }
 
     removeLink(link: Link) {
         if (!this.trigger('linkremove', link)) return;
-            
+
         this.view.removeLink(link);
         this.links.removeItem(link);
         link.remove();
@@ -90,29 +101,28 @@ export class NodeEditor extends Context {
     }
 
     selectNode(node: Node, accumulate: boolean = false) {
-        if (this.nodes.indexOf(node) === -1) 
+        if (this.nodes.indexOf(node) === -1)
             throw new Error('Node does not exist in list');
-        
+
         if (!this.trigger('nodeselect', node)) return;
 
         this.selected.add(node, accumulate);
-        
+
         this.trigger('nodeselected', node);
     }
 
     getComponent(name) {
         const component = this.components.get(name);
 
-        if (!component)
-            throw `Component ${name} not found`;
-        
+        if (!component) throw `Component ${name} not found`;
+
         return component;
     }
 
     register(component: Component) {
         component.editor = this;
         this.components.set(component.name, component);
-        this.trigger('componentregister', component)
+        this.trigger('componentregister', component);
     }
 
     clear() {
@@ -122,27 +132,28 @@ export class NodeEditor extends Context {
 
     private deselectAllNodes = (e, container: HTMLElement) => {
         const target = e.target;
-        if(target) {
+        if (target) {
             const targetClass = target.className as string;
-            if(target === this.container || (targetClass && targetClass.indexOf("background") >= 0)) {
+            if (
+                target === this.container ||
+                (targetClass && targetClass.indexOf('background') >= 0)
+            ) {
                 const clones = this.selected.getSelected().slice(0);
                 this.selected.clear();
                 clones.forEach(x => this.trigger('nodedeselected', x));
             }
         }
-    }
+    };
 
-    static validate(data: EditorImportExport) : boolean {
-
+    static validate(data: EditorImportExport): boolean {
         return false;
-
     }
 
-    toJSON() : EditorImportExport {
-        const editorExport = { 
-            id: this.id, 
-            nodes: this.nodes.map(x => x.toJSON()), 
-            links: this.links.map(x => x.toJson()) 
+    toJSON(): EditorImportExport {
+        const editorExport = {
+            id: this.id,
+            nodes: this.nodes.map(x => x.toJSON()),
+            links: this.links.map(x => x.toJson()),
         };
 
         this.trigger('export', editorExport);
@@ -151,12 +162,12 @@ export class NodeEditor extends Context {
 
     private beforeImport(json: Object) {
         // var checking = Validator.validate(this.id, json);
-        
+
         // if (!checking.success) {
         //     this.trigger('warn', checking.msg);
         //     return false;
         // }
-        
+
         this.silent = true;
         this.clear();
         this.trigger('import', json);
@@ -172,32 +183,39 @@ export class NodeEditor extends Context {
         if (!this.beforeImport(json)) return false;
 
         this.id = json.id;
-        let nodes : Map<string, Node> = new Map();
+        let nodes: Map<string, Node> = new Map();
 
         try {
-            await Promise.all(json.nodes.map(async node => {
-                const component = this.getComponent(node.fullName);
-                const newNode = await component.build(Node.fromJSON(node));
+            await Promise.all(
+                json.nodes.map(async node => {
+                    const component = this.getComponent(node.fullName);
+                    const newNode = await component.build(Node.fromJSON(node));
 
-                nodes.set(newNode.id, newNode);
-                this.addNode(newNode);
-            }));
+                    nodes.set(newNode.id, newNode);
+                    this.addNode(newNode);
+                })
+            );
 
-            json.links.map(link => {
+            const links = json.links || [];
+            links.map(link => {
                 const sourceNode = nodes.get(link.sourceNode);
                 const destinationNode = nodes.get(link.destinationNode);
 
-                if(sourceNode && destinationNode) {
+                if (sourceNode && destinationNode) {
                     const output = sourceNode.outputs.get(link.sourceKey);
-                    const input = destinationNode.inputs.get(link.destinationKey);
+                    const input = destinationNode.inputs.get(
+                        link.destinationKey
+                    );
 
-                    if(output && input) {
-                        this.connect(output, input);
+                    if (output && input) {
+                        this.connect(
+                            output,
+                            input
+                        );
                     }
                 }
             });
-        }
-        catch (e) {
+        } catch (e) {
             this.trigger('warn', e);
             return !this.afterImport();
         } finally {

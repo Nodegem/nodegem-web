@@ -1,9 +1,11 @@
 import { notification } from 'antd';
-import { action, observable } from 'mobx';
+import { action, observable, runInAction } from 'mobx';
 import { AuthService } from 'src/services';
 import history from 'src/utils/history';
 
 import userStore from './user-store';
+import localforage from 'localforage';
+import { rootStoreKey } from '.';
 
 interface RegisterErrorResponse {
     code: string,
@@ -72,6 +74,11 @@ class AuthStore {
         } finally {
             userStore.deleteUserInfo();
             history.push('/login');
+            await localforage.removeItem(rootStoreKey);
+            const { rememberMe, savedCredentials } = this;
+            runInAction(() => {
+                this.setRememberMe(rememberMe, savedCredentials);
+            })
         }
     }
 

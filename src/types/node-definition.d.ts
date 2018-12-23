@@ -1,6 +1,5 @@
 interface NodeDefinition {
     fullName: string;
-    namespace: string;
     title: string;
     description: string;
     isRequired: boolean;
@@ -15,19 +14,13 @@ interface FieldDefinition {
     label: string;
 }
 
-interface FlowInputDefinition extends FieldDefinition {
+interface FlowInputDefinition extends FieldDefinition {}
 
-}
-
-interface FlowOutputDefinition extends FieldDefinition {
-
-}
+interface FlowOutputDefinition extends FieldDefinition {}
 
 interface ValueInputDefinition extends FieldDefinition {
     defaultValue: any;
     valueType: number;
 }
 
-interface ValueOutputDefinition extends FieldDefinition {
-
-}
+interface ValueOutputDefinition extends FieldDefinition {}

@@ -3,6 +3,7 @@ import { ModalFormType } from 'src/features/Dashboard/dashboard-store';
 import { GraphService } from 'src/services';
 import { userStore } from 'src/stores';
 import { getHeapStatistics } from 'v8';
+import { ignore } from 'mobx-sync';
 
 export type ModalFormType = "graph" | "macro";
 
@@ -16,13 +17,25 @@ type ModalOption = { [key in ModalFormType] : ModalDataOptions };
 
 class DashboardStore {
 
-    @observable loadingGraphs: boolean = false;
-    @observable graphs : Array<Graph> = [];
+    @ignore
+    @observable 
+    loadingGraphs: boolean = false;
 
-    @observable loadingMacros: boolean = false;
-    @observable macros : Array<Macro> = [];
+    @ignore
+    @observable 
+    graphs : Array<Graph> = [];
 
-    @observable modalOptions: ModalOption = { 
+    @ignore
+    @observable 
+    loadingMacros: boolean = false;
+    
+    @ignore
+    @observable 
+    macros : Array<Macro> = [];
+
+    @ignore
+    @observable 
+    modalOptions: ModalOption = { 
         "graph": { editMode: false, open: false, data: {} },
         "macro": { editMode: false, open: false, data: {} }
     };

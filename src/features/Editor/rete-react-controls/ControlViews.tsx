@@ -11,7 +11,7 @@ interface ReteControlProps {
     controlKey: string;
     defaultValue: any;
     valueType: ValueType;
-    getData: (key: string) => any;
+    getData: <T = any>(key: string) => T;
     putData: (key: string, value: any) => void;
 }
 
@@ -22,11 +22,13 @@ class ReteControlView extends React.Component<ReteControlProps, { value: any }> 
     }
 
     componentDidMount() {
-        const { putData, controlKey, defaultValue } = this.props;
+        const { putData, getData, controlKey, defaultValue } = this.props;
 
-        if(defaultValue != null) {
+        if(defaultValue) {
             putData(controlKey, defaultValue);
             this.setState({ value: defaultValue });
+        } else {
+            this.setState({ value: getData(controlKey) });
         }
     }
 

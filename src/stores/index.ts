@@ -7,8 +7,9 @@ import authStore from './auth-store';
 import commonStore from './common-store';
 import userStore from './user-store';
 
-class RootStore {
+const rootStoreKey = "root";
 
+class RootStore {
     @ignore
     @observable
     isLoaded: boolean = false;
@@ -17,17 +18,18 @@ class RootStore {
     commonStore = commonStore;
     authStore = authStore;
 
-    @ignore editorStore = editorStore;
-    @ignore dashboardStore = dashboardStore;
+    editorStore = editorStore;
+    dashboardStore = dashboardStore;
 }
 
 const rootStore = new RootStore();
 
 export {
+    rootStoreKey,
     rootStore,
     userStore,
     commonStore,
     authStore,
     dashboardStore,
-    editorStore
-}
+    editorStore,
+};

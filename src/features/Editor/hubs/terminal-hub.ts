@@ -4,7 +4,6 @@ import { SimpleObservable } from 'src/utils/simple-observable';
 const terminalPath = process.env.REACT_APP_TERMINAL_HUB as string;
 
 class TerminalHub extends BaseHub {
-
     private log: SimpleObservable<string>;
     private logWarn: SimpleObservable<string>;
     private logError: SimpleObservable<string>;
@@ -20,9 +19,9 @@ class TerminalHub extends BaseHub {
         this.onLogWarn(x => console.warn(x));
         this.onLogError(x => console.error(x));
 
-        this.on("ReceiveLog", this.log.execute);
-        this.on("ReceiveWarnLog", this.logWarn.execute);
-        this.on("ReceiveErrorLog", this.logError.execute);
+        this.on('ReceiveLog', this.log.execute);
+        this.on('ReceiveWarnLog', this.logWarn.execute);
+        this.on('ReceiveErrorLog', this.logError.execute);
     }
 
     public onLog(listener: (data: string) => void) {
@@ -39,10 +38,6 @@ class TerminalHub extends BaseHub {
 
     public dispose() {
         super.dispose();
-
-        this.log.clear();
-        this.logWarn.clear();
-        this.logError.clear();
     }
 }
 

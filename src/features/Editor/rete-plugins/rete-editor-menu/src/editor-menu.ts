@@ -14,6 +14,7 @@ export type DividerItem = {
 
 export type MenuItem = {
     label: string;
+    data: any;
     disabled?: boolean;
     action: () => void;
 };
@@ -104,7 +105,7 @@ class EditorMenu {
         }
 
         const result = await Promise.resolve(this.fuzzySearch.search(value));
-        this.renderItems(result, true);
+        this.renderItems(result.slice(0, 10), true);
     };
 
     public show(contents: MenuContents, opts: MenuOptions) {
@@ -140,7 +141,16 @@ class EditorMenu {
             ],
         });
         this.fuzzySearch = new Fuse(this.allMenuItems, {
-            keys: ['label'],
+            keys: [
+                {
+                    name: 'label',
+                    weight: 0.65,
+                },
+                {
+                    name: 'data.fullName',
+                    weight: 0.35,
+                },
+            ] as any,
             shouldSort: true,
         });
 

@@ -22,7 +22,10 @@ const nodeMenuContents = (
 
 const definitionToTree = (definitions: Array<NodeDefinition>) => {
     const root = new HierarchicalNode<NodeDefinition>();
-    definitions.forEach(x => root.addObject(x.namespace.split('.'), x));
+    definitions.forEach(x => {
+        const namespace = x.fullName.split('.');
+        root.addObject(namespace.slice(0, namespace.length - 1), x);
+    });
     return root;
 };
 
@@ -43,6 +46,7 @@ const convertToItems = (
                     i =>
                         ({
                             label: i.title,
+                            data: i,
                             action: () => addNodeFunc(i),
                         } as MenuItem)
                 ),
