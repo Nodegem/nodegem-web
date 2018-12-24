@@ -1,6 +1,6 @@
 import './EditorView.less';
 
-import { Spin, notification, Icon, Tooltip, Button } from 'antd';
+import { Spin, notification, Icon, Tooltip, Button, Drawer } from 'antd';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -15,6 +15,9 @@ import { createNode } from './utils';
 import { NodeImportExport } from './rete-engine/node';
 import classNames from 'classnames';
 import { toJS } from 'mobx';
+import { GraphStore } from 'src/stores/graph-store';
+import { MacroStore } from 'src/stores/macro-store';
+import LogView from './Log/LogView';
 
 const applyBackground = () => {
     const areaViewContainer = document.querySelector(
@@ -27,9 +30,11 @@ const applyBackground = () => {
 
 interface EditorProps {
     editorStore?: EditorStore;
+    graphStore?: GraphStore;
+    macroStore?: MacroStore;
 }
 
-@inject('editorStore')
+@inject('editorStore', 'graphStore', 'macroStore')
 @(withRouter as any)
 @observer
 class EditorView extends React.Component<
@@ -41,9 +46,9 @@ class EditorView extends React.Component<
         const { editorStore } = this.props;
         await editorStore!.loadDefinitions();
 
-        const { nodeDefinitions, currentGraph } = editorStore!;
+        const { nodeDefinitions, graph } = editorStore!;
 
-        if (!currentGraph) {
+        if (!graph) {
             this.props.history.push('/');
             notification.error({
                 message: 'Unable to load graph',
@@ -75,17 +80,21 @@ class EditorView extends React.Component<
         applyBackground();
 
         this.nodeEditor.fromJSON({
-            id: currentGraph!.id,
-            links: currentGraph!.links,
-            nodes: currentGraph!.nodes.map(
+            id: graph!.id,
+            links: graph!.links,
+            nodes: graph!.nodes.map(
                 n =>
                     ({
                         id: n.id,
                         fullName: n.fullName,
-                        fieldData: n.fieldData && toJS(n.fieldData.reduce((prev, cur) => {
-                            prev[cur.key] = cur.value;
-                            return prev;
-                        }, {})),
+                        fieldData:
+                            n.fieldData &&
+                            toJS(
+                                n.fieldData.reduce((prev, cur) => {
+                                    prev[cur.key] = cur.value;
+                                    return prev;
+                                }, {})
+                            ),
                         position: [n.position.x, n.position.y],
                     } as NodeImportExport)
             ),
@@ -126,29 +135,41 @@ class EditorView extends React.Component<
 
     private saveGraph = async () => {
         const json = this.nodeEditor.toJSON();
-        const nodes = json.nodes.map(x => ({
-            id: x.id,
-            fullName: x.fullName,
-            fieldData: x.fieldData && Object.keys(x.fieldData).reduce((prev, cur) => {
-                const data = x.fieldData![cur];
-                prev.push({ key: data.key, value: data.value })
-                return prev;
-            }, [] as Array<FieldData>),
-            position: { x: x.position[0], y: x.position[1] }
-        } as NodeData));
+        const nodes = json.nodes.map(
+            x =>
+                ({
+                    id: x.id,
+                    fullName: x.fullName,
+                    fieldData:
+                        x.fieldData &&
+                        Object.keys(x.fieldData).reduce(
+                            (prev, cur) => {
+                                const data = x.fieldData![cur];
+                                prev.push({ key: data.key, value: data.value });
+                                return prev;
+                            },
+                            [] as Array<FieldData>
+                        ),
+                    position: { x: x.position[0], y: x.position[1] },
+                } as NodeData)
+        );
 
         const links = json.links.map(x => x as LinkData);
-        await this.props.editorStore!.saveGraph(
-            nodes,
-            links);
-    }
+        await this.props.editorStore!.saveGraph(nodes, links);
+    };
 
-    private newMacro = () => {
+    private showLogDrawer = () => {
+        this.props.editorStore!.showLogDrawer(true);
+    };
 
-    }
+    private hideLogDrawer = () => {
+        this.props.editorStore!.showLogDrawer(false);
+    };
+
+    private newMacro = () => {};
 
     componentWillUnmount() {
-        this.props.editorStore!.dispose();
+        this.props.editorStore!.disconnect();
     }
 
     public render() {
@@ -156,18 +177,18 @@ class EditorView extends React.Component<
             loadingDefinitions,
             running,
             connected,
-            saving
+            saving,
+            logs,
+            showLogs,
         } = this.props.editorStore!;
 
-        const playIconClasses = classNames({
+        const controlClasses = classNames({
+            control: true,
             'control--disabled': running || !connected,
         });
-        const stopIconClasses = classNames({
-            'control--disabled': !running && connected,
-        });
 
-        const playTooltip = running ? "Play" : "Running";
-        const playIcon = running ? "loading" : "play-circle";
+        const playTooltip = !running ? 'Play' : 'Running';
+        const playIcon = running ? 'loading' : 'play-circle';
 
         return (
             <div className="editor-view">
@@ -175,45 +196,58 @@ class EditorView extends React.Component<
                     <div className="control-panel">
                         <ul className="graph-options">
                             <li>
-                                <Button onClick={this.saveGraph} type="primary">
-                                    {saving 
-                                        ? <Icon type="loading" style={{fontSize: "20px"}} spin/>
-                                        : "Save Graph"
-                                    }
+                                <Button
+                                    onClick={this.saveGraph}
+                                    size="small"
+                                    type="primary"
+                                >
+                                    {saving ? (
+                                        <Icon
+                                            type="loading"
+                                            style={{ fontSize: '20px' }}
+                                            spin
+                                        />
+                                    ) : (
+                                        'Save Graph'
+                                    )}
                                 </Button>
                             </li>
                             <li>
-                                <Button onClick={this.newMacro} type="primary">New Macro</Button>
+                                <Button
+                                    onClick={this.clearGraph}
+                                    size="small"
+                                    type="primary"
+                                >
+                                    Clear Graph
+                                </Button>
+                            </li>
+                            <li>
+                                <Button
+                                    onClick={this.newMacro}
+                                    size="small"
+                                    type="primary"
+                                >
+                                    New Macro
+                                </Button>
                             </li>
                         </ul>
                         <ul className="graph-controls">
                             <li
-                                className={playIconClasses}
+                                className={controlClasses}
                                 onClick={this.runGraph}
                             >
                                 <Tooltip title={playTooltip}>
                                     <Icon
                                         type={playIcon}
-                                        theme="twoTone"
                                         style={{ fontSize: '24px' }}
-                                        twoToneColor="#52c41a"
                                     />
                                 </Tooltip>
                             </li>
-                            <li className={stopIconClasses}>
-                                <Tooltip title="Stop">
+                            <li onClick={this.showLogDrawer}>
+                                <Tooltip title="View Logs" placement="bottom">
                                     <Icon
-                                        type="stop"
-                                        theme="twoTone"
-                                        style={{ fontSize: '24px' }}
-                                        twoToneColor="#eb2f96"
-                                    />
-                                </Tooltip>
-                            </li>
-                            <li onClick={this.clearGraph}>
-                                <Tooltip title="Clear" placement="bottom">
-                                    <Icon
-                                        type="delete"
+                                        className={controlClasses}
+                                        type="code"
                                         style={{ fontSize: '24px' }}
                                     />
                                 </Tooltip>
@@ -222,6 +256,16 @@ class EditorView extends React.Component<
                     </div>
                     <div className="editor" id={`editor`} />
                 </Spin>
+                <Drawer
+                    onClose={this.hideLogDrawer}
+                    title="Logs"
+                    placement="bottom"
+                    visible={showLogs}
+                    closable
+                    height="35vh"
+                >
+                    <LogView logs={logs} />
+                </Drawer>
             </div>
         );
     }

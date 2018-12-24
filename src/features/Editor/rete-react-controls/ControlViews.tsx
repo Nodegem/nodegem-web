@@ -24,11 +24,12 @@ class ReteControlView extends React.Component<ReteControlProps, { value: any }> 
     componentDidMount() {
         const { putData, getData, controlKey, defaultValue } = this.props;
 
-        if(defaultValue) {
+        const value = getData(controlKey);
+        if(value) {
+            this.setState({ value });
+        } else if(defaultValue) {
             putData(controlKey, defaultValue);
             this.setState({ value: defaultValue });
-        } else {
-            this.setState({ value: getData(controlKey) });
         }
     }
 

@@ -5,7 +5,7 @@ import history from 'src/utils/history';
 
 import userStore from './user-store';
 import localforage from 'localforage';
-import { rootStoreKey } from '.';
+import { rootStoreKey, rootStore } from '.';
 
 interface RegisterErrorResponse {
     code: string,
@@ -72,13 +72,8 @@ class AuthStore {
         } catch(e) {
             console.warn(e);
         } finally {
-            userStore.deleteUserInfo();
+            rootStore.dispose();
             history.push('/login');
-            await localforage.removeItem(rootStoreKey);
-            const { rememberMe, savedCredentials } = this;
-            runInAction(() => {
-                this.setRememberMe(rememberMe, savedCredentials);
-            })
         }
     }
 
