@@ -6,6 +6,7 @@ import contextMenu, { MenuContents, SubMenu, MenuItem } from './editor-menu';
 import { createNode } from 'src/features/Editor/utils';
 import HierarchicalNode from './hierarchical-node';
 import { GenericComponent } from 'src/features/Editor/generic-component';
+import { editorStore } from 'src/stores';
 
 const nodeMenuContents = (
     deleteNodeFunc: Function,
@@ -71,6 +72,13 @@ const editorMenuContents = (
         ),
         otherItems: [
             {
+                label: 'Refresh Definitions',
+                action: async () => {
+                    await editorStore.loadDefinitions(true);
+                    refreshTree();
+                },
+            },
+            {
                 label: 'Clear',
                 action: () => editor.clear(),
             },
@@ -82,17 +90,19 @@ const editorMenuContents = (
     };
 };
 
-interface MenuProps {
-    definitions: Array<NodeDefinition>;
-}
-
 interface OnContextMenuProps {
     e: React.MouseEvent;
     node?: Node;
 }
 
-function install(editor: NodeEditor, params: MenuProps) {
-    const tree = definitionToTree(params.definitions);
+function refreshTree() {
+    tree = definitionToTree(editorStore.nodeDefinitions);
+}
+
+let tree: HierarchicalNode<NodeDefinition>;
+
+function install(editor: NodeEditor) {
+    tree = definitionToTree(editorStore.nodeDefinitions);
 
     editor.on('contextmenu', ({ e, node }: OnContextMenuProps) => {
         e.preventDefault();

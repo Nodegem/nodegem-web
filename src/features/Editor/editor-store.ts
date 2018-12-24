@@ -1,15 +1,28 @@
-import { action, computed, observable, runInAction } from 'mobx';
-import { UtilService, GraphService } from 'src/services';
-import { ignore } from 'mobx-sync';
-import { transformGraph } from './services/data-transform/run-graph';
-import { EditorImportExport } from './rete-engine/editor';
-import TerminalHub from './hubs/terminal-hub';
-import GraphHub from './hubs/graph-hub';
 import { notification } from 'antd';
+import { action, computed, observable, runInAction, toJS } from 'mobx';
+import { ignore } from 'mobx-sync';
+import { UtilService } from 'src/services';
+import { graphStore, IDisposableStore } from 'src/stores';
 
-class EditorStore {
+import GraphHub from './hubs/graph-hub';
+import TerminalHub from './hubs/terminal-hub';
+import { EditorImportExport } from './rete-engine/editor';
+import { transformGraph } from './services/data-transform/run-graph';
+
+type LogType = 'log' | 'warn' | 'error';
+export type Log = {
+    type: LogType;
+    message: string;
+    time: Date;
+};
+
+class EditorStore implements IDisposableStore {
     @computed get hasGraph() {
         return !!this.currentGraph;
+    }
+
+    @computed get graph() {
+        return graphStore.getGraphById(this.currentGraph);
     }
 
     @ignore
@@ -25,23 +38,38 @@ class EditorStore {
     saving: boolean = false;
 
     @observable
-    currentGraph?: Graph;
+    currentGraph: string;
 
     @ignore
-    @observable 
+    @observable
     loadingDefinitions: boolean = false;
 
     @observable
     nodeDefinitions: Array<NodeDefinition> = [];
+
+    @observable
+    lastRetrievedDefinitions: number;
+
+    @ignore
+    @observable
+    showLogs: boolean = false;
 
     @ignore
     private graphHub: GraphHub;
     @ignore
     private terminalHub: TerminalHub;
 
+    @ignore
+    @observable
+    logs: Array<Log> = [];
+
     constructor() {
         this.graphHub = new GraphHub();
         this.terminalHub = new TerminalHub();
+
+        this.terminalHub.onLog(data => this.createLog(data, 'log'));
+        this.terminalHub.onLogWarn(data => this.createLog(data, 'warn'));
+        this.terminalHub.onLogError(data => this.createLog(data, 'error'));
     }
 
     @action async initialize() {
@@ -56,7 +84,7 @@ class EditorStore {
         }
     }
 
-    @action dispose() {
+    @action disconnect() {
         try {
             this.terminalHub.disconnect();
             this.graphHub.disconnect();
@@ -79,10 +107,10 @@ class EditorStore {
                 this.graphHub.runGraph(graphData);
             } else {
                 notification.warn({
-                    message: "Unable to run graph",
-                    description: "Nothing to run.",
-                    placement: "bottomRight"
-                })
+                    message: 'Unable to run graph',
+                    description: 'Nothing to run.',
+                    placement: 'bottomRight',
+                });
             }
         } catch (e) {
             console.warn(e);
@@ -90,10 +118,10 @@ class EditorStore {
     }
 
     @action
-    async loadDefinitions() {
+    async loadDefinitions(force: boolean = false) {
         this.loadingDefinitions = true;
 
-        if (this.nodeDefinitions && this.nodeDefinitions.length > 0) {
+        if (!force && !this.shouldRefreshDefinitions()) {
             this.loadingDefinitions = false;
             return;
         }
@@ -102,6 +130,7 @@ class EditorStore {
             const definitions = await UtilService.getAllNodeDefinitions();
             runInAction(() => {
                 this.nodeDefinitions = definitions;
+                this.lastRetrievedDefinitions = new Date().getTime();
             });
         } catch (e) {
             console.warn(e);
@@ -124,26 +153,55 @@ class EditorStore {
             .firstOrDefault()!;
     };
 
+    private shouldRefreshDefinitions(): boolean {
+        if (!this.lastRetrievedDefinitions) return true;
+        if (!this.nodeDefinitions) return true;
+        if (this.nodeDefinitions.length <= 0) return true;
+
+        return (
+            new Date().getTime() - this.lastRetrievedDefinitions >
+            1000 * 60 * 30
+        );
+    }
+
+    @action
+    private createLog(data: string, type: LogType) {
+        this.logs.push({
+            message: data,
+            time: new Date(),
+            type: type,
+        });
+    }
+
     @action async saveGraph(nodes: Array<NodeData>, links: Array<LinkData>) {
         this.saving = true;
         try {
-            if(this.currentGraph) {
-                const updatedGraph = await GraphService.update({ ...this.currentGraph, nodes, links });
-                runInAction(() => {
-                    this.currentGraph = updatedGraph;
-                })
+            if (this.currentGraph) {
+                const graph = graphStore.getGraphById(this.currentGraph);
+                if (graph) {
+                    await graphStore.updateGraph({ ...graph, nodes, links });
+                }
             }
-        } catch(e) {
+        } catch (e) {
             console.warn(e);
         } finally {
             runInAction(() => {
                 this.saving = false;
-            })
+            });
         }
     }
 
-    @action setGraph(graph?: Graph) {
+    @action setGraph(graph: string) {
         this.currentGraph = graph;
+    }
+
+    @action dispose() {
+        this.currentGraph = '';
+        this.logs = [];
+    }
+
+    @action showLogDrawer(show: boolean) {
+        this.showLogs = show;
     }
 }
 

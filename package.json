@@ -20,6 +20,7 @@
     "mobx-react-devtools": "^6.0.3",
     "mobx-react-router": "^4.0.5",
     "mobx-sync": "^1.0.0",
+    "moment": "^2.23.0",
     "react": "^16.6.3",
     "react-contextmenu": "^2.10.0",
     "react-dom": "^16.6.3",
