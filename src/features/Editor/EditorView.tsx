@@ -108,8 +108,6 @@ class EditorView extends React.Component<
             ),
         });
 
-        console.log('sdas');
-
         this.nodeEditor.on('clear', this.onClearGraph);
         this.nodeEditor.on('process', this.runGraph);
     }
