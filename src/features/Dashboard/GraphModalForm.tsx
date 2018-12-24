@@ -4,12 +4,14 @@ import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import ModalForm, { ModalFormProps } from 'src/components/ModalForm/ModalForm';
 import { DashboardStore, ModalFormType } from 'src/features/Dashboard/dashboard-store';
+import { GraphStore } from 'src/stores/graph-store';
 
 interface ModalProps extends ModalFormProps {
     dashboardStore?: DashboardStore;
+    graphStore?: GraphStore;
 }
 
-@inject('dashboardStore')
+@inject('dashboardStore', 'graphStore')
 @observer
 class GraphModalForm extends React.Component<ModalProps> {
 
@@ -17,7 +19,7 @@ class GraphModalForm extends React.Component<ModalProps> {
     private formRef: Form;
 
     handleSubmit = async () => {
-        const { dashboardStore } = this.props;
+        const { dashboardStore, graphStore } = this.props;
         const { form } = this.formRef.props;
 
         const { modalOptions } = dashboardStore!;
@@ -29,9 +31,9 @@ class GraphModalForm extends React.Component<ModalProps> {
             }
 
             if(modalOptions.graph.editMode) {
-                await dashboardStore!.updateGraph({ ...modalOptions.graph.data, ...values });
+                await graphStore!.updateGraph({ ...modalOptions.graph.data, ...values });
             } else {
-                await dashboardStore!.createNewGraph(values);
+                await graphStore!.createNewGraph(values);
             }
 
             form!.resetFields();

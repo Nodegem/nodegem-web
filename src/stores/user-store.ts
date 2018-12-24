@@ -1,6 +1,7 @@
 import { action, computed, observable } from 'mobx';
+import { IDisposableStore } from '.';
 
-class UserStore {
+class UserStore implements IDisposableStore {
 
     @observable user?: User;
     @observable tokens?: Tokens;
@@ -17,9 +18,9 @@ class UserStore {
         this.user = user;
     }
 
-    @action deleteUserInfo() {
-        this.tokens = undefined;
+    @action dispose() {
         this.user = undefined;
+        this.tokens = undefined;
     }
 
 }

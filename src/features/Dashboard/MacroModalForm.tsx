@@ -4,9 +4,11 @@ import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import ModalForm, { ModalFormProps } from 'src/components/ModalForm/ModalForm';
 import { DashboardStore, ModalFormType } from 'src/features/Dashboard/dashboard-store';
+import { MacroStore } from 'src/stores/macro-store';
 
 interface ModalProps extends ModalFormProps {
     dashboardStore?: DashboardStore;
+    macroStore?: MacroStore;
 }
 
 @inject('dashboardStore')
@@ -28,11 +30,11 @@ class MacroModalForm extends React.Component<ModalProps> {
                 return;
             }
 
-            if(modalOptions.graph.editMode) {
-                await dashboardStore!.updateGraph({ ...modalOptions.graph.data, ...values });
-            } else {
-                await dashboardStore!.createNewGraph(values);
-            }
+            // if(modalOptions.graph.editMode) {
+            //     await dashboardStore!.updateGraph({ ...modalOptions.graph.data, ...values });
+            // } else {
+            //     await dashboardStore!.createNewGraph(values);
+            // }
 
             form!.resetFields();
             this.props.dashboardStore!.closeModal(this.type);

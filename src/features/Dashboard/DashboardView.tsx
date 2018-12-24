@@ -12,19 +12,23 @@ import { EditorStore } from 'src/features/Editor/editor-store';
 import DashboardCard from './DashboardCard';
 import GraphModalForm from './GraphModalForm';
 import MacroModalForm from './MacroModalForm';
+import { GraphStore } from 'src/stores/graph-store';
+import { MacroStore } from 'src/stores/macro-store';
 
 interface DashboardProps {
     dashboardStore?: DashboardStore,
-    editorStore?: EditorStore
+    editorStore?: EditorStore,
+    graphStore?: GraphStore,
+    macroStore?: MacroStore
 }
 
-@inject('dashboardStore', 'editorStore')
+@inject('dashboardStore', 'editorStore', 'macroStore', 'graphStore')
 @(withRouter as any)
 @observer
 class DashboardView extends React.Component<DashboardProps & RouteComponentProps<any>> {
 
     async componentDidMount() {
-        await this.props.dashboardStore!.fetchGraphs();
+        await this.props.graphStore!.fetchGraphs();
     }
 
     onAdd = type => {
@@ -32,7 +36,7 @@ class DashboardView extends React.Component<DashboardProps & RouteComponentProps
     }
 
     onDelete = async (item: Graph, type) => {
-        await this.props.dashboardStore!.deleteGraph(item);
+        await this.props.graphStore!.deleteGraph(item);
     }
 
     onEdit = (item: Graph, type) => {
@@ -40,13 +44,14 @@ class DashboardView extends React.Component<DashboardProps & RouteComponentProps
     }
 
     onBuild = (item: Graph, type) => {
-        this.props.editorStore!.setGraph(item);
+        this.props.editorStore!.setGraph(item.id);
         this.props.history.push(`editor`);
     }
 
     public render() {
 
-        const { graphs, macros, loadingGraphs, loadingMacros } = this.props.dashboardStore!;
+        const { graphs, loadingGraphs } = this.props.graphStore!;
+        const { macros, loadingMacros } = this.props.macroStore!;
 
         const combined = [
             {
