@@ -200,16 +200,9 @@ class EditorView extends React.Component<
                                     onClick={this.saveGraph}
                                     size="small"
                                     type="primary"
+                                    loading={saving}
                                 >
-                                    {saving ? (
-                                        <Icon
-                                            type="loading"
-                                            style={{ fontSize: '20px' }}
-                                            spin
-                                        />
-                                    ) : (
-                                        'Save Graph'
-                                    )}
+                                    Save Graph
                                 </Button>
                             </li>
                             <li>
@@ -257,12 +250,13 @@ class EditorView extends React.Component<
                     <div className="editor" id={`editor`} />
                 </Spin>
                 <Drawer
-                    onClose={this.hideLogDrawer}
                     title="Logs"
                     placement="bottom"
                     visible={showLogs}
-                    closable
+                    onClose={this.hideLogDrawer}
                     height="35vh"
+                    mask={false}
+                    closable
                 >
                     <LogView logs={logs} />
                 </Drawer>

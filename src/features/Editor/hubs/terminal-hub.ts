@@ -15,10 +15,6 @@ class TerminalHub extends BaseHub {
         this.logWarn = new SimpleObservable<string>();
         this.logError = new SimpleObservable<string>();
 
-        this.onLog(x => console.log(x));
-        this.onLogWarn(x => console.warn(x));
-        this.onLogError(x => console.error(x));
-
         this.on('ReceiveLog', this.log.execute);
         this.on('ReceiveWarnLog', this.logWarn.execute);
         this.on('ReceiveErrorLog', this.logError.execute);

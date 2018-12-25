@@ -69,6 +69,8 @@ class EditorMenu {
     private currentPath: Array<PathData> = [];
     private allMenuItems: Array<MenuItem> = [];
 
+    private currentSelection: number = 0;
+
     get isVisible() {
         return this.visible;
     }
@@ -101,6 +103,7 @@ class EditorMenu {
         this.clear();
 
         if (!value) {
+            this.currentPath = this.currentPath.slice(0, 1);
             this.renderItems(this.currentPath[0].data);
         }
 
@@ -282,9 +285,19 @@ class EditorMenu {
     }
 
     private keyboardNavigation = (ev: KeyboardEvent) => {
+        console.log(ev.keyCode);
         switch (ev.keyCode) {
-            case 27:
+            case 13: //SPACE
+                break;
+
+            case 27: //ESC
                 this.hide();
+                break;
+
+            case 38: //UP
+                break;
+
+            case 40: //DOWN
                 break;
         }
     };
@@ -297,7 +310,7 @@ class EditorMenu {
     }
 
     private unRegisterEventListeners() {
-        document.addEventListener('keydown', this.keyboardNavigation);
+        document.removeEventListener('keydown', this.keyboardNavigation);
         document.removeEventListener('mousedown', this.handleOutsideClick);
         document.removeEventListener('touchstart', this.handleOutsideClick);
         document.removeEventListener('contextmenu', this.hide);

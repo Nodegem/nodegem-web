@@ -3,7 +3,6 @@ import './utils/extensions';
 
 import LocalForage from 'localforage';
 import { Provider } from 'mobx-react';
-import DevTools from 'mobx-react-devtools';
 import { AsyncTrunk } from 'mobx-sync';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -17,7 +16,7 @@ import history from './utils/history';
 
 const trunk = new AsyncTrunk(rootStore, {
     storage: LocalForage as any,
-    storageKey: rootStoreKey
+    storageKey: rootStoreKey,
 });
 
 trunk.init().then(() => {
@@ -36,6 +35,6 @@ ReactDOM.render(
             </Provider>
         </MobXPersistGate>
     </>,
-    document.getElementById("root") as HTMLElement
+    document.getElementById('root') as HTMLElement
 );
 registerServiceWorker();
