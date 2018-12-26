@@ -2,7 +2,7 @@ import { notification } from 'antd';
 import { action, computed, observable, runInAction, toJS } from 'mobx';
 import { ignore } from 'mobx-sync';
 import { UtilService } from 'src/services';
-import { graphStore, IDisposableStore } from 'src/stores';
+import { graphStore, IDisposableStore, macroStore } from 'src/stores';
 
 import GraphHub from './hubs/graph-hub';
 import TerminalHub from './hubs/terminal-hub';
@@ -22,7 +22,16 @@ class EditorStore implements IDisposableStore {
     }
 
     @computed get graph() {
-        return graphStore.getGraphById(this.currentGraph);
+        const currentGraphId =
+            (this.currentGraph && this.currentGraph.id) || '';
+        let returnGraph;
+        returnGraph = graphStore.getGraphById(currentGraphId);
+
+        if (!returnGraph) {
+            returnGraph = macroStore.getMacroById(currentGraphId);
+        }
+
+        return returnGraph;
     }
 
     @ignore
@@ -38,7 +47,7 @@ class EditorStore implements IDisposableStore {
     saving: boolean = false;
 
     @observable
-    currentGraph: string;
+    currentGraph: { id: string; type: GraphType } | undefined;
 
     @ignore
     @observable
@@ -166,6 +175,12 @@ class EditorStore implements IDisposableStore {
 
     @action
     private createLog(data: string, type: LogType) {
+        const maxLength = 250;
+        const logLength = this.logs.length;
+        if (logLength > maxLength) {
+            this.logs = this.logs.slice(logLength - maxLength, logLength);
+        }
+
         this.logs.push({
             message: data,
             time: new Date(),
@@ -177,7 +192,7 @@ class EditorStore implements IDisposableStore {
         this.saving = true;
         try {
             if (this.currentGraph) {
-                const graph = graphStore.getGraphById(this.currentGraph);
+                const graph = this.graph;
                 if (graph) {
                     await graphStore.updateGraph({ ...graph, nodes, links });
                 }
@@ -191,12 +206,12 @@ class EditorStore implements IDisposableStore {
         }
     }
 
-    @action setGraph(graph: string) {
-        this.currentGraph = graph;
+    @action setGraph(graph: string, type: GraphType) {
+        this.currentGraph = { id: graph, type };
     }
 
     @action dispose() {
-        this.currentGraph = '';
+        this.currentGraph = undefined;
         this.logs = [];
     }
 

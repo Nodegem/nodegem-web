@@ -1,5 +1,7 @@
-type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-declare module "lodash-uuid" {
-    export function uuid() : string;
+declare module 'lodash-uuid' {
+    export function uuid(): string;
 }
+
+type GraphType = 'graph' | 'modal';

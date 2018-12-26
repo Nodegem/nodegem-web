@@ -1,13 +1,12 @@
 import { Card, Icon, Tooltip } from 'antd';
 import * as React from 'react';
-import { ModalFormType } from 'src/features/Dashboard/dashboard-store';
 
 interface DashboardCardProps {
     item: Graph;
-    type: ModalFormType;
-    onDelete: (item: Graph, type: ModalFormType) => void;
-    onEdit: (item: Graph, type: ModalFormType) => void;
-    onBuild: (item: Graph, type: ModalFormType) => void;
+    type: GraphType;
+    onDelete: (item: Graph, type: GraphType) => void;
+    onEdit: (item: Graph, type: GraphType) => void;
+    onBuild: (item: Graph, type: GraphType) => void;
 }
 
 class DashboardCard extends React.Component<DashboardCardProps> {

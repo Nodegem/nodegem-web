@@ -1,6 +1,5 @@
 import { observable, action } from 'mobx';
 import { ignore } from 'mobx-sync';
-import dashboardStore from 'src/features/Dashboard/dashboard-store';
 import editorStore from 'src/features/Editor/editor-store';
 
 import authStore from './auth-store';
@@ -8,8 +7,10 @@ import commonStore from './common-store';
 import userStore from './user-store';
 import graphStore from './graph-store';
 import macroStore from './macro-store';
+import macroModalStore from 'src/components/Modals/MacroModal/macro-modal-store';
+import graphModalStore from 'src/components/Modals/GraphModal/graph-modal-store';
 
-const rootStoreKey = "root";
+const rootStoreKey = 'root';
 
 interface IDisposableStore {
     dispose: () => void;
@@ -24,9 +25,10 @@ class RootStore implements IDisposableStore {
     commonStore = commonStore;
     authStore = authStore;
     editorStore = editorStore;
-    dashboardStore = dashboardStore;
     graphStore = graphStore;
     macroStore = macroStore;
+    macroModalStore = macroModalStore;
+    graphModalStore = graphModalStore;
 
     @action dispose() {
         graphStore.dispose();
@@ -44,9 +46,10 @@ export {
     userStore,
     commonStore,
     authStore,
-    dashboardStore,
     editorStore,
     graphStore,
     macroStore,
-    IDisposableStore
+    graphModalStore,
+    macroModalStore,
+    IDisposableStore,
 };

@@ -1,6 +1,6 @@
 import './EditorView.less';
 
-import { Spin, notification, Icon, Tooltip, Button, Drawer } from 'antd';
+import { Spin, notification, Drawer, Modal } from 'antd';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -13,11 +13,13 @@ import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
 import ReteEditorMenu from './rete-plugins/rete-editor-menu/src';
 import { createNode } from './utils';
 import { NodeImportExport } from './rete-engine/node';
-import classNames from 'classnames';
 import { toJS } from 'mobx';
 import { GraphStore } from 'src/stores/graph-store';
 import { MacroStore } from 'src/stores/macro-store';
 import LogView from './Log/LogView';
+import { ControlPanelView } from './ControlPanelView';
+import MacroModalForm from 'src/components/Modals/MacroModal/MacroModalForm';
+import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
 
 const applyBackground = () => {
     const areaViewContainer = document.querySelector(
@@ -32,9 +34,10 @@ interface EditorProps {
     editorStore?: EditorStore;
     graphStore?: GraphStore;
     macroStore?: MacroStore;
+    macroModalStore?: MacroModalStore;
 }
 
-@inject('editorStore', 'graphStore', 'macroStore')
+@inject('editorStore', 'graphStore', 'macroStore', 'macroModalStore')
 @(withRouter as any)
 @observer
 class EditorView extends React.Component<
@@ -166,7 +169,9 @@ class EditorView extends React.Component<
         this.props.editorStore!.showLogDrawer(false);
     };
 
-    private newMacro = () => {};
+    private newMacro = () => {
+        this.props.macroModalStore!.openModal();
+    };
 
     componentWillUnmount() {
         this.props.editorStore!.disconnect();
@@ -182,71 +187,19 @@ class EditorView extends React.Component<
             showLogs,
         } = this.props.editorStore!;
 
-        const controlClasses = classNames({
-            control: true,
-            'control--disabled': running || !connected,
-        });
-
-        const playTooltip = !running ? 'Play' : 'Running';
-        const playIcon = running ? 'loading' : 'play-circle';
-
         return (
             <div className="editor-view">
                 <Spin spinning={loadingDefinitions} size="large">
-                    <div className="control-panel">
-                        <ul className="graph-options">
-                            <li>
-                                <Button
-                                    onClick={this.saveGraph}
-                                    size="small"
-                                    type="primary"
-                                    loading={saving}
-                                >
-                                    Save Graph
-                                </Button>
-                            </li>
-                            <li>
-                                <Button
-                                    onClick={this.clearGraph}
-                                    size="small"
-                                    type="primary"
-                                >
-                                    Clear Graph
-                                </Button>
-                            </li>
-                            <li>
-                                <Button
-                                    onClick={this.newMacro}
-                                    size="small"
-                                    type="primary"
-                                >
-                                    New Macro
-                                </Button>
-                            </li>
-                        </ul>
-                        <ul className="graph-controls">
-                            <li
-                                className={controlClasses}
-                                onClick={this.runGraph}
-                            >
-                                <Tooltip title={playTooltip}>
-                                    <Icon
-                                        type={playIcon}
-                                        style={{ fontSize: '24px' }}
-                                    />
-                                </Tooltip>
-                            </li>
-                            <li onClick={this.showLogDrawer}>
-                                <Tooltip title="View Logs" placement="bottom">
-                                    <Icon
-                                        className={controlClasses}
-                                        type="code"
-                                        style={{ fontSize: '24px' }}
-                                    />
-                                </Tooltip>
-                            </li>
-                        </ul>
-                    </div>
+                    <ControlPanelView
+                        running={running}
+                        saving={saving}
+                        connected={connected}
+                        clearGraph={this.clearGraph}
+                        saveGraph={this.saveGraph}
+                        showLogDrawer={this.showLogDrawer}
+                        newMacro={this.newMacro}
+                        runGraph={this.runGraph}
+                    />
                     <div className="editor" id={`editor`} />
                 </Spin>
                 <Drawer
@@ -260,6 +213,7 @@ class EditorView extends React.Component<
                 >
                     <LogView logs={logs} />
                 </Drawer>
+                <MacroModalForm />
             </div>
         );
     }
