@@ -1,24 +1,14 @@
-<<<<<<< HEAD
 import { observable, action, runInAction } from 'mobx';
 import { ignore } from 'mobx-sync';
 import { IDisposableStore, userStore } from '.';
 import { MacroService } from 'src/services/macro';
 
 class MacroStore implements IDisposableStore {
-=======
-import { observable, action, runInAction } from "mobx";
-import { ignore } from "mobx-sync";
-import { IDisposableStore } from ".";
-
-class MacroStore implements IDisposableStore {
-
->>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
     @observable macros: Array<Macro> = [];
 
     @ignore
     @observable
     loadingMacros: boolean = false;
-<<<<<<< HEAD
 
     @action
     async fetchMacros(force: boolean = false) {
@@ -34,23 +24,10 @@ class MacroStore implements IDisposableStore {
                 this.macros = macros;
             });
         } catch (e) {
-=======
-    
-    @action 
-    async fetchMacros() {
-        this.loadingMacros = true;
-        try {
-            const macros = [];
-            runInAction(() => {
-                this.macros = macros
-            })
-        } catch(e) {
->>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
             console.warn(e);
         } finally {
             runInAction(() => {
                 this.loadingMacros = false;
-<<<<<<< HEAD
             });
         }
     }
@@ -124,22 +101,8 @@ class MacroStore implements IDisposableStore {
     @action dispose() {
         this.macros = [];
     }
-=======
-            })
-        }
-    }
-
-    @action dispose() {
-        this.macros = [];
-    }
-
->>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
 }
 
 export default new MacroStore();
 
-<<<<<<< HEAD
 export { MacroStore };
-=======
-export { MacroStore }
->>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d

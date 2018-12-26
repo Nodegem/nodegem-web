@@ -8,7 +8,6 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { EditorStore } from 'src/features/Editor/editor-store';
 
 import DashboardCard from './DashboardCard';
-<<<<<<< HEAD
 import { GraphStore } from 'src/stores/graph-store';
 import { MacroStore } from 'src/stores/macro-store';
 import GraphModalForm from 'src/components/Modals/GraphModal/GraphModalForm';
@@ -31,21 +30,6 @@ interface DashboardProps {
     'macroModalStore',
     'graphModalStore'
 )
-=======
-import GraphModalForm from './GraphModalForm';
-import MacroModalForm from './MacroModalForm';
-import { GraphStore } from 'src/stores/graph-store';
-import { MacroStore } from 'src/stores/macro-store';
-
-interface DashboardProps {
-    dashboardStore?: DashboardStore,
-    editorStore?: EditorStore,
-    graphStore?: GraphStore,
-    macroStore?: MacroStore
-}
-
-@inject('dashboardStore', 'editorStore', 'macroStore', 'graphStore')
->>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
 @(withRouter as any)
 @observer
 class DashboardView extends React.Component<
@@ -58,7 +42,6 @@ class DashboardView extends React.Component<
 
     async componentDidMount() {
         await this.props.graphStore!.fetchGraphs();
-<<<<<<< HEAD
         await this.props.macroStore!.fetchMacros();
     }
 
@@ -92,29 +75,6 @@ class DashboardView extends React.Component<
     };
 
     public render() {
-=======
-    }
-
-    onAdd = type => {
-        this.props.dashboardStore!.openModal(type);
-    }
-
-    onDelete = async (item: Graph, type) => {
-        await this.props.graphStore!.deleteGraph(item);
-    }
-
-    onEdit = (item: Graph, type) => {
-        this.props.dashboardStore!.openModal(type, true, item);
-    }
-
-    onBuild = (item: Graph, type) => {
-        this.props.editorStore!.setGraph(item.id);
-        this.props.history.push(`editor`);
-    }
-
-    public render() {
-
->>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
         const { graphs, loadingGraphs } = this.props.graphStore!;
         const { macros, loadingMacros } = this.props.macroStore!;
 
