@@ -1,6 +1,10 @@
 import './EditorView.less';
 
+<<<<<<< HEAD
 import { Spin, notification, Drawer, Modal } from 'antd';
+=======
+import { Spin, notification, Icon, Tooltip, Button, Drawer } from 'antd';
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -17,9 +21,12 @@ import { toJS } from 'mobx';
 import { GraphStore } from 'src/stores/graph-store';
 import { MacroStore } from 'src/stores/macro-store';
 import LogView from './Log/LogView';
+<<<<<<< HEAD
 import { ControlPanelView } from './ControlPanelView';
 import MacroModalForm from 'src/components/Modals/MacroModal/MacroModalForm';
 import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
+=======
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
 
 const applyBackground = () => {
     const areaViewContainer = document.querySelector(
@@ -34,10 +41,16 @@ interface EditorProps {
     editorStore?: EditorStore;
     graphStore?: GraphStore;
     macroStore?: MacroStore;
+<<<<<<< HEAD
     macroModalStore?: MacroModalStore;
 }
 
 @inject('editorStore', 'graphStore', 'macroStore', 'macroModalStore')
+=======
+}
+
+@inject('editorStore', 'graphStore', 'macroStore')
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
 @(withRouter as any)
 @observer
 class EditorView extends React.Component<
@@ -169,9 +182,13 @@ class EditorView extends React.Component<
         this.props.editorStore!.showLogDrawer(false);
     };
 
+<<<<<<< HEAD
     private newMacro = () => {
         this.props.macroModalStore!.openModal();
     };
+=======
+    private newMacro = () => {};
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
 
     componentWillUnmount() {
         this.props.editorStore!.disconnect();
@@ -187,6 +204,7 @@ class EditorView extends React.Component<
             showLogs,
         } = this.props.editorStore!;
 
+<<<<<<< HEAD
         return (
             <div className="editor-view">
                 <Spin spinning={loadingDefinitions} size="large">
@@ -214,6 +232,92 @@ class EditorView extends React.Component<
                     <LogView logs={logs} />
                 </Drawer>
                 <MacroModalForm />
+=======
+        const controlClasses = classNames({
+            control: true,
+            'control--disabled': running || !connected,
+        });
+
+        const playTooltip = !running ? 'Play' : 'Running';
+        const playIcon = running ? 'loading' : 'play-circle';
+
+        return (
+            <div className="editor-view">
+                <Spin spinning={loadingDefinitions} size="large">
+                    <div className="control-panel">
+                        <ul className="graph-options">
+                            <li>
+                                <Button
+                                    onClick={this.saveGraph}
+                                    size="small"
+                                    type="primary"
+                                >
+                                    {saving ? (
+                                        <Icon
+                                            type="loading"
+                                            style={{ fontSize: '20px' }}
+                                            spin
+                                        />
+                                    ) : (
+                                        'Save Graph'
+                                    )}
+                                </Button>
+                            </li>
+                            <li>
+                                <Button
+                                    onClick={this.clearGraph}
+                                    size="small"
+                                    type="primary"
+                                >
+                                    Clear Graph
+                                </Button>
+                            </li>
+                            <li>
+                                <Button
+                                    onClick={this.newMacro}
+                                    size="small"
+                                    type="primary"
+                                >
+                                    New Macro
+                                </Button>
+                            </li>
+                        </ul>
+                        <ul className="graph-controls">
+                            <li
+                                className={controlClasses}
+                                onClick={this.runGraph}
+                            >
+                                <Tooltip title={playTooltip}>
+                                    <Icon
+                                        type={playIcon}
+                                        style={{ fontSize: '24px' }}
+                                    />
+                                </Tooltip>
+                            </li>
+                            <li onClick={this.showLogDrawer}>
+                                <Tooltip title="View Logs" placement="bottom">
+                                    <Icon
+                                        className={controlClasses}
+                                        type="code"
+                                        style={{ fontSize: '24px' }}
+                                    />
+                                </Tooltip>
+                            </li>
+                        </ul>
+                    </div>
+                    <div className="editor" id={`editor`} />
+                </Spin>
+                <Drawer
+                    onClose={this.hideLogDrawer}
+                    title="Logs"
+                    placement="bottom"
+                    visible={showLogs}
+                    closable
+                    height="35vh"
+                >
+                    <LogView logs={logs} />
+                </Drawer>
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
             </div>
         );
     }

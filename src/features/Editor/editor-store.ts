@@ -2,7 +2,11 @@ import { notification } from 'antd';
 import { action, computed, observable, runInAction, toJS } from 'mobx';
 import { ignore } from 'mobx-sync';
 import { UtilService } from 'src/services';
+<<<<<<< HEAD
 import { graphStore, IDisposableStore, macroStore } from 'src/stores';
+=======
+import { graphStore, IDisposableStore } from 'src/stores';
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
 
 import GraphHub from './hubs/graph-hub';
 import TerminalHub from './hubs/terminal-hub';
@@ -22,6 +26,7 @@ class EditorStore implements IDisposableStore {
     }
 
     @computed get graph() {
+<<<<<<< HEAD
         const currentGraphId =
             (this.currentGraph && this.currentGraph.id) || '';
         let returnGraph;
@@ -32,6 +37,9 @@ class EditorStore implements IDisposableStore {
         }
 
         return returnGraph;
+=======
+        return graphStore.getGraphById(this.currentGraph);
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
     }
 
     @ignore
@@ -47,7 +55,11 @@ class EditorStore implements IDisposableStore {
     saving: boolean = false;
 
     @observable
+<<<<<<< HEAD
     currentGraph: { id: string; type: GraphType } | undefined;
+=======
+    currentGraph: string;
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
 
     @ignore
     @observable
@@ -175,12 +187,15 @@ class EditorStore implements IDisposableStore {
 
     @action
     private createLog(data: string, type: LogType) {
+<<<<<<< HEAD
         const maxLength = 250;
         const logLength = this.logs.length;
         if (logLength > maxLength) {
             this.logs = this.logs.slice(logLength - maxLength, logLength);
         }
 
+=======
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
         this.logs.push({
             message: data,
             time: new Date(),
@@ -192,7 +207,11 @@ class EditorStore implements IDisposableStore {
         this.saving = true;
         try {
             if (this.currentGraph) {
+<<<<<<< HEAD
                 const graph = this.graph;
+=======
+                const graph = graphStore.getGraphById(this.currentGraph);
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
                 if (graph) {
                     await graphStore.updateGraph({ ...graph, nodes, links });
                 }
@@ -206,12 +225,26 @@ class EditorStore implements IDisposableStore {
         }
     }
 
+<<<<<<< HEAD
     @action setGraph(graph: string, type: GraphType) {
         this.currentGraph = { id: graph, type };
     }
 
     @action dispose() {
         this.currentGraph = undefined;
+        this.logs = [];
+    }
+
+    @action showLogDrawer(show: boolean) {
+        this.showLogs = show;
+=======
+    @action setGraph(graph: string) {
+        this.currentGraph = graph;
+>>>>>>> ad647b46713bf57b870ff9d067c4a7324f21ed3d
+    }
+
+    @action dispose() {
+        this.currentGraph = '';
         this.logs = [];
     }
 
