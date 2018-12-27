@@ -33,11 +33,12 @@ class MacroStore implements IDisposableStore {
     }
 
     @action
-    async createMacro(macro: CreateMacro) {
+    async createMacro(macro: CreateMacro): Promise<Macro | undefined> {
         this.loadingMacros = true;
+        let newGraph;
         try {
             const { id } = userStore.user!;
-            const newGraph = await MacroService.create({
+            newGraph = await MacroService.create({
                 ...macro,
                 userId: id,
             });
@@ -50,15 +51,17 @@ class MacroStore implements IDisposableStore {
             runInAction(() => {
                 this.loadingMacros = false;
             });
+            return newGraph;
         }
     }
 
     @action
-    async updateMacro(macro: Macro) {
+    async updateMacro(macro: Macro): Promise<Macro | undefined> {
         this.loadingMacros = true;
+        let updatedMacro;
         try {
             const { id } = userStore.user!;
-            const updatedMacro = await MacroService.update({
+            updatedMacro = await MacroService.update({
                 ...macro,
                 userId: id,
             });
@@ -74,6 +77,7 @@ class MacroStore implements IDisposableStore {
             runInAction(() => {
                 this.loadingMacros = false;
             });
+            return updatedMacro;
         }
     }
 

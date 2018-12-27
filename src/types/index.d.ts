@@ -4,4 +4,4 @@ declare module 'lodash-uuid' {
     export function uuid(): string;
 }
 
-type GraphType = 'graph' | 'modal';
+type GraphType = 'graph' | 'macro';

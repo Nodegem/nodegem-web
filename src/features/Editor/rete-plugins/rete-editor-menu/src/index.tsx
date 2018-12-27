@@ -96,13 +96,16 @@ interface OnContextMenuProps {
 }
 
 function refreshTree() {
-    tree = definitionToTree(editorStore.nodeDefinitions);
+    const startNode = editorStore.getStartNodeDefinition();
+    tree = definitionToTree(
+        editorStore.nodeDefinitions.filter(x => x !== startNode)
+    );
 }
 
 let tree: HierarchicalNode<NodeDefinition>;
 
 function install(editor: NodeEditor) {
-    tree = definitionToTree(editorStore.nodeDefinitions);
+    refreshTree();
 
     editor.on('contextmenu', ({ e, node }: OnContextMenuProps) => {
         e.preventDefault();

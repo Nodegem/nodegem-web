@@ -158,7 +158,7 @@ class EditorStore implements IDisposableStore {
 
     getStartNodeDefinition = (): NodeDefinition => {
         return this.nodeDefinitions
-            .filter(x => x.title.startsWith('Start'))
+            .filter(x => x.fullName.endsWith('Start'))
             .firstOrDefault()!;
     };
 
@@ -167,20 +167,15 @@ class EditorStore implements IDisposableStore {
         if (!this.nodeDefinitions) return true;
         if (this.nodeDefinitions.length <= 0) return true;
 
+        const refreshTimeInMilliseconds = 1000 * 60 * 30;
         return (
             new Date().getTime() - this.lastRetrievedDefinitions >
-            1000 * 60 * 30
+            refreshTimeInMilliseconds
         );
     }
 
     @action
     private createLog(data: string, type: LogType) {
-        const maxLength = 250;
-        const logLength = this.logs.length;
-        if (logLength > maxLength) {
-            this.logs = this.logs.slice(logLength - maxLength, logLength);
-        }
-
         this.logs.push({
             message: data,
             time: new Date(),
@@ -215,8 +210,12 @@ class EditorStore implements IDisposableStore {
         this.logs = [];
     }
 
-    @action showLogDrawer(show: boolean) {
-        this.showLogs = show;
+    @action closeLogDrawer() {
+        this.showLogs = false;
+    }
+
+    @action toggleLogDrawer() {
+        this.showLogs = !this.showLogs;
     }
 }
 

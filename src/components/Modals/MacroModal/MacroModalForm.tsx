@@ -6,6 +6,7 @@ import ModalForm, { ModalFormProps } from 'src/components/ModalForm/ModalForm';
 import { MacroModalStore } from './macro-modal-store';
 
 interface ModalProps extends ModalFormProps {
+    onSave?: (macro: Macro | undefined) => void;
     macroModalStore?: MacroModalStore;
 }
 
@@ -23,10 +24,14 @@ class MacroModalForm extends React.Component<ModalProps> {
                 return;
             }
 
-            await this.props.macroModalStore!.saveMacro(values);
+            const macro = await macroModalStore!.saveMacro(values);
+
+            if (this.props.onSave) {
+                this.props.onSave(macro);
+            }
 
             form!.resetFields();
-            this.props.macroModalStore!.closeModal();
+            macroModalStore!.closeModal();
         });
     };
 
@@ -38,7 +43,7 @@ class MacroModalForm extends React.Component<ModalProps> {
     };
 
     public render() {
-        const { children, macroModalStore, ...rest } = this.props;
+        const { children, macroModalStore, onSave, ...rest } = this.props;
         const { saving, editMode, data, isVisible } = macroModalStore!;
 
         const modalTitle = editMode ? 'Edit Macro' : 'Add Macro';

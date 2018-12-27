@@ -8,11 +8,16 @@ import { Log } from '../editor-store';
 import { observer } from 'mobx-react';
 
 interface LogViewProps {
+    maxLogsDisplayed?: number;
     logs: Array<Log>;
 }
 
 @observer
 class LogView extends React.Component<LogViewProps> {
+    static defaultProps = {
+        maxLogsDisplayed: 250,
+    };
+
     private logContainer: HTMLElement;
 
     componentDidMount() {
@@ -28,7 +33,12 @@ class LogView extends React.Component<LogViewProps> {
     }
 
     public render() {
-        const { logs } = this.props;
+        let { logs, maxLogsDisplayed } = this.props;
+
+        const logCount = logs.length;
+        if (logCount > maxLogsDisplayed!) {
+            logs = logs.slice(Math.max(logs.length - maxLogsDisplayed!, 1));
+        }
 
         return (
             <div className="log-container" ref={r => (this.logContainer = r!)}>

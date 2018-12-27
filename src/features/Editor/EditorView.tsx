@@ -161,16 +161,22 @@ class EditorView extends React.Component<
         await this.props.editorStore!.saveGraph(nodes, links);
     };
 
-    private showLogDrawer = () => {
-        this.props.editorStore!.showLogDrawer(true);
+    private toggleLogDrawer = () => {
+        this.props.editorStore!.toggleLogDrawer();
     };
 
     private hideLogDrawer = () => {
-        this.props.editorStore!.showLogDrawer(false);
+        this.props.editorStore!.closeLogDrawer();
     };
 
     private newMacro = () => {
         this.props.macroModalStore!.openModal();
+    };
+
+    private onSaveMacro = (macro: Macro | undefined) => {
+        if (macro) {
+            this.props.editorStore!.setGraph(macro.id, 'macro');
+        }
     };
 
     componentWillUnmount() {
@@ -196,7 +202,7 @@ class EditorView extends React.Component<
                         connected={connected}
                         clearGraph={this.clearGraph}
                         saveGraph={this.saveGraph}
-                        showLogDrawer={this.showLogDrawer}
+                        showLogDrawer={this.toggleLogDrawer}
                         newMacro={this.newMacro}
                         runGraph={this.runGraph}
                     />
@@ -207,13 +213,13 @@ class EditorView extends React.Component<
                     placement="bottom"
                     visible={showLogs}
                     onClose={this.hideLogDrawer}
-                    height="35vh"
+                    height={400}
                     mask={false}
                     closable
                 >
                     <LogView logs={logs} />
                 </Drawer>
-                <MacroModalForm />
+                <MacroModalForm onSave={this.onSaveMacro} />
             </div>
         );
     }

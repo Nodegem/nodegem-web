@@ -285,7 +285,6 @@ class EditorMenu {
     }
 
     private keyboardNavigation = (ev: KeyboardEvent) => {
-        console.log(ev.keyCode);
         switch (ev.keyCode) {
             case 13: //SPACE
                 break;
