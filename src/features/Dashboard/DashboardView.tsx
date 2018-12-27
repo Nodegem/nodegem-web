@@ -41,8 +41,8 @@ class DashboardView extends React.Component<
     };
 
     async componentDidMount() {
-        await this.props.graphStore!.fetchGraphs();
-        await this.props.macroStore!.fetchMacros();
+        this.props.graphStore!.fetchGraphs();
+        this.props.macroStore!.fetchMacros();
     }
 
     onAdd = (type: GraphType) => {
