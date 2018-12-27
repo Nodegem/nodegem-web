@@ -29,7 +29,7 @@ class ReteControlView extends React.Component<
         const value = getData(controlKey);
         if (value) {
             this.setState({ value });
-        } else if (defaultValue !== undefined || defaultValue !== null) {
+        } else if (defaultValue !== undefined && defaultValue !== null) {
             putData(controlKey, defaultValue);
             this.setState({ value: defaultValue });
         }
