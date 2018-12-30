@@ -1,6 +1,6 @@
 import './EditorView.less';
 
-import { Spin, notification, Drawer, Modal } from 'antd';
+import { Spin, notification, Drawer, Modal, Icon } from 'antd';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -20,6 +20,8 @@ import LogView from './Log/LogView';
 import { ControlPanelView } from './ControlPanelView';
 import MacroModalForm from 'src/components/Modals/MacroModal/MacroModalForm';
 import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
+import { GraphModalStore } from 'src/components/Modals/GraphModal/graph-modal-store';
+import GraphModalForm from 'src/components/Modals/GraphModal/GraphModalForm';
 
 const applyBackground = () => {
     const areaViewContainer = document.querySelector(
@@ -35,9 +37,18 @@ interface EditorProps {
     graphStore?: GraphStore;
     macroStore?: MacroStore;
     macroModalStore?: MacroModalStore;
+    graphModalStore?: GraphModalStore;
 }
 
-@inject('editorStore', 'graphStore', 'macroStore', 'macroModalStore')
+const editorIndicator = <Icon type="loading" style={{ fontSize: '96px' }} />;
+
+@inject(
+    'editorStore',
+    'graphStore',
+    'macroStore',
+    'macroModalStore',
+    'graphModalStore'
+)
 @(withRouter as any)
 @observer
 class EditorView extends React.Component<
@@ -85,22 +96,24 @@ class EditorView extends React.Component<
         this.nodeEditor.fromJSON({
             id: graph!.id,
             links: graph!.links,
-            nodes: graph!.nodes.map(
-                n =>
-                    ({
-                        id: n.id,
-                        fullName: n.fullName,
-                        fieldData:
-                            n.fieldData &&
-                            toJS(
-                                n.fieldData.reduce((prev, cur) => {
-                                    prev[cur.key] = cur.value;
-                                    return prev;
-                                }, {})
-                            ),
-                        position: [n.position.x, n.position.y],
-                    } as NodeImportExport)
-            ),
+            nodes:
+                graph.nodes &&
+                graph!.nodes.map(
+                    n =>
+                        ({
+                            id: n.id,
+                            fullName: n.fullName,
+                            fieldData:
+                                n.fieldData &&
+                                toJS(
+                                    n.fieldData.reduce((prev, cur) => {
+                                        prev[cur.key] = cur.value;
+                                        return prev;
+                                    }, {})
+                                ),
+                            position: [n.position.x, n.position.y],
+                        } as NodeImportExport)
+                ),
         });
 
         this.nodeEditor.use(ReactRenderPlugin);
@@ -158,7 +171,13 @@ class EditorView extends React.Component<
         );
 
         const links = json.links.map(x => x as LinkData);
-        await this.props.editorStore!.saveGraph(nodes, links);
+
+        const { type } = this.props.editorStore!.currentGraph!;
+        if (type === 'graph') {
+            await this.props.editorStore!.saveGraph(nodes, links);
+        } else {
+            await this.props.editorStore!.saveMacro(nodes, links);
+        }
     };
 
     private toggleLogDrawer = () => {
@@ -179,6 +198,22 @@ class EditorView extends React.Component<
         }
     };
 
+    private onEditGraph = () => {
+        const { currentGraph } = this.props.editorStore!;
+        if (currentGraph) {
+            const { graph } = this.props.editorStore!;
+            const { type } = currentGraph;
+
+            console.log(graph);
+
+            if (type === 'graph') {
+                this.props.graphModalStore!.openModal(graph, true);
+            } else {
+                this.props.macroModalStore!.openModal(graph, true);
+            }
+        }
+    };
+
     componentWillUnmount() {
         this.props.editorStore!.disconnect();
     }
@@ -195,7 +230,11 @@ class EditorView extends React.Component<
 
         return (
             <div className="editor-view">
-                <Spin spinning={loadingDefinitions} size="large">
+                <Spin
+                    spinning={loadingDefinitions}
+                    delay={500}
+                    indicator={editorIndicator}
+                >
                     <ControlPanelView
                         running={running}
                         saving={saving}
@@ -204,6 +243,7 @@ class EditorView extends React.Component<
                         saveGraph={this.saveGraph}
                         showLogDrawer={this.toggleLogDrawer}
                         newMacro={this.newMacro}
+                        editGraph={this.onEditGraph}
                         runGraph={this.runGraph}
                     />
                     <div className="editor" id={`editor`} />
@@ -220,6 +260,7 @@ class EditorView extends React.Component<
                     <LogView logs={logs} />
                 </Drawer>
                 <MacroModalForm onSave={this.onSaveMacro} />
+                <GraphModalForm />
             </div>
         );
     }

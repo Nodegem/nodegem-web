@@ -21,7 +21,7 @@ class EditorStore implements IDisposableStore {
         return !!this.currentGraph;
     }
 
-    @computed get graph() {
+    @computed get graph(): Graph | Macro | undefined {
         const currentGraphId =
             (this.currentGraph && this.currentGraph.id) || '';
         let returnGraph;
@@ -190,6 +190,29 @@ class EditorStore implements IDisposableStore {
                 const graph = this.graph;
                 if (graph) {
                     await graphStore.updateGraph({ ...graph, nodes, links });
+                }
+            }
+        } catch (e) {
+            console.warn(e);
+        } finally {
+            runInAction(() => {
+                this.saving = false;
+            });
+        }
+    }
+
+    @action async saveMacro(nodes: Array<NodeData>, links: Array<LinkData>) {
+        this.saving = true;
+        try {
+            if (this.currentGraph) {
+                const macro = this.graph;
+                if (macro) {
+                    await macroStore.updateMacro({
+                        ...macro,
+                        nodes,
+                        links,
+                        flowInputs: [],
+                    });
                 }
             }
         } catch (e) {

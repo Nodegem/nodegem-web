@@ -84,12 +84,14 @@ class DashboardView extends React.Component<
                 name: 'Graphs',
                 collection: graphs,
                 loading: loadingGraphs,
+                message: 'Fetching Graphs...',
             },
             {
                 key: 'macro' as GraphType,
                 name: 'Macros',
                 collection: macros,
                 loading: loadingMacros,
+                message: 'Fetching Macros...',
             },
         ];
 
@@ -106,13 +108,18 @@ class DashboardView extends React.Component<
                                         onClick={this.onAdd}
                                     />
                                     <RefreshButton
+                                        loading={x.loading}
                                         type={x.key}
                                         onClick={this.onRefresh}
                                     />
                                 </div>
                             }
                         >
-                            <Spin spinning={x.loading}>
+                            <Spin
+                                spinning={x.loading}
+                                tip={x.message}
+                                delay={500}
+                            >
                                 <List
                                     grid={{
                                         gutter: 16,
@@ -170,7 +177,11 @@ class AddButton extends React.Component<ButtonProps> {
     }
 }
 
-class RefreshButton extends React.Component<ButtonProps> {
+interface RefreshButtonProps extends ButtonProps {
+    loading: boolean;
+}
+
+class RefreshButton extends React.Component<RefreshButtonProps> {
     public refreshClick = () => {
         this.props.onClick(this.props.type);
     };
@@ -179,6 +190,7 @@ class RefreshButton extends React.Component<ButtonProps> {
         return (
             <Tooltip title="Refresh">
                 <Button
+                    loading={this.props.loading}
                     icon="sync"
                     shape="circle"
                     type="primary"

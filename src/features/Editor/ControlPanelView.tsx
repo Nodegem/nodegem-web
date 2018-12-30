@@ -9,9 +9,11 @@ type ControlProps = {
     saveGraph: () => void;
     clearGraph: () => void;
     runGraph: () => void;
+    editGraph: () => void;
     newMacro: () => void;
     showLogDrawer: () => void;
 };
+
 export const ControlPanelView = ({
     running,
     connected,
@@ -21,37 +23,59 @@ export const ControlPanelView = ({
     newMacro,
     runGraph,
     showLogDrawer,
+    editGraph,
 }: ControlProps) => {
     const controlClasses = classNames({
         control: true,
         'control--disabled': running || !connected,
     });
 
-    const playTooltip = !running ? 'Play' : 'Running';
+    const playTooltip = !running ? 'Run' : 'Running';
     const playIcon = running ? 'loading' : 'play-circle';
+
+    const buttons = [
+        {
+            click: editGraph,
+            icon: 'edit',
+            loading: false,
+            toolTip: 'Edit',
+        },
+        {
+            click: saveGraph,
+            icon: 'save',
+            loading: saving,
+            toolTip: 'Save',
+        },
+        {
+            click: clearGraph,
+            icon: 'delete',
+            loading: false,
+            toolTip: 'Clear',
+        },
+        {
+            click: newMacro,
+            icon: 'plus',
+            loading: false,
+            toolTip: 'Create Macro',
+        },
+    ];
+
     return (
         <div className="control-panel">
             <ul className="graph-options">
-                <li>
-                    <Button
-                        onClick={saveGraph}
-                        size="small"
-                        type="primary"
-                        loading={saving}
-                    >
-                        Save Graph
-                    </Button>
-                </li>
-                <li>
-                    <Button onClick={clearGraph} size="small" type="primary">
-                        Clear Graph
-                    </Button>
-                </li>
-                <li>
-                    <Button onClick={newMacro} size="small" type="primary">
-                        New Macro
-                    </Button>
-                </li>
+                {buttons.map((b, index) => (
+                    <li key={index}>
+                        <Tooltip title={b.toolTip}>
+                            <Button
+                                shape="circle"
+                                type="primary"
+                                onClick={b.click}
+                                loading={b.loading}
+                                icon={b.icon}
+                            />
+                        </Tooltip>
+                    </li>
+                ))}
             </ul>
             <ul className="graph-controls">
                 <li className={controlClasses} onClick={runGraph}>
@@ -60,7 +84,7 @@ export const ControlPanelView = ({
                     </Tooltip>
                 </li>
                 <li onClick={showLogDrawer}>
-                    <Tooltip title="View Logs" placement="bottom">
+                    <Tooltip title="Logs" placement="bottom">
                         <Icon
                             className={controlClasses}
                             type="code"

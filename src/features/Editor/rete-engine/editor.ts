@@ -186,8 +186,9 @@ export class NodeEditor extends Context {
         let nodes: Map<string, Node> = new Map();
 
         try {
+            const jsonNodes = json.nodes || [];
             await Promise.all(
-                json.nodes.map(async node => {
+                jsonNodes.map(async node => {
                     const component = this.getComponent(node.fullName);
                     const newNode = await component.build(Node.fromJSON(node));
 
@@ -196,8 +197,8 @@ export class NodeEditor extends Context {
                 })
             );
 
-            const links = json.links || [];
-            links.map(link => {
+            const jsonLinks = json.links || [];
+            jsonLinks.map(link => {
                 const sourceNode = nodes.get(link.sourceNode);
                 const destinationNode = nodes.get(link.destinationNode);
 
