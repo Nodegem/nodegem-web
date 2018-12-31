@@ -1,11 +1,11 @@
 import { notification } from 'antd';
+import localforage from 'localforage';
 import { action, observable, runInAction } from 'mobx';
 import { AuthService } from 'src/services';
 import history from 'src/utils/history';
 
+import { rootStore, rootStoreKey } from './';
 import userStore from './user-store';
-import localforage from 'localforage';
-import { rootStoreKey, rootStore } from '.';
 
 interface RegisterErrorResponse {
     code: string,

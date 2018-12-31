@@ -1,4 +1,4 @@
-import { string } from "prop-types";
+import { string } from 'prop-types';
 
 declare global {
   interface Array<T> {

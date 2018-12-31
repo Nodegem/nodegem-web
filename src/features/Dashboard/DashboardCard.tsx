@@ -1,4 +1,4 @@
-import { Card, Icon, Tooltip } from 'antd';
+import { Card, Icon, Popconfirm, Tooltip } from 'antd';
 import * as React from 'react';
 
 interface DashboardCardProps {
@@ -42,9 +42,16 @@ class DashboardCard extends React.Component<DashboardCardProps> {
                             <Icon type="edit" />
                         </Tooltip>
                     </div>,
-                    <div onClick={this.onDelete}>
+                    <div>
                         <Tooltip title="Delete">
-                            <Icon type="delete" />
+                            <Popconfirm
+                                title="Are you sure you want to delete?"
+                                onConfirm={this.onDelete}
+                                okText="Yes"
+                                cancelText="No"
+                            >
+                                <Icon type="delete" />
+                            </Popconfirm>
                         </Tooltip>
                     </div>,
                 ]}

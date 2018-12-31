@@ -1,7 +1,8 @@
-import { observable, action, runInAction } from 'mobx';
+import { action, observable, runInAction } from 'mobx';
 import { ignore } from 'mobx-sync';
-import { IDisposableStore, userStore } from '.';
 import { MacroService } from 'src/services/macro';
+
+import { IDisposableStore, userStore } from './';
 
 class MacroStore implements IDisposableStore {
     @observable macros: Array<Macro> = [];

@@ -1,6 +1,7 @@
-import ModalFormStore from '../modal-form-store';
 import { action } from 'mobx';
 import { macroStore } from 'src/stores';
+
+import ModalFormStore from '../modal-form-store';
 
 class MacroModalStore extends ModalFormStore {
     @action async saveMacro(values: any): Promise<Macro | undefined> {

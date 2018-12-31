@@ -1,27 +1,27 @@
 import './EditorView.less';
 
-import { Spin, notification, Drawer, Modal, Icon } from 'antd';
+import { Drawer, Icon, Modal, notification, Spin } from 'antd';
+import { toJS } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { EditorStore } from 'src/features/Editor/editor-store';
-
-import { GenericComponent } from './generic-component';
-import { NodeEditor } from './rete-engine/editor';
-import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
-import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
-import ReteEditorMenu from './rete-plugins/rete-editor-menu/src';
-import { createNode } from './utils';
-import { NodeImportExport } from './rete-engine/node';
-import { toJS } from 'mobx';
-import { GraphStore } from 'src/stores/graph-store';
-import { MacroStore } from 'src/stores/macro-store';
-import LogView from './Log/LogView';
-import { ControlPanelView } from './ControlPanelView';
-import MacroModalForm from 'src/components/Modals/MacroModal/MacroModalForm';
-import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
 import { GraphModalStore } from 'src/components/Modals/GraphModal/graph-modal-store';
 import GraphModalForm from 'src/components/Modals/GraphModal/GraphModalForm';
+import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
+import MacroModalForm from 'src/components/Modals/MacroModal/MacroModalForm';
+import { EditorStore } from 'src/features/Editor/editor-store';
+import { GraphStore } from 'src/stores/graph-store';
+import { MacroStore } from 'src/stores/macro-store';
+
+import { ControlPanelView } from './ControlPanelView';
+import { GenericComponent } from './generic-component';
+import LogView from './Log/LogView';
+import { NodeEditor } from './rete-engine/editor';
+import { NodeImportExport } from './rete-engine/node';
+import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
+import ReteEditorMenu from './rete-plugins/rete-editor-menu/src';
+import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
+import { createNode } from './utils';
 
 const applyBackground = () => {
     const areaViewContainer = document.querySelector(
@@ -60,7 +60,7 @@ class EditorView extends React.Component<
         const { editorStore } = this.props;
         await editorStore!.loadDefinitions();
 
-        const { nodeDefinitions, graph } = editorStore!;
+        const { nodeDefinitions, graph, currentGraph } = editorStore!;
 
         if (!graph) {
             this.props.history.push('/');
@@ -77,8 +77,10 @@ class EditorView extends React.Component<
         const { width, height } = container.getBoundingClientRect();
         this.nodeEditor.view.area.translate(width / 2 - 70, height / 2 - 60);
 
-        const definitions = nodeDefinitions;
-        definitions
+        if (currentGraph!.type === 'macro') {
+        }
+
+        nodeDefinitions
             .reduce(
                 (pV, cV) => {
                     pV.push(new GenericComponent(cV));

@@ -1,6 +1,6 @@
-import * as React from 'react';
+import { Button, Icon, Tooltip } from 'antd';
 import classNames from 'classnames';
-import { Button, Tooltip, Icon } from 'antd';
+import * as React from 'react';
 
 type ControlProps = {
     running: boolean;

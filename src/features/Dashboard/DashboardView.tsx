@@ -5,15 +5,15 @@ import { Button, Card, Icon, List, Spin, Tooltip } from 'antd';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { GraphModalStore } from 'src/components/Modals/GraphModal/graph-modal-store';
+import GraphModalForm from 'src/components/Modals/GraphModal/GraphModalForm';
+import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
+import MacroModalForm from 'src/components/Modals/MacroModal/MacroModalForm';
 import { EditorStore } from 'src/features/Editor/editor-store';
-
-import DashboardCard from './DashboardCard';
 import { GraphStore } from 'src/stores/graph-store';
 import { MacroStore } from 'src/stores/macro-store';
-import GraphModalForm from 'src/components/Modals/GraphModal/GraphModalForm';
-import MacroModalForm from 'src/components/Modals/MacroModal/MacroModalForm';
-import { GraphModalStore } from 'src/components/Modals/GraphModal/graph-modal-store';
-import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
+
+import DashboardCard from './DashboardCard';
 
 interface DashboardProps {
     editorStore?: EditorStore;

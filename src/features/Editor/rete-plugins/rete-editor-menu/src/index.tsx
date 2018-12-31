@@ -1,12 +1,12 @@
 import * as React from 'react';
+import { GenericComponent } from 'src/features/Editor/generic-component';
 import { NodeEditor } from 'src/features/Editor/rete-engine/editor';
 import { Node } from 'src/features/Editor/rete-engine/node';
-
-import contextMenu, { MenuContents, SubMenu, MenuItem } from './editor-menu';
 import { createNode } from 'src/features/Editor/utils';
-import HierarchicalNode from './hierarchical-node';
-import { GenericComponent } from 'src/features/Editor/generic-component';
 import { editorStore } from 'src/stores';
+
+import contextMenu, { MenuContents, MenuItem, SubMenu } from './editor-menu';
+import HierarchicalNode from './hierarchical-node';
 
 const nodeMenuContents = (
     deleteNodeFunc: Function,

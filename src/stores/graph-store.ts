@@ -1,7 +1,8 @@
-import { observable, action, runInAction } from 'mobx';
+import { action, observable, runInAction } from 'mobx';
 import { ignore } from 'mobx-sync';
-import { userStore, IDisposableStore } from '.';
 import { GraphService } from 'src/services';
+
+import { IDisposableStore, userStore } from './';
 
 class GraphStore implements IDisposableStore {
     @observable

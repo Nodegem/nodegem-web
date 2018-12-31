@@ -1,11 +1,11 @@
 import './Log.less';
 
 import classNames from 'classnames';
+import { observer } from 'mobx-react';
 import * as moment from 'moment';
 import * as React from 'react';
 
 import { Log } from '../editor-store';
-import { observer } from 'mobx-react';
 
 interface LogViewProps {
     maxLogsDisplayed?: number;

@@ -1,8 +1,10 @@
 import { Form, Input } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
+import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import ModalForm, { ModalFormProps } from 'src/components/ModalForm/ModalForm';
+
 import { GraphModalStore } from './graph-modal-store';
 
 interface ModalProps extends ModalFormProps {
@@ -85,7 +87,11 @@ class GraphModalForm extends React.Component<ModalProps> {
                                         message: 'Description is required',
                                     },
                                 ],
-                            })(<Input />)}
+                            })(
+                                <TextArea
+                                    autosize={{ minRows: 3, maxRows: 8 }}
+                                />
+                            )}
                         </FormItem>
                     </>
                 )}

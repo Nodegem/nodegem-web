@@ -1,6 +1,6 @@
 import { action, observable } from 'mobx';
-import { ModalFormType } from 'src/features/Dashboard/dashboard-store';
 import { ignore } from 'mobx-sync';
+import { ModalFormType } from 'src/features/Dashboard/dashboard-store';
 
 export type ModalFormType = "graph" | "macro";
 

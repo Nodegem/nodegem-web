@@ -1,6 +1,7 @@
-import ModalFormStore from '../modal-form-store';
 import { action } from 'mobx';
 import { graphStore } from 'src/stores';
+
+import ModalFormStore from '../modal-form-store';
 
 class GraphModalStore extends ModalFormStore {
     @action async saveGraph(values: any) {

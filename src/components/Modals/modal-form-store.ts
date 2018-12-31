@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { action, observable } from 'mobx';
 import { ignore } from 'mobx-sync';
 
 abstract class ModalFormStore {

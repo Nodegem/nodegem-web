@@ -1,14 +1,14 @@
-import { observable, action } from 'mobx';
+import { action, observable } from 'mobx';
 import { ignore } from 'mobx-sync';
+import graphModalStore from 'src/components/Modals/GraphModal/graph-modal-store';
+import macroModalStore from 'src/components/Modals/MacroModal/macro-modal-store';
 import editorStore from 'src/features/Editor/editor-store';
 
 import authStore from './auth-store';
 import commonStore from './common-store';
-import userStore from './user-store';
 import graphStore from './graph-store';
 import macroStore from './macro-store';
-import macroModalStore from 'src/components/Modals/MacroModal/macro-modal-store';
-import graphModalStore from 'src/components/Modals/GraphModal/graph-modal-store';
+import userStore from './user-store';
 
 const rootStoreKey = 'root';
 

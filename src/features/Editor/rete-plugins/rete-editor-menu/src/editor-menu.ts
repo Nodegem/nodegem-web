@@ -1,6 +1,7 @@
+import './editor-menu.less';
+
 import classNames from 'classnames';
 import Fuse from 'fuse.js';
-import './editor-menu.less';
 import { isDescendant } from 'src/utils';
 
 export type MenuContents = {

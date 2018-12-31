@@ -1,5 +1,6 @@
 import { action, computed, observable } from 'mobx';
-import { IDisposableStore } from '.';
+
+import { IDisposableStore } from './';
 
 class UserStore implements IDisposableStore {
 
