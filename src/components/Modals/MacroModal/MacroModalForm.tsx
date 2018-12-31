@@ -1,14 +1,17 @@
 import './macro-modal-form.less';
 
-import { Button, Collapse, Form, Icon, Input, Switch } from 'antd';
+import { Button, Collapse, Form, Icon, Input, Switch, Divider } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
-import IOField from 'src/components/IOField/IOField';
-import ModalForm, { FieldDecorator, ModalFormProps } from 'src/components/ModalForm/ModalForm';
+import ModalForm, {
+    FieldDecorator,
+    ModalFormProps,
+} from 'src/components/ModalForm/ModalForm';
 
 import { MacroModalStore } from './macro-modal-store';
+import IOField from 'src/components/MacroIOField/MacroIOField';
 
 const Panel = Collapse.Panel;
 
@@ -52,6 +55,7 @@ class MacroModalForm extends React.Component<ModalProps> {
         const { form } = this.formRef.props;
 
         form!.resetFields();
+        this.props.macroModalStore!.resetModal();
         this.props.macroModalStore!.closeModal();
     };
 
@@ -68,9 +72,23 @@ class MacroModalForm extends React.Component<ModalProps> {
         );
     }
 
+    private onParentCollapse = (key: string | string[] | undefined) => {
+        this.props.macroModalStore!.setParentKey(key);
+    };
+
+    private onInputCollapse = (key: string | string[] | undefined) => {
+        this.props.macroModalStore!.setInputKey(key);
+    };
+
+    private onOutputCollapse = (key: string | string[] | undefined) => {
+        this.props.macroModalStore!.setOutputKey(key);
+    };
+
     public render() {
         const { children, macroModalStore, onSave, ...rest } = this.props;
         const { saving, editMode, data, isVisible } = macroModalStore!;
+
+        const { parentKey, inputKey, outputKey } = macroModalStore!;
 
         const modalTitle = editMode ? 'Edit Macro' : 'Add Macro';
 
@@ -123,9 +141,18 @@ class MacroModalForm extends React.Component<ModalProps> {
                                 />
                             )}
                         </FormItem>
-                        <Collapse className="io-fields">
+                        <Divider>Inputs / Outputs</Divider>
+                        <Collapse
+                            className="io-fields"
+                            activeKey={parentKey}
+                            onChange={this.onParentCollapse}
+                        >
                             <Panel header="Inputs" key="1">
-                                <Collapse bordered={false}>
+                                <Collapse
+                                    bordered={false}
+                                    activeKey={inputKey}
+                                    onChange={this.onInputCollapse}
+                                >
                                     <Panel header="Flow" key="1">
                                         <>
                                             {this.renderFields(fd)}
@@ -138,7 +165,11 @@ class MacroModalForm extends React.Component<ModalProps> {
                                 </Collapse>
                             </Panel>
                             <Panel header="Outputs" key="2">
-                                <Collapse bordered={false}>
+                                <Collapse
+                                    bordered={false}
+                                    activeKey={outputKey}
+                                    onChange={this.onOutputCollapse}
+                                >
                                     <Panel header="Flow" key="1">
                                         sd
                                     </Panel>

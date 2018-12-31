@@ -1,4 +1,4 @@
-import { Form, Input } from 'antd';
+import { Form, Input, Divider } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
@@ -6,6 +6,7 @@ import * as React from 'react';
 import ModalForm, { ModalFormProps } from 'src/components/ModalForm/ModalForm';
 
 import { GraphModalStore } from './graph-modal-store';
+import EnvironmentVariables from 'src/components/EnvironmentVariables/EnvironmentVariables';
 
 interface ModalProps extends ModalFormProps {
     graphModalStore?: GraphModalStore;
@@ -61,6 +62,7 @@ class GraphModalForm extends React.Component<ModalProps> {
                     okButtonProps: { loading: saving },
                     onOk: this.handleSubmit,
                     onCancel: this.handleCancel,
+                    width: 700,
                 }}
                 visible={isVisible}
                 {...rest}
@@ -93,6 +95,8 @@ class GraphModalForm extends React.Component<ModalProps> {
                                 />
                             )}
                         </FormItem>
+                        <Divider>Graph Constants</Divider>
+                        <EnvironmentVariables />
                     </>
                 )}
             </ModalForm>
