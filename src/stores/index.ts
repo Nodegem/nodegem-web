@@ -27,7 +27,11 @@ class RootStore implements IDisposableStore {
     editorStore = editorStore;
     graphStore = graphStore;
     macroStore = macroStore;
+
+    @ignore
     macroModalStore = macroModalStore;
+
+    @ignore
     graphModalStore = graphModalStore;
 
     @action dispose() {

@@ -206,8 +206,6 @@ class EditorView extends React.Component<
             const { graph } = this.props.editorStore!;
             const { type } = currentGraph;
 
-            console.log(graph);
-
             if (type === 'graph') {
                 this.props.graphModalStore!.openModal(graph, true);
             } else {

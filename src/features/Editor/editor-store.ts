@@ -212,6 +212,9 @@ class EditorStore implements IDisposableStore {
                         nodes,
                         links,
                         flowInputs: [],
+                        flowOutputs: [],
+                        valueInputs: [],
+                        valueOutputs: [],
                     });
                 }
             }

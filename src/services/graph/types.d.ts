@@ -1,12 +1,12 @@
 interface Graph {
     id: string;
     name: string;
-    isActive: boolean;
+    isActive?: boolean;
     description: string;
     nodes: Array<NodeData>;
     links: Array<LinkData>;
-    createdOn: Date;
-    lastUpdated: Date;
+    createdOn?: Date;
+    lastUpdated?: Date;
     userId: string;
 }
 
@@ -25,8 +25,8 @@ interface NodeData {
 }
 
 interface FieldData {
-    key: string,
-    value: any
+    key: string;
+    value: any;
 }
 
 interface CreateGraph {

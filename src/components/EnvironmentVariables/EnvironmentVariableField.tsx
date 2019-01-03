@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Tooltip, Button, Input, Row, Col, Select } from 'antd';
+import { ValueTypeControl } from '../ValueTypeControl/ValueTypeControl';
 
 const Option = Select.Option;
 
@@ -58,7 +59,7 @@ class EnvironmentVariableField extends React.Component<
 
         return (
             <span>
-                <Row type="flex" align="middle" gutter={4}>
+                <Row type="flex" align="middle" gutter={32}>
                     <Col span={16}>
                         <Input
                             value={fieldValue || ''}
@@ -68,9 +69,7 @@ class EnvironmentVariableField extends React.Component<
                         />
                     </Col>
                     <Col span={4}>
-                        <Select placeholder="Type" showSearch>
-                            <Option value="test">Test</Option>
-                        </Select>
+                        <ValueTypeControl />
                     </Col>
                     <Col span={3} style={{ textAlign: 'center' }}>
                         <Tooltip title="Secret?">

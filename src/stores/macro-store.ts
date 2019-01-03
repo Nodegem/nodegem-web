@@ -36,15 +36,19 @@ class MacroStore implements IDisposableStore {
     @action
     async createMacro(macro: CreateMacro): Promise<Macro | undefined> {
         this.loadingMacros = true;
-        let newGraph;
+        let newMacro;
         try {
             const { id } = userStore.user!;
-            newGraph = await MacroService.create({
+            console.log({
+                ...macro,
+                userId: id,
+            });
+            newMacro = await MacroService.create({
                 ...macro,
                 userId: id,
             });
             runInAction(() => {
-                this.macros.push(newGraph);
+                this.macros.push(newMacro);
             });
         } catch (e) {
             console.warn(e);
@@ -52,7 +56,7 @@ class MacroStore implements IDisposableStore {
             runInAction(() => {
                 this.loadingMacros = false;
             });
-            return newGraph;
+            return newMacro;
         }
     }
 

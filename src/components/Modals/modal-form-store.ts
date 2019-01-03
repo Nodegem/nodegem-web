@@ -26,11 +26,20 @@ abstract class ModalFormStore {
         this.toggleModal(true);
         this.data = data;
         this.editMode = editMode;
+
+        if (Object.keys(data).length > 0) {
+            this.onDataLoad();
+        }
     }
 
     closeModal() {
         this.toggleModal(false);
+        this.onModalClose();
     }
+
+    onDataLoad() {}
+
+    onModalClose() {}
 }
 
 export default ModalFormStore;

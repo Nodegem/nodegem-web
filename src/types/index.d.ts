@@ -5,3 +5,4 @@ declare module 'lodash-uuid' {
 }
 
 type GraphType = 'graph' | 'macro';
+type IOType = 'flowInput' | 'flowOutput' | 'valueInput' | 'valueOutput';

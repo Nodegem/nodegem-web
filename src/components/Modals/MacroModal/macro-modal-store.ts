@@ -19,17 +19,19 @@ class MacroModalStore extends ModalFormStore {
 
     @ignore
     @observable
-    inputCounts = {
-        flowId: 0,
-        valueId: 0,
-    };
+    flowInputs: Array<any> = [];
 
     @ignore
     @observable
-    outputCounts = {
-        flowId: 0,
-        valueId: 0,
-    };
+    valueInputs: Array<any> = [];
+
+    @ignore
+    @observable
+    flowOutputs: Array<any> = [];
+
+    @ignore
+    @observable
+    valueOutputs: Array<any> = [];
 
     @action async saveMacro(values: any): Promise<Macro | undefined> {
         this.saving = true;
@@ -59,28 +61,44 @@ class MacroModalStore extends ModalFormStore {
         this.outputKey = key;
     }
 
-    @action addNewFlowInput() {}
+    @action addNewFlowInput() {
+        this.flowInputs.push({});
+    }
 
-    @action addNewValueInput() {}
+    @action addNewValueInput() {
+        this.valueInputs.push({});
+    }
 
-    @action addNewFlowOutput() {}
+    @action addNewFlowOutput() {
+        this.flowOutputs.push({});
+    }
 
-    @action addNewValueOutput() {}
+    @action addNewValueOutput() {
+        this.valueOutputs.push({});
+    }
 
     @action resetModal() {
         this.setInputKey(undefined);
         this.setOutputKey(undefined);
         this.setParentKey(undefined);
 
-        this.inputCounts = {
-            flowId: 0,
-            valueId: 0,
-        };
+        this.flowInputs = [];
+        this.flowOutputs = [];
+        this.valueInputs = [];
+        this.valueOutputs = [];
 
-        this.outputCounts = {
-            flowId: 0,
-            valueId: 0,
-        };
+        this.data = {};
+    }
+
+    onDataLoad() {
+        this.flowInputs = this.data.flowInputs || [];
+        this.valueInputs = this.data.valueInputs || [];
+        this.flowOutputs = this.data.flowOutputs || [];
+        this.valueOutputs = this.data.valueOutputs || [];
+    }
+
+    onModalClose() {
+        this.resetModal();
     }
 }
 

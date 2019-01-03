@@ -1,8 +1,10 @@
-import { Input, Switch, Icon, Button, Tooltip } from 'antd';
+import { Input, Switch, Icon, Button, Tooltip, Col, Row } from 'antd';
 import * as React from 'react';
+import { ValueTypeControl } from '../ValueTypeControl/ValueTypeControl';
 
 interface IOFieldProps {
-    onDelete?: () => void;
+    ioType: IOType;
+    onDelete?: (ioType: IOType) => void;
     onChange?: (state: any) => void;
 }
 
@@ -40,43 +42,50 @@ class IOField extends React.Component<IOFieldProps, IOFieldState> {
         }
     };
 
+    private onDelete = () => {
+        if (this.props.onDelete) {
+            this.props.onDelete(this.props.ioType);
+        }
+    };
+
     public render() {
-        const { onDelete } = this.props;
+        const { ioType } = this.props;
         const { fieldValue } = this.state;
 
+        const centerStyle: React.CSSProperties = {
+            textAlign: 'center',
+        };
+
+        const isValueType = ioType === 'valueOutput' || ioType === 'valueInput';
+
         return (
-            <span>
-                <Input
-                    value={fieldValue || ''}
-                    type="text"
-                    placeholder="Name"
-                    style={{ width: '92%', marginRight: '3%' }}
-                    onChange={this.onChange}
-                />
-                {/* <span style={{ marginRight: '4%' }}>
-                    <p
-                        style={{
-                            display: 'inline',
-                            marginBottom: 0,
-                            marginRight: 5,
-                        }}
-                    >
-                        Secret?:{' '}
-                    </p>
-                    <Switch checked={secret} onChange={this.onSecretChange} />
-                </span> */}
-                <Tooltip title="Remove">
-                    <Button
-                        onClick={onDelete}
-                        style={{ display: 'inline' }}
-                        type="danger"
-                        ghost
-                        icon="minus"
-                        size="small"
-                        shape="circle"
+            <Row type="flex" gutter={8}>
+                <Col span={!isValueType ? 23 : 17}>
+                    <Input
+                        value={fieldValue || ''}
+                        type="text"
+                        placeholder="Name"
+                        onChange={this.onChange}
                     />
-                </Tooltip>
-            </span>
+                </Col>
+                {isValueType && (
+                    <Col span={6} style={centerStyle}>
+                        <ValueTypeControl />
+                    </Col>
+                )}
+                <Col span={1} style={centerStyle}>
+                    <Tooltip title="Remove">
+                        <Button
+                            onClick={this.onDelete}
+                            type="danger"
+                            ghost
+                            icon="minus"
+                            size="small"
+                            shape="circle"
+                        />
+                    </Tooltip>
+                </Col>
+            </Row>
         );
     }
 }
