@@ -19,19 +19,19 @@ class MacroModalStore extends ModalFormStore {
 
     @ignore
     @observable
-    flowInputs: Array<any> = [];
+    flowInputs: Array<FlowInputFieldDto> = [];
 
     @ignore
     @observable
-    valueInputs: Array<any> = [];
+    valueInputs: Array<ValueInputFieldDto> = [];
 
     @ignore
     @observable
-    flowOutputs: Array<any> = [];
+    flowOutputs: Array<FlowOutputFieldDto> = [];
 
     @ignore
     @observable
-    valueOutputs: Array<any> = [];
+    valueOutputs: Array<ValueOutputFieldDto> = [];
 
     @action async saveMacro(values: any): Promise<Macro | undefined> {
         this.saving = true;
@@ -62,19 +62,35 @@ class MacroModalStore extends ModalFormStore {
     }
 
     @action addNewFlowInput() {
-        this.flowInputs.push({});
+        this.flowInputs.push({} as FlowInputFieldDto);
     }
 
     @action addNewValueInput() {
-        this.valueInputs.push({});
+        this.valueInputs.push({} as ValueInputFieldDto);
     }
 
     @action addNewFlowOutput() {
-        this.flowOutputs.push({});
+        this.flowOutputs.push({} as FlowOutputFieldDto);
     }
 
     @action addNewValueOutput() {
-        this.valueOutputs.push({});
+        this.valueOutputs.push({} as ValueOutputFieldDto);
+    }
+
+    @action removeFlowInput(index: number) {
+        this.flowInputs.splice(index, 1);
+    }
+
+    @action removeValueInput(index: number) {
+        this.valueInputs.splice(index, 1);
+    }
+
+    @action removeFlowOutput(index: number) {
+        this.flowOutputs.splice(index, 1);
+    }
+
+    @action removeValueOutput(index: number) {
+        this.valueOutputs.splice(index, 1);
     }
 
     @action resetModal() {
@@ -90,11 +106,11 @@ class MacroModalStore extends ModalFormStore {
         this.data = {};
     }
 
-    onDataLoad() {
-        this.flowInputs = this.data.flowInputs || [];
-        this.valueInputs = this.data.valueInputs || [];
-        this.flowOutputs = this.data.flowOutputs || [];
-        this.valueOutputs = this.data.valueOutputs || [];
+    onDataLoad(data: Macro) {
+        this.flowInputs = [...data.flowInputs] || [];
+        this.valueInputs = [...data.valueInputs] || [];
+        this.flowOutputs = [...data.flowOutputs] || [];
+        this.valueOutputs = [...data.valueOutputs] || [];
     }
 
     onModalClose() {

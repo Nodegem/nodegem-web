@@ -4,15 +4,17 @@ import { ValueTypeControl } from '../ValueTypeControl/ValueTypeControl';
 
 interface IOFieldProps {
     ioType: IOType;
-    onDelete?: (ioType: IOType) => void;
+    index: number;
+    onDelete?: (ioType: IOType, index: number) => void;
     onChange?: (state: any) => void;
 }
 
 interface IOFieldState {
-    fieldValue: any;
+    label: any;
+    type?: number;
 }
 
-class IOField extends React.Component<IOFieldProps, IOFieldState> {
+class MacroIOField extends React.Component<IOFieldProps, IOFieldState> {
     static getDerivedStateFromProps(nextProps) {
         if ('value' in nextProps) {
             return {
@@ -27,13 +29,14 @@ class IOField extends React.Component<IOFieldProps, IOFieldState> {
 
         const value = props.value || {};
         this.state = {
-            fieldValue: value.fieldValue || '',
+            label: value.value || '',
+            type: value.type || undefined,
         };
     }
 
     private onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({ fieldValue: e.target.value });
-        this.triggerChange({ fieldValue: e.target.value });
+        this.setState({ label: e.target.value });
+        this.triggerChange({ label: e.target.value });
     };
 
     private triggerChange = (changedValue: object) => {
@@ -44,13 +47,13 @@ class IOField extends React.Component<IOFieldProps, IOFieldState> {
 
     private onDelete = () => {
         if (this.props.onDelete) {
-            this.props.onDelete(this.props.ioType);
+            this.props.onDelete(this.props.ioType, this.props.index);
         }
     };
 
     public render() {
         const { ioType } = this.props;
-        const { fieldValue } = this.state;
+        const { label, type } = this.state;
 
         const centerStyle: React.CSSProperties = {
             textAlign: 'center',
@@ -62,9 +65,9 @@ class IOField extends React.Component<IOFieldProps, IOFieldState> {
             <Row type="flex" gutter={8}>
                 <Col span={!isValueType ? 23 : 17}>
                     <Input
-                        value={fieldValue || ''}
+                        value={label || ''}
                         type="text"
-                        placeholder="Name"
+                        placeholder="Label"
                         onChange={this.onChange}
                     />
                 </Col>
@@ -90,4 +93,4 @@ class IOField extends React.Component<IOFieldProps, IOFieldState> {
     }
 }
 
-export default IOField;
+export default MacroIOField;

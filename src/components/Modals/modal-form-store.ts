@@ -1,4 +1,4 @@
-import { action, observable } from 'mobx';
+import { action, observable, toJS } from 'mobx';
 import { ignore } from 'mobx-sync';
 
 abstract class ModalFormStore {
@@ -24,11 +24,11 @@ abstract class ModalFormStore {
 
     openModal(data: any = {}, editMode: boolean = false) {
         this.toggleModal(true);
-        this.data = data;
+        this.data = { ...data };
         this.editMode = editMode;
 
         if (Object.keys(data).length > 0) {
-            this.onDataLoad();
+            this.onDataLoad(data);
         }
     }
 
@@ -37,7 +37,7 @@ abstract class ModalFormStore {
         this.onModalClose();
     }
 
-    onDataLoad() {}
+    onDataLoad(data) {}
 
     onModalClose() {}
 }

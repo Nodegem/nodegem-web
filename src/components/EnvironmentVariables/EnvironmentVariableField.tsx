@@ -10,8 +10,10 @@ interface IOFieldProps {
 }
 
 interface IOFieldState {
-    fieldValue: any;
-    secret: boolean;
+    name: string;
+    value: any;
+    isSecret: boolean;
+    type: number;
 }
 
 class EnvironmentVariableField extends React.Component<
@@ -32,19 +34,26 @@ class EnvironmentVariableField extends React.Component<
 
         const value = props.value || {};
         this.state = {
-            secret: value.secret || false,
-            fieldValue: value.fieldValue || '',
+            isSecret: value.isSecret || false,
+            value: value.value || '',
+            name: value.name || '',
+            type: value.type || 0,
         };
     }
 
-    private onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({ fieldValue: e.target.value });
-        this.triggerChange({ fieldValue: e.target.value });
+    private onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ name: e.target.value });
+        this.triggerChange({ name: e.target.value });
+    };
+
+    private onValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ value: e.target.value });
+        this.triggerChange({ value: e.target.value });
     };
 
     private onSecretChange = () => {
-        this.setState({ secret: !this.state.secret });
-        this.triggerChange({ secret: !this.state.secret });
+        this.setState({ isSecret: !this.state.isSecret });
+        this.triggerChange({ isSecret: !this.state.isSecret });
     };
 
     private triggerChange = (changedValue: object) => {
@@ -55,46 +64,56 @@ class EnvironmentVariableField extends React.Component<
 
     public render() {
         const { onDelete } = this.props;
-        const { fieldValue, secret } = this.state;
+        const { value, name, isSecret, type } = this.state;
+
+        const centerStyle: React.CSSProperties = {
+            textAlign: 'center',
+        };
 
         return (
-            <span>
-                <Row type="flex" align="middle" gutter={32}>
-                    <Col span={16}>
-                        <Input
-                            value={fieldValue || ''}
-                            type={secret ? 'password' : 'text'}
-                            placeholder="Name"
-                            onChange={this.onChange}
+            <Row type="flex" align="middle" gutter={8}>
+                <Col span={6}>
+                    <Input
+                        value={name || ''}
+                        type="text"
+                        placeholder="Name"
+                        onChange={this.onNameChange}
+                    />
+                </Col>
+                <Col span={10}>
+                    <Input
+                        value={value || ''}
+                        type={isSecret ? 'password' : 'text'}
+                        placeholder="Value"
+                        onChange={this.onValueChange}
+                    />
+                </Col>
+                <Col span={4}>
+                    <ValueTypeControl />
+                </Col>
+                <Col span={2} style={centerStyle}>
+                    <Tooltip title="Secret?">
+                        <Button
+                            onClick={this.onSecretChange}
+                            type="default"
+                            icon={isSecret ? 'lock' : 'unlock'}
+                            shape="circle"
                         />
-                    </Col>
-                    <Col span={4}>
-                        <ValueTypeControl />
-                    </Col>
-                    <Col span={3} style={{ textAlign: 'center' }}>
-                        <Tooltip title="Secret?">
-                            <Button
-                                onClick={this.onSecretChange}
-                                type="default"
-                                icon={secret ? 'lock' : 'unlock'}
-                                shape="circle"
-                            />
-                        </Tooltip>
-                    </Col>
-                    <Col span={1} style={{ textAlign: 'center' }}>
-                        <Tooltip title="Remove">
-                            <Button
-                                onClick={onDelete}
-                                type="danger"
-                                ghost
-                                icon="minus"
-                                size="small"
-                                shape="circle"
-                            />
-                        </Tooltip>
-                    </Col>
-                </Row>
-            </span>
+                    </Tooltip>
+                </Col>
+                <Col span={2} style={centerStyle}>
+                    <Tooltip title="Remove">
+                        <Button
+                            onClick={onDelete}
+                            type="danger"
+                            ghost
+                            icon="minus"
+                            size="small"
+                            shape="circle"
+                        />
+                    </Tooltip>
+                </Col>
+            </Row>
         );
     }
 }

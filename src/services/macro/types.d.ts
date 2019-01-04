@@ -1,8 +1,8 @@
 interface Macro extends Graph {
-    flowInputs: Array<any>;
-    flowOutputs: Array<any>;
-    valueInputs: Array<any>;
-    valueOutputs: Array<any>;
+    flowInputs: Array<FlowInputFieldDto>;
+    flowOutputs: Array<FlowOutputFieldDto>;
+    valueInputs: Array<ValueInputFieldDto>;
+    valueOutputs: Array<ValueOutputFieldDto>;
 }
 
 interface CreateMacro {

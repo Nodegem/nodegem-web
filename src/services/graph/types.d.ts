@@ -8,6 +8,13 @@ interface Graph {
     createdOn?: Date;
     lastUpdated?: Date;
     userId: string;
+    constants: Array<GraphConstants>;
+}
+
+interface GraphConstants {
+    name: string;
+    type: number;
+    isSecret: boolean;
 }
 
 interface LinkData {

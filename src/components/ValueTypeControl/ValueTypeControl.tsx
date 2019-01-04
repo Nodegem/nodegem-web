@@ -7,8 +7,8 @@ interface ValueTypeControlProps {}
 
 export const ValueTypeControl = ({  }: ValueTypeControlProps) => {
     return (
-        <Select placeholder="Type" showSearch>
-            <Option value="test">Test</Option>
+        <Select placeholder="Type" defaultValue="object">
+            <Option value="object">Object</Option>
         </Select>
     );
 };

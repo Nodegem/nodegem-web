@@ -1,7 +1,6 @@
 import './macro-modal-form.less';
 
-import { Button, Collapse, Form, Icon, Input, Switch, Divider } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
+import { Collapse, Form, Input, Divider, notification } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
@@ -11,9 +10,8 @@ import ModalForm, {
 } from 'src/components/ModalForm/ModalForm';
 
 import { MacroModalStore } from './macro-modal-store';
-import IOField from 'src/components/MacroIOField/MacroIOField';
+import MacroIOField from 'src/components/MacroIOField/MacroIOField';
 import AddItem from './AddItem';
-import shortid from 'shortid';
 
 const Panel = Collapse.Panel;
 
@@ -33,6 +31,11 @@ class MacroModalForm extends React.Component<ModalProps> {
 
         form!.validateFields(async (err, values) => {
             if (err) {
+                notification.error({
+                    message: 'Unable To Save Macro',
+                    description:
+                        'Invalid data. Delete any empty inputs/outputs.',
+                });
                 return;
             }
 
@@ -54,6 +57,15 @@ class MacroModalForm extends React.Component<ModalProps> {
         this.props.macroModalStore!.closeModal();
     };
 
+    private validateField = (rule, value, callback) => {
+        if (!value.label) {
+            callback('Label cannot be empty');
+            return;
+        }
+
+        callback();
+    };
+
     private renderFields(
         fd: FieldDecorator,
         key: keyof Macro,
@@ -62,13 +74,25 @@ class MacroModalForm extends React.Component<ModalProps> {
     ) {
         const list = dataList || [];
         return list.map((i, index) => (
-            <FormItem key={shortid()}>
+            <Form.Item key={index}>
                 {fd(`${key}[${index}]`, {
                     initialValue: {
-                        fieldValue: i.value,
+                        label: i.label,
+                        type: i.type,
                     },
-                })(<IOField ioType={ioType} onDelete={this.onItemRemove} />)}
-            </FormItem>
+                    rules: [
+                        {
+                            validator: this.validateField,
+                        },
+                    ],
+                })(
+                    <MacroIOField
+                        index={index}
+                        ioType={ioType}
+                        onDelete={this.onItemRemove}
+                    />
+                )}
+            </Form.Item>
         ));
     }
 
@@ -101,20 +125,22 @@ class MacroModalForm extends React.Component<ModalProps> {
                 macroModalStore!.addNewValueOutput();
                 break;
         }
-
-        //I do not know why this is necessary
-        this.forceUpdate();
     };
 
-    private onItemRemove = (ioType: IOType) => {
+    private onItemRemove = (ioType: IOType, index: number) => {
+        const { macroModalStore } = this.props;
         switch (ioType) {
             case 'flowInput':
+                macroModalStore!.removeFlowInput(index);
                 break;
             case 'flowOutput':
+                macroModalStore!.removeFlowOutput(index);
                 break;
             case 'valueInput':
+                macroModalStore!.removeValueInput(index);
                 break;
             case 'valueOutput':
+                macroModalStore!.removeValueOutput(index);
                 break;
         }
     };
@@ -160,7 +186,7 @@ class MacroModalForm extends React.Component<ModalProps> {
             >
                 {fd => (
                     <>
-                        <FormItem label="Name">
+                        <Form.Item label="Name">
                             {fd<Macro>('name', {
                                 initialValue: data.name,
                                 rules: [
@@ -170,8 +196,8 @@ class MacroModalForm extends React.Component<ModalProps> {
                                     },
                                 ],
                             })(<Input />)}
-                        </FormItem>
-                        <FormItem label="Description" required>
+                        </Form.Item>
+                        <Form.Item label="Description" required>
                             {fd<Macro>('description', {
                                 initialValue: data.description,
                                 rules: [
@@ -185,7 +211,7 @@ class MacroModalForm extends React.Component<ModalProps> {
                                     autosize={{ minRows: 3, maxRows: 8 }}
                                 />
                             )}
-                        </FormItem>
+                        </Form.Item>
                         <Divider>Inputs / Outputs</Divider>
                         <Collapse
                             className="io-fields"

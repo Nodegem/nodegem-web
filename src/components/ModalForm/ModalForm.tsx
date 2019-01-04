@@ -3,6 +3,7 @@ import { FormComponentProps } from 'antd/lib/form';
 import Form, { FormProps, GetFieldDecoratorOptions } from 'antd/lib/form/Form';
 import { ModalProps } from 'antd/lib/modal';
 import * as React from 'react';
+import { observer } from 'mobx-react';
 
 export type FieldDecorator = <T extends Object = {}>(
     id: keyof T,
@@ -13,6 +14,7 @@ export interface ModalFormProps extends FormProps {
     modalProps?: ModalProps;
 }
 
+@observer
 class ModalForm extends React.Component<
     ModalFormProps & {
         visible: boolean;
