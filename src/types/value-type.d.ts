@@ -1,11 +1,12 @@
-type ValueType = "Object" 
-    | "Color" 
-    | "Time" 
-    | "Date" 
-    | "DateTime" 
-    | "Boolean" 
-    | "Text" 
-    | "TextArea" 
-    | "Url" 
-    | "PhoneNumber" 
-    | "Number";
+type ValueType =
+    | 'Any'
+    | 'Color'
+    | 'Time'
+    | 'Date'
+    | 'DateTime'
+    | 'Boolean'
+    | 'Text'
+    | 'TextArea'
+    | 'Url'
+    | 'PhoneNumber'
+    | 'Number';
