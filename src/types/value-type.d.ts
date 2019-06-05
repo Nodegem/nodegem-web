@@ -3,10 +3,10 @@ type ValueType =
     | 'Color'
     | 'Time'
     | 'Date'
-    | 'DateTime'
+    | 'Date Time'
     | 'Boolean'
     | 'Text'
-    | 'TextArea'
+    | 'Text Area'
     | 'Url'
-    | 'PhoneNumber'
+    | 'Phone Number'
     | 'Number';

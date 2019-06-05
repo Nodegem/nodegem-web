@@ -11,7 +11,9 @@ export const ValueTypeControl = (props: ValueTypeControlProps) => {
     return (
         <Select placeholder="Type">
             {Object.keys(valueMap).map(x => (
-                <Option value={x}>{valueMap[x]}</Option>
+                <Option value={x} key={x}>
+                    {valueMap[x]}
+                </Option>
             ))}
         </Select>
     );

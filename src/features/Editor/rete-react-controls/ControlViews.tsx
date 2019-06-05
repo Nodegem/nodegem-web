@@ -71,7 +71,7 @@ class ReteControlView extends React.Component<
                     />
                 );
 
-            case 'TextArea':
+            case 'Text Area':
                 return (
                     <TextAreaModal
                         onChange={this.handleValueChange}
