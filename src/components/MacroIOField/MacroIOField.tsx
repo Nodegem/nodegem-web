@@ -4,8 +4,8 @@ import { ValueTypeControl } from '../ValueTypeControl/ValueTypeControl';
 
 interface IOFieldProps {
     ioType: IOType;
-    index: number;
-    onDelete?: (ioType: IOType, index: number) => void;
+    fieldKey: string;
+    onDelete?: (ioType: IOType, id: string) => void;
     onChange?: (state: any) => void;
 }
 
@@ -47,7 +47,7 @@ class MacroIOField extends React.Component<IOFieldProps, IOFieldState> {
 
     private onDelete = () => {
         if (this.props.onDelete) {
-            this.props.onDelete(this.props.ioType, this.props.index);
+            this.props.onDelete(this.props.ioType, this.props.fieldKey);
         }
     };
 

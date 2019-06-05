@@ -5,7 +5,6 @@ import { FormComponentProps } from 'antd/lib/form/Form';
 import FormItem from 'antd/lib/form/FormItem';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import PasswordInput from 'src/components/PasswordInput/PasswordInput';
 import { AuthStore } from 'src/stores/auth-store';
@@ -16,52 +15,53 @@ interface LoginFormProps extends FormComponentProps {
 
 @inject('authStore')
 @observer
-class LoginForm extends React.Component<LoginFormProps & RouteComponentProps<any>> {
-
+class LoginForm extends React.Component<LoginFormProps> {
     private handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         const { form, authStore } = this.props;
         form.validateFields(async (err, values) => {
+            authStore!.setRememberMe(values.rememberMe, {
+                username: values.userName,
+            });
 
-            authStore!.setRememberMe(values.rememberMe, { username: values.userName });
-
-            if(err) return;
+            if (err) return;
 
             try {
                 await authStore!.login(values);
-
-
-            } catch(e) {
+            } catch (e) {
                 console.log(e.response);
             }
-        })
+        });
     };
 
     public render() {
         const { authStore } = this.props;
         const { getFieldDecorator } = this.props.form;
+        const { loading } = this.props.authStore!;
 
         const { rememberMe, savedCredentials } = authStore!;
+
+        const buttonText = loading ? 'Logging in' : 'Log in';
 
         return (
             <Row>
                 <Form onSubmit={this.handleSubmit} className="login-form">
                     <FormItem>
-                        {getFieldDecorator("userName", {
+                        {getFieldDecorator('userName', {
                             initialValue: savedCredentials['username'],
                             rules: [
                                 {
                                     required: true,
-                                    message: "Please input your username."
-                                }
-                            ]
+                                    message: 'Please input your username.',
+                                },
+                            ],
                         })(
                             <Input
                                 prefix={
                                     <Icon
                                         type="user"
-                                        style={{ color: "rgba(0,0,0,.25)" }}
+                                        style={{ color: 'rgba(0,0,0,.25)' }}
                                     />
                                 }
                                 placeholder="Username"
@@ -69,20 +69,20 @@ class LoginForm extends React.Component<LoginFormProps & RouteComponentProps<any
                         )}
                     </FormItem>
                     <FormItem>
-                        {getFieldDecorator("password", {
+                        {getFieldDecorator('password', {
                             rules: [
                                 {
                                     required: true,
-                                    message: "Please input your password."
-                                }
-                            ]
+                                    message: 'Please input your password.',
+                                },
+                            ],
                         })(<PasswordInput />)}
                     </FormItem>
                     <FormItem>
-                        {getFieldDecorator("rememberMe", {
-                            valuePropName: "checked",
-                            initialValue: rememberMe
-                        })(<Checkbox >Remember me</Checkbox>)}
+                        {getFieldDecorator('rememberMe', {
+                            valuePropName: 'checked',
+                            initialValue: rememberMe,
+                        })(<Checkbox>Remember me</Checkbox>)}
                         <Link
                             to="forgot-password"
                             className="login-form-forgot"
@@ -93,8 +93,9 @@ class LoginForm extends React.Component<LoginFormProps & RouteComponentProps<any
                             type="primary"
                             htmlType="submit"
                             className="login-form-button"
+                            loading={loading}
                         >
-                            Log in
+                            {buttonText}
                         </Button>
                         <span className="login-register-now">
                             Or <Link to="/register">Register now!</Link>
@@ -106,7 +107,7 @@ class LoginForm extends React.Component<LoginFormProps & RouteComponentProps<any
     }
 }
 
-const LoginFormView = withRouter(Form.create()(LoginForm));
+const LoginFormView = Form.create()(LoginForm);
 
 const LoginView = () => (
     <div className="login-form-container">

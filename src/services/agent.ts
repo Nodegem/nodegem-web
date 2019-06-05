@@ -2,59 +2,62 @@ import { userStore } from 'src/stores';
 import _superagent, { SuperAgentRequest, SuperAgentStatic } from 'superagent';
 import superagentPromise from 'superagent-promise';
 
-const superagent = superagentPromise(_superagent, global.Promise) as SuperAgentStatic;
+const superagent = superagentPromise(
+    _superagent,
+    global.Promise
+) as SuperAgentStatic;
 
 const ROOT_URL = process.env.REACT_APP_API_BASE_URL;
 
 const combinePath = url => `${ROOT_URL}/api${url}`;
 
 const tokenPlugin = (req: SuperAgentRequest) => {
-    if(userStore && userStore.tokens && userStore.tokens.accessToken) {
-        req.set("Authorization", `Bearer ${userStore.tokens.accessToken}`);
+    if (userStore && userStore.getToken()) {
+        req.set('Authorization', `Bearer ${userStore.getToken()}`);
     }
-}
+};
 
 const responseBody = (res: _superagent.Response) => res.body;
 
 const handleErrors = err => {
-    if(err && err.response && err.response.status === 401) {
+    if (err && err.response && err.response.status === 401) {
         //logout
     }
 
     return err;
-}
+};
+
+const test = (err: any, res: _superagent.Response): any => {
+    console.log(err, res);
+    return null;
+};
 
 const requests = {
-    get: url => 
+    get: url =>
         superagent
             .get(combinePath(url))
             .use(tokenPlugin)
-            .end(handleErrors)
-            .then(responseBody),
-    post: (url, body) => 
+            .then(responseBody, handleErrors),
+    post: (url, body) =>
         superagent
             .post(combinePath(url), body)
             .use(tokenPlugin)
-            .end(handleErrors)
-            .then(responseBody),
+            .then(responseBody, handleErrors),
     put: (url, body) =>
         superagent
             .put(combinePath(url), body)
             .use(tokenPlugin)
-            .end(handleErrors)
-            .then(responseBody),
+            .then(responseBody, handleErrors),
     patch: (url, body) =>
         superagent
             .patch(combinePath(url), body)
             .use(tokenPlugin)
-            .end(handleErrors)
-            .then(responseBody),
+            .then(responseBody, handleErrors),
     del: url =>
         superagent
             .del(combinePath(url))
             .use(tokenPlugin)
-            .end(handleErrors)
-            .then(responseBody)
-}
+            .then(responseBody, handleErrors),
+};
 
-export { requests }
+export { requests };

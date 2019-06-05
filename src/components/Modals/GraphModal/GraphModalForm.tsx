@@ -1,20 +1,70 @@
-import { Form, Input, Divider } from 'antd';
+import { Form, Input, Divider, Modal } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
-import ModalForm, { ModalFormProps } from 'src/components/ModalForm/ModalForm';
 
 import { GraphModalStore } from './graph-modal-store';
 import EnvironmentVariables from 'src/components/EnvironmentVariables/EnvironmentVariables';
+import { ModalProps } from 'antd/lib/modal';
+import { FormComponentProps } from 'antd/lib/form';
 
-interface ModalProps extends ModalFormProps {
-    graphModalStore?: GraphModalStore;
+interface FormDataProps {
+    data: Graph;
 }
+
+const GraphForm = Form.create<FormDataProps & ModalProps & FormComponentProps>({
+    name: 'graph_form',
+})(
+    class extends React.Component<
+        FormDataProps & ModalProps & FormComponentProps
+    > {
+        render() {
+            const { form, data, ...rest } = this.props;
+            const { getFieldDecorator } = form;
+            return (
+                <Modal {...rest}>
+                    <Form layout="vertical">
+                        <FormItem label="Name">
+                            {getFieldDecorator<Graph>('name', {
+                                initialValue: data.name,
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: 'Name is required',
+                                    },
+                                ],
+                            })(<Input />)}
+                        </FormItem>
+                        <FormItem label="Description" required>
+                            {getFieldDecorator<Graph>('description', {
+                                initialValue: data.description,
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: 'Description is required',
+                                    },
+                                ],
+                            })(
+                                <TextArea
+                                    autosize={{ minRows: 3, maxRows: 8 }}
+                                />
+                            )}
+                        </FormItem>
+                        {/* <Divider>Graph Constants</Divider>
+                        <EnvironmentVariables /> */}
+                    </Form>
+                </Modal>
+            );
+        }
+    }
+);
 
 @inject('graphModalStore')
 @observer
-class GraphModalForm extends React.Component<ModalProps> {
+class GraphModalFormController extends React.Component<{
+    graphModalStore?: GraphModalStore;
+}> {
     private formRef: Form;
 
     handleSubmit = async () => {
@@ -40,8 +90,12 @@ class GraphModalForm extends React.Component<ModalProps> {
         this.props.graphModalStore!.closeModal();
     };
 
+    saveFormRef = formRef => {
+        this.formRef = formRef;
+    };
+
     public render() {
-        const { children, graphModalStore, ...rest } = this.props;
+        const { graphModalStore } = this.props;
         const { saving, editMode, data, isVisible } = graphModalStore!;
 
         const modalTitle = editMode ? 'Edit Graph' : 'Add Graph';
@@ -54,54 +108,19 @@ class GraphModalForm extends React.Component<ModalProps> {
         }
 
         return (
-            <ModalForm
-                wrappedComponentRef={f => (this.formRef = f!)}
-                modalProps={{
-                    title: modalTitle,
-                    okText: okButton,
-                    okButtonProps: { loading: saving },
-                    onOk: this.handleSubmit,
-                    onCancel: this.handleCancel,
-                    width: 700,
-                }}
+            <GraphForm
+                wrappedComponentRef={this.saveFormRef}
+                title={modalTitle}
                 visible={isVisible}
-                {...rest}
-            >
-                {fd => (
-                    <>
-                        <FormItem label="Name">
-                            {fd<Graph>('name', {
-                                initialValue: data.name,
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: 'Name is required',
-                                    },
-                                ],
-                            })(<Input />)}
-                        </FormItem>
-                        <FormItem label="Description" required>
-                            {fd<Graph>('description', {
-                                initialValue: data.description,
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: 'Description is required',
-                                    },
-                                ],
-                            })(
-                                <TextArea
-                                    autosize={{ minRows: 3, maxRows: 8 }}
-                                />
-                            )}
-                        </FormItem>
-                        <Divider>Graph Constants</Divider>
-                        <EnvironmentVariables />
-                    </>
-                )}
-            </ModalForm>
+                okText={okButton}
+                onOk={this.handleSubmit}
+                onCancel={this.handleCancel}
+                width={700}
+                okButtonProps={{ loading: saving }}
+                data={data}
+            />
         );
     }
 }
 
-export default GraphModalForm;
+export default GraphModalFormController;

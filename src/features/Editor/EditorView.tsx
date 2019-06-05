@@ -1,14 +1,14 @@
 import './EditorView.less';
 
-import { Drawer, Icon, Modal, notification, Spin } from 'antd';
+import { Drawer, Icon, notification, Spin } from 'antd';
 import { toJS } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { GraphModalStore } from 'src/components/Modals/GraphModal/graph-modal-store';
-import GraphModalForm from 'src/components/Modals/GraphModal/GraphModalForm';
+import GraphModalFormController from 'src/components/Modals/GraphModal/GraphModalForm';
 import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
-import MacroModalForm from 'src/components/Modals/MacroModal/MacroModalForm';
+import MacroModalFormController from 'src/components/Modals/MacroModal/MacroModalForm';
 import { EditorStore } from 'src/features/Editor/editor-store';
 import { GraphStore } from 'src/stores/graph-store';
 import { MacroStore } from 'src/stores/macro-store';
@@ -259,8 +259,8 @@ class EditorView extends React.Component<
                 >
                     <LogView logs={logs} />
                 </Drawer>
-                <MacroModalForm onSave={this.onSaveMacro} />
-                <GraphModalForm />
+                <MacroModalFormController onSave={this.onSaveMacro} />
+                <GraphModalFormController />
             </div>
         );
     }

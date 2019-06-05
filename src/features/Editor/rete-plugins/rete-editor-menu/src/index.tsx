@@ -9,7 +9,7 @@ import contextMenu, { MenuContents, MenuItem, SubMenu } from './editor-menu';
 import HierarchicalNode from './hierarchical-node';
 
 const nodeMenuContents = (
-    deleteNodeFunc: Function,
+    deleteNodeFunc: () => void,
     canDelete: boolean
 ): MenuContents => ({
     otherItems: [

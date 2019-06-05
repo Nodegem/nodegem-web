@@ -39,10 +39,6 @@ class MacroStore implements IDisposableStore {
         let newMacro;
         try {
             const { id } = userStore.user!;
-            console.log({
-                ...macro,
-                userId: id,
-            });
             newMacro = await MacroService.create({
                 ...macro,
                 userId: id,

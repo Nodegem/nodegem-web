@@ -11,16 +11,16 @@
         "lodash": "^4.17.10",
         "lodash-uuid": "^0.0.3",
         "mobx": "^5.1.0",
-        "mobx-react": "^5.2.6",
+        "mobx-react": "^6.0.2",
         "mobx-react-router": "^4.0.5",
-        "mobx-sync": "^1.0.0",
+        "mobx-sync": "^2.0.0",
         "moment": "^2.23.0",
         "react": "^16.6.3",
         "react-dom": "^16.6.3",
-        "react-router-dom": "^4.3.1",
+        "react-router-dom": "^5.0.0",
         "react-scripts-ts-antd": "^2.17.0",
         "shortid": "^2.2.13",
-        "superagent": "^4.0.0",
+        "superagent": "^5.0.5",
         "superagent-promise": "^1.1.0"
     },
     "scripts": {
@@ -34,14 +34,14 @@
     },
     "devDependencies": {
         "@types/classnames": "^2.2.6",
-        "@types/jest": "^23.3.1",
+        "@types/jest": "^24.0.13",
         "@types/lodash": "^4.14.116",
-        "@types/node": "^10.12.12",
+        "@types/node": "^12.0.4",
         "@types/react": "^16.6.3",
         "@types/react-dom": "^16.0.11",
-        "@types/react-router": "^4.4.2",
+        "@types/react-router": "^5.0.1",
         "@types/shortid": "^0.0.29",
-        "@types/superagent": "^3.8.5",
+        "@types/superagent": "^4.1.1",
         "typescript": "^3.2.2"
     }
 }

@@ -12,9 +12,9 @@ export function defaultPath(points, curvature) {
 
 export function renderPathData(emitter, points, link) {
     const data = { points, link, d: '' };
-    
+
     emitter.trigger('linkpath', data);
-    
+
     return data.d || defaultPath(points, 0.4);
 }
 
@@ -27,15 +27,17 @@ export function updateLink({ el, d }) {
 }
 
 export function renderLink({ el, d, link }) {
-    const classed = !link?[]:[
-        'input-' + toTrainCase(link.input.name),
-        'output-' + toTrainCase(link.output.name),
-        'socket-input-' + toTrainCase(link.input.socket.name),
-        'socket-output-' + toTrainCase(link.output.socket.name)
-    ];
+    const classed = !link
+        ? []
+        : [
+              'input-' + toTrainCase(link.input.name),
+              'output-' + toTrainCase(link.output.name),
+              'socket-input-' + toTrainCase(link.input.socket.name),
+              'socket-output-' + toTrainCase(link.output.socket.name),
+          ];
 
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
     svg.classList.add('link', ...classed);
     path.classList.add('main-path');
