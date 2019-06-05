@@ -3,7 +3,7 @@ import './App.less';
 import { Layout } from 'antd';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
-import { Route, RouteComponentProps, Switch, withRouter } from 'react-router-dom';
+import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
 
 import LoginView from './features/Account/Login/LoginFormView';
 import RegisterView from './features/Account/Register/RegisterFormView';
@@ -15,13 +15,13 @@ import { UserStore } from './stores/user-store';
 
 const { Content } = Layout;
 
-const ForgotPassword = <div>Welp, that sucks duude</div>
+const ForgotPassword = () => <div>Welp, that sucks duude</div>;
 
 interface IAppProps {
     userStore?: UserStore;
 }
 
-@inject("userStore")
+@inject('userStore')
 @observer
 class App extends React.Component<IAppProps & RouteComponentProps<any>> {
     public render() {
@@ -35,12 +35,15 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
                         <Content className="app-layout-content">
                             <Switch>
                                 <Route
+                                    exact
                                     path="/"
                                     component={DashboardView}
-                                    exact
                                 />
                                 <Route path="/editor" component={EditorView} />
-                                <Route path="/profile" component={ProfileView} />
+                                <Route
+                                    path="/profile"
+                                    component={ProfileView}
+                                />
                             </Switch>
                         </Content>
                     </Layout>
@@ -50,7 +53,10 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
                             <Route exact path="/" component={LoginView} />
                             <Route path="/login" component={LoginView} />
                             <Route path="/register" component={RegisterView} />
-                            <Route path="/forgot-password" component={ForgotPassword} />
+                            <Route
+                                path="/forgot-password"
+                                component={ForgotPassword}
+                            />
                         </Switch>
                     </Content>
                 )}

@@ -3,6 +3,7 @@ import { getBaseApiUrl } from 'src/utils';
 import * as signalR from '@aspnet/signalr';
 
 import { SimpleObservable } from '../utils/simple-observable';
+import { userStore } from 'src/stores';
 
 abstract class BaseHub {
     private connection: signalR.HubConnection;
@@ -19,7 +20,7 @@ abstract class BaseHub {
 
     constructor(
         hub: string,
-        logLevel: signalR.LogLevel = signalR.LogLevel.Information
+        logLevel: signalR.LogLevel = signalR.LogLevel.Trace
     ) {
         this.onConnected = new SimpleObservable();
         this.onDisconnected = new SimpleObservable();
@@ -28,7 +29,7 @@ abstract class BaseHub {
         const baseUrl = getBaseApiUrl();
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseUrl}/${hub}`, {
-                accessTokenFactory: () => '',
+                accessTokenFactory: () => userStore.getToken()!,
             })
             .configureLogging(logLevel)
             .build();

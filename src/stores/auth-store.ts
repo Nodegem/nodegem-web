@@ -21,8 +21,8 @@ class AuthStore {
     @action async login({ userName, password }: LoginRequestData) {
         this.setLoading(true);
         try {
-            const { user } = await AuthService.login(userName, password);
-            userStore.setUser(user);
+            const response = await AuthService.login(userName, password);
+            userStore.setUser(response);
             history.push('/');
         } catch (e) {
             let errorMessage = 'Unable to connect to service.';
@@ -46,8 +46,8 @@ class AuthStore {
     @action async register(registerRequest: RegisterRequestData) {
         this.setLoading(true);
         try {
-            const { user } = await AuthService.register(registerRequest);
-            userStore.setUser(user);
+            const response = await AuthService.register(registerRequest);
+            userStore.setUser(response);
             history.push('/');
         } catch (e) {
             let errorMessage = 'Unable to connect to service.';

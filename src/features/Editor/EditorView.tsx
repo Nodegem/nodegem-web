@@ -40,7 +40,7 @@ interface EditorProps {
     graphModalStore?: GraphModalStore;
 }
 
-const editorIndicator = <Icon type="loading" style={{ fontSize: '96px' }} />;
+const editorIndicator = <Icon type="loading" style={{ fontSize: 200 }} />;
 
 @inject(
     'editorStore',
@@ -231,6 +231,7 @@ class EditorView extends React.Component<
         return (
             <div className="editor-view">
                 <Spin
+                    className="editor-load"
                     spinning={loadingDefinitions}
                     delay={500}
                     indicator={editorIndicator}

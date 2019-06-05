@@ -27,31 +27,30 @@ const handleErrors = err => {
     return err;
 };
 
-const test = (err: any, res: _superagent.Response): any => {
-    console.log(err, res);
-    return null;
-};
-
 const requests = {
     get: url =>
         superagent
             .get(combinePath(url))
             .use(tokenPlugin)
+            .withCredentials()
             .then(responseBody, handleErrors),
     post: (url, body) =>
         superagent
             .post(combinePath(url), body)
             .use(tokenPlugin)
+            .withCredentials()
             .then(responseBody, handleErrors),
     put: (url, body) =>
         superagent
             .put(combinePath(url), body)
             .use(tokenPlugin)
+            .withCredentials()
             .then(responseBody, handleErrors),
     patch: (url, body) =>
         superagent
             .patch(combinePath(url), body)
             .use(tokenPlugin)
+            .withCredentials()
             .then(responseBody, handleErrors),
     del: url =>
         superagent

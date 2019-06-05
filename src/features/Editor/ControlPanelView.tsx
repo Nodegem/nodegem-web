@@ -35,16 +35,16 @@ export const ControlPanelView = ({
 
     const buttons = [
         {
-            click: editGraph,
-            icon: 'edit',
-            loading: false,
-            toolTip: 'Edit',
-        },
-        {
             click: saveGraph,
             icon: 'save',
             loading: saving,
             toolTip: 'Save',
+        },
+        {
+            click: editGraph,
+            icon: 'edit',
+            loading: false,
+            toolTip: 'Edit',
         },
         {
             click: clearGraph,
@@ -80,7 +80,7 @@ export const ControlPanelView = ({
             <ul className="graph-controls">
                 <li className={controlClasses} onClick={runGraph}>
                     <Tooltip title={playTooltip}>
-                        <Icon type={playIcon} style={{ fontSize: '24px' }} />
+                        <Icon type={playIcon} style={{ fontSize: 24 }} />
                     </Tooltip>
                 </li>
                 <li onClick={showLogDrawer}>
@@ -88,7 +88,7 @@ export const ControlPanelView = ({
                         <Icon
                             className={controlClasses}
                             type="code"
-                            style={{ fontSize: '24px' }}
+                            style={{ fontSize: 24 }}
                         />
                     </Tooltip>
                 </li>
