@@ -9,7 +9,7 @@ interface ValueTypeControlProps extends SelectProps {}
 
 export const ValueTypeControl = (props: ValueTypeControlProps) => {
     return (
-        <Select placeholder="Type">
+        <Select {...props} placeholder="Type">
             {Object.keys(valueMap).map(x => (
                 <Option value={x} key={x}>
                     {valueMap[x]}

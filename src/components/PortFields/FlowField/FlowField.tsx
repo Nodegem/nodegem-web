@@ -1,20 +1,12 @@
-import { Input, Switch, Icon, Button, Tooltip, Col, Row } from 'antd';
+import { Input, Button, Tooltip, Col, Row } from 'antd';
 import * as React from 'react';
-import { ValueTypeControl } from '../ValueTypeControl/ValueTypeControl';
-
-interface IOFieldProps {
-    ioType: IOType;
-    fieldKey: string;
-    onDelete?: (ioType: IOType, id: string) => void;
-    onChange?: (state: any) => void;
-}
+import { PortProps } from '../PortProps';
 
 interface IOFieldState {
-    label: any;
-    type?: number;
+    label: string;
 }
 
-class MacroIOField extends React.Component<IOFieldProps, IOFieldState> {
+class FlowField extends React.Component<PortProps, IOFieldState> {
     static getDerivedStateFromProps(nextProps) {
         if ('value' in nextProps) {
             return {
@@ -29,14 +21,13 @@ class MacroIOField extends React.Component<IOFieldProps, IOFieldState> {
 
         const value = props.value || {};
         this.state = {
-            label: value.value || '',
-            type: value.type || undefined,
+            label: value.label || '',
         };
     }
 
     private onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({ label: e.target.value });
-        this.triggerChange({ label: e.target.value });
+        this.setState({ [e.target.name]: e.target.value } as object);
+        this.triggerChange({ [e.target.name]: e.target.value });
     };
 
     private triggerChange = (changedValue: object) => {
@@ -52,30 +43,23 @@ class MacroIOField extends React.Component<IOFieldProps, IOFieldState> {
     };
 
     public render() {
-        const { ioType } = this.props;
-        const { label, type } = this.state;
+        const { label } = this.state;
 
         const centerStyle: React.CSSProperties = {
             textAlign: 'center',
         };
 
-        const isValueType = ioType === 'valueOutput' || ioType === 'valueInput';
-
         return (
-            <Row type="flex" gutter={8}>
-                <Col span={!isValueType ? 23 : 17}>
+            <Row type="flex" justify="space-between" align="middle" gutter={4}>
+                <Col span={23}>
                     <Input
+                        name="label"
                         value={label || ''}
                         type="text"
                         placeholder="Label"
                         onChange={this.onChange}
                     />
                 </Col>
-                {isValueType && (
-                    <Col span={6} style={centerStyle}>
-                        <ValueTypeControl />
-                    </Col>
-                )}
                 <Col span={1} style={centerStyle}>
                     <Tooltip title="Remove">
                         <Button
@@ -93,4 +77,4 @@ class MacroIOField extends React.Component<IOFieldProps, IOFieldState> {
     }
 }
 
-export default MacroIOField;
+export default FlowField;

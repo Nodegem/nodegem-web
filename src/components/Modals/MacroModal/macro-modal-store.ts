@@ -1,4 +1,4 @@
-import { action, observable, toJS } from 'mobx';
+import { action, observable } from 'mobx';
 import { macroStore } from 'src/stores';
 
 import ModalFormStore from '../modal-form-store';
@@ -143,7 +143,7 @@ class MacroModalStore extends ModalFormStore {
     }
 
     private getIndex(x: any, id: string): boolean {
-        return x.fieldId === id;
+        return x.key === id;
     }
 
     @action resetModal() {

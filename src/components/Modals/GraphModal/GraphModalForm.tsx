@@ -5,7 +5,6 @@ import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 
 import { GraphModalStore } from './graph-modal-store';
-import EnvironmentVariables from 'src/components/EnvironmentVariables/EnvironmentVariables';
 import { ModalProps } from 'antd/lib/modal';
 import { FormComponentProps } from 'antd/lib/form';
 

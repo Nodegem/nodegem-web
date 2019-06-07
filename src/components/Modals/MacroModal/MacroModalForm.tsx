@@ -6,11 +6,12 @@ import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 
 import { MacroModalStore } from './macro-modal-store';
-import MacroIOField from 'src/components/MacroIOField/MacroIOField';
+import ValueTypeField from 'src/components/PortFields/ValueTypeField/ValueTypeField';
 import AddItem from './AddItem';
 import Modal, { ModalProps } from 'antd/lib/modal';
 import { FormComponentProps } from 'antd/lib/form';
 import { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
+import FlowField from 'src/components/PortFields/FlowField/FlowField';
 
 const Panel = Collapse.Panel;
 
@@ -42,6 +43,11 @@ const MacroForm = Form.create<FormDataProps & ModalProps & FormComponentProps>({
                 return;
             }
 
+            if (value.isOptional && !value.defaultValue) {
+                callback('Must provide a default value to optional field');
+                return;
+            }
+
             callback();
         };
 
@@ -61,7 +67,9 @@ const MacroForm = Form.create<FormDataProps & ModalProps & FormComponentProps>({
                     {fd(`${key}[${i.key}]`, {
                         initialValue: {
                             label: i.label,
-                            type: i.type,
+                            type: i.type || 0,
+                            defaultValue: i.defaultValue,
+                            isOptional: i.isOptional || false,
                         },
                         rules: [
                             {
@@ -69,11 +77,19 @@ const MacroForm = Form.create<FormDataProps & ModalProps & FormComponentProps>({
                             },
                         ],
                     })(
-                        <MacroIOField
-                            fieldKey={i.key}
-                            ioType={ioType}
-                            onDelete={onItemRemove}
-                        />
+                        ioType === 'valueInput' || ioType === 'valueOutput' ? (
+                            <ValueTypeField
+                                fieldKey={i.key}
+                                ioType={ioType}
+                                onDelete={onItemRemove}
+                            />
+                        ) : (
+                            <FlowField
+                                fieldKey={i.key}
+                                ioType={ioType}
+                                onDelete={onItemRemove}
+                            />
+                        )
                     )}
                 </Form.Item>
             ));
@@ -240,6 +256,7 @@ class MacroModalFormController extends React.Component<{
                 return;
             }
 
+            console.log(values);
             const macro = await macroModalStore!.saveMacro(values);
 
             if (this.props.onSave) {
@@ -347,7 +364,7 @@ class MacroModalFormController extends React.Component<{
                 okButtonProps={{ loading: saving }}
                 onOk={this.handleSubmit}
                 onCancel={this.handleCancel}
-                width={700}
+                width={1000}
                 visible={isVisible}
                 data={data}
                 parentKey={parentKey}
