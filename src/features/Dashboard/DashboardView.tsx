@@ -1,7 +1,7 @@
 import './Dashboard.less';
 import 'src/utils/extensions';
 
-import { Button, Card, Icon, List, Spin, Tooltip } from 'antd';
+import { Button, Card, List, Spin, Tooltip } from 'antd';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';

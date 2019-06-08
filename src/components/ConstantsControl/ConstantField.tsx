@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { valueMap } from 'src/utils/value-type-mapper';
-import { ValueTypeControl } from '../PortFields';
-import { Tooltip, Col, Input, Row, Button } from 'antd';
+import { ValueTypeDropDown } from '../PortFields';
+import { Tooltip, Col, Input, Row, Button, Checkbox, Icon } from 'antd';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 
 interface ConstantFieldProps {
     constantKey: string;
@@ -13,6 +14,7 @@ interface ConstantFieldState {
     label: string;
     type: number;
     value: any;
+    isSecret: boolean;
 }
 
 class ConstantField extends React.Component<
@@ -36,6 +38,7 @@ class ConstantField extends React.Component<
             label: value.label || '',
             type: value.type || 0,
             value: value.value || undefined,
+            isSecret: value.isSecret || false,
         };
     }
 
@@ -61,8 +64,13 @@ class ConstantField extends React.Component<
         this.triggerChange({ type: value });
     };
 
+    private onSecretChange = (e: CheckboxChangeEvent) => {
+        this.setState({ isSecret: e.target.checked });
+        this.triggerChange({ isSecret: e.target.checked });
+    };
+
     public render() {
-        const { label, type, value } = this.state;
+        const { label, type, value, isSecret } = this.state;
 
         const centerStyle: React.CSSProperties = {
             textAlign: 'center',
@@ -70,28 +78,39 @@ class ConstantField extends React.Component<
 
         return (
             <Row type="flex" justify="space-between" align="middle" gutter={2}>
-                <Col span={6}>
+                <Col span={2} style={centerStyle}>
+                    <Tooltip title="Is Secret?">
+                        <Checkbox
+                            name="isSecret"
+                            checked={isSecret || false}
+                            onChange={this.onSecretChange}
+                        >
+                            <Icon type="key" />
+                        </Checkbox>
+                    </Tooltip>
+                </Col>
+                <Col span={8}>
                     <Input
                         name="label"
                         value={label || ''}
                         type="text"
-                        placeholder="Label"
+                        placeholder="Name"
                         onChange={this.onChange}
                     />
                 </Col>
-                <Col span={6} style={centerStyle}>
+                <Col span={4} style={centerStyle}>
                     <Tooltip title="Value Type">
-                        <ValueTypeControl
+                        <ValueTypeDropDown
                             onChange={this.onTypeChange}
                             value={valueMap[type || 0]}
                         />
                     </Tooltip>
                 </Col>
-                <Col span={6} style={centerStyle}>
+                <Col span={8} style={centerStyle}>
                     <Input
                         name="value"
                         value={value || ''}
-                        type="text"
+                        type={isSecret ? 'password' : 'text'}
                         placeholder="Value"
                         onChange={this.onChange}
                     />

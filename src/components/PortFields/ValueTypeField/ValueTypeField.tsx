@@ -1,6 +1,6 @@
 import { Input, Button, Tooltip, Col, Row, Checkbox } from 'antd';
 import * as React from 'react';
-import { ValueTypeControl } from './ValueTypeControl';
+import { ValueTypeDropDown } from './ValueTypeControl';
 import { valueMap } from 'src/utils/value-type-mapper';
 import { PortProps } from '../PortProps';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
@@ -83,7 +83,7 @@ class ValueTypeField extends React.Component<PortProps, IOFieldState> {
                 </Col>
                 <Col span={!isValueInput ? 6 : 4} style={centerStyle}>
                     <Tooltip title="Value Type">
-                        <ValueTypeControl
+                        <ValueTypeDropDown
                             onChange={this.onTypeChange}
                             value={valueMap[type || 0]}
                         />

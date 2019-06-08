@@ -5,9 +5,9 @@ import { valueMap } from 'src/utils/value-type-mapper';
 
 const Option = Select.Option;
 
-interface ValueTypeControlProps extends SelectProps {}
+interface ValueTypeDropDownProps extends SelectProps {}
 
-export const ValueTypeControl = (props: ValueTypeControlProps) => {
+export const ValueTypeDropDown = (props: ValueTypeDropDownProps) => {
     return (
         <Select {...props} placeholder="Type">
             {Object.keys(valueMap).map(x => (
