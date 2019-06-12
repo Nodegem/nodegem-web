@@ -8,7 +8,7 @@ abstract class ModalFormStore {
 
     @ignore
     @observable
-    data: any = {};
+    modalData: any = {};
 
     @ignore
     @observable
@@ -24,7 +24,7 @@ abstract class ModalFormStore {
 
     openModal(data: any = {}, editMode: boolean = false) {
         this.toggleModal(true);
-        this.data = { ...data };
+        this.modalData = { ...data };
         this.editMode = editMode;
 
         if (Object.keys(data).length > 0) {

@@ -85,8 +85,7 @@ class GraphStore implements IDisposableStore {
         this.loadingGraphs = true;
 
         try {
-            const { id } = userStore.user!;
-            const graphs = await GraphService.getAll(id);
+            const graphs = await GraphService.getAll();
             runInAction(() => {
                 this.graphs = graphs as Array<Graph>;
             });

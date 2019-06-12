@@ -2,6 +2,7 @@ interface RunGraphData {
     id: string;
     nodes: Array<RunNodeData>;
     links: Array<RunLinkData>;
+    constants?: Array<ConstantData>;
 }
 
 interface RunLinkData {

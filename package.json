@@ -10,18 +10,17 @@
         "localforage": "^1.7.2",
         "lodash": "^4.17.10",
         "lodash-uuid": "^0.0.3",
-        "mobx": "^5.1.0",
-        "mobx-react": "^6.0.2",
+        "mobx": "5.9.4",
+        "mobx-react": "^6.0.3",
         "mobx-react-router": "^4.0.5",
         "mobx-sync": "^2.0.0",
         "moment": "^2.23.0",
         "react": "^16.6.3",
         "react-dom": "^16.6.3",
-        "react-router-dom": "^5.0.0",
+        "react-router-dom": "^5.0.1",
         "react-scripts-ts-antd": "^2.17.0",
         "shortid": "^2.2.13",
-        "superagent": "^5.0.5",
-        "superagent-promise": "^1.1.0"
+        "superagent": "^5.0.6"
     },
     "scripts": {
         "start": "react-scripts-ts-antd start",
@@ -35,8 +34,8 @@
     "devDependencies": {
         "@types/classnames": "^2.2.6",
         "@types/jest": "^24.0.13",
-        "@types/lodash": "^4.14.116",
-        "@types/node": "^12.0.4",
+        "@types/lodash": "^4.14.134",
+        "@types/node": "^12.0.7",
         "@types/react": "^16.6.3",
         "@types/react-dom": "^16.0.11",
         "@types/react-router": "^5.0.1",

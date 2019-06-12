@@ -1,6 +1,6 @@
 import { Input, Button, Tooltip, Col, Row, Checkbox } from 'antd';
 import * as React from 'react';
-import { ValueTypeDropDown } from './ValueTypeControl';
+import { ValueTypeDropDown } from './ValueTypeDropDown';
 import { valueMap } from 'src/utils/value-type-mapper';
 import { PortProps } from '../PortProps';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
@@ -57,8 +57,15 @@ class ValueTypeField extends React.Component<PortProps, IOFieldState> {
     };
 
     private onOptionalChange = (e: CheckboxChangeEvent) => {
-        this.setState({ isOptional: e.target.checked });
-        this.triggerChange({ isOptional: e.target.checked });
+        const { checked } = e.target;
+        const { defaultValue } = this.state;
+
+        const newState = {
+            isOptional: checked,
+            defaultValue: checked ? defaultValue : '',
+        };
+        this.setState(newState);
+        this.triggerChange(newState);
     };
 
     public render() {
@@ -91,28 +98,27 @@ class ValueTypeField extends React.Component<PortProps, IOFieldState> {
                 </Col>
                 {isValueInput && (
                     <>
-                        <Col span={!isOptional ? 4 : 2} style={centerStyle}>
-                            <Tooltip title="Is the field optional?">
+                        <Col span={6} style={centerStyle}>
+                            <Input
+                                disabled={!isOptional}
+                                name="defaultValue"
+                                value={defaultValue || ''}
+                                type="text"
+                                placeholder="Default Value"
+                                onChange={this.onChange}
+                            />
+                        </Col>
+                        <Col span={4} style={centerStyle}>
+                            <Tooltip title="Is the input optional?">
                                 <Checkbox
                                     defaultChecked={false}
                                     checked={isOptional}
                                     onChange={this.onOptionalChange}
                                 >
-                                    {!isOptional && 'Is Optional?'}
+                                    Is Optional?
                                 </Checkbox>
                             </Tooltip>
                         </Col>
-                        {isOptional && (
-                            <Col span={6} style={centerStyle}>
-                                <Input
-                                    name="defaultValue"
-                                    value={defaultValue || ''}
-                                    type="text"
-                                    placeholder="Default Value"
-                                    onChange={this.onChange}
-                                />
-                            </Col>
-                        )}
                     </>
                 )}
                 <Col span={1} style={centerStyle}>

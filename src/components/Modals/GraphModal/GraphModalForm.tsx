@@ -10,7 +10,7 @@ import { FormComponentProps } from 'antd/lib/form';
 import ConstantsControl from 'src/components/ConstantsControl/ConstantsControl';
 
 interface FormDataProps {
-    constants: Partial<GraphConstant>[];
+    constants: Partial<ConstantData>[];
     data: Graph;
     onConstantDelete: (id: string) => void;
     onConstantAdd: () => void;
@@ -122,7 +122,7 @@ class GraphModalFormController extends React.Component<{
         const {
             saving,
             editMode,
-            data,
+            modalData: data,
             isVisible,
             constants,
         } = graphModalStore!;

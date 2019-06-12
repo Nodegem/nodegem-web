@@ -13,6 +13,8 @@ abstract class BaseHub {
     public onException: SimpleObservable<(reason: any) => void>;
 
     private connected: boolean = false;
+    private maxRetries: number = 3;
+    private currentRetries: number = 0;
 
     get isConnected(): boolean {
         return this.connected;
@@ -20,7 +22,7 @@ abstract class BaseHub {
 
     constructor(
         hub: string,
-        logLevel: signalR.LogLevel = signalR.LogLevel.Trace
+        logLevel: signalR.LogLevel = signalR.LogLevel.Information
     ) {
         this.onConnected = new SimpleObservable();
         this.onDisconnected = new SimpleObservable();
@@ -54,18 +56,21 @@ abstract class BaseHub {
                 await this.connection.invoke(method, data);
             } catch (e) {
                 this.connected = false;
-                console.log(e);
+                console.error(e);
             }
         } else {
             this.connected = false;
             console.warn('No connection established. Unable to invoke.');
+            await this.start();
         }
     }
 
     public async start() {
-        if (!this.connected) {
+        if (!this.connected && this.currentRetries < this.maxRetries) {
             try {
+                this.currentRetries += 1;
                 await this.connection.start();
+                this.currentRetries = 0;
                 this.connected = true;
                 this.onConnected.execute(undefined);
             } catch (err) {

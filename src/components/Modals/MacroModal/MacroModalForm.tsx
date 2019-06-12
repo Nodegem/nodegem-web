@@ -336,7 +336,7 @@ class MacroModalFormController extends React.Component<{
         const {
             saving,
             editMode,
-            data,
+            modalData: data,
             isVisible,
             parentKey,
             inputKey,

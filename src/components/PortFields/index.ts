@@ -1,3 +1,3 @@
 export * from './PortProps';
-export * from './ValueTypeField/ValueTypeControl';
+export * from './ValueTypeField/ValueTypeDropDown';
 export { default as ValueTypeField } from './ValueTypeField/ValueTypeField';

@@ -1,11 +1,5 @@
 import { userStore } from 'src/stores';
-import _superagent, { SuperAgentRequest, SuperAgentStatic } from 'superagent';
-import superagentPromise from 'superagent-promise';
-
-const superagent = superagentPromise(
-    _superagent,
-    global.Promise
-) as SuperAgentStatic;
+import superagent, { SuperAgentRequest } from 'superagent';
 
 const ROOT_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -17,14 +11,20 @@ const tokenPlugin = (req: SuperAgentRequest) => {
     }
 };
 
-const responseBody = (res: _superagent.Response) => res.body;
+const credentialPlugin = (req: SuperAgentRequest) => {
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+        req.withCredentials();
+    }
+};
+
+const responseBody = (res: superagent.Response) => res.body;
 
 const handleErrors = err => {
     if (err && err.response && err.response.status === 401) {
         //logout
     }
 
-    return err;
+    throw err;
 };
 
 const requests = {
@@ -32,30 +32,31 @@ const requests = {
         superagent
             .get(combinePath(url))
             .use(tokenPlugin)
-            .withCredentials()
+            .use(credentialPlugin)
             .then(responseBody, handleErrors),
     post: (url, body) =>
         superagent
             .post(combinePath(url), body)
             .use(tokenPlugin)
-            .withCredentials()
+            .use(credentialPlugin)
             .then(responseBody, handleErrors),
     put: (url, body) =>
         superagent
             .put(combinePath(url), body)
             .use(tokenPlugin)
-            .withCredentials()
+            .use(credentialPlugin)
             .then(responseBody, handleErrors),
     patch: (url, body) =>
         superagent
             .patch(combinePath(url), body)
             .use(tokenPlugin)
-            .withCredentials()
+            .use(credentialPlugin)
             .then(responseBody, handleErrors),
     del: url =>
         superagent
             .del(combinePath(url))
             .use(tokenPlugin)
+            .use(credentialPlugin)
             .then(responseBody, handleErrors),
 };
 

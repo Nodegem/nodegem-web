@@ -148,7 +148,11 @@ class EditorView extends React.Component<
     };
 
     private runGraph = () => {
-        this.props.editorStore!.runGraph(this.nodeEditor.toJSON());
+        const { editorStore } = this.props;
+        const { graph } = editorStore!;
+        const { constants } = graph!;
+        const graphData = { ...this.nodeEditor.toJSON(), constants: constants };
+        this.props.editorStore!.runGraph(graphData);
     };
 
     private saveGraph = async () => {

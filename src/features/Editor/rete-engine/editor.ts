@@ -14,7 +14,9 @@ export type EditorImportExport = {
     id: string;
     nodes: NodeImportExport[];
     links: LinkImportExport[];
+    constants?: ConstantData[];
 };
+
 export class NodeEditor extends Context {
     nodes: Array<Node>;
     links: Array<Link>;
@@ -153,7 +155,7 @@ export class NodeEditor extends Context {
         const editorExport = {
             id: this.id,
             nodes: this.nodes.map(x => x.toJSON()),
-            links: this.links.map(x => x.toJson()),
+            links: this.links.map(x => x.toJSON()),
         };
 
         this.trigger('export', editorExport);
@@ -209,10 +211,7 @@ export class NodeEditor extends Context {
                     );
 
                     if (output && input) {
-                        this.connect(
-                            output,
-                            input
-                        );
+                        this.connect(output, input);
                     }
                 }
             });

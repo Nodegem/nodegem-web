@@ -8,10 +8,10 @@ interface Graph {
     createdOn?: Date;
     lastUpdated?: Date;
     userId: string;
-    constants: Array<GraphConstant>;
+    constants: Array<ConstantData>;
 }
 
-interface GraphConstant {
+interface ConstantData {
     key: string;
     label: string;
     type: number;
@@ -42,5 +42,5 @@ interface CreateGraph {
     name: string;
     description: string;
     userId: string;
-    constants: GraphConstant[];
+    constants: ConstantData[];
 }

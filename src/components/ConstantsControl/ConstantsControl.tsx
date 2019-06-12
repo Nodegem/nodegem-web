@@ -6,7 +6,7 @@ import { Button, Icon, Divider } from 'antd';
 interface ConstantsControlProps {
     onAddConstant: () => void;
     onConstantDelete: (id: string) => void;
-    constants: Partial<GraphConstant>[];
+    constants: Partial<ConstantData>[];
     fd: <T extends Object = {}>(
         id: keyof T,
         options?: GetFieldDecoratorOptions | undefined

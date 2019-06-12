@@ -19,8 +19,7 @@ class MacroStore implements IDisposableStore {
 
         this.loadingMacros = true;
         try {
-            const { id } = userStore!.user!;
-            const macros = await MacroService.getAll(id);
+            const macros = await MacroService.getAll();
             runInAction(() => {
                 this.macros = macros;
             });

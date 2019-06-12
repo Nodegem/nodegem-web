@@ -6,10 +6,12 @@ export const transformGraph = ({
     id,
     nodes,
     links,
+    constants,
 }: {
     id: string;
     nodes: Array<NodeImportExport>;
     links: Array<LinkImportExport>;
+    constants?: Array<ConstantData>;
 }): RunGraphData => {
     return {
         id: id,
@@ -37,5 +39,6 @@ export const transformGraph = ({
             },
             [] as Array<RunLinkData>
         ),
+        constants: constants,
     };
 };

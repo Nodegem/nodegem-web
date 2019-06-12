@@ -8,7 +8,7 @@ import { uuid } from 'lodash-uuid';
 class GraphModalStore extends ModalFormStore {
     @ignore
     @observable
-    constants: Array<Partial<GraphConstant>> = [];
+    constants: Array<Partial<ConstantData>> = [];
 
     @action async saveGraph(values: any) {
         this.saving = true;
@@ -17,7 +17,7 @@ class GraphModalStore extends ModalFormStore {
 
         if (this.editMode) {
             await graphStore!.updateGraph({
-                ...this.data,
+                ...this.modalData,
                 ...newData,
             });
         } else {
@@ -30,7 +30,7 @@ class GraphModalStore extends ModalFormStore {
     private createConstantsObject(values: any) {
         const { constants } = values;
         return {
-            constants: Object.keys(constants || {}).map<GraphConstant>(x => ({
+            constants: Object.keys(constants || {}).map<ConstantData>(x => ({
                 key: x,
                 label: constants[x].label,
                 isSecret: constants[x].isSecret,
@@ -50,7 +50,7 @@ class GraphModalStore extends ModalFormStore {
 
     @action resetModal() {
         this.constants = [];
-        this.data = {};
+        this.modalData = {};
     }
 
     onDataLoad(data: Graph) {

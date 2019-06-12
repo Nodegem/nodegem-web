@@ -42,7 +42,7 @@ class MacroModalStore extends ModalFormStore {
 
         if (this.editMode) {
             macro = await macroStore!.updateMacro({
-                ...this.data,
+                ...this.modalData,
                 ...newData,
             });
         } else {
@@ -156,7 +156,7 @@ class MacroModalStore extends ModalFormStore {
         this.valueInputs = [];
         this.valueOutputs = [];
 
-        this.data = {};
+        this.modalData = {};
     }
 
     onDataLoad(data: Macro) {
