@@ -58,9 +58,8 @@ class EditorView extends React.Component<
 
     public async componentDidMount() {
         const { editorStore } = this.props;
-        await editorStore!.loadDefinitions();
 
-        const { nodeDefinitions, graph, currentGraph } = editorStore!;
+        const { graph, currentGraph } = editorStore!;
 
         if (!graph) {
             this.props.history.push('/');
@@ -76,6 +75,28 @@ class EditorView extends React.Component<
 
         const { width, height } = container.getBoundingClientRect();
         this.nodeEditor.view.area.translate(width / 2 - 70, height / 2 - 60);
+
+        const nodeDefinitions = await editorStore!.loadDefinitions(
+            currentGraph!.type,
+            currentGraph!.id
+        );
+
+        this.nodeEditor.use(ReactRenderPlugin);
+        this.nodeEditor.use(ReteLinkPlugin);
+        this.nodeEditor.use(ReteEditorMenu, {
+            definitions: nodeDefinitions.filter(
+                x => x !== editorStore!.getStartNodeDefinition()
+            ),
+        });
+
+        this.nodeEditor.on('refreshTree', async () => {
+            await editorStore!.loadDefinitions(
+                currentGraph!.type,
+                currentGraph!.id,
+                true
+            );
+            this.nodeEditor.trigger('onTreeRefresh');
+        });
 
         if (currentGraph!.type === 'macro') {
         }
@@ -116,14 +137,6 @@ class EditorView extends React.Component<
                             position: [n.position.x, n.position.y],
                         } as NodeImportExport)
                 ),
-        });
-
-        this.nodeEditor.use(ReactRenderPlugin);
-        this.nodeEditor.use(ReteLinkPlugin);
-        this.nodeEditor.use(ReteEditorMenu, {
-            definitions: nodeDefinitions.filter(
-                x => x !== editorStore!.getStartNodeDefinition()
-            ),
         });
 
         this.nodeEditor.on('clear', this.onClearGraph);

@@ -1,7 +1,7 @@
 import { notification } from 'antd';
 import { action, computed, observable, runInAction, toJS } from 'mobx';
 import { ignore } from 'mobx-sync';
-import { UtilService } from 'src/services';
+import { NodeService } from 'src/services';
 import { graphStore, IDisposableStore, macroStore } from 'src/stores';
 
 import GraphHub from './hubs/graph-hub';
@@ -127,16 +127,25 @@ class EditorStore implements IDisposableStore {
     }
 
     @action
-    async loadDefinitions(force: boolean = false) {
+    async loadDefinitions(
+        type: GraphType,
+        graphId: string,
+        force: boolean = false
+    ): Promise<NodeDefinition[]> {
         this.loadingDefinitions = true;
+
+        let definitions = this.nodeDefinitions;
 
         if (!force && !this.shouldRefreshDefinitions()) {
             this.loadingDefinitions = false;
-            return;
+            return definitions;
         }
 
         try {
-            const definitions = await UtilService.getAllNodeDefinitions();
+            definitions = await NodeService.getAllNodeDefinitions(
+                graphId,
+                type
+            );
             runInAction(() => {
                 this.nodeDefinitions = definitions;
                 this.lastRetrievedDefinitions = new Date().getTime();
@@ -148,6 +157,8 @@ class EditorStore implements IDisposableStore {
                 this.loadingDefinitions = false;
             });
         }
+
+        return definitions;
     }
 
     getDefinitionByNamespace = (fullName: string): NodeDefinition => {

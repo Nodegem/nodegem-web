@@ -73,10 +73,7 @@ const editorMenuContents = (
         otherItems: [
             {
                 label: 'Refresh Definitions',
-                action: async () => {
-                    await editorStore.loadDefinitions(true);
-                    refreshTree();
-                },
+                action: () => editor.trigger('refreshTree'),
             },
             {
                 label: 'Clear',
@@ -106,6 +103,11 @@ let tree: HierarchicalNode<NodeDefinition>;
 
 function install(editor: NodeEditor) {
     refreshTree();
+
+    editor.bind('refreshTree');
+    editor.bind('onTreeRefresh');
+
+    editor.on('onTreeRefresh', refreshTree);
 
     editor.on('contextmenu', ({ e, node }: OnContextMenuProps) => {
         e.preventDefault();

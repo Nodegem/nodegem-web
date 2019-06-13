@@ -17,7 +17,8 @@
         "allowSyntheticDefaultImports": true,
         "experimentalDecorators": true,
         "baseUrl": ".",
-        "typeRoots": ["node_modules/@types", "**/*"]
+        "typeRoots": ["node_modules/@types", "**/*"],
+        "paths": {}
     },
     "exclude": [
         "node_modules",
