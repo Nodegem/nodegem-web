@@ -1,45 +1,29 @@
 import * as React from 'react';
-import { GenericComponent } from 'src/features/Editor/generic-component';
 import { NodeEditor } from 'src/features/Editor/rete-engine/editor';
 import { Node } from 'src/features/Editor/rete-engine/node';
 import { createNode } from 'src/features/Editor/utils';
-import { editorStore } from 'src/stores';
 
 import contextMenu, { MenuContents, MenuItem, SubMenu } from './editor-menu';
-import HierarchicalNode from './hierarchical-node';
 
-const nodeMenuContents = (
-    deleteNodeFunc: () => void,
-    canDelete: boolean
-): MenuContents => ({
+const nodeMenuContents = (deleteNodeFunc: () => void): MenuContents => ({
     otherItems: [
         {
             label: 'Delete',
             action: deleteNodeFunc,
-            disabled: !canDelete,
         },
     ],
 });
 
-const definitionToTree = (definitions: Array<NodeDefinition>) => {
-    const root = new HierarchicalNode<NodeDefinition>();
-    definitions.forEach(x => {
-        const namespace = x.fullName.split('.');
-        root.addObject(namespace.slice(0, namespace.length - 1), x);
-    });
-    return root;
-};
-
 const convertToItems = (
-    children: { [key: string]: HierarchicalNode<NodeDefinition> },
+    children: { [key: string]: IHierarchicalNode<NodeDefinition> },
     editor: NodeEditor,
     addNodeFunc: (definition: NodeDefinition) => void
 ): Array<SubMenu> =>
     Object.keys(children).map(x => {
-        const item = children[x] as HierarchicalNode<NodeDefinition>;
+        const item = children[x] as IHierarchicalNode<NodeDefinition>;
 
         return {
-            label: x,
+            label: x.replace('_', ' '),
             items: [
                 ...(item.children &&
                     convertToItems(item.children, editor, addNodeFunc)),
@@ -56,7 +40,7 @@ const convertToItems = (
     });
 
 const editorMenuContents = (
-    definitionTree: HierarchicalNode<NodeDefinition>,
+    definitionTree: IHierarchicalNode<NodeDefinition>,
     editor: NodeEditor,
     position: XYPosition
 ): MenuContents => {
@@ -92,23 +76,17 @@ interface OnContextMenuProps {
     node?: Node;
 }
 
-function refreshTree() {
-    const startNode = editorStore.getStartNodeDefinition();
-    tree = definitionToTree(
-        editorStore.nodeDefinitions.filter(x => x !== startNode)
-    );
+function refreshTree(definitions: IHierarchicalNode<NodeDefinition>) {
+    tree = definitions;
 }
 
-let tree: HierarchicalNode<NodeDefinition>;
+let tree: IHierarchicalNode<NodeDefinition>;
 
 function install(editor: NodeEditor) {
-    refreshTree();
-
     editor.bind('refreshTree');
     editor.bind('onTreeRefresh');
 
     editor.on('onTreeRefresh', refreshTree);
-
     editor.on('contextmenu', ({ e, node }: OnContextMenuProps) => {
         e.preventDefault();
         e.stopPropagation();
@@ -120,11 +98,7 @@ function install(editor: NodeEditor) {
                 editor.removeNode(node);
             };
 
-            const canDelete = !(editor.getComponent(
-                node.name
-            ) as GenericComponent).nodeDefinition.isRequired;
-
-            contextMenu.show(nodeMenuContents(deleteNode, canDelete), {
+            contextMenu.show(nodeMenuContents(deleteNode), {
                 x: clientX,
                 y: clientY,
             });

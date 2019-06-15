@@ -4,7 +4,7 @@ const NodeService = {
     getAllNodeDefinitions: (
         graphId: string,
         type: GraphType
-    ): Promise<Array<NodeDefinition>> =>
+    ): Promise<IHierarchicalNode<NodeDefinition>> =>
         requests.get(`/nodes/definitions/${type}/${graphId}`),
 };
 

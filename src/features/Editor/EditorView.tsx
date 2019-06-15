@@ -21,7 +21,6 @@ import { NodeImportExport } from './rete-engine/node';
 import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ReteEditorMenu from './rete-plugins/rete-editor-menu/src';
 import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
-import { createNode } from './utils';
 
 const applyBackground = () => {
     const areaViewContainer = document.querySelector(
@@ -72,36 +71,40 @@ class EditorView extends React.Component<
 
         const container = document.querySelector('.editor') as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
+        editorStore!.setEditor(this.nodeEditor);
 
         const { width, height } = container.getBoundingClientRect();
         this.nodeEditor.view.area.translate(width / 2 - 70, height / 2 - 60);
 
-        const nodeDefinitions = await editorStore!.loadDefinitions(
-            currentGraph!.type,
-            currentGraph!.id
-        );
-
         this.nodeEditor.use(ReactRenderPlugin);
         this.nodeEditor.use(ReteLinkPlugin);
-        this.nodeEditor.use(ReteEditorMenu, {
-            definitions: nodeDefinitions.filter(
-                x => x !== editorStore!.getStartNodeDefinition()
-            ),
-        });
+        this.nodeEditor.use(ReteEditorMenu);
 
         this.nodeEditor.on('refreshTree', async () => {
             await editorStore!.loadDefinitions(
                 currentGraph!.type,
-                currentGraph!.id,
-                true
+                currentGraph!.id
             );
-            this.nodeEditor.trigger('onTreeRefresh');
         });
+        this.nodeEditor.on('onTreeRefresh', this.onTreeRefresh);
+        this.nodeEditor.on('clear', this.onClearGraph);
+        this.nodeEditor.on('process', this.runGraph);
 
         if (currentGraph!.type === 'macro') {
         }
 
-        nodeDefinitions
+        await editorStore!.initialize();
+        applyBackground();
+
+        this.nodeEditor.trigger('refreshTree');
+    }
+
+    private onTreeRefresh = (
+        definitions: IHierarchicalNode<NodeDefinition>,
+        definitionList: NodeDefinition[]
+    ) => {
+        this.nodeEditor.components.clear();
+        definitionList
             .reduce(
                 (pV, cV) => {
                     pV.push(new GenericComponent(cV));
@@ -113,58 +116,45 @@ class EditorView extends React.Component<
                 this.nodeEditor.register(x);
             });
 
-        await editorStore!.initialize();
-        applyBackground();
-
+        const { graph } = this.props.editorStore!;
+        const jsGraph = toJS(graph);
         this.nodeEditor.fromJSON({
-            id: graph!.id,
-            links: graph!.links,
+            id: jsGraph!.id,
+            links: jsGraph!.links,
             nodes:
-                graph.nodes &&
-                graph!.nodes.map(
+                jsGraph!.nodes &&
+                jsGraph!.nodes.map(
                     n =>
                         ({
                             id: n.id,
                             fullName: n.fullName,
                             fieldData:
                                 n.fieldData &&
-                                toJS(
-                                    n.fieldData.reduce((prev, cur) => {
-                                        prev[cur.key] = cur.value;
-                                        return prev;
-                                    }, {})
-                                ),
+                                n.fieldData.reduce((prev, cur) => {
+                                    prev[cur.key] = cur.value;
+                                    return prev;
+                                }, {}),
                             position: [n.position.x, n.position.y],
+                            macroId: n.macroId,
                         } as NodeImportExport)
                 ),
         });
-
-        this.nodeEditor.on('clear', this.onClearGraph);
-        this.nodeEditor.on('process', this.runGraph);
-    }
+    };
 
     private clearGraph = async () => {
         await this.nodeEditor.clear();
     };
 
     private onClearGraph = async () => {
-        const startNodeDefinition = this.props.editorStore!.getStartNodeDefinition();
         const {
             width,
             height,
         } = this.nodeEditor.view.container.getBoundingClientRect();
         this.nodeEditor.view.area.translate(width / 2 - 70, height / 2 - 60);
-        await createNode(this.nodeEditor, startNodeDefinition, {
-            x: 0,
-            y: 0,
-        });
     };
 
     private runGraph = () => {
-        const { editorStore } = this.props;
-        const { graph } = editorStore!;
-        const { constants } = graph!;
-        const graphData = { ...this.nodeEditor.toJSON(), constants: constants };
+        const graphData = { ...this.nodeEditor.toJSON() };
         this.props.editorStore!.runGraph(graphData);
     };
 
@@ -186,6 +176,7 @@ class EditorView extends React.Component<
                             [] as Array<FieldData>
                         ),
                     position: { x: x.position[0], y: x.position[1] },
+                    macroId: x.macroId,
                 } as NodeData)
         );
 
@@ -214,6 +205,7 @@ class EditorView extends React.Component<
     private onSaveMacro = (macro: Macro | undefined) => {
         if (macro) {
             this.props.editorStore!.setGraph(macro.id, 'macro');
+            this.clearGraph();
         }
     };
 

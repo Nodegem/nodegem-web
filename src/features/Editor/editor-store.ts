@@ -6,7 +6,7 @@ import { graphStore, IDisposableStore, macroStore } from 'src/stores';
 
 import GraphHub from './hubs/graph-hub';
 import TerminalHub from './hubs/terminal-hub';
-import { EditorImportExport } from './rete-engine/editor';
+import { EditorImportExport, NodeEditor } from './rete-engine/editor';
 import { transformGraph } from './services/data-transform/run-graph';
 
 type LogType = 'log' | 'warn' | 'error';
@@ -54,10 +54,13 @@ class EditorStore implements IDisposableStore {
     loadingDefinitions: boolean = false;
 
     @observable
-    nodeDefinitions: Array<NodeDefinition> = [];
+    nodeDefinitions: IHierarchicalNode<NodeDefinition>;
 
-    @observable
-    lastRetrievedDefinitions: number;
+    @ignore
+    @computed
+    get nodeDefinitionList(): NodeDefinition[] {
+        return this.getNodeDefinitions(this.nodeDefinitions);
+    }
 
     @ignore
     @observable
@@ -71,6 +74,8 @@ class EditorStore implements IDisposableStore {
     @ignore
     @observable
     logs: Array<Log> = [];
+
+    nodeEditor: NodeEditor;
 
     constructor() {
         this.graphHub = new GraphHub();
@@ -127,19 +132,10 @@ class EditorStore implements IDisposableStore {
     }
 
     @action
-    async loadDefinitions(
-        type: GraphType,
-        graphId: string,
-        force: boolean = false
-    ): Promise<NodeDefinition[]> {
+    async loadDefinitions(type: GraphType, graphId: string): Promise<void> {
         this.loadingDefinitions = true;
 
         let definitions = this.nodeDefinitions;
-
-        if (!force && !this.shouldRefreshDefinitions()) {
-            this.loadingDefinitions = false;
-            return definitions;
-        }
 
         try {
             definitions = await NodeService.getAllNodeDefinitions(
@@ -148,7 +144,11 @@ class EditorStore implements IDisposableStore {
             );
             runInAction(() => {
                 this.nodeDefinitions = definitions;
-                this.lastRetrievedDefinitions = new Date().getTime();
+                this.nodeEditor.trigger(
+                    'onTreeRefresh',
+                    definitions,
+                    this.nodeDefinitionList
+                );
             });
         } catch (e) {
             console.warn(e);
@@ -157,33 +157,13 @@ class EditorStore implements IDisposableStore {
                 this.loadingDefinitions = false;
             });
         }
-
-        return definitions;
     }
 
     getDefinitionByNamespace = (fullName: string): NodeDefinition => {
-        return this.nodeDefinitions
+        return this.nodeDefinitionList
             .filter(x => x.fullName === fullName)
             .firstOrDefault()!;
     };
-
-    getStartNodeDefinition = (): NodeDefinition => {
-        return this.nodeDefinitions
-            .filter(x => x.fullName.endsWith('Start'))
-            .firstOrDefault()!;
-    };
-
-    private shouldRefreshDefinitions(): boolean {
-        if (!this.lastRetrievedDefinitions) return true;
-        if (!this.nodeDefinitions) return true;
-        if (this.nodeDefinitions.length <= 0) return true;
-
-        const refreshTimeInMilliseconds = 1000 * 60 * 30;
-        return (
-            new Date().getTime() - this.lastRetrievedDefinitions >
-            refreshTimeInMilliseconds
-        );
-    }
 
     @action
     private createLog(data: string, type: LogType) {
@@ -253,6 +233,21 @@ class EditorStore implements IDisposableStore {
 
     @action toggleLogDrawer() {
         this.showLogs = !this.showLogs;
+    }
+
+    setEditor(editor: NodeEditor) {
+        this.nodeEditor = editor;
+    }
+
+    private getNodeDefinitions(
+        node: IHierarchicalNode<NodeDefinition>
+    ): NodeDefinition[] {
+        let returnList: NodeDefinition[] = [];
+        returnList.push(...node.items);
+        Object.keys(node.children).forEach(c =>
+            returnList.push(...this.getNodeDefinitions(node.children[c]))
+        );
+        return returnList;
     }
 }
 

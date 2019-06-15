@@ -4,14 +4,20 @@ import { Control } from './control';
 import { Input } from './input';
 import { Output } from './output';
 
-export type NodeImportExport = { id: string, fullName: string, position: [number, number], fieldData?: { [key: string]: any } }
+export type NodeImportExport = {
+    id: string;
+    fullName: string;
+    position: [number, number];
+    fieldData?: { [key: string]: any };
+    macroId?: string;
+};
 export class Node {
-
     public data: { [key: string]: any };
     public meta: any;
     public name: string;
     public id: string;
     public position: [number, number];
+    public macroId?: string;
 
     public inputs: Map<string, Input>;
     public outputs: Map<string, Output>;
@@ -45,7 +51,7 @@ export class Node {
     addInput(input: Input) {
         if (input.node !== null)
             throw new Error('Input has already been added to the node');
- 
+
         input.node = this;
 
         this.inputs.set(input.key, input);
@@ -62,7 +68,7 @@ export class Node {
     addOutput(output: Output) {
         if (output.node !== null)
             throw new Error('Output has already been added to the node');
-        
+
         output.node = this;
 
         this.outputs.set(output.key, output);
@@ -77,24 +83,28 @@ export class Node {
     }
 
     getLinks() {
-        const ios = [...Array.from(this.inputs.values()), ...Array.from(this.outputs.values())];
+        const ios = [
+            ...Array.from(this.inputs.values()),
+            ...Array.from(this.outputs.values()),
+        ];
         const links = ios.reduce((arr, io) => {
             return [...arr, ...io.links];
         }, []);
-    
+
         return links;
     }
 
-    toJSON() : NodeImportExport {
+    toJSON(): NodeImportExport {
         return {
             id: this.id,
             fieldData: Object.keys(this.data).map(x => ({
                 key: x,
-                value: this.data[x]
+                value: this.data[x],
             })),
             position: this.position,
-            fullName: this.name
-        }
+            fullName: this.name,
+            macroId: this.macroId,
+        };
     }
 
     static fromJSON(json: NodeImportExport) {
@@ -103,6 +113,7 @@ export class Node {
         node.id = json.id;
         node.data = json.fieldData || {};
         node.position = json.position;
+        node.macroId = json.macroId;
 
         return node;
     }
