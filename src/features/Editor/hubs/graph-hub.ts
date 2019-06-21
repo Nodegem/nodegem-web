@@ -7,7 +7,11 @@ class GraphHub extends BaseHub {
     }
 
     public runGraph = async (data: RunGraphData) => {
-        await this.invoke('Run', data);
+        await this.invoke('RunGraph', data);
+    };
+
+    public runMacro = async (data: RunMacroData, flowInputFieldKey: string) => {
+        await this.invoke('RunMacro', data, flowInputFieldKey);
     };
 }
 

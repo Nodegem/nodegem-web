@@ -32,6 +32,7 @@ interface NodeData {
     position: { x: number; y: number };
     fieldData?: Array<FieldData>;
     macroId?: string;
+    macroFieldId?: string;
 }
 
 interface FieldData {

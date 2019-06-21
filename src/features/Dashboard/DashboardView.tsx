@@ -69,8 +69,8 @@ class DashboardView extends React.Component<
         this.modals[type]!.openModal(item, true);
     };
 
-    onBuild = (item: any, type: GraphType) => {
-        this.props.editorStore!.setGraph(item.id, type);
+    onBuild = (item: any) => {
+        this.props.editorStore!.setGraph(item.id);
         this.props.history.push('editor');
     };
 

@@ -69,7 +69,6 @@ class MacroModalStore extends ModalFormStore {
                     key: x,
                     label: valueInputs[x].label,
                     defaultValue: valueInputs[x].defaultValue,
-                    isOptional: valueInputs[x].isOptional,
                     type: valueInputs[x].type,
                 })
             ),

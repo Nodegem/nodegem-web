@@ -2,8 +2,8 @@ interface NodeDefinition {
     fullName: string;
     title: string;
     description: string;
-    isRequired: boolean;
     macroId?: string;
+    macroFieldId?: string;
     flowInputs: Array<FlowInputDefinition>;
     flowOutputs: Array<FlowOutputDefinition>;
     valueInputs: Array<ValueInputDefinition>;

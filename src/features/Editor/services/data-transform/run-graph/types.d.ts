@@ -1,8 +1,7 @@
 interface RunGraphData {
     id: string;
-    nodes: Array<RunNodeData>;
-    links: Array<RunLinkData>;
-    constants?: Array<ConstantData>;
+    nodes: RunNodeData[];
+    links: RunLinkData[];
 }
 
 interface RunLinkData {
@@ -15,10 +14,29 @@ interface RunLinkData {
 interface RunNodeData {
     id: string;
     fullName: string;
-    fieldData?: Array<RunFieldData>;
+    fieldData?: RunFieldData[];
+    macroId?: string;
+    macroFieldId?: string;
 }
 
 interface RunFieldData {
     key: string;
     value: any;
+}
+
+interface RunMacroData {
+    id: string;
+    nodes: RunNodeData[];
+    links: MacroRunLinkData[];
+    flowInputs: FlowInputFieldDto[];
+    flowOutputs: FlowOutputFieldDto[];
+    valueInputs: ValueInputFieldDto[];
+    valueOutputs: ValueOutputFieldDto[];
+}
+
+interface MacroRunLinkData {
+    sourceNode: string | undefined;
+    sourceKey: string;
+    destinationNode: string | undefined;
+    destinationKey: string;
 }

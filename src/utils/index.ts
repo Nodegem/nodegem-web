@@ -33,3 +33,25 @@ export function getCookie(name): string | undefined {
 
     return undefined;
 }
+
+export async function exponentialBackoff<T>(
+    toTry: () => Promise<T>,
+    onFail: () => void = () => {},
+    max: number = 10,
+    delay: number = 250,
+    callback: (value: T) => void = () => {}
+) {
+    var result = await toTry();
+
+    if (result) {
+        callback(result);
+    } else {
+        if (max > 0) {
+            setTimeout(function() {
+                exponentialBackoff(toTry, onFail, --max, delay * 2, callback);
+            }, delay);
+        } else {
+            onFail();
+        }
+    }
+}

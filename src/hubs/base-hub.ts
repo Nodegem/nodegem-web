@@ -1,7 +1,5 @@
-import { getBaseApiUrl } from 'src/utils';
-
 import * as signalR from '@aspnet/signalr';
-
+import { getBaseApiUrl, exponentialBackoff } from 'src/utils';
 import { SimpleObservable } from '../utils/simple-observable';
 import { userStore } from 'src/stores';
 
@@ -13,8 +11,7 @@ abstract class BaseHub {
     public onException: SimpleObservable<(reason: any) => void>;
 
     private connected: boolean = false;
-    private maxRetries: number = 3;
-    private currentRetries: number = 0;
+    private forceClosed: boolean = false;
 
     get isConnected(): boolean {
         return this.connected;
@@ -39,7 +36,20 @@ abstract class BaseHub {
         this.connection.onclose(async () => {
             this.connected = false;
             this.onDisconnected.execute(undefined);
+            await this.attemptConnect();
         });
+    }
+
+    public async attemptConnect() {
+        this.forceClosed = false;
+        if (!this.shouldAttemptToConnect()) return;
+
+        await exponentialBackoff(
+            async () => await this.start(),
+            () => {
+                console.log('Given up at this point');
+            }
+        );
     }
 
     protected async on(method: string, callback: any) {
@@ -50,34 +60,32 @@ abstract class BaseHub {
         }
     }
 
-    protected async invoke(method: string, data: any) {
-        if (this.isConnected) {
-            try {
-                await this.connection.invoke(method, data);
-            } catch (e) {
-                this.connected = false;
-                console.error(e);
-            }
-        } else {
-            this.connected = false;
-            console.warn('No connection established. Unable to invoke.');
-            await this.start();
+    protected async invoke(method: string, ...params: any[]) {
+        try {
+            await this.connection.invoke(method, ...params);
+        } catch (e) {
+            console.error(e);
         }
     }
 
-    public async start() {
-        if (!this.connected && this.currentRetries < this.maxRetries) {
-            try {
-                this.currentRetries += 1;
-                await this.connection.start();
-                this.currentRetries = 0;
-                this.connected = true;
-                this.onConnected.execute(undefined);
-            } catch (err) {
-                console.warn(err);
-                this.onException.execute(err);
-            }
+    private async start(): Promise<boolean> {
+        if (this.forceClosed) return true;
+
+        try {
+            await this.connection.start();
+            this.connected = true;
+            this.onConnected.execute(undefined);
+        } catch (err) {
+            this.connected = false;
+            console.warn(err);
+            this.onException.execute(err);
         }
+
+        return this.connected;
+    }
+
+    private shouldAttemptToConnect(): boolean {
+        return !this.forceClosed && !this.connected;
     }
 
     public async disconnect() {
@@ -85,6 +93,8 @@ abstract class BaseHub {
             await this.connection.stop();
         } catch (err) {
             this.onException.execute(err);
+        } finally {
+            this.forceClosed = true;
         }
     }
 
@@ -92,6 +102,7 @@ abstract class BaseHub {
         this.onDisconnected.clear();
         this.onConnected.clear();
         this.onException.clear();
+        this.disconnect();
     }
 }
 

@@ -99,8 +99,6 @@ class GraphStore implements IDisposableStore {
     }
 
     getGraphById(graphId: string) {
-        if (!graphId) return undefined;
-
         return this.graphs.find(x => x.id === graphId);
     }
 

@@ -38,14 +38,14 @@ export class GenericComponent extends Component {
         let inputs: Input[] = [];
         let outputs: Output[] = [];
 
-        flowInputs.forEach(x =>
+        (flowInputs || []).forEach(x =>
             inputs.push(new Input(x.key, x.label, sockets.flow, false))
         );
-        flowOutputs.forEach(x =>
+        (flowOutputs || []).forEach(x =>
             outputs.push(new Output(x.key, x.label, sockets.flow, false))
         );
 
-        valueInputs.forEach(x => {
+        (valueInputs || []).forEach(x => {
             const input = new Input(x.key, x.label, sockets.value, false);
             input.addControl(
                 new GenericControl(
@@ -58,7 +58,8 @@ export class GenericComponent extends Component {
             );
             inputs.push(input);
         });
-        valueOutputs.forEach(x =>
+
+        (valueOutputs || []).forEach(x =>
             outputs.push(new Output(x.key, x.label, sockets.value, true))
         );
 

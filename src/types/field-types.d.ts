@@ -9,7 +9,6 @@ interface ValueFieldDto extends BaseFieldDto {
 
 interface ValueInputFieldDto extends ValueFieldDto {
     defaultValue: any;
-    isOptional: boolean;
 }
 
 interface ValueOutputFieldDto extends ValueFieldDto {}

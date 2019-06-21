@@ -49,11 +49,9 @@ const editorMenuContents = (
     };
 
     return {
-        filterableItems: convertToItems(
-            definitionTree.children,
-            editor,
-            addNode
-        ),
+        filterableItems:
+            definitionTree &&
+            convertToItems(definitionTree.children, editor, addNode),
         otherItems: [
             {
                 label: 'Refresh Definitions',

@@ -1,44 +1,70 @@
 import { NodeImportExport } from 'src/features/Editor/rete-engine/node';
-
 import { LinkImportExport } from '../../../rete-engine/link';
+
+interface TransformMacroArgs {
+    id: string;
+    nodes: NodeImportExport[];
+    links: LinkImportExport[];
+    flowInputs: FlowInputFieldDto[];
+    flowOutputs: FlowOutputFieldDto[];
+    valueInputs: ValueInputFieldDto[];
+    valueOutputs: ValueOutputFieldDto[];
+}
+
+export const transformMacro = ({
+    id,
+    nodes,
+    links,
+    flowInputs,
+    flowOutputs,
+    valueInputs,
+    valueOutputs,
+}: TransformMacroArgs): RunMacroData => {
+    const graphTransform = transformGraph({ id, nodes, links });
+    return {
+        ...graphTransform,
+        flowInputs,
+        flowOutputs,
+        valueInputs,
+        valueOutputs,
+    };
+};
+
+interface TransformGraphArgs {
+    id: string;
+    nodes: NodeImportExport[];
+    links: LinkImportExport[];
+}
 
 export const transformGraph = ({
     id,
     nodes,
     links,
-    constants,
-}: {
-    id: string;
-    nodes: Array<NodeImportExport>;
-    links: Array<LinkImportExport>;
-    constants?: Array<ConstantData>;
-}): RunGraphData => {
+}: TransformGraphArgs): RunGraphData => {
     return {
         id: id,
         nodes: nodes
-            .filter(n =>
-                links.some(
-                    l => l.destinationNode === n.id || l.sourceNode === n.id
-                )
-            )
+            .filter(n => links.some(l => isNodeConnected(l, n)))
             .reduce(
-                (prev, cur) => {
-                    prev.push({
+                (prev, cur) => [
+                    ...prev,
+                    {
                         id: cur.id,
                         fullName: cur.fullName,
                         fieldData: cur.fieldData,
-                    } as RunNodeData);
-                    return prev;
-                },
+                        macroId: cur.macroId,
+                        macroFieldId: cur.macroFieldId,
+                    } as RunNodeData,
+                ],
                 [] as Array<RunNodeData>
             ),
-        links: links.reduce(
-            (prev, cur) => {
-                prev.push(cur);
-                return prev;
-            },
-            [] as Array<RunLinkData>
-        ),
-        constants: constants,
+        links: links,
     };
+};
+
+const isNodeConnected = (
+    link: LinkImportExport,
+    node: NodeImportExport
+): boolean => {
+    return link.destinationNode === node.id || link.sourceNode === node.id;
 };

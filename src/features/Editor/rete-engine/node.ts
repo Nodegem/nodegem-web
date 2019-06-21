@@ -10,6 +10,7 @@ export type NodeImportExport = {
     position: [number, number];
     fieldData?: { [key: string]: any };
     macroId?: string;
+    macroFieldId?: string;
 };
 export class Node {
     public data: { [key: string]: any };
@@ -18,6 +19,7 @@ export class Node {
     public id: string;
     public position: [number, number];
     public macroId?: string;
+    public macroFieldId?: string;
 
     public inputs: Map<string, Input>;
     public outputs: Map<string, Output>;
@@ -104,6 +106,7 @@ export class Node {
             position: this.position,
             fullName: this.name,
             macroId: this.macroId,
+            macroFieldId: this.macroFieldId,
         };
     }
 
@@ -114,6 +117,7 @@ export class Node {
         node.data = json.fieldData || {};
         node.position = json.position;
         node.macroId = json.macroId;
+        node.macroFieldId = json.macroFieldId;
 
         return node;
     }

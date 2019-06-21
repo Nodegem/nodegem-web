@@ -3302,6 +3302,11 @@ expect@^22.4.0:
     jest-message-util "^22.4.3"
     jest-regex-util "^22.4.3"
 
+exponential-backoff@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/exponential-backoff/-/exponential-backoff-2.1.1.tgz#acaec650b7dc5f52a5ca87b3cb931b025b1640ff"
+  integrity sha512-Qtd9ShD299u+xglU+eDVkjxWqDUer7c3ACIKuNlo0BJYqdPRU+x0rm86Oj9MpKPW/e+zdgvsJLISAzXxXWw7Rw==
+
 express@^4.13.3:
   version "4.17.1"
   resolved "https://registry.yarnpkg.com/express/-/express-4.17.1.tgz#4491fc38605cf51f8629d39c2b5d026f98a4c134"
@@ -9342,11 +9347,6 @@ subarg@^1.0.0:
   integrity sha1-9izxdYHplrSPyWVpn1TAauJouNI=
   dependencies:
     minimist "^1.1.0"
-
-superagent-promise@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/superagent-promise/-/superagent-promise-1.1.0.tgz#baf22d8bbdd439a9b07dd10f8c08f54fe2503533"
-  integrity sha1-uvIti73UOamwfdEPjAj1T+JQNTM=
 
 superagent@^5.0.6:
   version "5.0.6"

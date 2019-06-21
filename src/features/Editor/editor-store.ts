@@ -1,5 +1,5 @@
 import { notification } from 'antd';
-import { action, computed, observable, runInAction, toJS } from 'mobx';
+import { action, computed, observable, runInAction } from 'mobx';
 import { ignore } from 'mobx-sync';
 import { NodeService } from 'src/services';
 import { graphStore, IDisposableStore, macroStore } from 'src/stores';
@@ -7,7 +7,11 @@ import { graphStore, IDisposableStore, macroStore } from 'src/stores';
 import GraphHub from './hubs/graph-hub';
 import TerminalHub from './hubs/terminal-hub';
 import { EditorImportExport, NodeEditor } from './rete-engine/editor';
-import { transformGraph } from './services/data-transform/run-graph';
+import {
+    transformGraph,
+    transformMacro,
+} from './services/data-transform/run-graph';
+import { isMacro } from 'src/utils/typeguards';
 
 type LogType = 'log' | 'warn' | 'error';
 export type Log = {
@@ -17,21 +21,29 @@ export type Log = {
 };
 
 class EditorStore implements IDisposableStore {
-    @computed get hasGraph() {
-        return !!this.currentGraph;
+    @ignore
+    @computed
+    get graph(): Graph | Macro {
+        const { graphId } = this;
+        return (
+            graphStore.getGraphById(graphId) ||
+            macroStore.getMacroById(graphId)!
+        );
     }
 
-    @computed get graph(): Graph | Macro | undefined {
-        const currentGraphId =
-            (this.currentGraph && this.currentGraph.id) || '';
-        let returnGraph;
-        returnGraph = graphStore.getGraphById(currentGraphId);
+    @ignore
+    @computed
+    get nodeDefinitionList(): NodeDefinition[] {
+        return this.getNodeDefinitions(this.nodeDefinitions);
+    }
 
-        if (!returnGraph) {
-            returnGraph = macroStore.getMacroById(currentGraphId);
-        }
+    get graphExists(): boolean {
+        return !!this.graphId;
+    }
 
-        return returnGraph;
+    get graphType(): GraphType {
+        const { graph } = this;
+        return isMacro(graph) ? 'macro' : 'graph';
     }
 
     @ignore
@@ -46,9 +58,6 @@ class EditorStore implements IDisposableStore {
     @observable
     saving: boolean = false;
 
-    @observable
-    currentGraph: { id: string; type: GraphType } | undefined;
-
     @ignore
     @observable
     loadingDefinitions: boolean = false;
@@ -56,11 +65,8 @@ class EditorStore implements IDisposableStore {
     @observable
     nodeDefinitions: IHierarchicalNode<NodeDefinition>;
 
-    @ignore
-    @computed
-    get nodeDefinitionList(): NodeDefinition[] {
-        return this.getNodeDefinitions(this.nodeDefinitions);
-    }
+    @observable
+    graphId: string;
 
     @ignore
     @observable
@@ -88,8 +94,8 @@ class EditorStore implements IDisposableStore {
 
     @action async initialize() {
         try {
-            await this.graphHub.start();
-            await this.terminalHub.start();
+            await this.graphHub.attemptConnect();
+            await this.terminalHub.attemptConnect();
             runInAction(() => {
                 this.connected = true;
             });
@@ -100,9 +106,6 @@ class EditorStore implements IDisposableStore {
 
     @action disconnect() {
         try {
-            this.terminalHub.disconnect();
-            this.graphHub.disconnect();
-
             this.terminalHub.dispose();
             this.graphHub.dispose();
         } catch (e) {
@@ -114,11 +117,32 @@ class EditorStore implements IDisposableStore {
         }
     }
 
-    @action runGraph(editorData: EditorImportExport) {
+    @action runGraph(editorData: EditorImportExport, type: GraphType) {
         try {
-            const graphData = transformGraph(editorData);
-            if (!graphData.links.empty() || !graphData.nodes.empty()) {
-                this.graphHub.runGraph(graphData);
+            if (!editorData.links.empty() && !editorData.nodes.empty()) {
+                if (type === 'graph') {
+                    const graphData = transformGraph(editorData);
+                    this.graphHub.runGraph(graphData);
+                } else {
+                    const macro = this.graph as Macro;
+                    const {
+                        flowInputs,
+                        flowOutputs,
+                        valueInputs,
+                        valueOutputs,
+                    } = macro;
+                    const macroData = transformMacro({
+                        ...editorData,
+                        flowInputs,
+                        flowOutputs,
+                        valueInputs,
+                        valueOutputs,
+                    });
+                    this.graphHub.runMacro(
+                        macroData,
+                        flowInputs.firstOrDefault()!.key
+                    );
+                }
             } else {
                 notification.warn({
                     message: 'Unable to run graph',
@@ -177,7 +201,7 @@ class EditorStore implements IDisposableStore {
     @action async saveGraph(nodes: Array<NodeData>, links: Array<LinkData>) {
         this.saving = true;
         try {
-            if (this.currentGraph) {
+            if (this.graphId) {
                 const graph = this.graph;
                 if (graph) {
                     await graphStore.updateGraph({ ...graph, nodes, links });
@@ -195,17 +219,13 @@ class EditorStore implements IDisposableStore {
     @action async saveMacro(nodes: Array<NodeData>, links: Array<LinkData>) {
         this.saving = true;
         try {
-            if (this.currentGraph) {
-                const macro = this.graph;
+            if (this.graphId) {
+                const macro = this.graph as Macro;
                 if (macro) {
                     await macroStore.updateMacro({
                         ...macro,
                         nodes,
                         links,
-                        flowInputs: [],
-                        flowOutputs: [],
-                        valueInputs: [],
-                        valueOutputs: [],
                     });
                 }
             }
@@ -218,12 +238,12 @@ class EditorStore implements IDisposableStore {
         }
     }
 
-    @action setGraph(graph: string, type: GraphType) {
-        this.currentGraph = { id: graph, type };
+    @action setGraph(graph: string) {
+        this.graphId = graph;
     }
 
     @action dispose() {
-        this.currentGraph = undefined;
+        this.graphId = '';
         this.logs = [];
     }
 

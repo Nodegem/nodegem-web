@@ -12,6 +12,7 @@ export async function createNode(
     newNode.position[1] = y;
     newNode.meta = meta;
     newNode.macroId = definition.macroId;
+    newNode.macroFieldId = definition.macroFieldId;
 
     editor.addNode(newNode);
 }

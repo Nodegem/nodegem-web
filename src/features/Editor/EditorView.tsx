@@ -58,9 +58,9 @@ class EditorView extends React.Component<
     public async componentDidMount() {
         const { editorStore } = this.props;
 
-        const { graph, currentGraph } = editorStore!;
+        const { graphExists } = editorStore!;
 
-        if (!graph) {
+        if (!graphExists) {
             this.props.history.push('/');
             notification.error({
                 message: 'Unable to load graph',
@@ -68,6 +68,8 @@ class EditorView extends React.Component<
             });
             return;
         }
+
+        const { graph, graphType } = editorStore!;
 
         const container = document.querySelector('.editor') as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
@@ -81,17 +83,11 @@ class EditorView extends React.Component<
         this.nodeEditor.use(ReteEditorMenu);
 
         this.nodeEditor.on('refreshTree', async () => {
-            await editorStore!.loadDefinitions(
-                currentGraph!.type,
-                currentGraph!.id
-            );
+            await editorStore!.loadDefinitions(graphType, graph.id);
         });
         this.nodeEditor.on('onTreeRefresh', this.onTreeRefresh);
         this.nodeEditor.on('clear', this.onClearGraph);
         this.nodeEditor.on('process', this.runGraph);
-
-        if (currentGraph!.type === 'macro') {
-        }
 
         await editorStore!.initialize();
         applyBackground();
@@ -106,10 +102,7 @@ class EditorView extends React.Component<
         this.nodeEditor.components.clear();
         definitionList
             .reduce(
-                (pV, cV) => {
-                    pV.push(new GenericComponent(cV));
-                    return pV;
-                },
+                (pV, cV) => [...pV, new GenericComponent(toJS(cV))],
                 [] as GenericComponent[]
             )
             .forEach(x => {
@@ -136,6 +129,7 @@ class EditorView extends React.Component<
                                 }, {}),
                             position: [n.position.x, n.position.y],
                             macroId: n.macroId,
+                            macroFieldId: n.macroFieldId,
                         } as NodeImportExport)
                 ),
         });
@@ -154,8 +148,12 @@ class EditorView extends React.Component<
     };
 
     private runGraph = () => {
-        const graphData = { ...this.nodeEditor.toJSON() };
-        this.props.editorStore!.runGraph(graphData);
+        const { graphExists } = this.props.editorStore!;
+        if (graphExists) {
+            const { graphType } = this.props.editorStore!;
+            const graphData = { ...this.nodeEditor.toJSON() };
+            this.props.editorStore!.runGraph(graphData, graphType);
+        }
     };
 
     private saveGraph = async () => {
@@ -177,13 +175,14 @@ class EditorView extends React.Component<
                         ),
                     position: { x: x.position[0], y: x.position[1] },
                     macroId: x.macroId,
+                    macroFieldId: x.macroFieldId,
                 } as NodeData)
         );
 
         const links = json.links.map(x => x as LinkData);
 
-        const { type } = this.props.editorStore!.currentGraph!;
-        if (type === 'graph') {
+        const { graphType } = this.props.editorStore!;
+        if (graphType === 'graph') {
             await this.props.editorStore!.saveGraph(nodes, links);
         } else {
             await this.props.editorStore!.saveMacro(nodes, links);
@@ -204,18 +203,24 @@ class EditorView extends React.Component<
 
     private onSaveMacro = (macro: Macro | undefined) => {
         if (macro) {
-            this.props.editorStore!.setGraph(macro.id, 'macro');
-            this.clearGraph();
+            this.props.editorStore!.setGraph(macro.id);
+
+            const { graphId } = this.props.editorStore!;
+
+            if (graphId !== macro.id) {
+                this.clearGraph();
+            } else {
+                this.nodeEditor.trigger('refreshTree');
+            }
         }
     };
 
     private onEditGraph = () => {
-        const { currentGraph } = this.props.editorStore!;
-        if (currentGraph) {
-            const { graph } = this.props.editorStore!;
-            const { type } = currentGraph;
+        const { graphExists } = this.props.editorStore!;
+        if (graphExists) {
+            const { graph, graphType } = this.props.editorStore!;
 
-            if (type === 'graph') {
+            if (graphType === 'graph') {
                 this.props.graphModalStore!.openModal(graph, true);
             } else {
                 this.props.macroModalStore!.openModal(graph, true);
@@ -225,6 +230,7 @@ class EditorView extends React.Component<
 
     componentWillUnmount() {
         this.props.editorStore!.disconnect();
+        this.props.editorStore!.dispose();
     }
 
     public render() {

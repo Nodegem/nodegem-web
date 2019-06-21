@@ -98,7 +98,6 @@ class MacroStore implements IDisposableStore {
     }
 
     getMacroById(macroId: string) {
-        if (!macroId) return undefined;
         return this.macros.find(x => x.id === macroId);
     }
 

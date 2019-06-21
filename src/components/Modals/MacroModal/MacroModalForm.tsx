@@ -42,12 +42,6 @@ const MacroForm = Form.create<FormDataProps & ModalProps & FormComponentProps>({
                 callback('Label cannot be empty');
                 return;
             }
-
-            if (value.isOptional && !value.defaultValue) {
-                callback('Must provide a default value to optional field');
-                return;
-            }
-
             callback();
         };
 
@@ -69,7 +63,6 @@ const MacroForm = Form.create<FormDataProps & ModalProps & FormComponentProps>({
                             label: i.label,
                             type: i.type || 0,
                             defaultValue: i.defaultValue,
-                            isOptional: i.isOptional || false,
                         },
                         rules: [
                             {
@@ -256,7 +249,6 @@ class MacroModalFormController extends React.Component<{
                 return;
             }
 
-            console.log(values);
             const macro = await macroModalStore!.saveMacro(values);
 
             if (this.props.onSave) {

@@ -9,7 +9,6 @@ interface IOFieldState {
     label: string;
     type: number;
     defaultValue?: any;
-    isOptional: boolean;
 }
 
 class ValueTypeField extends React.Component<PortProps, IOFieldState> {
@@ -30,7 +29,6 @@ class ValueTypeField extends React.Component<PortProps, IOFieldState> {
             label: value.label || '',
             type: value.type || 0,
             defaultValue: value.defaultValue || undefined,
-            isOptional: value.isOptional || false,
         };
     }
 
@@ -56,21 +54,9 @@ class ValueTypeField extends React.Component<PortProps, IOFieldState> {
         this.triggerChange({ type: value });
     };
 
-    private onOptionalChange = (e: CheckboxChangeEvent) => {
-        const { checked } = e.target;
-        const { defaultValue } = this.state;
-
-        const newState = {
-            isOptional: checked,
-            defaultValue: checked ? defaultValue : '',
-        };
-        this.setState(newState);
-        this.triggerChange(newState);
-    };
-
     public render() {
         const { ioType } = this.props;
-        const { label, type, defaultValue, isOptional } = this.state;
+        const { label, type, defaultValue } = this.state;
 
         const centerStyle: React.CSSProperties = {
             textAlign: 'center',
@@ -97,29 +83,15 @@ class ValueTypeField extends React.Component<PortProps, IOFieldState> {
                     </Tooltip>
                 </Col>
                 {isValueInput && (
-                    <>
-                        <Col span={6} style={centerStyle}>
-                            <Input
-                                disabled={!isOptional}
-                                name="defaultValue"
-                                value={defaultValue || ''}
-                                type="text"
-                                placeholder="Default Value"
-                                onChange={this.onChange}
-                            />
-                        </Col>
-                        <Col span={4} style={centerStyle}>
-                            <Tooltip title="Is the input optional?">
-                                <Checkbox
-                                    defaultChecked={false}
-                                    checked={isOptional}
-                                    onChange={this.onOptionalChange}
-                                >
-                                    Is Optional?
-                                </Checkbox>
-                            </Tooltip>
-                        </Col>
-                    </>
+                    <Col span={6} style={centerStyle}>
+                        <Input
+                            name="defaultValue"
+                            value={defaultValue || ''}
+                            type="text"
+                            placeholder="Default Value"
+                            onChange={this.onChange}
+                        />
+                    </Col>
                 )}
                 <Col span={1} style={centerStyle}>
                     <Tooltip title="Remove">
