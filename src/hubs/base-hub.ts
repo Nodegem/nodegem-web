@@ -36,13 +36,14 @@ abstract class BaseHub {
         this.connection.onclose(async () => {
             this.connected = false;
             this.onDisconnected.execute(undefined);
+
+            if (this.forceClosed) return;
             await this.attemptConnect();
         });
     }
 
     public async attemptConnect() {
         this.forceClosed = false;
-        if (!this.shouldAttemptToConnect()) return;
 
         await exponentialBackoff(
             async () => await this.start(),
@@ -84,17 +85,12 @@ abstract class BaseHub {
         return this.connected;
     }
 
-    private shouldAttemptToConnect(): boolean {
-        return !this.forceClosed && !this.connected;
-    }
-
     public async disconnect() {
+        this.forceClosed = true;
         try {
             await this.connection.stop();
         } catch (err) {
             this.onException.execute(err);
-        } finally {
-            this.forceClosed = true;
         }
     }
 

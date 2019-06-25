@@ -21,6 +21,7 @@ import { NodeImportExport } from './rete-engine/node';
 import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ReteEditorMenu from './rete-plugins/rete-editor-menu/src';
 import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 
 const applyBackground = () => {
     const areaViewContainer = document.querySelector(
@@ -228,6 +229,10 @@ class EditorView extends React.Component<
         }
     };
 
+    private onDebugModeChanged = (checked: boolean) => {
+        this.props.editorStore!.setDebugMode(checked);
+    };
+
     componentWillUnmount() {
         this.props.editorStore!.disconnect();
         this.props.editorStore!.dispose();
@@ -241,6 +246,7 @@ class EditorView extends React.Component<
             saving,
             logs,
             showLogs,
+            graph,
         } = this.props.editorStore!;
 
         return (
@@ -261,6 +267,8 @@ class EditorView extends React.Component<
                         newMacro={this.newMacro}
                         editGraph={this.onEditGraph}
                         runGraph={this.runGraph}
+                        debugEnabled={graph.isDebugModeEnabled}
+                        onDebugModeChanged={this.onDebugModeChanged}
                     />
                     <div className="editor" id={`editor`} />
                 </Spin>

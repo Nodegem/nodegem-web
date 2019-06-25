@@ -74,6 +74,10 @@ class DashboardView extends React.Component<
         this.props.history.push('editor');
     };
 
+    onPlay = (item: any, type: GraphType) => {
+        console.log('Play');
+    };
+
     public render() {
         const { graphs, loadingGraphs } = this.props.graphStore!;
         const { macros, loadingMacros } = this.props.macroStore!;
@@ -138,6 +142,7 @@ class DashboardView extends React.Component<
                                                 onDelete={this.onDelete}
                                                 onEdit={this.onEdit}
                                                 onBuild={this.onBuild}
+                                                onPlay={this.onPlay}
                                             />
                                         </List.Item>
                                     )}

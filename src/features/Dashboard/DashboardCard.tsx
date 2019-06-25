@@ -7,6 +7,7 @@ interface DashboardCardProps {
     onDelete: (item: Graph, type: GraphType) => void;
     onEdit: (item: Graph, type: GraphType) => void;
     onBuild: (item: Graph, type: GraphType) => void;
+    onPlay: (item: Graph, type: GraphType) => void;
 }
 
 class DashboardCard extends React.Component<DashboardCardProps> {
@@ -25,34 +26,61 @@ class DashboardCard extends React.Component<DashboardCardProps> {
         onBuild(item, type);
     };
 
+    onPlay = () => {
+        const { item, onPlay, type } = this.props;
+        onPlay(item, type);
+    };
+
     public render() {
         const { item } = this.props;
+
+        const iconStyle: React.CSSProperties = { fontSize: 19 };
 
         return (
             <Card
                 title={item.name}
                 actions={[
-                    <div onClick={this.onBuild}>
-                        <Tooltip title="Build">
-                            <Icon type="build" />
-                        </Tooltip>
-                    </div>,
-                    <div onClick={this.onEdit}>
-                        <Tooltip title="Edit">
-                            <Icon type="edit" />
-                        </Tooltip>
-                    </div>,
+                    <Tooltip title="Run">
+                        <div onClick={this.onPlay}>
+                            <Icon
+                                type="play-circle"
+                                theme="filled"
+                                style={iconStyle}
+                            />
+                        </div>
+                    </Tooltip>,
+                    <Tooltip title="Edit">
+                        <div onClick={this.onBuild}>
+                            <Icon
+                                type="tool"
+                                theme="filled"
+                                style={iconStyle}
+                            />
+                        </div>
+                    </Tooltip>,
+                    <Tooltip title="Settings">
+                        <div onClick={this.onEdit}>
+                            <Icon
+                                type="setting"
+                                theme="filled"
+                                style={iconStyle}
+                            />
+                        </div>
+                    </Tooltip>,
                     <div>
-                        <Tooltip title="Delete">
-                            <Popconfirm
-                                title="Are you sure you want to delete?"
-                                onConfirm={this.onDelete}
-                                okText="Yes"
-                                cancelText="No"
-                            >
-                                <Icon type="delete" />
-                            </Popconfirm>
-                        </Tooltip>
+                        <Popconfirm
+                            title="Are you sure you want to delete?"
+                            onConfirm={this.onDelete}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <Icon
+                                type="delete"
+                                theme="twoTone"
+                                twoToneColor="#FF5A5A"
+                                style={iconStyle}
+                            />
+                        </Popconfirm>
                     </div>,
                 ]}
             >

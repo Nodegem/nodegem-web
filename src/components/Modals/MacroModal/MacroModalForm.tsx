@@ -339,7 +339,7 @@ class MacroModalFormController extends React.Component<{
             flowOutputs,
         } = macroModalStore!;
 
-        const modalTitle = editMode ? 'Edit Macro' : 'Add Macro';
+        const modalTitle = editMode ? 'Edit Macro Settings' : 'Add Macro';
 
         let okButton = '';
         if (saving) {

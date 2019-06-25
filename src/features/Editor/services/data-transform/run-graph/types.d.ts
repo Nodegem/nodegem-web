@@ -2,6 +2,7 @@ interface RunGraphData {
     id: string;
     nodes: RunNodeData[];
     links: RunLinkData[];
+    isDebugModeEnabled: boolean;
 }
 
 interface RunLinkData {
@@ -24,19 +25,9 @@ interface RunFieldData {
     value: any;
 }
 
-interface RunMacroData {
-    id: string;
-    nodes: RunNodeData[];
-    links: MacroRunLinkData[];
+interface RunMacroData extends RunGraphData {
     flowInputs: FlowInputFieldDto[];
     flowOutputs: FlowOutputFieldDto[];
     valueInputs: ValueInputFieldDto[];
     valueOutputs: ValueOutputFieldDto[];
-}
-
-interface MacroRunLinkData {
-    sourceNode: string | undefined;
-    sourceKey: string;
-    destinationNode: string | undefined;
-    destinationKey: string;
 }

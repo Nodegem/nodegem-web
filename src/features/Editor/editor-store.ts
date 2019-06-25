@@ -13,7 +13,7 @@ import {
 } from './services/data-transform/run-graph';
 import { isMacro } from 'src/utils/typeguards';
 
-type LogType = 'log' | 'warn' | 'error';
+type LogType = 'log' | 'debug' | 'warn' | 'error';
 export type Log = {
     type: LogType;
     message: string;
@@ -88,6 +88,7 @@ class EditorStore implements IDisposableStore {
         this.terminalHub = new TerminalHub();
 
         this.terminalHub.onLog(data => this.createLog(data, 'log'));
+        this.terminalHub.onLogDebug(data => this.createLog(data, 'debug'));
         this.terminalHub.onLogWarn(data => this.createLog(data, 'warn'));
         this.terminalHub.onLogError(data => this.createLog(data, 'error'));
     }
@@ -121,7 +122,12 @@ class EditorStore implements IDisposableStore {
         try {
             if (!editorData.links.empty() && !editorData.nodes.empty()) {
                 if (type === 'graph') {
-                    const graphData = transformGraph(editorData);
+                    const { graph } = this;
+                    const { isDebugModeEnabled } = graph;
+                    const graphData = transformGraph({
+                        ...editorData,
+                        isDebugModeEnabled,
+                    });
                     this.graphHub.runGraph(graphData);
                 } else {
                     const macro = this.graph as Macro;
@@ -130,6 +136,7 @@ class EditorStore implements IDisposableStore {
                         flowOutputs,
                         valueInputs,
                         valueOutputs,
+                        isDebugModeEnabled,
                     } = macro;
                     const macroData = transformMacro({
                         ...editorData,
@@ -137,6 +144,7 @@ class EditorStore implements IDisposableStore {
                         flowOutputs,
                         valueInputs,
                         valueOutputs,
+                        isDebugModeEnabled,
                     });
                     this.graphHub.runMacro(
                         macroData,
@@ -253,6 +261,12 @@ class EditorStore implements IDisposableStore {
 
     @action toggleLogDrawer() {
         this.showLogs = !this.showLogs;
+    }
+
+    @action setDebugMode(toggle: boolean) {
+        if (this.graph) {
+            this.graph.isDebugModeEnabled = toggle;
+        }
     }
 
     setEditor(editor: NodeEditor) {

@@ -127,7 +127,7 @@ class GraphModalFormController extends React.Component<{
             constants,
         } = graphModalStore!;
 
-        const modalTitle = editMode ? 'Edit Graph' : 'Add Graph';
+        const modalTitle = editMode ? 'Edit Graph Settings' : 'Add Graph';
 
         let okButton = '';
         if (saving) {

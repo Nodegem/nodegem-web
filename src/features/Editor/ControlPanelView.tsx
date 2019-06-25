@@ -1,9 +1,11 @@
-import { Button, Icon, Tooltip } from 'antd';
+import { Button, Icon, Tooltip, Checkbox } from 'antd';
 import classNames from 'classnames';
 import * as React from 'react';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 
 type ControlProps = {
     running: boolean;
+    debugEnabled: boolean;
     connected: boolean;
     saving: boolean;
     saveGraph: () => void;
@@ -12,10 +14,12 @@ type ControlProps = {
     editGraph: () => void;
     newMacro: () => void;
     showLogDrawer: () => void;
+    onDebugModeChanged: (checked: boolean) => void;
 };
 
 export const ControlPanelView = ({
     running,
+    debugEnabled,
     connected,
     saving,
     saveGraph,
@@ -24,6 +28,7 @@ export const ControlPanelView = ({
     runGraph,
     showLogDrawer,
     editGraph,
+    onDebugModeChanged,
 }: ControlProps) => {
     const controlClasses = classNames({
         control: true,
@@ -83,12 +88,18 @@ export const ControlPanelView = ({
                         <Icon type={playIcon} style={{ fontSize: 24 }} />
                     </Tooltip>
                 </li>
-                <li onClick={showLogDrawer}>
+                <li onClick={showLogDrawer} className={controlClasses}>
                     <Tooltip title="Logs" placement="bottom">
-                        <Icon
-                            className={controlClasses}
-                            type="code"
-                            style={{ fontSize: 24 }}
+                        <Icon type="code" style={{ fontSize: 24 }} />
+                    </Tooltip>
+                </li>
+                <li className={controlClasses}>
+                    <Tooltip title="Debug Mode">
+                        <Checkbox
+                            checked={debugEnabled}
+                            onChange={(e: CheckboxChangeEvent) =>
+                                onDebugModeChanged(e.target.checked)
+                            }
                         />
                     </Tooltip>
                 </li>

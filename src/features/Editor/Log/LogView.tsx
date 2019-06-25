@@ -6,30 +6,45 @@ import * as moment from 'moment';
 import * as React from 'react';
 
 import { Log } from '../editor-store';
+import { reaction, IReactionDisposer } from 'mobx';
 
 interface LogViewProps {
     maxLogsDisplayed?: number;
-    logs: Array<Log>;
+    logs: Log[];
 }
 
 @observer
-class LogView extends React.Component<LogViewProps> {
+class LogView extends React.Component<LogViewProps, { logCount: number }> {
     static defaultProps = {
         maxLogsDisplayed: 250,
     };
 
     private logContainer: HTMLElement;
+    private disposer: IReactionDisposer;
+
+    state = {
+        logCount: 0,
+    };
 
     componentDidMount() {
-        this.scrollToBottom();
-    }
-
-    componentDidUpdate() {
-        this.scrollToBottom();
+        this.disposer = reaction(
+            () => {
+                return this.state.logCount !== this.props.logs.length;
+            },
+            () => {
+                this.setState({ logCount: this.props.logs.length }, () =>
+                    this.scrollToBottom()
+                );
+            }
+        );
     }
 
     scrollToBottom() {
         this.logContainer.scrollTop = this.logContainer.scrollHeight;
+    }
+
+    componentWillUnmount() {
+        this.disposer();
     }
 
     public render() {
@@ -46,6 +61,7 @@ class LogView extends React.Component<LogViewProps> {
                     const logType = l.type;
                     const logClass = classNames({
                         log: logType === 'log',
+                        'log-debug': logType === 'debug',
                         'log-warn': logType === 'warn',
                         'log-error': logType === 'error',
                     });
@@ -55,6 +71,8 @@ class LogView extends React.Component<LogViewProps> {
                             ? '[WARN]'
                             : logType === 'error'
                             ? '[ERROR]'
+                            : logType === 'debug'
+                            ? '[DEBUG]'
                             : '[LOG]';
 
                     return (
