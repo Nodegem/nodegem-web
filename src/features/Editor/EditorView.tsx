@@ -21,7 +21,7 @@ import { NodeImportExport } from './rete-engine/node';
 import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ReteEditorMenu from './rete-plugins/rete-editor-menu/src';
 import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
-import { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import { isInput } from 'src/utils';
 
 const applyBackground = () => {
     const areaViewContainer = document.querySelector(
@@ -76,8 +76,7 @@ class EditorView extends React.Component<
         this.nodeEditor = new NodeEditor(container);
         editorStore!.setEditor(this.nodeEditor);
 
-        const { width, height } = container.getBoundingClientRect();
-        this.nodeEditor.view.area.translate(width / 2 - 70, height / 2 - 60);
+        this.centerGraph();
 
         this.nodeEditor.use(ReactRenderPlugin);
         this.nodeEditor.use(ReteLinkPlugin);
@@ -93,7 +92,20 @@ class EditorView extends React.Component<
         await editorStore!.initialize();
         applyBackground();
 
+        this.setKeyboardEventListeners();
+
         this.nodeEditor.trigger('refreshTree');
+    }
+
+    private setKeyboardEventListeners() {
+        window.addEventListener('keypress', ev => {
+            const isInputElement = isInput(ev.target as Element);
+            //Space
+            if (ev.keyCode === 32 && !isInputElement) {
+                ev.preventDefault();
+                this.centerGraph();
+            }
+        });
     }
 
     private onTreeRefresh = (
@@ -140,7 +152,11 @@ class EditorView extends React.Component<
         await this.nodeEditor.clear();
     };
 
-    private onClearGraph = async () => {
+    private onClearGraph = () => {
+        this.centerGraph();
+    };
+
+    private centerGraph = () => {
         const {
             width,
             height,

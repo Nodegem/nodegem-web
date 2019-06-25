@@ -1,8 +1,10 @@
-import { isInput } from '../../../../utils/index';
+import { isInput } from '../../../../utils';
 
 export type DragStartEvent = (e: MouseEvent) => void;
 export type DragTranslateEvent = (x: number, y: number, e: MouseEvent) => void;
 export type DragUpEvent = (e: MouseEvent) => void;
+
+const backgroundClassName = 'mouse-drag';
 
 export class Drag {
     mouseStart: [number, number] | null;
@@ -52,6 +54,7 @@ export class Drag {
         if (e.which === 3) return;
 
         e.stopPropagation();
+        this.el.firstElementChild!.classList.add(backgroundClassName);
         this.mouseStart = this.getCoords(e);
 
         this.onStart(e);
@@ -71,6 +74,8 @@ export class Drag {
 
     up(e) {
         if (!this.mouseStart) return;
+
+        this.el.firstElementChild!.classList.remove(backgroundClassName);
 
         this.mouseStart = null;
         this.onDragUp(e);

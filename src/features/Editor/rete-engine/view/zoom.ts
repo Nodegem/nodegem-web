@@ -1,7 +1,6 @@
-import { isInput } from '../../../../utils/index';
+import { isInput } from '../../../../utils';
 
 export class Zoom {
-
     el: Element;
     intensity: number;
     onzoom: (delta: number, x: number, y: number) => void;
@@ -23,9 +22,11 @@ export class Zoom {
 
     wheel(e) {
         e.preventDefault();
-        
+
         var rect = this.el.getBoundingClientRect();
-        var delta = (e.wheelDelta ? e.wheelDelta / 120 : - e.deltaY / 3) * this.intensity;
+        var delta =
+            (e.wheelDelta ? e.wheelDelta / 120 : -e.deltaY / 3) *
+            this.intensity;
 
         var ox = (rect.left - e.clientX) * delta;
         var oy = (rect.top - e.clientY) * delta;
@@ -34,27 +35,26 @@ export class Zoom {
     }
 
     touches(e) {
-        
         let [x1, y1] = [e.touches[0].clientX, e.touches[0].clientY];
         let [x2, y2] = [e.touches[1].clientX, e.touches[1].clientY];
         let distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 
         return {
-            cx: (x1 + x2)/2,
-            cy: (y1 + y2)/2,
-            distance
+            cx: (x1 + x2) / 2,
+            cy: (y1 + y2) / 2,
+            distance,
         };
     }
 
     move(e) {
         if (e.touches.length < 2) return;
-        
+
         let rect = this.el.getBoundingClientRect();
         let { cx, cy, distance } = this.touches(e);
 
         if (this.distance !== null) {
             let delta = distance / this.distance - 1;
-    
+
             var ox = (rect.left - cx) * delta;
             var oy = (rect.top - cy) * delta;
 
@@ -68,18 +68,17 @@ export class Zoom {
     }
 
     dblclick(e) {
-
         const target = e.target || e.srcElement;
-        if(isInput(target)) return;
+        if (isInput(target)) return;
 
         e.preventDefault();
-        
+
         var rect = this.el.getBoundingClientRect();
         var delta = 4 * this.intensity;
 
         var ox = (rect.left - e.clientX) * delta;
         var oy = (rect.top - e.clientY) * delta;
 
-        this.onzoom(delta, ox, oy); 
+        this.onzoom(delta, ox, oy);
     }
 }

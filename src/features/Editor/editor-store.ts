@@ -12,6 +12,7 @@ import {
     transformMacro,
 } from './services/data-transform/run-graph';
 import { isMacro } from 'src/utils/typeguards';
+import _ from 'lodash';
 
 type LogType = 'log' | 'debug' | 'warn' | 'error';
 export type Log = {
@@ -62,6 +63,7 @@ class EditorStore implements IDisposableStore {
     @observable
     loadingDefinitions: boolean = false;
 
+    @ignore
     @observable
     nodeDefinitions: IHierarchicalNode<NodeDefinition>;
 
@@ -167,21 +169,24 @@ class EditorStore implements IDisposableStore {
     async loadDefinitions(type: GraphType, graphId: string): Promise<void> {
         this.loadingDefinitions = true;
 
-        let definitions = this.nodeDefinitions;
+        let definitions: IHierarchicalNode<NodeDefinition>;
 
         try {
             definitions = await NodeService.getAllNodeDefinitions(
                 graphId,
                 type
             );
-            runInAction(() => {
-                this.nodeDefinitions = definitions;
-                this.nodeEditor.trigger(
-                    'onTreeRefresh',
-                    definitions,
-                    this.nodeDefinitionList
-                );
-            });
+
+            if (!_.isEqual(this.nodeDefinitions, definitions)) {
+                runInAction(() => {
+                    this.nodeDefinitions = definitions;
+                    this.nodeEditor.trigger(
+                        'onTreeRefresh',
+                        definitions,
+                        this.nodeDefinitionList
+                    );
+                });
+            }
         } catch (e) {
             console.warn(e);
         } finally {
