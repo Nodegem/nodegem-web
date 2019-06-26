@@ -18,7 +18,10 @@
         "experimentalDecorators": true,
         "baseUrl": ".",
         "typeRoots": ["node_modules/@types", "**/*"],
-        "paths": {}
+        "paths": {
+            "@utils": ["src/utils"],
+            "@utils/*": ["src/utils/*"]
+        }
     },
     "exclude": [
         "node_modules",

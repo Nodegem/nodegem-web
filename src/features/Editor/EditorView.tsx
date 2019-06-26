@@ -21,7 +21,7 @@ import { NodeImportExport } from './rete-engine/node';
 import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ReteEditorMenu from './rete-plugins/rete-editor-menu/src';
 import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';
-import { isInput } from 'src/utils';
+import { isInput } from '@utils';
 
 const applyBackground = () => {
     const areaViewContainer = document.querySelector(
@@ -162,6 +162,7 @@ class EditorView extends React.Component<
             height,
         } = this.nodeEditor.view.container.getBoundingClientRect();
         this.nodeEditor.view.area.translate(width / 2 - 70, height / 2 - 60);
+        this.nodeEditor.view.area.zoom(1);
     };
 
     private runGraph = () => {

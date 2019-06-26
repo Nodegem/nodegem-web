@@ -1,6 +1,7 @@
 import { Emitter } from '../core/emitter';
 import { Drag } from './drag';
 import { Zoom } from './zoom';
+import { clamp } from '@utils';
 
 export class Area extends Emitter {
     el: HTMLElement;
@@ -80,7 +81,10 @@ export class Area extends Emitter {
 
     zoom(zoom, ox = 0, oy = 0) {
         const k = this.transform.k;
-        const params = { transform: this.transform, zoom };
+        const params = {
+            transform: this.transform,
+            zoom: clamp(zoom, 0.75, 2.5),
+        };
 
         if (!this.trigger('zoom', params)) return;
 
