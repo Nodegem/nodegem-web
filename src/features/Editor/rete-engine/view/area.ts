@@ -1,16 +1,16 @@
+import { clamp } from '@utils';
 import { Emitter } from '../core/emitter';
 import { Drag } from './drag';
 import { Zoom } from './zoom';
-import { clamp } from '@utils';
 
 export class Area extends Emitter {
-    el: HTMLElement;
-    container: HTMLElement;
-    transform: { k: number; x: number; y: number };
-    mouse: XYPosition;
-    _startPosition: XYPosition;
-    _zoom: Zoom;
-    _drag: Drag;
+    public el: HTMLElement;
+    public container: HTMLElement;
+    public transform: { k: number; x: number; y: number };
+    public mouse: XYPosition;
+    public _startPosition: XYPosition;
+    public _zoom: Zoom;
+    public _drag: Drag;
 
     constructor(container: HTMLElement, emitter: Emitter) {
         super(emitter);
@@ -36,13 +36,13 @@ export class Area extends Emitter {
         this.update();
     }
 
-    update() {
+    public update() {
         const t = this.transform;
 
         this.el.style.transform = `translate(${t.x}px, ${t.y}px) scale(${t.k})`;
     }
 
-    mousemove(e) {
+    public mousemove(e) {
         const rect = this.el.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -52,24 +52,26 @@ export class Area extends Emitter {
         this.trigger('mousemove', { ...this.mouse });
     }
 
-    onStart() {
+    public onStart() {
         this._startPosition = { x: this.transform.x, y: this.transform.y };
     }
 
-    onTranslate(dx, dy) {
+    public onTranslate(dx, dy) {
         const { x, y } = this._startPosition;
         this.translate(x + dx, y + dy);
     }
 
-    onZoom(delta, ox, oy) {
+    public onZoom(delta, ox, oy) {
         this.zoom(this.transform.k * (1 + delta), ox, oy);
         this.update();
     }
 
-    translate(x, y) {
+    public translate(x, y) {
         const params = { transform: this.transform, x, y };
 
-        if (!this.trigger('translate', params)) return;
+        if (!this.trigger('translate', params)) {
+            return;
+        }
 
         this.transform.x = x;
         this.transform.y = y;
@@ -79,14 +81,16 @@ export class Area extends Emitter {
         this.trigger('translated');
     }
 
-    zoom(zoom, ox = 0, oy = 0) {
+    public zoom(zoom, ox = 0, oy = 0) {
         const k = this.transform.k;
         const params = {
             transform: this.transform,
-            zoom: clamp(zoom, 0.75, 2.5),
+            zoom: clamp(zoom, 0.4, 2.5),
         };
 
-        if (!this.trigger('zoom', params)) return;
+        if (!this.trigger('zoom', params)) {
+            return;
+        }
 
         const d = (k - params.zoom) / (k - zoom || 1);
 
@@ -98,11 +102,11 @@ export class Area extends Emitter {
         this.trigger('zoomed');
     }
 
-    appendChild(el) {
+    public appendChild(el) {
         this.el.appendChild(el);
     }
 
-    removeChild(el) {
+    public removeChild(el) {
         this.el.removeChild(el);
     }
 }
