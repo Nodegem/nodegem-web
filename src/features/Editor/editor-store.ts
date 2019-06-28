@@ -4,6 +4,8 @@ import { ignore } from 'mobx-sync';
 import { NodeService } from 'src/services';
 import { graphStore, IDisposableStore, macroStore } from 'src/stores';
 
+import _ from 'lodash';
+import { isMacro } from 'src/utils/typeguards';
 import GraphHub from './hubs/graph-hub';
 import TerminalHub from './hubs/terminal-hub';
 import { EditorImportExport, NodeEditor } from './rete-engine/editor';
@@ -11,24 +13,21 @@ import {
     transformGraph,
     transformMacro,
 } from './services/data-transform/run-graph';
-import { isMacro } from 'src/utils/typeguards';
-import _ from 'lodash';
 
 type LogType = 'log' | 'debug' | 'warn' | 'error';
-export type Log = {
+export interface Log {
     type: LogType;
     message: string;
     time: Date;
-};
+}
 
 class EditorStore implements IDisposableStore {
     @ignore
     @computed
     get graph(): Graph | Macro {
-        const { graphId } = this;
         return (
-            graphStore.getGraphById(graphId) ||
-            macroStore.getMacroById(graphId)!
+            graphStore.getGraphById(this.graphId) ||
+            macroStore.getMacroById(this.graphId)!
         );
     }
 
@@ -43,36 +42,39 @@ class EditorStore implements IDisposableStore {
     }
 
     get graphType(): GraphType {
-        const { graph } = this;
-        return isMacro(graph) ? 'macro' : 'graph';
+        return isMacro(this.graph) ? 'macro' : 'graph';
     }
 
     @ignore
     @observable
-    running: boolean = false;
+    public running: boolean = false;
 
     @ignore
     @observable
-    connected: boolean = false;
+    public connected: boolean = false;
 
     @ignore
     @observable
-    saving: boolean = false;
+    public saving: boolean = false;
 
     @ignore
     @observable
-    loadingDefinitions: boolean = false;
+    public loadingDefinitions: boolean = false;
 
     @ignore
     @observable
-    nodeDefinitions: IHierarchicalNode<NodeDefinition>;
-
-    @observable
-    graphId: string;
+    public loadingGraph: boolean = false;
 
     @ignore
     @observable
-    showLogs: boolean = false;
+    public nodeDefinitions: IHierarchicalNode<NodeDefinition>;
+
+    @observable
+    public graphId: string;
+
+    @ignore
+    @observable
+    public showLogs: boolean = false;
 
     @ignore
     private graphHub: GraphHub;
@@ -81,9 +83,9 @@ class EditorStore implements IDisposableStore {
 
     @ignore
     @observable
-    logs: Array<Log> = [];
+    public logs: Array<Log> = [];
 
-    nodeEditor: NodeEditor;
+    public nodeEditor: NodeEditor;
 
     constructor() {
         this.graphHub = new GraphHub();
@@ -95,7 +97,7 @@ class EditorStore implements IDisposableStore {
         this.terminalHub.onLogError(data => this.createLog(data, 'error'));
     }
 
-    @action async initialize() {
+    @action public async initialize() {
         try {
             await this.graphHub.attemptConnect();
             await this.terminalHub.attemptConnect();
@@ -107,7 +109,7 @@ class EditorStore implements IDisposableStore {
         }
     }
 
-    @action disconnect() {
+    @action public disconnect() {
         try {
             this.terminalHub.dispose();
             this.graphHub.dispose();
@@ -120,7 +122,7 @@ class EditorStore implements IDisposableStore {
         }
     }
 
-    @action runGraph(editorData: EditorImportExport, type: GraphType) {
+    @action public runGraph(editorData: EditorImportExport, type: GraphType) {
         try {
             if (!editorData.links.empty() && !editorData.nodes.empty()) {
                 if (type === 'graph') {
@@ -166,7 +168,11 @@ class EditorStore implements IDisposableStore {
     }
 
     @action
-    async loadDefinitions(type: GraphType, graphId: string): Promise<void> {
+    public async loadDefinitions(
+        type: GraphType,
+        graphId: string,
+        forceRefresh: boolean
+    ): Promise<void> {
         this.loadingDefinitions = true;
 
         let definitions: IHierarchicalNode<NodeDefinition>;
@@ -177,7 +183,7 @@ class EditorStore implements IDisposableStore {
                 type
             );
 
-            if (!_.isEqual(this.nodeDefinitions, definitions)) {
+            if (forceRefresh || !_.isEqual(this.nodeDefinitions, definitions)) {
                 runInAction(() => {
                     this.nodeDefinitions = definitions;
                     this.nodeEditor.trigger(
@@ -196,7 +202,7 @@ class EditorStore implements IDisposableStore {
         }
     }
 
-    getDefinitionByNamespace = (fullName: string): NodeDefinition => {
+    public getDefinitionByNamespace = (fullName: string): NodeDefinition => {
         return this.nodeDefinitionList
             .filter(x => x.fullName === fullName)
             .firstOrDefault()!;
@@ -207,11 +213,14 @@ class EditorStore implements IDisposableStore {
         this.logs.push({
             message: data,
             time: new Date(),
-            type: type,
+            type,
         });
     }
 
-    @action async saveGraph(nodes: Array<NodeData>, links: Array<LinkData>) {
+    @action public async saveGraph(
+        nodes: Array<NodeData>,
+        links: Array<LinkData>
+    ) {
         this.saving = true;
         try {
             if (this.graphId) {
@@ -229,7 +238,10 @@ class EditorStore implements IDisposableStore {
         }
     }
 
-    @action async saveMacro(nodes: Array<NodeData>, links: Array<LinkData>) {
+    @action public async saveMacro(
+        nodes: Array<NodeData>,
+        links: Array<LinkData>
+    ) {
         this.saving = true;
         try {
             if (this.graphId) {
@@ -251,37 +263,41 @@ class EditorStore implements IDisposableStore {
         }
     }
 
-    @action setGraph(graph: string) {
+    @action public setGraph(graph: string) {
         this.graphId = graph;
     }
 
-    @action dispose() {
+    @action public dispose() {
         this.graphId = '';
         this.logs = [];
     }
 
-    @action closeLogDrawer() {
+    @action public closeLogDrawer() {
         this.showLogs = false;
     }
 
-    @action toggleLogDrawer() {
+    @action public toggleLogDrawer() {
         this.showLogs = !this.showLogs;
     }
 
-    @action setDebugMode(toggle: boolean) {
+    @action public setDebugMode(toggle: boolean) {
         if (this.graph) {
             this.graph.isDebugModeEnabled = toggle;
         }
     }
 
-    setEditor(editor: NodeEditor) {
+    @action public setLoadingGraph(toggle: boolean) {
+        this.loadingGraph = toggle;
+    }
+
+    public setEditor(editor: NodeEditor) {
         this.nodeEditor = editor;
     }
 
     private getNodeDefinitions(
         node: IHierarchicalNode<NodeDefinition>
     ): NodeDefinition[] {
-        let returnList: NodeDefinition[] = [];
+        const returnList: NodeDefinition[] = [];
         returnList.push(...node.items);
         Object.keys(node.children).forEach(c =>
             returnList.push(...this.getNodeDefinitions(node.children[c]))

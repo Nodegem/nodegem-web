@@ -72,6 +72,8 @@ class EditorView extends React.Component<
 
         const { graph, graphType } = editorStore!;
 
+        editorStore!.setLoadingGraph(true);
+
         const container = document.querySelector('.editor') as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
         editorStore!.setEditor(this.nodeEditor);
@@ -82,8 +84,12 @@ class EditorView extends React.Component<
         this.nodeEditor.use(ReteLinkPlugin);
         this.nodeEditor.use(ReteEditorMenu);
 
-        this.nodeEditor.on('refreshTree', async () => {
-            await editorStore!.loadDefinitions(graphType, graph.id);
+        this.nodeEditor.on('refreshTree', async (forceRefresh: boolean) => {
+            await editorStore!.loadDefinitions(
+                graphType,
+                graph.id,
+                forceRefresh
+            );
         });
         this.nodeEditor.on('onTreeRefresh', this.onTreeRefresh);
         this.nodeEditor.on('clear', this.onClearGraph);
@@ -94,63 +100,12 @@ class EditorView extends React.Component<
 
         this.setKeyboardEventListeners();
 
-        this.nodeEditor.trigger('refreshTree');
+        this.nodeEditor.trigger('refreshTree', true);
     }
 
     public componentWillUnmount() {
         this.props.editorStore!.disconnect();
         this.props.editorStore!.dispose();
-    }
-
-    public render() {
-        const {
-            loadingDefinitions,
-            running,
-            connected,
-            saving,
-            logs,
-            showLogs,
-            graph,
-        } = this.props.editorStore!;
-
-        return (
-            <div className="editor-view">
-                <Spin
-                    className="editor-load"
-                    spinning={loadingDefinitions}
-                    delay={500}
-                    indicator={editorIndicator}
-                >
-                    <ControlPanelView
-                        running={running}
-                        saving={saving}
-                        connected={connected}
-                        clearGraph={this.clearGraph}
-                        saveGraph={this.saveGraph}
-                        showLogDrawer={this.toggleLogDrawer}
-                        newMacro={this.newMacro}
-                        editGraph={this.onEditGraph}
-                        runGraph={this.runGraph}
-                        debugEnabled={graph.isDebugModeEnabled}
-                        onDebugModeChanged={this.onDebugModeChanged}
-                    />
-                    <div className="editor" id={`editor`} />
-                </Spin>
-                <Drawer
-                    title="Logs"
-                    placement="bottom"
-                    visible={showLogs}
-                    onClose={this.hideLogDrawer}
-                    height={400}
-                    mask={false}
-                    closable={true}
-                >
-                    <LogView logs={logs} />
-                </Drawer>
-                <MacroModalFormController onSave={this.onSaveMacro} />
-                <GraphModalFormController />
-            </div>
-        );
     }
 
     private setKeyboardEventListeners() {
@@ -165,9 +120,11 @@ class EditorView extends React.Component<
     }
 
     private onTreeRefresh = (
-        definitions: IHierarchicalNode<NodeDefinition>,
+        _: IHierarchicalNode<NodeDefinition>,
         definitionList: NodeDefinition[]
     ) => {
+        const { editorStore } = this.props;
+        editorStore!.setLoadingGraph(true);
         this.nodeEditor.components.clear();
         definitionList
             .reduce(
@@ -179,6 +136,11 @@ class EditorView extends React.Component<
             });
 
         const { graph } = this.props.editorStore!;
+        this.renderGraphToScreen(graph);
+        editorStore!.setLoadingGraph(false);
+    };
+
+    private renderGraphToScreen(graph: Graph | Macro) {
         const jsGraph = toJS(graph);
         this.nodeEditor.fromJSON({
             id: jsGraph!.id,
@@ -199,7 +161,7 @@ class EditorView extends React.Component<
                     macroFieldId: n.macroFieldId,
                 })),
         });
-    };
+    }
 
     private clearGraph = async () => {
         await this.nodeEditor.clear();
@@ -299,6 +261,58 @@ class EditorView extends React.Component<
     private onDebugModeChanged = (checked: boolean) => {
         this.props.editorStore!.setDebugMode(checked);
     };
+
+    public render() {
+        const {
+            loadingDefinitions,
+            running,
+            connected,
+            saving,
+            logs,
+            showLogs,
+            graph,
+            loadingGraph,
+        } = this.props.editorStore!;
+
+        return (
+            <div className="editor-view">
+                <Spin
+                    className="editor-load"
+                    spinning={loadingDefinitions || loadingGraph}
+                    delay={500}
+                    indicator={editorIndicator}
+                >
+                    <ControlPanelView
+                        running={running}
+                        saving={saving}
+                        connected={connected}
+                        clearGraph={this.clearGraph}
+                        saveGraph={this.saveGraph}
+                        showLogDrawer={this.toggleLogDrawer}
+                        newMacro={this.newMacro}
+                        editGraph={this.onEditGraph}
+                        runGraph={this.runGraph}
+                        debugEnabled={graph.isDebugModeEnabled}
+                        onDebugModeChanged={this.onDebugModeChanged}
+                    />
+                    <div className="editor" id={`editor`} />
+                </Spin>
+                <Drawer
+                    title="Logs"
+                    placement="bottom"
+                    visible={showLogs}
+                    onClose={this.hideLogDrawer}
+                    height={400}
+                    mask={false}
+                    closable={true}
+                >
+                    <LogView logs={logs} />
+                </Drawer>
+                <MacroModalFormController onSave={this.onSaveMacro} />
+                <GraphModalFormController />
+            </div>
+        );
+    }
 }
 
 export default EditorView;
