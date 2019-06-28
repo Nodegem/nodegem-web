@@ -1,28 +1,23 @@
 import { action, computed, observable } from 'mobx';
-
 import { IDisposableStore } from './';
-import { getCookie } from 'src/utils';
 
 class UserStore implements IDisposableStore {
-    @observable user?: User;
+    @observable public user?: User;
+    @observable public token: TokenData;
 
     @computed get isLoggedIn(): boolean {
-        return (
-            !!this.user &&
-            !!this.getToken() &&
-            Object.keys(this.user).length > 0
-        );
+        return !!this.user && !!this.token && Object.keys(this.user).length > 0;
     }
 
-    public getToken() {
-        return getCookie('User-Token');
+    @action public setToken(token: TokenData) {
+        this.token = token;
     }
 
-    @action setUser(user?: User) {
+    @action public setUser(user?: User) {
         this.user = user;
     }
 
-    @action dispose() {
+    @action public dispose() {
         this.user = undefined;
     }
 }

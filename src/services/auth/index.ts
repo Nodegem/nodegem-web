@@ -1,9 +1,9 @@
-import { combinePath } from './../agent';
-import { requests } from '../agent';
 import superagent, { SuperAgentRequest } from 'superagent';
+import { requests } from '../agent';
+import { combinePath } from './../agent';
 
 const AuthService = {
-    login: (username, password): Promise<UserResponseData> => {
+    login: (username, password): Promise<UserTokenData> => {
         return superagent
             .get(combinePath('/account/login'))
             .use((request: SuperAgentRequest) => {
@@ -14,7 +14,7 @@ const AuthService = {
             .then(res => res.body);
     },
     logout: (): Promise<void> => requests.get('/account/logout'),
-    register: (data: RegisterRequestData): Promise<UserResponseData> =>
+    register: (data: RegisterRequestData): Promise<UserTokenData> =>
         requests.post('/account/register', data),
 };
 

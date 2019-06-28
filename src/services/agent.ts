@@ -6,8 +6,8 @@ const ROOT_URL = process.env.REACT_APP_API_BASE_URL;
 export const combinePath = url => `${ROOT_URL}/api${url}`;
 
 const tokenPlugin = (req: SuperAgentRequest) => {
-    if (userStore && userStore.getToken()) {
-        req.set('Authorization', `Bearer ${userStore.getToken()}`);
+    if (userStore && userStore.token) {
+        req.set('Authorization', `Bearer ${userStore.token.accessToken}`);
     }
 };
 
@@ -19,7 +19,7 @@ const responseBody = (res: superagent.Response) => res.body;
 
 const handleErrors = err => {
     if (err && err.response && err.response.status === 401) {
-        //logout
+        // logout
     }
 
     throw err;

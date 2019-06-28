@@ -25,7 +25,7 @@ class LoginForm extends React.Component<LoginFormProps> {
                 username: values.userName,
             });
 
-            if (err) return;
+            if (err) { return; }
 
             try {
                 await authStore!.login(values);
@@ -49,7 +49,7 @@ class LoginForm extends React.Component<LoginFormProps> {
                 <Form onSubmit={this.handleSubmit} className="login-form">
                     <FormItem>
                         {getFieldDecorator('userName', {
-                            initialValue: savedCredentials['username'],
+                            initialValue: savedCredentials.username,
                             rules: [
                                 {
                                     required: true,

@@ -1,3 +1,8 @@
+interface UserTokenData {
+    user: UserResponseData;
+    token: TokenData;
+}
+
 interface UserResponseData {
     id: string;
     userName: string;
@@ -8,7 +13,7 @@ interface UserResponseData {
     lastUpdated: Date;
 }
 
-interface Tokens {
+interface TokenData {
     accessToken: string;
     issuedUtc: Date;
     expiresUtc: Date;

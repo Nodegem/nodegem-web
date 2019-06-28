@@ -6,23 +6,25 @@ import history from 'src/utils/history';
 import { rootStore } from './';
 import userStore from './user-store';
 
-interface RegisterErrorResponse {
+interface IRegisterErrorResponse {
     code: string;
     description: string;
 }
 
 class AuthStore {
-    @observable rememberMe: boolean = false;
-    @observable savedCredentials = {
+    @observable public rememberMe: boolean = false;
+    @observable public savedCredentials = {
         username: '',
     };
-    @observable loading: boolean = false;
+    @observable public loading: boolean = false;
 
-    @action async login({ userName, password }: LoginRequestData) {
+    @action public async login({ userName, password }: LoginRequestData) {
         this.setLoading(true);
         try {
             const response = await AuthService.login(userName, password);
-            userStore.setUser(response);
+            userStore.setUser(response.user);
+            userStore.setToken(response.token);
+
             history.push('/');
         } catch (e) {
             let errorMessage = 'Unable to connect to service.';
@@ -43,19 +45,20 @@ class AuthStore {
         }
     }
 
-    @action async register(registerRequest: RegisterRequestData) {
+    @action public async register(registerRequest: RegisterRequestData) {
         this.setLoading(true);
         try {
             const response = await AuthService.register(registerRequest);
-            userStore.setUser(response);
+            userStore.setUser(response.user);
+            userStore.setToken(response.token);
             history.push('/');
         } catch (e) {
             let errorMessage = 'Unable to connect to service.';
 
             if (e.response && e.status === 400) {
-                const responseText = JSON.parse(e.response.text) as Array<
-                    RegisterErrorResponse
-                >;
+                const responseText = JSON.parse(
+                    e.response.text
+                ) as IRegisterErrorResponse[];
                 errorMessage = responseText.map(x => x.description).join('\n');
             }
 
@@ -68,7 +71,7 @@ class AuthStore {
         }
     }
 
-    @action setRememberMe(rememberMe: boolean, savedCreds) {
+    @action public setRememberMe(rememberMe: boolean, savedCreds) {
         this.rememberMe = rememberMe;
 
         if (rememberMe) {
@@ -76,11 +79,11 @@ class AuthStore {
         }
     }
 
-    @action setLoading(loading: boolean) {
+    @action public setLoading(loading: boolean) {
         this.loading = loading;
     }
 
-    @action async logout() {
+    @action public async logout() {
         try {
             await AuthService.logout();
         } catch (e) {
