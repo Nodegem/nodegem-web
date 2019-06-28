@@ -8,6 +8,10 @@
         "no-submodule-imports": false,
         "no-implicit-dependencies": false,
         "no-console": false,
-        "member-ordering": false
-    }
+        "member-ordering": false,
+        "jsx-boolean-value": false,
+        "prefer-for-of": false,
+        "array-type": false
+    },
+    "defaultSeverity": "warning"
 }
