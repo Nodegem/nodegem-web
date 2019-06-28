@@ -3,7 +3,7 @@ import superagent, { SuperAgentRequest } from 'superagent';
 
 const ROOT_URL = process.env.REACT_APP_API_BASE_URL;
 
-const combinePath = url => `${ROOT_URL}/api${url}`;
+export const combinePath = url => `${ROOT_URL}/api${url}`;
 
 const tokenPlugin = (req: SuperAgentRequest) => {
     if (userStore && userStore.getToken()) {
@@ -12,9 +12,7 @@ const tokenPlugin = (req: SuperAgentRequest) => {
 };
 
 const credentialPlugin = (req: SuperAgentRequest) => {
-    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-        req.withCredentials();
-    }
+    req.withCredentials();
 };
 
 const responseBody = (res: superagent.Response) => res.body;
