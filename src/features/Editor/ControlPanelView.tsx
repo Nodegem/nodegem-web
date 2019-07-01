@@ -1,9 +1,9 @@
-import { Button, Icon, Tooltip, Checkbox } from 'antd';
+import { Button, Checkbox, Icon, Tooltip } from 'antd';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import classNames from 'classnames';
 import * as React from 'react';
-import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 
-type ControlProps = {
+interface IControlProps {
     running: boolean;
     debugEnabled: boolean;
     connected: boolean;
@@ -15,7 +15,7 @@ type ControlProps = {
     newMacro: () => void;
     showLogDrawer: () => void;
     onDebugModeChanged: (checked: boolean) => void;
-};
+}
 
 export const ControlPanelView = ({
     running,
@@ -29,7 +29,7 @@ export const ControlPanelView = ({
     showLogDrawer,
     editGraph,
     onDebugModeChanged,
-}: ControlProps) => {
+}: IControlProps) => {
     const controlClasses = classNames({
         control: true,
         'control--disabled': running || !connected,

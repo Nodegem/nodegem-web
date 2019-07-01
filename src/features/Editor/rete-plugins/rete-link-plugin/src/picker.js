@@ -1,7 +1,6 @@
 import { renderLink, renderPathData, updateLink } from './utils';
 
 export class Picker {
-
     constructor(editor) {
         this.el = document.createElement('div');
         this.editor = editor;
@@ -20,7 +19,7 @@ export class Picker {
             area.appendChild(this.el);
             this.renderLink();
         } else if (this.el.parentElement) {
-            area.removeChild(this.el)
+            area.removeChild(this.el);
             this.el.innerHTML = '';
         }
     }
@@ -48,5 +47,4 @@ export class Picker {
 
         renderLink({ el: this.el, d, link: null });
     }
-
 }

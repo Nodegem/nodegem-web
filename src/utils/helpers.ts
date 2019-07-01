@@ -11,9 +11,9 @@ export const getBaseApiUrl = (): string => {
 };
 
 export function isDescendant(parent, child) {
-    var node = child.parentNode;
+    let node = child.parentNode;
     while (node != null) {
-        if (node == parent) {
+        if (node === parent) {
             return true;
         }
         node = node.parentNode;
@@ -22,9 +22,9 @@ export function isDescendant(parent, child) {
 }
 
 export function getCookie(name): string | undefined {
-    let value = '; ' + document.cookie;
-    let parts = value.split('; ' + name + '=') || [];
-    if (parts.length == 2) {
+    const value = '; ' + document.cookie;
+    const parts = value.split('; ' + name + '=') || [];
+    if (parts.length === 2) {
         return parts
             .pop()!
             .split(';')
@@ -36,18 +36,18 @@ export function getCookie(name): string | undefined {
 
 export async function exponentialBackoff<T>(
     toTry: () => Promise<T>,
-    onFail: () => void = () => {},
+    onFail: () => void = () => null,
     max: number = 10,
     delay: number = 250,
-    callback: (value: T) => void = () => {}
+    callback: (value: T) => void = () => null
 ) {
-    var result = await toTry();
+    const result = await toTry();
 
     if (result) {
         callback(result);
     } else {
         if (max > 0) {
-            setTimeout(function() {
+            setTimeout(() => {
                 exponentialBackoff(toTry, onFail, --max, delay * 2, callback);
             }, delay);
         } else {

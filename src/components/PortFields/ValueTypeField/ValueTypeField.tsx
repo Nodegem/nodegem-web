@@ -1,9 +1,8 @@
-import { Input, Button, Tooltip, Col, Row, Checkbox } from 'antd';
+import { Button, Col, Input, Row, Tooltip } from 'antd';
 import * as React from 'react';
-import { ValueTypeDropDown } from './ValueTypeDropDown';
 import { valueMap } from 'src/utils/value-type-mapper';
 import { PortProps } from '../PortProps';
-import { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import { ValueTypeDropDown } from './ValueTypeDropDown';
 
 interface IOFieldState {
     label: string;
@@ -12,7 +11,7 @@ interface IOFieldState {
 }
 
 class ValueTypeField extends React.Component<PortProps, IOFieldState> {
-    static getDerivedStateFromProps(nextProps) {
+    public static getDerivedStateFromProps(nextProps) {
         if ('value' in nextProps) {
             return {
                 ...(nextProps.value || {}),

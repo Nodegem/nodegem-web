@@ -8,9 +8,9 @@ export class Area extends Emitter {
     public container: HTMLElement;
     public transform: { k: number; x: number; y: number };
     public mouse: XYPosition;
-    public _startPosition: XYPosition;
-    public _zoom: Zoom;
-    public _drag: Drag;
+    public startPosition: XYPosition;
+    public zoomController: Zoom;
+    public drag: Drag;
 
     constructor(container: HTMLElement, emitter: Emitter) {
         super(emitter);
@@ -24,9 +24,14 @@ export class Area extends Emitter {
 
         el.style.transformOrigin = '0 0';
 
-        this._startPosition = { x: this.transform.x, y: this.transform.y };
-        this._zoom = new Zoom(container, el, 0.1, this.onZoom.bind(this));
-        this._drag = new Drag(
+        this.startPosition = { x: this.transform.x, y: this.transform.y };
+        this.zoomController = new Zoom(
+            container,
+            el,
+            0.1,
+            this.onZoom.bind(this)
+        );
+        this.drag = new Drag(
             container,
             this.onTranslate.bind(this),
             this.onStart.bind(this)
@@ -53,11 +58,11 @@ export class Area extends Emitter {
     }
 
     public onStart() {
-        this._startPosition = { x: this.transform.x, y: this.transform.y };
+        this.startPosition = { x: this.transform.x, y: this.transform.y };
     }
 
     public onTranslate(dx, dy) {
-        const { x, y } = this._startPosition;
+        const { x, y } = this.startPosition;
         this.translate(x + dx, y + dy);
     }
 

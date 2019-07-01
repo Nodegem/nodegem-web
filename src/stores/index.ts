@@ -19,22 +19,22 @@ interface IDisposableStore {
 class RootStore implements IDisposableStore {
     @ignore
     @observable
-    isLoaded: boolean = false;
+    public isLoaded: boolean = false;
 
-    userStore = userStore;
-    commonStore = commonStore;
-    authStore = authStore;
-    editorStore = editorStore;
-    graphStore = graphStore;
-    macroStore = macroStore;
-
-    @ignore
-    macroModalStore = macroModalStore;
+    public userStore = userStore;
+    public commonStore = commonStore;
+    public authStore = authStore;
+    public editorStore = editorStore;
+    public graphStore = graphStore;
+    public macroStore = macroStore;
 
     @ignore
-    graphModalStore = graphModalStore;
+    public macroModalStore = macroModalStore;
 
-    @action dispose() {
+    @ignore
+    public graphModalStore = graphModalStore;
+
+    @action public dispose() {
         graphStore.dispose();
         macroStore.dispose();
         userStore.dispose();

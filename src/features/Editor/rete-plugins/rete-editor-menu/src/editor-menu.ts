@@ -4,47 +4,47 @@ import classNames from 'classnames';
 import Fuse from 'fuse.js';
 import { isDescendant } from 'src/utils';
 
-export type MenuContents = {
-    filterableItems?: Array<MenuItem | SubMenu>;
-    otherItems?: Array<MenuItem | SubMenu | DividerItem>;
-};
+export interface IMenuContents {
+    filterableItems?: Array<IMenuItem | ISubMenu>;
+    otherItems?: Array<IMenuItem | ISubMenu | IDividerItem>;
+}
 
-export type DividerItem = {
+export interface IDividerItem {
     label?: string;
-};
+}
 
-export type MenuItem = {
+export interface IMenuItem {
     label: string;
     data: any;
     disabled?: boolean;
     action: () => void;
-};
+}
 
-export type SubMenu = {
+export interface ISubMenu {
     label: string;
     disabled?: boolean;
-    items: Array<MenuItem | SubMenu | DividerItem>;
-};
+    items: Array<IMenuItem | ISubMenu | IDividerItem>;
+}
 
-export type MenuOptions = {
+export interface IMenuOptions {
     x: number;
     y: number;
     hideOnMouseLeave?: {
         timeout: number;
     };
     maxDisplayItems?: number;
-};
+}
 
-type PathData = {
+interface IPathData {
     path: string;
-    data: Array<MenuItem | SubMenu | DividerItem>;
-};
+    data: Array<IMenuItem | ISubMenu | IDividerItem>;
+}
 
-function isSubMenu(arg: any): arg is SubMenu {
+function isSubMenu(arg: any): arg is ISubMenu {
     return arg.items !== undefined;
 }
 
-function isMenuItem(arg: any): arg is MenuItem {
+function isMenuItem(arg: any): arg is IMenuItem {
     return arg.action !== undefined;
 }
 
@@ -65,10 +65,10 @@ class EditorMenu {
     private listElement: HTMLUListElement;
     private visible: boolean = false;
     private inputElement: HTMLInputElement;
-    private fuzzySearch: Fuse<MenuItem>;
+    private fuzzySearch: Fuse<IMenuItem>;
 
-    private currentPath: Array<PathData> = [];
-    private allMenuItems: Array<MenuItem> = [];
+    private currentPath: Array<IPathData> = [];
+    private allMenuItems: Array<IMenuItem> = [];
 
     private currentSelection: number = 0;
 
@@ -98,7 +98,7 @@ class EditorMenu {
     }
 
     private handleFilterChange = async (ev: Event) => {
-        const currentTarget = <HTMLInputElement>ev.target;
+        const currentTarget = ev.target as HTMLInputElement;
         const { value } = currentTarget;
 
         this.clear();
@@ -112,7 +112,7 @@ class EditorMenu {
         this.renderItems(result.slice(0, 10), true);
     };
 
-    public show(contents: MenuContents, opts: MenuOptions) {
+    public show(contents: IMenuContents, opts: IMenuOptions) {
         if (
             (contents.filterableItems &&
                 contents.filterableItems.length <= 0) ||
@@ -207,7 +207,7 @@ class EditorMenu {
         this.clear();
     };
 
-    private createSubMenu(item: SubMenu) {
+    private createSubMenu(item: ISubMenu) {
         const li = document.createElement('li');
         const ul = document.createElement('ul');
         li.appendChild(ul);
@@ -218,10 +218,14 @@ class EditorMenu {
         this.listElement.appendChild(li);
     }
 
-    private getAllFilterableMenuItems(content: MenuContents): Array<MenuItem> {
-        let menuItems: Array<MenuItem> = [];
+    private getAllFilterableMenuItems(
+        content: IMenuContents
+    ): Array<IMenuItem> {
+        const menuItems: Array<IMenuItem> = [];
 
-        if (!content.filterableItems) return menuItems;
+        if (!content.filterableItems) {
+            return menuItems;
+        }
 
         content.filterableItems.forEach(i => {
             if (isMenuItem(i)) {
@@ -234,8 +238,8 @@ class EditorMenu {
         return menuItems;
     }
 
-    private getAllMenuItemsFromSubMenu(subMenu: SubMenu): Array<MenuItem> {
-        let menuItems: Array<MenuItem> = [];
+    private getAllMenuItemsFromSubMenu(subMenu: ISubMenu): Array<IMenuItem> {
+        const menuItems: Array<IMenuItem> = [];
 
         subMenu.items.forEach(i => {
             if (isMenuItem(i)) {
@@ -249,7 +253,7 @@ class EditorMenu {
     }
 
     private renderItems(
-        items: Array<SubMenu | MenuItem | DividerItem>,
+        items: Array<ISubMenu | IMenuItem | IDividerItem>,
         filtering: boolean = false
     ) {
         items.forEach(i => {
@@ -261,7 +265,7 @@ class EditorMenu {
         });
 
         if (!filtering && this.currentPath.length > 1) {
-            this.createItem({} as DividerItem);
+            this.createItem({} as IDividerItem);
             const goBack = document.createElement('li');
             goBack.className = classNames(
                 cssClasses.menuItem,
@@ -287,17 +291,17 @@ class EditorMenu {
 
     private keyboardNavigation = (ev: KeyboardEvent) => {
         switch (ev.keyCode) {
-            case 13: //SPACE
+            case 13: // SPACE
                 break;
 
-            case 27: //ESC
+            case 27: // ESC
                 this.hide();
                 break;
 
-            case 38: //UP
+            case 38: // UP
                 break;
 
-            case 40: //DOWN
+            case 40: // DOWN
                 break;
         }
     };
@@ -329,7 +333,7 @@ class EditorMenu {
         return isDescendant(this.containerElement, child);
     }
 
-    private createItem(item: MenuItem | DividerItem) {
+    private createItem(item: IMenuItem | IDividerItem) {
         if (isMenuItem(item)) {
             const li = document.createElement('li');
             li.className = classNames(cssClasses.menuItem, {
@@ -345,14 +349,16 @@ class EditorMenu {
         }
     }
 
-    private handleSubMenuClick = (e: MouseEvent, subMenu: SubMenu) => {
+    private handleSubMenuClick = (e: MouseEvent, subMenu: ISubMenu) => {
         this.currentPath.push({ path: subMenu.label, data: subMenu.items });
         this.clear();
         this.renderItems(subMenu.items);
     };
 
-    private handleItemClick = (e: MouseEvent, item: MenuItem) => {
-        if (!item.disabled) item.action();
+    private handleItemClick = (e: MouseEvent, item: IMenuItem) => {
+        if (!item.disabled) {
+            item.action();
+        }
         this.hide();
     };
 }

@@ -1,6 +1,5 @@
-import { string } from 'prop-types';
-
 declare global {
+    // tslint:disable-next-line: interface-name
     interface Array<T> {
         empty(): boolean;
         removeItem(T): T[];
@@ -10,6 +9,7 @@ declare global {
         toDictionary<T>(array: T[], indexKey: keyof T): { [key: string]: T };
     }
 
+    // tslint:disable-next-line: interface-name
     interface String {
         upperCaseFirst(): string;
     }
@@ -35,6 +35,7 @@ Array.prototype.copy = function<T>(): T[] {
     return this.slice(0);
 };
 
+// tslint:disable-next-line: only-arrow-functions
 Array.prototype.toDictionary = function<T>(array: T[], indexKey: keyof T) {
     const normalizedObject: any = {};
     for (let i = 0; i < array.length; i++) {

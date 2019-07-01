@@ -5,14 +5,14 @@ import { MacroService } from 'src/services/macro';
 import { IDisposableStore, userStore } from './';
 
 class MacroStore implements IDisposableStore {
-    @observable macros: Array<Macro> = [];
+    @observable public macros: Array<Macro> = [];
 
     @ignore
     @observable
-    loadingMacros: boolean = false;
+    public loadingMacros: boolean = false;
 
     @action
-    async fetchMacros(force: boolean = false) {
+    public async fetchMacros(force: boolean = false) {
         if (!force && this.macros && !this.macros.empty()) {
             return;
         }
@@ -33,7 +33,7 @@ class MacroStore implements IDisposableStore {
     }
 
     @action
-    async createMacro(macro: CreateMacro): Promise<Macro | undefined> {
+    public async createMacro(macro: CreateMacro): Promise<Macro | undefined> {
         this.loadingMacros = true;
         let newMacro;
         try {
@@ -51,12 +51,12 @@ class MacroStore implements IDisposableStore {
             runInAction(() => {
                 this.loadingMacros = false;
             });
-            return newMacro;
         }
+        return newMacro;
     }
 
     @action
-    async updateMacro(macro: Macro): Promise<Macro | undefined> {
+    public async updateMacro(macro: Macro): Promise<Macro | undefined> {
         this.loadingMacros = true;
         let updatedMacro;
         try {
@@ -77,11 +77,11 @@ class MacroStore implements IDisposableStore {
             runInAction(() => {
                 this.loadingMacros = false;
             });
-            return updatedMacro;
         }
+        return updatedMacro;
     }
 
-    @action async deleteMacro(macro: Macro) {
+    @action public async deleteMacro(macro: Macro) {
         this.loadingMacros = true;
         try {
             await MacroService.delete(macro.id);
@@ -97,11 +97,11 @@ class MacroStore implements IDisposableStore {
         }
     }
 
-    getMacroById(macroId: string) {
+    public getMacroById(macroId: string) {
         return this.macros.find(x => x.id === macroId);
     }
 
-    @action dispose() {
+    @action public dispose() {
         this.macros = [];
     }
 }

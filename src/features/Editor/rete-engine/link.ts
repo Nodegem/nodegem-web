@@ -1,12 +1,12 @@
 import { Input } from './input';
 import { Output } from './output';
 
-export type LinkImportExport = {
+export interface LinkImportExport {
     sourceNode: string;
     sourceKey: string;
     destinationNode: string;
     destinationKey: string;
-};
+}
 export class Link {
     public input: Input;
     public output: Output;
@@ -20,7 +20,7 @@ export class Link {
         this.input.addLink(this);
     }
 
-    toJSON(): LinkImportExport {
+    public toJSON(): LinkImportExport {
         return {
             sourceNode: this.output.node!.id,
             sourceKey: this.output.key,
@@ -29,7 +29,7 @@ export class Link {
         };
     }
 
-    remove() {
+    public remove() {
         this.input.removeLink(this);
         this.output.removeLink(this);
     }

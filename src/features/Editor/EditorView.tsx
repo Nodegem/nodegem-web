@@ -18,7 +18,6 @@ import { ControlPanelView } from './ControlPanelView';
 import { GenericComponent } from './generic-component';
 import LogView from './Log/LogView';
 import { NodeEditor } from './rete-engine/editor';
-import { NodeImportExport } from './rete-engine/node';
 import ReactRenderPlugin from './rete-plugins/react-render-plugin/src';
 import ReteEditorMenu from './rete-plugins/rete-editor-menu/src';
 import ReteLinkPlugin from './rete-plugins/rete-link-plugin/src';

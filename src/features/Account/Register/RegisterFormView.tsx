@@ -14,21 +14,21 @@ enum RegisterErrorCode {
     DuplicateEmail = 'DuplicateEmail',
 }
 
-interface RegisterFormProps extends FormComponentProps {
+interface IRegisterFormProps extends FormComponentProps {
     authStore?: AuthStore;
 }
 
-interface RegisterFormState {
+interface IRegisterFormState {
     isDirty: boolean;
 }
 
 @inject('authStore')
 @observer
 class RegisterForm extends React.Component<
-    RegisterFormProps,
-    RegisterFormState
+    IRegisterFormProps,
+    IRegisterFormState
 > {
-    state = {
+    public state = {
         isDirty: false,
     };
 
@@ -42,7 +42,9 @@ class RegisterForm extends React.Component<
         const { form, authStore } = this.props;
 
         form.validateFields(async (err, values) => {
-            if (err) return;
+            if (err) {
+                return;
+            }
 
             await authStore!.register(values);
         });

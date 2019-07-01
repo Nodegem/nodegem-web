@@ -2,32 +2,31 @@ import { Input } from 'antd';
 import { InputProps } from 'antd/lib/input';
 import * as React from 'react';
 
-interface NumericInputProps extends InputProps {
+interface INumericInputProps extends InputProps {
     value: any;
     onBlur: () => void;
     onChange: (value: any) => void;
 }
 
-class NumericInput extends React.Component<NumericInputProps> {
-
-    onChange = e => {
+class NumericInput extends React.Component<INumericInputProps> {
+    public onChange = e => {
         const { value } = e.target;
         const reg = /^-?(0|[1-9][0-9]*)(\.[0-9]*)?$/;
         if (
             (!isNaN(value) && reg.test(value)) ||
-            value === "" ||
-            value === "-"
+            value === '' ||
+            value === '-'
         ) {
             this.props.onChange(value);
         }
     };
 
     // '.' at the end or only '-' in the input box.
-    onBlur = () => {
+    public onBlur = () => {
         const { value, onBlur, onChange } = this.props;
 
-        if(value) {
-            if (value.charAt(value.length - 1) === "." || value === "-") {
+        if (value) {
+            if (value.charAt(value.length - 1) === '.' || value === '-') {
                 onChange({ value: value.slice(0, -1) });
             }
         }
@@ -37,8 +36,7 @@ class NumericInput extends React.Component<NumericInputProps> {
         }
     };
 
-    render() {
-
+    public render() {
         return (
             <Input
                 {...this.props}
@@ -50,4 +48,4 @@ class NumericInput extends React.Component<NumericInputProps> {
     }
 }
 
-export { NumericInput }
+export { NumericInput };

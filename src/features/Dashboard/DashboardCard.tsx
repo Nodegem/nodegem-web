@@ -1,7 +1,7 @@
 import { Card, Icon, Popconfirm, Tooltip } from 'antd';
 import * as React from 'react';
 
-interface DashboardCardProps {
+interface IDashboardCardProps {
     item: Graph;
     type: GraphType;
     onDelete: (item: Graph, type: GraphType) => void;
@@ -10,23 +10,23 @@ interface DashboardCardProps {
     onPlay: (item: Graph, type: GraphType) => void;
 }
 
-class DashboardCard extends React.Component<DashboardCardProps> {
-    onDelete = () => {
+class DashboardCard extends React.Component<IDashboardCardProps> {
+    public onDelete = () => {
         const { item, onDelete, type } = this.props;
         onDelete(item, type);
     };
 
-    onEdit = () => {
+    public onEdit = () => {
         const { item, onEdit, type } = this.props;
         onEdit(item, type);
     };
 
-    onBuild = () => {
+    public onBuild = () => {
         const { item, onBuild, type } = this.props;
         onBuild(item, type);
     };
 
-    onPlay = () => {
+    public onPlay = () => {
         const { item, onPlay, type } = this.props;
         onPlay(item, type);
     };

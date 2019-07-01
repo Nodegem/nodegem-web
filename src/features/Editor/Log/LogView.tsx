@@ -5,28 +5,28 @@ import { observer } from 'mobx-react';
 import * as moment from 'moment';
 import * as React from 'react';
 
+import { IReactionDisposer, reaction } from 'mobx';
 import { Log } from '../editor-store';
-import { reaction, IReactionDisposer } from 'mobx';
 
-interface LogViewProps {
+interface ILogViewProps {
     maxLogsDisplayed?: number;
     logs: Log[];
 }
 
 @observer
-class LogView extends React.Component<LogViewProps, { logCount: number }> {
-    static defaultProps = {
+class LogView extends React.Component<ILogViewProps, { logCount: number }> {
+    public static defaultProps = {
         maxLogsDisplayed: 250,
     };
 
     private logContainer: HTMLElement;
     private disposer: IReactionDisposer;
 
-    state = {
+    public state = {
         logCount: 0,
     };
 
-    componentDidMount() {
+    public componentDidMount() {
         this.disposer = reaction(
             () => {
                 return this.state.logCount !== this.props.logs.length;
@@ -39,16 +39,17 @@ class LogView extends React.Component<LogViewProps, { logCount: number }> {
         );
     }
 
-    scrollToBottom() {
+    public scrollToBottom() {
         this.logContainer.scrollTop = this.logContainer.scrollHeight;
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         this.disposer();
     }
 
     public render() {
-        let { logs, maxLogsDisplayed } = this.props;
+        let { logs } = this.props;
+        const { maxLogsDisplayed } = this.props;
 
         const logCount = logs.length;
         if (logCount > maxLogsDisplayed!) {

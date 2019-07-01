@@ -1,7 +1,7 @@
 import { NodeImportExport } from 'src/features/Editor/rete-engine/node';
 import { LinkImportExport } from '../../../rete-engine/link';
 
-interface TransformMacroArgs extends TransformGraphArgs {
+interface ITransformMacroArgs extends ITransformGraphArgs {
     flowInputs: FlowInputFieldDto[];
     flowOutputs: FlowOutputFieldDto[];
     valueInputs: ValueInputFieldDto[];
@@ -17,7 +17,7 @@ export const transformMacro = ({
     valueInputs,
     valueOutputs,
     isDebugModeEnabled,
-}: TransformMacroArgs): RunMacroData => {
+}: ITransformMacroArgs): RunMacroData => {
     const graphTransform = transformGraph({
         id,
         nodes,
@@ -33,7 +33,7 @@ export const transformMacro = ({
     };
 };
 
-interface TransformGraphArgs {
+interface ITransformGraphArgs {
     id: string;
     nodes: NodeImportExport[];
     links: LinkImportExport[];
@@ -45,9 +45,9 @@ export const transformGraph = ({
     nodes,
     links,
     isDebugModeEnabled,
-}: TransformGraphArgs): RunGraphData => {
+}: ITransformGraphArgs): RunGraphData => {
     return {
-        id: id,
+        id,
         nodes: nodes
             .filter(n => links.some(l => isNodeConnected(l, n)))
             .reduce(
@@ -63,8 +63,8 @@ export const transformGraph = ({
                 ],
                 [] as Array<RunNodeData>
             ),
-        links: links,
-        isDebugModeEnabled: isDebugModeEnabled,
+        links,
+        isDebugModeEnabled,
     };
 };
 

@@ -10,42 +10,45 @@ import { UserStore } from 'src/stores/user-store';
 
 const AntSider = Layout.Sider;
 
-const SettingsIcon = <span><Icon type="setting" /><span>Settings</span></span>;
+const SettingsIcon = (
+    <span>
+        <Icon type="setting" />
+        <span>Settings</span>
+    </span>
+);
 
-interface SiderProps {
-    commonStore?: CommonStore,
-    userStore?: UserStore,
-    authStore?: AuthStore
+interface ISiderProps {
+    commonStore?: CommonStore;
+    userStore?: UserStore;
+    authStore?: AuthStore;
 }
 
 @inject('commonStore', 'userStore', 'authStore')
 @observer
-class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
-
-    handleCollapse = () => {
+class Sider extends React.Component<ISiderProps & RouteComponentProps<any>> {
+    public handleCollapse = () => {
         this.props.commonStore!.toggleCollapsed();
-    }
+    };
 
-    handleBreakpoint = (broken: boolean) => {
+    public handleBreakpoint = (broken: boolean) => {
         this.props.commonStore!.setBreakpoint(broken);
-    }
+    };
 
-    themeClick = () => {
+    public themeClick = () => {
         this.props.commonStore!.changeTheme();
-    }
+    };
 
-    logout = () => {
+    public logout = () => {
         this.props.authStore!.logout();
-    }
+    };
 
     public render() {
-
         const { location, commonStore, userStore } = this.props;
         const { collapseWidth, collapsed, siderWidth, theme } = commonStore!;
 
-        let selected = location.pathname.replace("/", "");
-        if(!selected) { 
-            selected = "home";
+        let selected = location.pathname.replace('/', '');
+        if (!selected) {
+            selected = 'home';
         }
 
         return (
@@ -66,9 +69,9 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
                 <Menu
                     mode="inline"
                     theme={theme}
-                    defaultSelectedKeys={["project"]}
+                    defaultSelectedKeys={['project']}
                     selectedKeys={[selected]}
-                >  
+                >
                     <Menu.Item key="home">
                         <Link to="/">
                             <Icon type="project" />
@@ -101,7 +104,6 @@ class Sider extends React.Component<SiderProps & RouteComponentProps<any>> {
             </AntSider>
         );
     }
-
 }
 
 export default withRouter(Sider);

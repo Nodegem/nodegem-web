@@ -6,7 +6,7 @@ import * as React from 'react';
 import { NumericInput } from './NumericInput';
 import { TextAreaModal } from './TextAreaModal';
 
-interface ReteControlProps {
+interface IReteControlProps {
     name: string;
     controlKey: string;
     defaultValue: any;
@@ -16,14 +16,14 @@ interface ReteControlProps {
 }
 
 class ReteControlView extends React.Component<
-    ReteControlProps,
+    IReteControlProps,
     { value: any }
 > {
-    state = {
+    public state = {
         value: undefined,
     };
 
-    componentDidMount() {
+    public componentDidMount() {
         const { putData, getData, controlKey, defaultValue } = this.props;
 
         const value = getData(controlKey);
@@ -43,12 +43,12 @@ class ReteControlView extends React.Component<
     };
 
     private handleValueChange = value => {
-        this.setState({ value: value }, () => {
+        this.setState({ value }, () => {
             this.props.putData(this.props.controlKey, value);
         });
     };
 
-    private handleBlur = () => {};
+    private handleBlur = () => null;
 
     private renderControl = () => {
         const { name, valueType } = this.props;

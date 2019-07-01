@@ -3,9 +3,9 @@ import { NodeEditor } from 'src/features/Editor/rete-engine/editor';
 import { Node } from 'src/features/Editor/rete-engine/node';
 import { createNode } from 'src/features/Editor/utils';
 
-import contextMenu, { MenuContents, MenuItem, SubMenu } from './editor-menu';
+import contextMenu, { IMenuContents, IMenuItem, ISubMenu } from './editor-menu';
 
-const nodeMenuContents = (deleteNodeFunc: () => void): MenuContents => ({
+const nodeMenuContents = (deleteNodeFunc: () => void): IMenuContents => ({
     otherItems: [
         {
             label: 'Delete',
@@ -18,7 +18,7 @@ const convertToItems = (
     children: { [key: string]: IHierarchicalNode<NodeDefinition> },
     editor: NodeEditor,
     addNodeFunc: (definition: NodeDefinition) => void
-): Array<SubMenu> =>
+): Array<ISubMenu> =>
     Object.keys(children).map(x => {
         const item = children[x] as IHierarchicalNode<NodeDefinition>;
 
@@ -33,17 +33,17 @@ const convertToItems = (
                             label: i.title,
                             data: i,
                             action: () => addNodeFunc(i),
-                        } as MenuItem)
+                        } as IMenuItem)
                 ),
             ],
-        } as SubMenu;
+        } as ISubMenu;
     });
 
 const editorMenuContents = (
     definitionTree: IHierarchicalNode<NodeDefinition>,
     editor: NodeEditor,
     position: XYPosition
-): MenuContents => {
+): IMenuContents => {
     const addNode = (definition: NodeDefinition) => {
         createNode(editor, definition, { ...position });
     };
@@ -69,7 +69,7 @@ const editorMenuContents = (
     };
 };
 
-interface OnContextMenuProps {
+interface IOnContextMenuProps {
     e: React.MouseEvent;
     node?: Node;
 }
@@ -85,7 +85,7 @@ function install(editor: NodeEditor) {
     editor.bind('onTreeRefresh');
 
     editor.on('onTreeRefresh', refreshTree);
-    editor.on('contextmenu', ({ e, node }: OnContextMenuProps) => {
+    editor.on('contextmenu', ({ e, node }: IOnContextMenuProps) => {
         e.preventDefault();
         e.stopPropagation();
 

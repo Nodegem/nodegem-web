@@ -6,14 +6,14 @@ import { IDisposableStore, userStore } from './';
 
 class GraphStore implements IDisposableStore {
     @observable
-    graphs: Array<Graph> = [];
+    public graphs: Array<Graph> = [];
 
     @ignore
     @observable
-    loadingGraphs: boolean = false;
+    public loadingGraphs: boolean = false;
 
     @action
-    async createGraph(graph: CreateGraph) {
+    public async createGraph(graph: CreateGraph) {
         this.loadingGraphs = true;
 
         try {
@@ -35,7 +35,7 @@ class GraphStore implements IDisposableStore {
     }
 
     @action
-    async updateGraph(graph: Graph) {
+    public async updateGraph(graph: Graph) {
         this.loadingGraphs = true;
         let updatedGraph: Graph | undefined;
         try {
@@ -53,13 +53,12 @@ class GraphStore implements IDisposableStore {
             runInAction(() => {
                 this.loadingGraphs = false;
             });
-
-            return updatedGraph;
         }
+        return updatedGraph;
     }
 
     @action
-    async deleteGraph(graph: Graph) {
+    public async deleteGraph(graph: Graph) {
         this.loadingGraphs = true;
 
         try {
@@ -77,7 +76,7 @@ class GraphStore implements IDisposableStore {
     }
 
     @action
-    async fetchGraphs(force: boolean = false) {
+    public async fetchGraphs(force: boolean = false) {
         if (!force && this.graphs && !this.graphs.empty()) {
             return;
         }
@@ -98,11 +97,11 @@ class GraphStore implements IDisposableStore {
         }
     }
 
-    getGraphById(graphId: string) {
+    public getGraphById(graphId: string) {
         return this.graphs.find(x => x.id === graphId);
     }
 
-    @action dispose() {
+    @action public dispose() {
         this.graphs = [];
     }
 }

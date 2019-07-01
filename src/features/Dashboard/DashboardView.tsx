@@ -1,5 +1,5 @@
-import './Dashboard.less';
 import 'src/utils/extensions';
+import './Dashboard.less';
 
 import { Button, Card, List, Spin, Tooltip } from 'antd';
 import { inject, observer } from 'mobx-react';
@@ -15,7 +15,7 @@ import { MacroStore } from 'src/stores/macro-store';
 
 import DashboardCard from './DashboardCard';
 
-interface DashboardProps {
+interface IDashboardProps {
     editorStore?: EditorStore;
     graphStore?: GraphStore;
     graphModalStore?: GraphModalStore;
@@ -33,23 +33,23 @@ interface DashboardProps {
 @(withRouter as any)
 @observer
 class DashboardView extends React.Component<
-    DashboardProps & RouteComponentProps<any>
+    IDashboardProps & RouteComponentProps<any>
 > {
     private modals = {
         graph: this.props.graphModalStore!,
         macro: this.props.macroModalStore!,
     };
 
-    async componentDidMount() {
+    public async componentDidMount() {
         this.props.graphStore!.fetchGraphs();
         this.props.macroStore!.fetchMacros();
     }
 
-    onAdd = (type: GraphType) => {
+    public onAdd = (type: GraphType) => {
         this.modals[type].openModal();
     };
 
-    onRefresh = async (type: GraphType) => {
+    public onRefresh = async (type: GraphType) => {
         if (type === 'graph') {
             await this.props.graphStore!.fetchGraphs(true);
         } else {
@@ -57,7 +57,7 @@ class DashboardView extends React.Component<
         }
     };
 
-    onDelete = async (item: any, type: GraphType) => {
+    public onDelete = async (item: any, type: GraphType) => {
         if (type === 'graph') {
             await this.props.graphStore!.deleteGraph(item);
         } else {
@@ -65,16 +65,16 @@ class DashboardView extends React.Component<
         }
     };
 
-    onEdit = (item: any, type: GraphType) => {
+    public onEdit = (item: any, type: GraphType) => {
         this.modals[type]!.openModal(item, true);
     };
 
-    onBuild = (item: any) => {
+    public onBuild = (item: any) => {
         this.props.editorStore!.setGraph(item.id);
         this.props.history.push('editor');
     };
 
-    onPlay = (item: any, type: GraphType) => {
+    public onPlay = (item: any, type: GraphType) => {
         console.log('Play');
     };
 
@@ -158,12 +158,12 @@ class DashboardView extends React.Component<
     }
 }
 
-interface ButtonProps {
+interface IButtonProps {
     onClick: (type: GraphType) => void;
     type: GraphType;
 }
 
-class AddButton extends React.Component<ButtonProps> {
+class AddButton extends React.Component<IButtonProps> {
     public handleClick = () => {
         this.props.onClick(this.props.type);
     };
@@ -182,11 +182,11 @@ class AddButton extends React.Component<ButtonProps> {
     }
 }
 
-interface RefreshButtonProps extends ButtonProps {
+interface IRefreshButtonProps extends IButtonProps {
     loading: boolean;
 }
 
-class RefreshButton extends React.Component<RefreshButtonProps> {
+class RefreshButton extends React.Component<IRefreshButtonProps> {
     public refreshClick = () => {
         this.props.onClick(this.props.type);
     };

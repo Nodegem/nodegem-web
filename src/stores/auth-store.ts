@@ -29,6 +29,7 @@ class AuthStore {
         } catch (e) {
             let errorMessage = 'Unable to connect to service.';
             if (e.status) {
+                // tslint:disable-next-line: prefer-conditional-expression
                 if (e.status === 400 || e.status === 401) {
                     errorMessage = 'Invalid username or password.';
                 } else {
