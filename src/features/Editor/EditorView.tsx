@@ -279,7 +279,7 @@ class EditorView extends React.Component<
             <div className="editor-view">
                 <Spin
                     className="editor-load"
-                    spinning={true}
+                    spinning={loadingDefinitions || loadingGraph}
                     delay={500}
                     indicator={editorIndicator}
                 >
