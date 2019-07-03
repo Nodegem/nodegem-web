@@ -1,21 +1,21 @@
 import './macro-modal-form.less';
 
-import { Collapse, Form, Input, Divider, notification } from 'antd';
+import { Collapse, Divider, Form, Input, notification } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 
-import { MacroModalStore } from './macro-modal-store';
-import ValueTypeField from 'src/components/PortFields/ValueTypeField/ValueTypeField';
-import AddItem from './AddItem';
-import Modal, { ModalProps } from 'antd/lib/modal';
 import { FormComponentProps } from 'antd/lib/form';
 import { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
+import Modal, { ModalProps } from 'antd/lib/modal';
 import FlowField from 'src/components/PortFields/FlowField/FlowField';
+import ValueTypeField from 'src/components/PortFields/ValueTypeField/ValueTypeField';
+import AddItem from './AddItem';
+import { MacroModalStore } from './macro-modal-store';
 
 const Panel = Collapse.Panel;
 
-interface FormDataProps {
+interface IFormDataProps {
     data: Macro;
     parentKey: string | string[] | undefined;
     inputKey: string | string[] | undefined;
@@ -31,11 +31,13 @@ interface FormDataProps {
     flowOutputs: Partial<FlowOutputFieldDto>[];
 }
 
-const MacroForm = Form.create<FormDataProps & ModalProps & FormComponentProps>({
-    name: 'macro_form',
-})(
+const MacroForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
+    {
+        name: 'macro_form',
+    }
+)(
     class extends React.Component<
-        FormDataProps & ModalProps & FormComponentProps
+        IFormDataProps & ModalProps & FormComponentProps
     > {
         private validateField = (rule, value, callback) => {
             if (!value.label) {
@@ -88,7 +90,7 @@ const MacroForm = Form.create<FormDataProps & ModalProps & FormComponentProps>({
             ));
         }
 
-        render() {
+        public render() {
             const {
                 form,
                 data,
@@ -235,7 +237,7 @@ class MacroModalFormController extends React.Component<{
 }> {
     private formRef: Form;
 
-    handleSubmit = async () => {
+    public handleSubmit = async () => {
         const { macroModalStore } = this.props;
         const { form } = this.formRef.props;
 
@@ -260,7 +262,7 @@ class MacroModalFormController extends React.Component<{
         });
     };
 
-    handleCancel = () => {
+    public handleCancel = () => {
         const { form } = this.formRef.props;
 
         form!.resetFields();
@@ -319,7 +321,7 @@ class MacroModalFormController extends React.Component<{
         this.forceUpdate();
     };
 
-    saveFormRef = formRef => {
+    public saveFormRef = formRef => {
         this.formRef = formRef;
     };
 
@@ -342,6 +344,7 @@ class MacroModalFormController extends React.Component<{
         const modalTitle = editMode ? 'Edit Macro Settings' : 'Add Macro';
 
         let okButton = '';
+        // tslint:disable-next-line: prefer-conditional-expression
         if (saving) {
             okButton = editMode ? 'Saving' : 'Adding';
         } else {

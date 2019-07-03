@@ -6,11 +6,11 @@ import * as moment from 'moment';
 import * as React from 'react';
 
 import { IReactionDisposer, reaction } from 'mobx';
-import { Log } from '../editor-store';
+import { ILog } from '../editor-store';
 
 interface ILogViewProps {
     maxLogsDisplayed?: number;
-    logs: Log[];
+    logs: ILog[];
 }
 
 @observer

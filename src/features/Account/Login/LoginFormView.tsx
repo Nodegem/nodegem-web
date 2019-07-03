@@ -9,13 +9,13 @@ import { Link } from 'react-router-dom';
 import PasswordInput from 'src/components/PasswordInput/PasswordInput';
 import { AuthStore } from 'src/stores/auth-store';
 
-interface LoginFormProps extends FormComponentProps {
+interface ILoginFormProps extends FormComponentProps {
     authStore?: AuthStore;
 }
 
 @inject('authStore')
 @observer
-class LoginForm extends React.Component<LoginFormProps> {
+class LoginForm extends React.Component<ILoginFormProps> {
     private handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -25,7 +25,9 @@ class LoginForm extends React.Component<LoginFormProps> {
                 username: values.userName,
             });
 
-            if (err) { return; }
+            if (err) {
+                return;
+            }
 
             try {
                 await authStore!.login(values);

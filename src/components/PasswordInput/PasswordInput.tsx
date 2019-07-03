@@ -3,27 +3,29 @@ import { InputProps } from 'antd/lib/input';
 import classNames from 'classnames';
 import * as React from 'react';
 
-class PasswordInput extends React.Component<InputProps, { showPassword: boolean }> {
-
-    state = {
-        showPassword: false
+class PasswordInput extends React.Component<
+    InputProps,
+    { showPassword: boolean }
+> {
+    public state = {
+        showPassword: false,
     };
 
-    onLockClick = () => {
+    public onLockClick = () => {
         const { showPassword } = this.state;
         this.setState({ showPassword: !showPassword });
-    }
+    };
 
     public render() {
         const { showPassword } = this.state;
 
-        const lockIconString = showPassword ? "unlock" : "lock";
-        const passwordType = showPassword ? "text" : "password";
+        const lockIconString = showPassword ? 'unlock' : 'lock';
+        const passwordType = showPassword ? 'text' : 'password';
 
         const lockClass = classNames({
-            "lock-icon": true,
+            'lock-icon': true,
             locked: !showPassword,
-            unlocked: showPassword
+            unlocked: showPassword,
         });
 
         return (

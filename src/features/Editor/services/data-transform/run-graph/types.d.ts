@@ -3,6 +3,7 @@ interface RunGraphData {
     nodes: RunNodeData[];
     links: RunLinkData[];
     isDebugModeEnabled: boolean;
+    constants: ConstantData[];
 }
 
 interface RunLinkData {

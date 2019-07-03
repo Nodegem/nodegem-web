@@ -1,28 +1,30 @@
-import { Form, Input, Divider, Modal } from 'antd';
+import { Form, Input, Modal } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 
-import { GraphModalStore } from './graph-modal-store';
-import { ModalProps } from 'antd/lib/modal';
 import { FormComponentProps } from 'antd/lib/form';
+import { ModalProps } from 'antd/lib/modal';
 import ConstantsControl from 'src/components/ConstantsControl/ConstantsControl';
+import { GraphModalStore } from './graph-modal-store';
 
-interface FormDataProps {
+interface IFormDataProps {
     constants: Partial<ConstantData>[];
     data: Graph;
     onConstantDelete: (id: string) => void;
     onConstantAdd: () => void;
 }
 
-const GraphForm = Form.create<FormDataProps & ModalProps & FormComponentProps>({
-    name: 'graph_form',
-})(
+const GraphForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
+    {
+        name: 'graph_form',
+    }
+)(
     class extends React.Component<
-        FormDataProps & ModalProps & FormComponentProps
+        IFormDataProps & ModalProps & FormComponentProps
     > {
-        render() {
+        public render() {
             const {
                 form,
                 data,
@@ -81,7 +83,7 @@ class GraphModalFormController extends React.Component<{
 }> {
     private formRef: Form;
 
-    handleSubmit = async () => {
+    public handleSubmit = async () => {
         const { graphModalStore } = this.props;
         const { form } = this.formRef.props;
 
@@ -97,23 +99,23 @@ class GraphModalFormController extends React.Component<{
         });
     };
 
-    handleCancel = () => {
+    public handleCancel = () => {
         const { form } = this.formRef.props;
 
         form!.resetFields();
         this.props.graphModalStore!.closeModal();
     };
 
-    onConstantAdd = () => {
+    public onConstantAdd = () => {
         this.props.graphModalStore!.addConstant();
         this.forceUpdate();
     };
 
-    onConstantDelete = (id: string) => {
+    public onConstantDelete = (id: string) => {
         this.props.graphModalStore!.removeConstant(id);
     };
 
-    saveFormRef = formRef => {
+    public saveFormRef = formRef => {
         this.formRef = formRef;
     };
 
@@ -130,6 +132,7 @@ class GraphModalFormController extends React.Component<{
         const modalTitle = editMode ? 'Edit Graph Settings' : 'Add Graph';
 
         let okButton = '';
+        // tslint:disable-next-line: prefer-conditional-expression
         if (saving) {
             okButton = editMode ? 'Saving' : 'Adding';
         } else {

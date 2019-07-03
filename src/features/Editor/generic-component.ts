@@ -26,7 +26,7 @@ export class GenericComponent extends Component {
         this.nodeDefinition = nodeDefinition;
     }
 
-    async builder(node: Node) {
+    public async builder(node: Node) {
         const {
             flowInputs,
             flowOutputs,
@@ -35,8 +35,8 @@ export class GenericComponent extends Component {
         } = this.nodeDefinition;
 
         const editor = this.editor;
-        let inputs: Input[] = [];
-        let outputs: Output[] = [];
+        const inputs: Input[] = [];
+        const outputs: Output[] = [];
 
         (flowInputs || []).forEach(x =>
             inputs.push(new Input(x.key, x.label, sockets.flow, false))

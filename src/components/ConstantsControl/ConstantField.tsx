@@ -1,16 +1,16 @@
+import { Button, Checkbox, Col, Icon, Input, Row, Tooltip } from 'antd';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import * as React from 'react';
 import { valueMap } from 'src/utils/value-type-mapper';
 import { ValueTypeDropDown } from '../PortFields';
-import { Tooltip, Col, Input, Row, Button, Checkbox, Icon } from 'antd';
-import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 
-interface ConstantFieldProps {
+interface IConstantFieldProps {
     constantKey: string;
     onDelete?: (id: string) => void;
     onChange?: (state: any) => void;
 }
 
-interface ConstantFieldState {
+interface IConstantFieldState {
     label: string;
     type: number;
     value: any;
@@ -18,10 +18,10 @@ interface ConstantFieldState {
 }
 
 class ConstantField extends React.Component<
-    ConstantFieldProps,
-    ConstantFieldState
+    IConstantFieldProps,
+    IConstantFieldState
 > {
-    static getDerivedStateFromProps(nextProps) {
+    public static getDerivedStateFromProps(nextProps) {
         if ('value' in nextProps) {
             return {
                 ...(nextProps.value || {}),

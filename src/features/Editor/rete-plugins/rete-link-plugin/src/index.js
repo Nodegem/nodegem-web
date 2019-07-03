@@ -23,11 +23,13 @@ function install(editor) {
             return true;
         }
 
-        if (!input.multipleLinks && input.hasLink())
+        if (!input.multipleLinks && input.hasLink()) {
             editor.removeLink(input.links[0]);
+        }
 
-        if (!picker.output.multipleLinks && picker.output.hasLink())
+        if (!picker.output.multipleLinks && picker.output.hasLink()) {
             editor.removeLink(picker.output.links[0]);
+        }
 
         if (picker.output.connectedTo(input)) {
             var link = input.links.find(c => c.output === picker.output);

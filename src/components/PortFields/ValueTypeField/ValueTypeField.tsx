@@ -1,7 +1,7 @@
 import { Button, Col, Input, Row, Tooltip } from 'antd';
 import * as React from 'react';
 import { valueMap } from 'src/utils/value-type-mapper';
-import { PortProps } from '../PortProps';
+import { IPortProps } from '../PortProps';
 import { ValueTypeDropDown } from './ValueTypeDropDown';
 
 interface IOFieldState {
@@ -10,7 +10,7 @@ interface IOFieldState {
     defaultValue?: any;
 }
 
-class ValueTypeField extends React.Component<PortProps, IOFieldState> {
+class ValueTypeField extends React.Component<IPortProps, IOFieldState> {
     public static getDerivedStateFromProps(nextProps) {
         if ('value' in nextProps) {
             return {

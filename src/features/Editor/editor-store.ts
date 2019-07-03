@@ -15,7 +15,7 @@ import {
 } from './services/data-transform/run-graph';
 
 type LogType = 'log' | 'debug' | 'warn' | 'error';
-export interface Log {
+export interface ILog {
     type: LogType;
     message: string;
     time: Date;
@@ -83,7 +83,7 @@ class EditorStore implements IDisposableStore {
 
     @ignore
     @observable
-    public logs: Array<Log> = [];
+    public logs: Array<ILog> = [];
 
     public nodeEditor: NodeEditor;
 
@@ -126,10 +126,10 @@ class EditorStore implements IDisposableStore {
         try {
             if (!editorData.links.empty() && !editorData.nodes.empty()) {
                 if (type === 'graph') {
-                    const { graph } = this;
-                    const { isDebugModeEnabled } = graph;
+                    const { isDebugModeEnabled, constants } = this.graph;
                     const graphData = transformGraph({
                         ...editorData,
+                        constants,
                         isDebugModeEnabled,
                     });
                     this.graphHub.runGraph(graphData);
@@ -140,6 +140,7 @@ class EditorStore implements IDisposableStore {
                         flowOutputs,
                         valueInputs,
                         valueOutputs,
+                        constants,
                         isDebugModeEnabled,
                     } = macro;
                     const macroData = transformMacro({
@@ -148,6 +149,7 @@ class EditorStore implements IDisposableStore {
                         flowOutputs,
                         valueInputs,
                         valueOutputs,
+                        constants,
                         isDebugModeEnabled,
                     });
                     this.graphHub.runMacro(

@@ -5,23 +5,27 @@ import { Emitter } from './rete-engine/core/emitter';
 import { ReteControlView } from './rete-react-controls/ControlViews';
 
 export class GenericControl extends Control {
+    public reactComponent: any;
+    public emitter: Emitter;
+    public props: object;
 
-    reactComponent: any;
-    emitter: Emitter;
-    props: object;
-
-    constructor(emitter: Emitter, key: string, name: string, defaultValue: any = null, valueType: number) {
+    constructor(
+        emitter: Emitter,
+        key: string,
+        name: string,
+        defaultValue: any = null,
+        valueType: number
+    ) {
         super(key);
 
         this.props = {
-            name: name,
+            name,
             controlKey: key,
-            defaultValue: defaultValue,
-            valueType: mapToValueType(valueType)
+            defaultValue,
+            valueType: mapToValueType(valueType),
         };
 
         this.emitter = emitter;
         this.reactComponent = ReteControlView;
     }
-
 }

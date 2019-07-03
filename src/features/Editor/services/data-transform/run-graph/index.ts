@@ -12,6 +12,7 @@ export const transformMacro = ({
     id,
     nodes,
     links,
+    constants,
     flowInputs,
     flowOutputs,
     valueInputs,
@@ -22,6 +23,7 @@ export const transformMacro = ({
         id,
         nodes,
         links,
+        constants,
         isDebugModeEnabled,
     });
     return {
@@ -37,6 +39,7 @@ interface ITransformGraphArgs {
     id: string;
     nodes: NodeImportExport[];
     links: LinkImportExport[];
+    constants: ConstantData[];
     isDebugModeEnabled: boolean;
 }
 
@@ -44,6 +47,7 @@ export const transformGraph = ({
     id,
     nodes,
     links,
+    constants,
     isDebugModeEnabled,
 }: ITransformGraphArgs): RunGraphData => {
     return {
@@ -64,6 +68,7 @@ export const transformGraph = ({
                 [] as Array<RunNodeData>
             ),
         links,
+        constants,
         isDebugModeEnabled,
     };
 };

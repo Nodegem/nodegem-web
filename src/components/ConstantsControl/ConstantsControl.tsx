@@ -1,9 +1,9 @@
+import { Button, Divider, Icon } from 'antd';
+import Form, { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
 import * as React from 'react';
 import ConstantField from './ConstantField';
-import Form, { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
-import { Button, Icon, Divider } from 'antd';
 
-interface ConstantsControlProps {
+interface IConstantsControlProps {
     onAddConstant: () => void;
     onConstantDelete: (id: string) => void;
     constants: Partial<ConstantData>[];
@@ -13,7 +13,7 @@ interface ConstantsControlProps {
     ) => (node: React.ReactNode) => React.ReactNode;
 }
 
-class ConstantsControl extends React.Component<ConstantsControlProps> {
+class ConstantsControl extends React.Component<IConstantsControlProps> {
     constructor(props) {
         super(props);
     }

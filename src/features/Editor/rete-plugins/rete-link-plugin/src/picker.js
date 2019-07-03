@@ -33,7 +33,9 @@ export class Picker {
     }
 
     updateLink() {
-        if (!this.output) return;
+        if (!this.output) {
+            return;
+        }
 
         const d = renderPathData(this.editor, this.getPoints());
 
@@ -41,7 +43,9 @@ export class Picker {
     }
 
     renderLink() {
-        if (!this.output) return;
+        if (!this.output) {
+            return;
+        }
 
         const d = renderPathData(this.editor, this.getPoints());
 

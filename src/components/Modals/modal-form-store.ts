@@ -4,25 +4,25 @@ import { ignore } from 'mobx-sync';
 abstract class ModalFormStore {
     @ignore
     @observable
-    isVisible: boolean = false;
+    public isVisible: boolean = false;
 
     @ignore
     @observable
-    modalData: any = {};
+    public modalData: any = {};
 
     @ignore
     @observable
-    editMode: boolean = false;
+    public editMode: boolean = false;
 
     @ignore
     @observable
-    saving: boolean = false;
+    public saving: boolean = false;
 
-    @action toggleModal(visible: boolean) {
+    @action public toggleModal(visible: boolean) {
         this.isVisible = visible;
     }
 
-    openModal(data: any = {}, editMode: boolean = false) {
+    public openModal(data: any = {}, editMode: boolean = false) {
         this.toggleModal(true);
         this.modalData = { ...data };
         this.editMode = editMode;
@@ -32,14 +32,14 @@ abstract class ModalFormStore {
         }
     }
 
-    closeModal() {
+    public closeModal() {
         this.toggleModal(false);
         this.onModalClose();
     }
 
-    onDataLoad(data) {}
+    public onDataLoad(data) {}
 
-    onModalClose() {}
+    public onModalClose() {}
 }
 
 export default ModalFormStore;

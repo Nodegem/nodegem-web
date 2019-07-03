@@ -1,4 +1,4 @@
-export interface PortProps {
+export interface IPortProps {
     ioType: IOType;
     fieldKey: string;
     onDelete?: (ioType: IOType, id: string) => void;

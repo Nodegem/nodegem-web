@@ -1,12 +1,12 @@
-import * as React from 'react';
 import { Button, Icon } from 'antd';
+import * as React from 'react';
 
-interface AddItemProps {
+interface IAddItemProps {
     ioType: IOType;
     onClick: (ioType: IOType) => void;
 }
 
-class AddItem extends React.Component<AddItemProps> {
+class AddItem extends React.Component<IAddItemProps> {
     private onClick = () => {
         this.props.onClick(this.props.ioType);
     };

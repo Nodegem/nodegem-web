@@ -1,16 +1,16 @@
 import { action, observable } from 'mobx';
 import { graphStore } from 'src/stores';
 
-import ModalFormStore from '../modal-form-store';
-import { ignore } from 'mobx-sync';
 import { uuid } from 'lodash-uuid';
+import { ignore } from 'mobx-sync';
+import ModalFormStore from '../modal-form-store';
 
 class GraphModalStore extends ModalFormStore {
     @ignore
     @observable
-    constants: Array<Partial<ConstantData>> = [];
+    public constants: Array<Partial<ConstantData>> = [];
 
-    @action async saveGraph(values: any) {
+    @action public async saveGraph(values: any) {
         this.saving = true;
 
         const newData = { ...values, ...this.createConstantsObject(values) };
@@ -40,24 +40,24 @@ class GraphModalStore extends ModalFormStore {
         };
     }
 
-    @action addConstant() {
+    @action public addConstant() {
         this.constants.push({ key: uuid() });
     }
 
-    @action removeConstant(id: string) {
+    @action public removeConstant(id: string) {
         this.constants = this.constants.filter(x => x.key !== id);
     }
 
-    @action resetModal() {
+    @action public resetModal() {
         this.constants = [];
         this.modalData = {};
     }
 
-    onDataLoad(data: Graph) {
+    public onDataLoad(data: Graph) {
         this.constants = [...(data.constants || [])];
     }
 
-    onModalClose() {
+    public onModalClose() {
         this.resetModal();
     }
 }

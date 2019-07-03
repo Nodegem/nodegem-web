@@ -121,11 +121,7 @@ class EditorMenu {
             return;
         }
 
-        if (!contents.filterableItems) {
-            this.inputElement.style.display = 'none';
-        } else {
-            this.inputElement.style.display = 'block';
-        }
+        this.inputElement.style.display = !contents.filterableItems ? 'none' : 'block';
 
         if (this.isVisible) {
             this.hide();

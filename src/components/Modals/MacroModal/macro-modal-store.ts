@@ -1,40 +1,40 @@
 import { action, observable } from 'mobx';
 import { macroStore } from 'src/stores';
 
-import ModalFormStore from '../modal-form-store';
-import { ignore } from 'mobx-sync';
 import { uuid } from 'lodash-uuid';
+import { ignore } from 'mobx-sync';
+import ModalFormStore from '../modal-form-store';
 
 class MacroModalStore extends ModalFormStore {
     @ignore
     @observable
-    parentKey: string | string[] | undefined;
+    public parentKey: string | string[] | undefined;
 
     @ignore
     @observable
-    inputKey: string | string[] | undefined;
+    public inputKey: string | string[] | undefined;
 
     @ignore
     @observable
-    outputKey: string | string[] | undefined;
+    public outputKey: string | string[] | undefined;
 
     @ignore
     @observable
-    flowInputs: Array<Partial<FlowInputFieldDto>> = [];
+    public flowInputs: Array<Partial<FlowInputFieldDto>> = [];
 
     @ignore
     @observable
-    valueInputs: Array<Partial<ValueInputFieldDto>> = [];
+    public valueInputs: Array<Partial<ValueInputFieldDto>> = [];
 
     @ignore
     @observable
-    flowOutputs: Array<Partial<FlowOutputFieldDto>> = [];
+    public flowOutputs: Array<Partial<FlowOutputFieldDto>> = [];
 
     @ignore
     @observable
-    valueOutputs: Array<Partial<ValueOutputFieldDto>> = [];
+    public valueOutputs: Array<Partial<ValueOutputFieldDto>> = [];
 
-    @action async saveMacro(values: any): Promise<Macro | undefined> {
+    @action public async saveMacro(values: any): Promise<Macro | undefined> {
         this.saving = true;
         let macro;
 
@@ -85,56 +85,56 @@ class MacroModalStore extends ModalFormStore {
         };
     }
 
-    @action setParentKey(key: string | string[] | undefined) {
+    @action public setParentKey(key: string | string[] | undefined) {
         this.parentKey = key;
     }
 
-    @action setInputKey(key: string | string[] | undefined) {
+    @action public setInputKey(key: string | string[] | undefined) {
         this.inputKey = key;
     }
 
-    @action setOutputKey(key: string | string[] | undefined) {
+    @action public setOutputKey(key: string | string[] | undefined) {
         this.outputKey = key;
     }
 
-    @action addNewFlowInput() {
+    @action public addNewFlowInput() {
         this.flowInputs.push({ key: uuid() });
     }
 
-    @action addNewValueInput() {
+    @action public addNewValueInput() {
         this.valueInputs.push({ key: uuid() });
     }
 
-    @action addNewFlowOutput() {
+    @action public addNewFlowOutput() {
         this.flowOutputs.push({ key: uuid() });
     }
 
-    @action addNewValueOutput() {
+    @action public addNewValueOutput() {
         this.valueOutputs.push({ key: uuid() });
     }
 
-    @action removeFlowInput(id: string) {
+    @action public removeFlowInput(id: string) {
         this.flowInputs.splice(
             this.flowInputs.findIndex(x => this.getIndex(x, id)),
             1
         );
     }
 
-    @action removeValueInput(id: string) {
+    @action public removeValueInput(id: string) {
         this.valueInputs.splice(
             this.valueInputs.findIndex(x => this.getIndex(x, id)),
             1
         );
     }
 
-    @action removeFlowOutput(id: string) {
+    @action public removeFlowOutput(id: string) {
         this.flowOutputs.splice(
             this.flowOutputs.findIndex(x => this.getIndex(x, id)),
             1
         );
     }
 
-    @action removeValueOutput(id: string) {
+    @action public removeValueOutput(id: string) {
         this.valueOutputs.splice(
             this.valueOutputs.findIndex(x => this.getIndex(x, id)),
             1
@@ -145,7 +145,7 @@ class MacroModalStore extends ModalFormStore {
         return x.key === id;
     }
 
-    @action resetModal() {
+    @action public resetModal() {
         this.setInputKey(undefined);
         this.setOutputKey(undefined);
         this.setParentKey(undefined);
@@ -158,14 +158,14 @@ class MacroModalStore extends ModalFormStore {
         this.modalData = {};
     }
 
-    onDataLoad(data: Macro) {
+    public onDataLoad(data: Macro) {
         this.flowInputs = [...(data.flowInputs || [])];
         this.valueInputs = [...(data.valueInputs || [])];
         this.flowOutputs = [...(data.flowOutputs || [])];
         this.valueOutputs = [...(data.valueOutputs || [])];
     }
 
-    onModalClose() {
+    public onModalClose() {
         this.resetModal();
     }
 }

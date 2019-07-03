@@ -1,13 +1,13 @@
-import { Input, Button, Tooltip, Col, Row } from 'antd';
+import { Button, Col, Input, Row, Tooltip } from 'antd';
 import * as React from 'react';
-import { PortProps } from '../PortProps';
+import { IPortProps } from '../PortProps';
 
 interface IOFieldState {
     label: string;
 }
 
-class FlowField extends React.Component<PortProps, IOFieldState> {
-    static getDerivedStateFromProps(nextProps) {
+class FlowField extends React.Component<IPortProps, IOFieldState> {
+    public static getDerivedStateFromProps(nextProps) {
         if ('value' in nextProps) {
             return {
                 ...(nextProps.value || {}),
