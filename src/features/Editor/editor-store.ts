@@ -126,6 +126,7 @@ class EditorStore implements IDisposableStore {
                     this.graphHub.runGraph({
                         ...graph,
                         nodes: this.transformNodes(nodes),
+                        links: editorData.links,
                     });
                 } else {
                     const { nodes } = editorData;
@@ -136,6 +137,7 @@ class EditorStore implements IDisposableStore {
                         {
                             ...macro,
                             nodes: this.transformNodes(nodes),
+                            links: editorData.links,
                         },
                         flowInputs.firstOrDefault()!.key
                     );
