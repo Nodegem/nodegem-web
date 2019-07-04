@@ -35,7 +35,9 @@ class Sider extends React.Component<ISiderProps & RouteComponentProps<any>> {
         this.props.commonStore!.toggleCollapsed(collapsed);
     };
 
-    public handleBreakpoint = (broken: boolean) => {};
+    public handleBreakpoint = (broken: boolean) => {
+        this.props.commonStore!.setBreakpoint(broken);
+    };
 
     public themeClick = () => {
         this.props.commonStore!.changeTheme();

@@ -25,6 +25,18 @@ class CommonStore {
     @action public toggleCollapsed(toggle: boolean) {
         this.collapsed = toggle;
     }
+
+    @action public setBreakpoint(broken: boolean) {
+        this.broken = broken;
+
+        if (broken) {
+            this.siderWidth = 150;
+            this.collapseWidth = 0;
+        } else {
+            this.siderWidth = 200;
+            this.collapseWidth = undefined;
+        }
+    }
 }
 
 export default new CommonStore();
