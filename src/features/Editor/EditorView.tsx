@@ -13,7 +13,9 @@ import { EditorStore } from 'src/features/Editor/editor-store';
 import { GraphStore } from 'src/stores/graph-store';
 import { MacroStore } from 'src/stores/macro-store';
 
-import { isInput } from '@utils';
+import { getGraphType, isInput } from '@utils';
+import { GraphService } from 'src/services';
+import { MacroService } from 'src/services/macro';
 import { ControlPanelView } from './ControlPanelView';
 import { GenericComponent } from './generic-component';
 import LogView from './Log/LogView';
@@ -53,27 +55,40 @@ const editorIndicator = (
 @(withRouter as any)
 @observer
 class EditorView extends React.Component<
-    IEditorProps & RouteComponentProps<any>
+    IEditorProps & RouteComponentProps<any>,
+    { graphType: GraphType; graph: Graph | Macro }
 > {
     private nodeEditor: NodeEditor;
 
+    constructor(props: IEditorProps & RouteComponentProps<any>) {
+        super(props);
+
+        this.state = {
+            graph: {} as any,
+            graphType: 'graph',
+        };
+    }
+
     public async componentDidMount() {
-        const { editorStore } = this.props;
+        const { editorStore, match, history } = this.props;
 
-        const { graphExists } = editorStore!;
-
-        if (!graphExists) {
-            this.props.history.push('/');
+        if (!match.params.graphId) {
             notification.error({
                 message: 'Unable to load graph',
-                description: 'No graph selected.',
+                description: 'Graph not found.',
             });
-            return;
+            history.push('/');
         }
 
-        const { graph, graphType } = editorStore!;
-
         editorStore!.setLoadingGraph(true);
+        const g =
+            match.params.type === 'graph'
+                ? await GraphService.get(match.params.graphId)
+                : await MacroService.get(match.params.graphId);
+        this.setState({
+            graph: g,
+            graphType: getGraphType(g),
+        });
 
         const container = document.querySelector('.editor') as HTMLElement;
         this.nodeEditor = new NodeEditor(container);
@@ -87,8 +102,8 @@ class EditorView extends React.Component<
 
         this.nodeEditor.on('refreshTree', async (forceRefresh: boolean) => {
             await editorStore!.loadDefinitions(
-                graphType,
-                graph.id,
+                this.state.graphType,
+                this.state.graph.id,
                 forceRefresh
             );
         });
@@ -136,8 +151,7 @@ class EditorView extends React.Component<
                 this.nodeEditor.register(x);
             });
 
-        const { graph } = this.props.editorStore!;
-        this.renderGraphToScreen(graph);
+        this.renderGraphToScreen(this.state.graph);
         editorStore!.setLoadingGraph(false);
     };
 
@@ -182,12 +196,12 @@ class EditorView extends React.Component<
     };
 
     private runGraph = () => {
-        const { graphExists } = this.props.editorStore!;
-        if (graphExists) {
-            const { graphType } = this.props.editorStore!;
-            const graphData = { ...this.nodeEditor.toJSON() };
-            this.props.editorStore!.runGraph(graphData, graphType);
-        }
+        const graphData = { ...this.nodeEditor.toJSON() };
+        this.props.editorStore!.runGraphFromEditor(
+            this.state.graph,
+            graphData,
+            this.state.graphType
+        );
     };
 
     private saveGraph = async () => {
@@ -212,11 +226,18 @@ class EditorView extends React.Component<
 
         const links = json.links.map(x => x as LinkData);
 
-        const { graphType } = this.props.editorStore!;
-        if (graphType === 'graph') {
-            await this.props.editorStore!.saveGraph(nodes, links);
+        if (this.state.graphType === 'graph') {
+            await this.props.editorStore!.saveGraph(
+                this.state.graph,
+                nodes,
+                links
+            );
         } else {
-            await this.props.editorStore!.saveMacro(nodes, links);
+            await this.props.editorStore!.saveMacro(
+                this.state.graph as Macro,
+                nodes,
+                links
+            );
         }
     };
 
@@ -234,36 +255,31 @@ class EditorView extends React.Component<
 
     private onSaveMacro = (macro: Macro | undefined) => {
         if (macro) {
-            this.props.editorStore!.setGraph(macro.id);
-
-            const { graphId } = this.props.editorStore!;
-
-            if (graphId !== macro.id) {
-                this.clearGraph();
-            } else {
-                this.nodeEditor.trigger('refreshTree');
-            }
+            this.props.history.push(`/editor/${macro.id}`);
         }
     };
 
     private onEditGraph = () => {
-        const { graphExists } = this.props.editorStore!;
-        if (graphExists) {
-            const { graph, graphType } = this.props.editorStore!;
-
-            if (graphType === 'graph') {
-                this.props.graphModalStore!.openModal(graph, true);
-            } else {
-                this.props.macroModalStore!.openModal(graph, true);
-            }
+        if (this.state.graphType === 'graph') {
+            this.props.graphModalStore!.openModal(this.state.graph, true);
+        } else {
+            this.props.macroModalStore!.openModal(this.state.graph, true);
         }
     };
 
     private onDebugModeChanged = (checked: boolean) => {
-        this.props.editorStore!.setDebugMode(checked);
+        this.setState(prevState => {
+            const graph = { ...prevState.graph };
+            graph.isDebugModeEnabled = checked;
+            return { graph };
+        });
     };
 
     public render() {
+        if (!this.props.editorStore) {
+            return null;
+        }
+
         const {
             loadingDefinitions,
             running,
@@ -271,9 +287,10 @@ class EditorView extends React.Component<
             saving,
             logs,
             showLogs,
-            graph,
             loadingGraph,
         } = this.props.editorStore!;
+
+        const { graph } = this.state;
 
         return (
             <div className="editor-view">

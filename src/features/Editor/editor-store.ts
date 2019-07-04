@@ -3,16 +3,15 @@ import { action, computed, observable, runInAction } from 'mobx';
 import { ignore } from 'mobx-sync';
 import { NodeService } from 'src/services';
 import { graphStore, IDisposableStore, macroStore } from 'src/stores';
+import { LinkImportExport } from './rete-engine/link';
 
+import { getGraphType } from '@utils';
 import _ from 'lodash';
 import { isMacro } from 'src/utils/typeguards';
 import GraphHub from './hubs/graph-hub';
 import TerminalHub from './hubs/terminal-hub';
 import { EditorImportExport, NodeEditor } from './rete-engine/editor';
-import {
-    transformGraph,
-    transformMacro,
-} from './services/data-transform/run-graph';
+import { NodeImportExport } from './rete-engine/node';
 
 type LogType = 'log' | 'debug' | 'warn' | 'error';
 export interface ILog {
@@ -24,25 +23,8 @@ export interface ILog {
 class EditorStore implements IDisposableStore {
     @ignore
     @computed
-    get graph(): Graph | Macro {
-        return (
-            graphStore.getGraphById(this.graphId) ||
-            macroStore.getMacroById(this.graphId)!
-        );
-    }
-
-    @ignore
-    @computed
     get nodeDefinitionList(): NodeDefinition[] {
         return this.getNodeDefinitions(this.nodeDefinitions);
-    }
-
-    get graphExists(): boolean {
-        return !!this.graphId;
-    }
-
-    get graphType(): GraphType {
-        return isMacro(this.graph) ? 'macro' : 'graph';
     }
 
     @ignore
@@ -68,9 +50,6 @@ class EditorStore implements IDisposableStore {
     @ignore
     @observable
     public nodeDefinitions: IHierarchicalNode<NodeDefinition>;
-
-    @observable
-    public graphId: string;
 
     @ignore
     @observable
@@ -122,38 +101,42 @@ class EditorStore implements IDisposableStore {
         }
     }
 
-    @action public runGraph(editorData: EditorImportExport, type: GraphType) {
+    @action public async runGraph(graph: Graph | Macro) {
+        await this.graphHub.attemptConnect();
+        if (!isMacro(graph)) {
+            await this.graphHub.runGraph(graph);
+        } else {
+            await this.graphHub.runMacro(
+                graph,
+                graph.flowInputs.firstOrDefault()!.key
+            );
+        }
+        await this.graphHub.disconnect();
+    }
+
+    @action public runGraphFromEditor(
+        graph: Graph | Macro,
+        editorData: EditorImportExport,
+        type: GraphType
+    ) {
         try {
             if (!editorData.links.empty() && !editorData.nodes.empty()) {
                 if (type === 'graph') {
-                    const { isDebugModeEnabled, constants } = this.graph;
-                    const graphData = transformGraph({
-                        ...editorData,
-                        constants,
-                        isDebugModeEnabled,
+                    const { nodes } = editorData;
+                    this.graphHub.runGraph({
+                        ...graph,
+                        nodes: this.transformNodes(nodes),
                     });
-                    this.graphHub.runGraph(graphData);
                 } else {
-                    const macro = this.graph as Macro;
-                    const {
-                        flowInputs,
-                        flowOutputs,
-                        valueInputs,
-                        valueOutputs,
-                        constants,
-                        isDebugModeEnabled,
-                    } = macro;
-                    const macroData = transformMacro({
-                        ...editorData,
-                        flowInputs,
-                        flowOutputs,
-                        valueInputs,
-                        valueOutputs,
-                        constants,
-                        isDebugModeEnabled,
-                    });
+                    const { nodes } = editorData;
+                    const macro = graph as Macro;
+                    const { flowInputs } = macro;
+
                     this.graphHub.runMacro(
-                        macroData,
+                        {
+                            ...macro,
+                            nodes: this.transformNodes(nodes),
+                        },
                         flowInputs.firstOrDefault()!.key
                     );
                 }
@@ -167,6 +150,17 @@ class EditorStore implements IDisposableStore {
         } catch (e) {
             console.warn(e);
         }
+    }
+
+    private transformNodes(nodes: NodeImportExport[]): NodeData[] {
+        return nodes.map<NodeData>(x => ({
+            id: x.id,
+            macroFieldId: x.macroFieldId,
+            macroId: x.macroId,
+            fieldData: x.fieldData as FieldData[],
+            fullName: x.fullName,
+            position: { x: x.position[0], y: x.position[1] },
+        }));
     }
 
     @action
@@ -220,17 +214,13 @@ class EditorStore implements IDisposableStore {
     }
 
     @action public async saveGraph(
+        graph: Graph,
         nodes: Array<NodeData>,
         links: Array<LinkData>
     ) {
         this.saving = true;
         try {
-            if (this.graphId) {
-                const graph = this.graph;
-                if (graph) {
-                    await graphStore.updateGraph({ ...graph, nodes, links });
-                }
-            }
+            await graphStore.updateGraph({ ...graph, nodes, links });
         } catch (e) {
             console.warn(e);
         } finally {
@@ -241,21 +231,17 @@ class EditorStore implements IDisposableStore {
     }
 
     @action public async saveMacro(
+        macro: Macro,
         nodes: Array<NodeData>,
         links: Array<LinkData>
     ) {
         this.saving = true;
         try {
-            if (this.graphId) {
-                const macro = this.graph as Macro;
-                if (macro) {
-                    await macroStore.updateMacro({
-                        ...macro,
-                        nodes,
-                        links,
-                    });
-                }
-            }
+            await macroStore.updateMacro({
+                ...macro,
+                nodes,
+                links,
+            });
         } catch (e) {
             console.warn(e);
         } finally {
@@ -265,12 +251,7 @@ class EditorStore implements IDisposableStore {
         }
     }
 
-    @action public setGraph(graph: string) {
-        this.graphId = graph;
-    }
-
     @action public dispose() {
-        this.graphId = '';
         this.logs = [];
     }
 
@@ -280,12 +261,6 @@ class EditorStore implements IDisposableStore {
 
     @action public toggleLogDrawer() {
         this.showLogs = !this.showLogs;
-    }
-
-    @action public setDebugMode(toggle: boolean) {
-        if (this.graph) {
-            this.graph.isDebugModeEnabled = toggle;
-        }
     }
 
     @action public setLoadingGraph(toggle: boolean) {

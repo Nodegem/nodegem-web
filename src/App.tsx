@@ -5,10 +5,13 @@ import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
 
+import { AuthorizedRoute } from './components/AuthorizedRoute/AuthorizedRoute';
+import { PublicRoute } from './components/PublicRoute/AuthorizedRoute';
 import LoginView from './features/Account/Login/LoginFormView';
 import RegisterView from './features/Account/Register/RegisterFormView';
 import DashboardView from './features/Dashboard/DashboardView';
 import EditorView from './features/Editor/EditorView';
+import NotFoundView from './features/NotFound/NotFound';
 import ProfileView from './features/Profile/ProfileView';
 import Sider from './features/Sider/Sider';
 import { UserStore } from './stores/user-store';
@@ -24,42 +27,47 @@ interface IAppProps {
 @inject('userStore')
 @observer
 class App extends React.Component<IAppProps & RouteComponentProps<any>> {
+    // private editorPageCondition(): boolean {
+    //     // return this.props.userStore!.isLoggedIn && this.
+    // }
+
     public render() {
         const { userStore } = this.props;
 
         return (
             <Layout className="app-layout">
-                {userStore!.isLoggedIn ? (
-                    <Layout hasSider>
-                        <Sider />
-                        <Content className="app-layout-content">
-                            <Switch>
-                                <Route
-                                    exact
-                                    path="/"
-                                    component={DashboardView}
-                                />
-                                <Route path="/editor" component={EditorView} />
-                                <Route
-                                    path="/profile"
-                                    component={ProfileView}
-                                />
-                            </Switch>
-                        </Content>
-                    </Layout>
-                ) : (
+                <Layout hasSider={userStore!.isLoggedIn}>
+                    {userStore!.isLoggedIn && <Sider />}
                     <Content className="app-layout-content">
                         <Switch>
-                            <Route exact path="/" component={LoginView} />
-                            <Route path="/login" component={LoginView} />
-                            <Route path="/register" component={RegisterView} />
-                            <Route
+                            <AuthorizedRoute
+                                exact
+                                path="/"
+                                component={DashboardView}
+                            />
+                            <AuthorizedRoute
+                                path="/editor/:type/:graphId"
+                                component={EditorView}
+                            />
+                            <AuthorizedRoute
+                                path="/profile"
+                                component={ProfileView}
+                            />
+
+                            <PublicRoute path="/login" component={LoginView} />
+                            <PublicRoute
+                                path="/register"
+                                component={RegisterView}
+                            />
+                            <PublicRoute
                                 path="/forgot-password"
                                 component={ForgotPassword}
                             />
+                            <AuthorizedRoute component={NotFoundView} />
+                            <PublicRoute component={NotFoundView} />
                         </Switch>
                     </Content>
-                )}
+                </Layout>
             </Layout>
         );
     }

@@ -13,6 +13,7 @@ import { EditorStore } from 'src/features/Editor/editor-store';
 import { GraphStore } from 'src/stores/graph-store';
 import { MacroStore } from 'src/stores/macro-store';
 
+import { isMacro } from '@utils';
 import DashboardCard from './DashboardCard';
 
 interface IDashboardProps {
@@ -69,13 +70,16 @@ class DashboardView extends React.Component<
         this.modals[type]!.openModal(item, true);
     };
 
-    public onBuild = (item: any) => {
-        this.props.editorStore!.setGraph(item.id);
-        this.props.history.push('editor');
+    public onBuild = (item: Graph | Macro) => {
+        if (isMacro(item)) {
+            this.props.history.push(`editor/macro/${item.id}`);
+        } else {
+            this.props.history.push(`editor/graph/${item.id}`);
+        }
     };
 
-    public onPlay = (item: any, type: GraphType) => {
-        console.log('Play');
+    public onPlay = (item: Graph | Macro, type: GraphType) => {
+        this.props.editorStore!.runGraph(item);
     };
 
     public render() {

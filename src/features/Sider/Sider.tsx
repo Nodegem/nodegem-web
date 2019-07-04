@@ -1,12 +1,12 @@
 import './Sider.scss';
 
 import { Icon, Layout, Menu } from 'antd';
+import { CollapseType } from 'antd/lib/layout/Sider';
 import { inject, observer } from 'mobx-react';
 import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { AuthStore } from 'src/stores/auth-store';
 import { CommonStore } from 'src/stores/common-store';
-import { UserStore } from 'src/stores/user-store';
 
 const AntSider = Layout.Sider;
 
@@ -19,20 +19,23 @@ const SettingsIcon = (
 
 interface ISiderProps {
     commonStore?: CommonStore;
-    userStore?: UserStore;
     authStore?: AuthStore;
 }
+
+let ranOnceCuzBullshitHack = false;
 
 @inject('commonStore', 'userStore', 'authStore')
 @observer
 class Sider extends React.Component<ISiderProps & RouteComponentProps<any>> {
-    public handleCollapse = () => {
-        this.props.commonStore!.toggleCollapsed();
+    public handleCollapse = (collapsed: boolean, type: CollapseType) => {
+        if (type === 'responsive' && !ranOnceCuzBullshitHack) {
+            ranOnceCuzBullshitHack = true;
+            return;
+        }
+        this.props.commonStore!.toggleCollapsed(collapsed);
     };
 
-    public handleBreakpoint = (broken: boolean) => {
-        this.props.commonStore!.setBreakpoint(broken);
-    };
+    public handleBreakpoint = (broken: boolean) => {};
 
     public themeClick = () => {
         this.props.commonStore!.changeTheme();
@@ -43,7 +46,7 @@ class Sider extends React.Component<ISiderProps & RouteComponentProps<any>> {
     };
 
     public render() {
-        const { location, commonStore, userStore } = this.props;
+        const { location, commonStore } = this.props;
         const { collapseWidth, collapsed, siderWidth, theme } = commonStore!;
 
         let selected = location.pathname.replace('/', '');
@@ -55,6 +58,7 @@ class Sider extends React.Component<ISiderProps & RouteComponentProps<any>> {
             <AntSider
                 theme={theme}
                 collapsed={collapsed}
+                defaultCollapsed={true}
                 breakpoint="sm"
                 width={siderWidth}
                 collapsedWidth={collapseWidth}
@@ -74,14 +78,8 @@ class Sider extends React.Component<ISiderProps & RouteComponentProps<any>> {
                 >
                     <Menu.Item key="home">
                         <Link to="/">
-                            <Icon type="project" />
-                            <span>Home</span>
-                        </Link>
-                    </Menu.Item>
-                    <Menu.Item key="editor">
-                        <Link to="/editor">
                             <Icon type="dashboard" />
-                            <span>Editor</span>
+                            <span>Dashboard</span>
                         </Link>
                     </Menu.Item>
                     <Menu.SubMenu title={SettingsIcon} key="settings">

@@ -3,6 +3,7 @@ import { action, observable } from 'mobx';
 import { AuthService } from 'src/services';
 import history from 'src/utils/history';
 
+import { ignore } from 'mobx-sync';
 import { rootStore } from './';
 import userStore from './user-store';
 
@@ -16,7 +17,10 @@ class AuthStore {
     @observable public savedCredentials = {
         username: '',
     };
-    @observable public loading: boolean = false;
+
+    @ignore
+    @observable
+    public loading: boolean = false;
 
     @action public async login({ userName, password }: LoginRequestData) {
         this.setLoading(true);

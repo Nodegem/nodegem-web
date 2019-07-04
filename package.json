@@ -4,23 +4,23 @@
     "private": true,
     "dependencies": {
         "@aspnet/signalr": "^1.0.4",
-        "antd": "^3.11.2",
+        "antd": "^3.20.0",
         "classnames": "^2.2.6",
         "fuse.js": "^3.3.0",
         "localforage": "^1.7.2",
         "lodash": "^4.17.10",
         "lodash-uuid": "^0.0.3",
-        "mobx": "5.9.4",
-        "mobx-react": "^6.0.3",
+        "mobx": "5.11.0",
+        "mobx-react": "^6.1.1",
         "mobx-react-router": "^4.0.5",
-        "mobx-sync": "^2.0.0",
+        "mobx-sync": "^2.1.2",
         "moment": "^2.23.0",
         "react": "^16.6.3",
         "react-dom": "^16.6.3",
         "react-router-dom": "^5.0.1",
         "react-scripts-ts-antd": "^2.17.0",
         "shortid": "^2.2.13",
-        "superagent": "^5.0.6"
+        "superagent": "^5.1.0"
     },
     "scripts": {
         "start": "react-scripts-ts-antd start",
@@ -32,16 +32,16 @@
         "@types/react": "^16.6.3"
     },
     "devDependencies": {
-        "@types/classnames": "^2.2.6",
-        "@types/jest": "^24.0.13",
-        "@types/lodash": "^4.14.134",
-        "@types/node": "^12.0.7",
-        "@types/react": "^16.6.3",
+        "@types/classnames": "^2.2.9",
+        "@types/jest": "^24.0.15",
+        "@types/lodash": "^4.14.135",
+        "@types/node": "^12.0.12",
+        "@types/react": "^16.8.23",
         "@types/react-dom": "^16.0.11",
-        "@types/react-router": "^5.0.1",
+        "@types/react-router": "^5.0.3",
         "@types/shortid": "^0.0.29",
-        "@types/superagent": "^4.1.1",
+        "@types/superagent": "^4.1.2",
         "tslint-config-prettier": "^1.18.0",
-        "typescript": "^3.2.2"
+        "typescript": "^3.5.2"
     }
 }

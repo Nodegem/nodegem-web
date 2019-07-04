@@ -1,3 +1,5 @@
+import { isMacro } from './typeguards';
+
 export const isInput = (target: Element): boolean => {
     return (
         (!!target && target.nodeName === 'TEXTAREA') ||
@@ -32,6 +34,10 @@ export function getCookie(name): string | undefined {
     }
 
     return undefined;
+}
+
+export function getGraphType(graph: Graph | Macro): GraphType {
+    return isMacro(graph) ? 'macro' : 'graph';
 }
 
 export async function exponentialBackoff<T>(

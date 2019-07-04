@@ -3,12 +3,7 @@ import { action, observable } from 'mobx';
 import { ignore } from 'mobx-sync';
 
 class CommonStore {
-    // This is a hack around some weird sider bug with ant-design
-    @ignore
-    @observable
-    public collapsedToggleOnce = false;
-
-    @observable public collapsed: boolean;
+    @observable public collapsed: boolean = true;
     @observable public theme: SiderTheme = 'dark';
 
     @ignore
@@ -27,29 +22,8 @@ class CommonStore {
         this.theme = this.theme === 'dark' ? 'light' : 'dark';
     }
 
-    @action public setBreakpoint(broken: boolean) {
-        this.broken = broken;
-
-        if (broken) {
-            this.siderWidth = 150;
-            this.collapseWidth = 0;
-        } else {
-            this.siderWidth = 200;
-            this.collapseWidth = undefined;
-        }
-    }
-
-    @action public toggleCollapsed() {
-        // This bullshit is because of some ant design bug
-        // where this function gets called twice on load and toggles off
-        if (!this.collapsedToggleOnce && this.collapsed) {
-            this.collapsedToggleOnce = true;
-            return;
-        } else {
-            this.collapsedToggleOnce = true;
-        }
-
-        this.collapsed = !this.collapsed;
+    @action public toggleCollapsed(toggle: boolean) {
+        this.collapsed = toggle;
     }
 }
 

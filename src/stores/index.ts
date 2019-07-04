@@ -21,17 +21,33 @@ class RootStore implements IDisposableStore {
     @observable
     public isLoaded: boolean = false;
 
+    @observable
     public userStore = userStore;
+
+    @observable
     public commonStore = commonStore;
+
+    @observable
     public authStore = authStore;
+
+    @ignore
+    @observable
     public editorStore = editorStore;
+
+    @ignore
+    @observable
     public graphStore = graphStore;
+
+    @ignore
+    @observable
     public macroStore = macroStore;
 
     @ignore
+    @observable
     public macroModalStore = macroModalStore;
 
     @ignore
+    @observable
     public graphModalStore = graphModalStore;
 
     @action public dispose() {

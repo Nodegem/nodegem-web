@@ -46,6 +46,10 @@ abstract class BaseHub {
     public async attemptConnect() {
         this.forceClosed = false;
 
+        if (this.isConnected) {
+            return;
+        }
+
         await exponentialBackoff(
             async () => this.start(),
             () => {
