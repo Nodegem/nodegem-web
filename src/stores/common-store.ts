@@ -1,5 +1,5 @@
 import { SiderTheme } from 'antd/lib/layout/Sider';
-import { action, observable } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import { ignore } from 'mobx-sync';
 
 class CommonStore {
@@ -7,12 +7,16 @@ class CommonStore {
     @observable public theme: SiderTheme = 'dark';
 
     @ignore
-    @observable
-    public collapseWidth?: number;
+    @computed
+    public get collapseWidth(): number | undefined {
+        return this.broken ? 0 : undefined;
+    }
 
     @ignore
-    @observable
-    public siderWidth: number = 200;
+    @computed
+    public get siderWidth(): number {
+        return this.broken ? 120 : 200;
+    }
 
     @ignore
     @observable
@@ -28,14 +32,6 @@ class CommonStore {
 
     @action public setBreakpoint(broken: boolean) {
         this.broken = broken;
-
-        if (broken) {
-            this.siderWidth = 150;
-            this.collapseWidth = 0;
-        } else {
-            this.siderWidth = 200;
-            this.collapseWidth = undefined;
-        }
     }
 }
 

@@ -4,12 +4,32 @@ interface Graph {
     name: string;
     isActive?: boolean;
     description: string;
+    type: ExecutionType;
+    recurringOptions: RecurringOptions;
     nodes: Array<NodeData>;
     links: Array<LinkData>;
     createdOn?: Date;
     lastUpdated?: Date;
     userId: string;
     constants: Array<ConstantData>;
+}
+
+type ExecutionType = 'manual' | 'recurring' | 'listener';
+
+type FrequencyOptions =
+    | 'yearly'
+    | 'monthly'
+    | 'daily'
+    | 'hourly'
+    | 'minutely'
+    | 'secondly';
+
+interface RecurringOptions {
+    frequency: FrequencyOptions;
+    every: number;
+    start: Date;
+    until?: Date;
+    iterations?: number;
 }
 
 interface ConstantData {

@@ -12,7 +12,7 @@ interface IConstantFieldProps {
 
 interface IConstantFieldState {
     label: string;
-    type: number;
+    type: string;
     value: any;
     isSecret: boolean;
 }
@@ -36,7 +36,7 @@ class ConstantField extends React.Component<
         const value = props.value || {};
         this.state = {
             label: value.label || '',
-            type: value.type || 0,
+            type: value.type || 'any',
             value: value.value || undefined,
             isSecret: value.isSecret || false,
         };
@@ -59,7 +59,7 @@ class ConstantField extends React.Component<
         }
     };
 
-    private onTypeChange = (value: number) => {
+    private onTypeChange = (value: string) => {
         this.setState({ type: value });
         this.triggerChange({ type: value });
     };
@@ -102,7 +102,7 @@ class ConstantField extends React.Component<
                     <Tooltip title="Value Type">
                         <ValueTypeDropDown
                             onChange={this.onTypeChange}
-                            value={valueMap[type || 0]}
+                            value={valueMap[type || 'any']}
                         />
                     </Tooltip>
                 </Col>

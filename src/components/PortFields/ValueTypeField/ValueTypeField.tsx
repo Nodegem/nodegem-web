@@ -6,7 +6,7 @@ import { ValueTypeDropDown } from './ValueTypeDropDown';
 
 interface IOFieldState {
     label: string;
-    type: number;
+    type: string;
     defaultValue?: any;
 }
 
@@ -26,7 +26,7 @@ class ValueTypeField extends React.Component<IPortProps, IOFieldState> {
         const value = props.value || {};
         this.state = {
             label: value.label || '',
-            type: value.type || 0,
+            type: value.type || 'any',
             defaultValue: value.defaultValue || undefined,
         };
     }
@@ -48,7 +48,7 @@ class ValueTypeField extends React.Component<IPortProps, IOFieldState> {
         }
     };
 
-    private onTypeChange = (value: number) => {
+    private onTypeChange = (value: string) => {
         this.setState({ type: value });
         this.triggerChange({ type: value });
     };
@@ -77,7 +77,7 @@ class ValueTypeField extends React.Component<IPortProps, IOFieldState> {
                     <Tooltip title="Value Type">
                         <ValueTypeDropDown
                             onChange={this.onTypeChange}
-                            value={valueMap[type || 0]}
+                            value={valueMap[type || 'any']}
                         />
                     </Tooltip>
                 </Col>

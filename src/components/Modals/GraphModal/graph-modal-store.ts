@@ -10,10 +10,21 @@ class GraphModalStore extends ModalFormStore {
     @observable
     public constants: Array<Partial<ConstantData>> = [];
 
+    @ignore
+    @observable
+    public recurringOptions?: RecurringOptions;
+
     @action public async saveGraph(values: any) {
         this.saving = true;
 
-        const newData = { ...values, ...this.createConstantsObject(values) };
+        const newData = {
+            ...values,
+            ...this.createConstantsObject(values),
+        };
+
+        if (values.type !== 'recurring') {
+            newData.recurringOptions = undefined;
+        }
 
         if (this.editMode) {
             await graphStore!.updateGraph({
@@ -49,12 +60,14 @@ class GraphModalStore extends ModalFormStore {
     }
 
     @action public resetModal() {
+        this.recurringOptions = undefined;
         this.constants = [];
         this.modalData = {};
     }
 
     public onDataLoad(data: Graph) {
         this.constants = [...(data.constants || [])];
+        this.recurringOptions = { ...data.recurringOptions };
     }
 
     public onModalClose() {

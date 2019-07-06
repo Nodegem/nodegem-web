@@ -1,4 +1,4 @@
-import { Form, Input, Modal } from 'antd';
+import { Form, Input, Modal, Radio } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
@@ -7,11 +7,13 @@ import * as React from 'react';
 import { FormComponentProps } from 'antd/lib/form';
 import { ModalProps } from 'antd/lib/modal';
 import ConstantsControl from 'src/components/ConstantsControl/ConstantsControl';
+import RecurringOptionsControl from 'src/components/RecurringOptionsControl/RecurringOptionsControl';
 import { GraphModalStore } from './graph-modal-store';
 
 interface IFormDataProps {
     constants: Partial<ConstantData>[];
     data: Graph;
+    recurringOptions?: RecurringOptions;
     onConstantDelete: (id: string) => void;
     onConstantAdd: () => void;
 }
@@ -34,6 +36,12 @@ const GraphForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
                 ...rest
             } = this.props;
             const { getFieldDecorator } = form;
+
+            const type = !form.getFieldValue('type')
+                ? data.type
+                : form.getFieldValue('type');
+            const isRecurring = type === 'recurring';
+
             return (
                 <Modal {...rest}>
                     <Form layout="vertical">
@@ -63,6 +71,20 @@ const GraphForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
                                 />
                             )}
                         </FormItem>
+                        <FormItem label="Execution Type">
+                            {getFieldDecorator<Graph>('type', {
+                                initialValue: data.type,
+                            })(
+                                <Radio.Group>
+                                    <Radio value="manual">Manual</Radio>
+                                    <Radio value="recurring">Recurring</Radio>
+                                    <Radio value="listener">Listener</Radio>
+                                </Radio.Group>
+                            )}
+                        </FormItem>
+                        {isRecurring && (
+                            <RecurringOptionsControl fd={getFieldDecorator} />
+                        )}
                         <ConstantsControl
                             fd={getFieldDecorator}
                             constants={constants}
@@ -124,9 +146,10 @@ class GraphModalFormController extends React.Component<{
         const {
             saving,
             editMode,
-            modalData: data,
+            modalData,
             isVisible,
             constants,
+            recurringOptions,
         } = graphModalStore!;
 
         const modalTitle = editMode ? 'Edit Graph Settings' : 'Add Graph';
@@ -149,8 +172,9 @@ class GraphModalFormController extends React.Component<{
                 onCancel={this.handleCancel}
                 width={1000}
                 okButtonProps={{ loading: saving }}
-                data={data}
+                data={modalData}
                 constants={constants}
+                recurringOptions={recurringOptions}
                 onConstantAdd={this.onConstantAdd}
                 onConstantDelete={this.onConstantDelete}
             />

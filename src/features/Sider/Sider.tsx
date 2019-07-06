@@ -49,7 +49,7 @@ class Sider extends React.Component<ISiderProps & RouteComponentProps<any>> {
 
     public render() {
         const { location, commonStore } = this.props;
-        const { collapseWidth, collapsed, siderWidth, theme } = commonStore!;
+        const { collapseWidth, siderWidth, theme, collapsed } = commonStore!;
 
         let selected = location.pathname.replace('/', '');
         if (!selected) {
