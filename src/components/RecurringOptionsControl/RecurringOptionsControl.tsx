@@ -113,7 +113,7 @@ class RecurringOptionsControl extends React.Component<
                     </Form.Item>
                     <Form.Item label="Frequency">
                         <Row type="flex" gutter={12}>
-                            <Col span={4}>
+                            <Col span={8}>
                                 {fd('recurringOptions[frequency]', {
                                     initialValue: frequency,
                                     rules: [{ validator: this.validate }],
@@ -130,7 +130,7 @@ class RecurringOptionsControl extends React.Component<
                                     </Select>
                                 )}
                             </Col>
-                            <Col span={4}>
+                            <Col span={8}>
                                 {fd('recurringOptions[every]', {
                                     initialValue: every,
                                     rules: [{ validator: this.validate }],

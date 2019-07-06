@@ -27,7 +27,7 @@ abstract class BaseHub {
         const baseUrl = getBaseApiUrl();
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseUrl}/${hub}`, {
-                accessTokenFactory: () => userStore.token.accessToken!,
+                accessTokenFactory: () => userStore.token!.accessToken!,
             })
             .configureLogging(logLevel)
             .build();

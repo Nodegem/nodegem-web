@@ -71,9 +71,15 @@ const GraphForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
                                 />
                             )}
                         </FormItem>
-                        <FormItem label="Execution Type">
+                        <FormItem label="Execution Type" required>
                             {getFieldDecorator<Graph>('type', {
                                 initialValue: data.type,
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: 'Execution type is required',
+                                    },
+                                ],
                             })(
                                 <Radio.Group>
                                     <Radio value="manual">Manual</Radio>

@@ -14,9 +14,7 @@ interface IRegisterErrorResponse {
 
 class AuthStore {
     @observable public rememberMe: boolean = false;
-    @observable public savedCredentials = {
-        username: '',
-    };
+    @observable public savedUsername: string = '';
 
     @ignore
     @observable
@@ -76,11 +74,11 @@ class AuthStore {
         }
     }
 
-    @action public setRememberMe(rememberMe: boolean, savedCreds) {
+    @action public setRememberMe(rememberMe: boolean, savedUsername: string) {
         this.rememberMe = rememberMe;
 
         if (rememberMe) {
-            this.savedCredentials = savedCreds;
+            this.savedUsername = savedUsername;
         }
     }
 

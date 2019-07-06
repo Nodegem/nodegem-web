@@ -21,15 +21,13 @@ class LoginForm extends React.Component<ILoginFormProps> {
 
         const { form, authStore } = this.props;
         form.validateFields(async (err, values) => {
-            authStore!.setRememberMe(values.rememberMe, {
-                username: values.userName,
-            });
-
             if (err) {
                 return;
             }
 
             try {
+                const { rememberMe, userName } = values;
+                authStore!.setRememberMe(rememberMe, userName);
                 await authStore!.login(values);
             } catch (e) {
                 console.log(e.response);
@@ -42,7 +40,7 @@ class LoginForm extends React.Component<ILoginFormProps> {
         const { getFieldDecorator } = this.props.form;
         const { loading } = this.props.authStore!;
 
-        const { rememberMe, savedCredentials } = authStore!;
+        const { rememberMe, savedUsername } = authStore!;
 
         const buttonText = loading ? 'Logging in' : 'Log in';
 
@@ -51,7 +49,7 @@ class LoginForm extends React.Component<ILoginFormProps> {
                 <Form onSubmit={this.handleSubmit} className="login-form">
                     <FormItem>
                         {getFieldDecorator('userName', {
-                            initialValue: savedCredentials.username,
+                            initialValue: savedUsername,
                             rules: [
                                 {
                                     required: true,

@@ -91,8 +91,11 @@ class RegisterForm extends React.Component<
     };
 
     public render() {
+        const { loading } = this.props.authStore!;
         const { getFieldDecorator } = this.props.form;
         const iconStyle: React.CSSProperties = { color: 'rgba(0,0,0,.25)' };
+
+        const buttonText = loading ? 'Registering...' : 'Register';
 
         return (
             <Row>
@@ -172,11 +175,12 @@ class RegisterForm extends React.Component<
                         )}
                     </FormItem>
                     <Button
+                        loading={loading}
                         type="primary"
                         htmlType="submit"
                         className="register-form-button"
                     >
-                        Register
+                        {buttonText}
                     </Button>
                     <br />
                     <br />

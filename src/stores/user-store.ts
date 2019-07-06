@@ -3,7 +3,7 @@ import { IDisposableStore } from './';
 
 class UserStore implements IDisposableStore {
     @observable public user?: User;
-    @observable public token: TokenData;
+    @observable public token?: TokenData;
 
     @computed get isLoggedIn(): boolean {
         return !!this.user && !!this.token && Object.keys(this.user).length > 0;
@@ -18,6 +18,7 @@ class UserStore implements IDisposableStore {
     }
 
     @action public dispose() {
+        this.token = undefined;
         this.user = undefined;
     }
 }
