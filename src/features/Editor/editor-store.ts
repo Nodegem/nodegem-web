@@ -56,7 +56,7 @@ class EditorStore implements IDisposableStore {
     public showLogs: boolean = false;
 
     @ignore
-    private graphHub: GraphHub;
+    public graphHub: GraphHub;
     @ignore
     private terminalHub: TerminalHub;
 
@@ -64,11 +64,19 @@ class EditorStore implements IDisposableStore {
     @observable
     public logs: Array<ILog> = [];
 
+    @ignore
     public nodeEditor: NodeEditor;
+
+    @ignore
+    @observable
+    public bridgeInfo: IBridgeInfo | null;
 
     constructor() {
         this.graphHub = new GraphHub();
         this.terminalHub = new TerminalHub();
+
+        this.graphHub.onBridgeInfo(data => this.setBridgeInfo(true, data));
+        this.graphHub.onBridgeLost(() => this.setBridgeInfo(false, null));
 
         this.terminalHub.onLog(data => this.createLog(data, 'log'));
         this.terminalHub.onLogDebug(data => this.createLog(data, 'debug'));
@@ -267,6 +275,24 @@ class EditorStore implements IDisposableStore {
 
     @action public setLoadingGraph(toggle: boolean) {
         this.loadingGraph = toggle;
+    }
+
+    @action public setBridgeInfo(connected: boolean, data: IBridgeInfo | null) {
+        if (
+            (connected && data && !this.bridgeInfo) ||
+            (data &&
+                this.bridgeInfo &&
+                data.connectionId !== this.bridgeInfo.connectionId)
+        ) {
+            this.createLog(`Connected to device; ${data.deviceName}`, 'log');
+            this.bridgeInfo = data;
+        } else if (!connected && this.bridgeInfo) {
+            this.createLog(
+                `Lost connection to device; ${this.bridgeInfo!.deviceName}`,
+                'error'
+            );
+            this.bridgeInfo = null;
+        }
     }
 
     public setEditor(editor: NodeEditor) {

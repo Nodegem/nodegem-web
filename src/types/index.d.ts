@@ -9,3 +9,9 @@ interface IHierarchicalNode<TItem> {
     children: { [key: string]: IHierarchicalNode<TItem> };
     items: Array<TItem>;
 }
+
+interface IBridgeInfo {
+    deviceName: string;
+    connectionId: string;
+    userId: string;
+}

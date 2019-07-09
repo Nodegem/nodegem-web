@@ -59,6 +59,7 @@ class EditorView extends React.Component<
     { graphType: GraphType; graph: Graph | Macro }
 > {
     private nodeEditor: NodeEditor;
+    private timeoutPtr: NodeJS.Timeout;
 
     constructor(props: IEditorProps & RouteComponentProps<any>) {
         super(props);
@@ -117,11 +118,17 @@ class EditorView extends React.Component<
         this.setKeyboardEventListeners();
 
         this.nodeEditor.trigger('refreshTree', true);
+
+        await editorStore!.graphHub.isBridgeConnected();
+        this.timeoutPtr = setInterval(async () => {
+            await editorStore!.graphHub.isBridgeConnected();
+        }, 2500);
     }
 
     public componentWillUnmount() {
         this.props.editorStore!.disconnect();
         this.props.editorStore!.dispose();
+        clearInterval(this.timeoutPtr);
     }
 
     private setKeyboardEventListeners() {

@@ -40,6 +40,10 @@ class TerminalHub extends BaseHub {
     }
 
     public dispose() {
+        this.log.clear();
+        this.logDebug.clear();
+        this.logError.clear();
+        this.logWarn.clear();
         super.dispose();
     }
 }

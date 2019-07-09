@@ -82,12 +82,17 @@ abstract class BaseHub {
         }
     }
 
-    protected async invoke(method: string, ...params: any[]) {
+    protected async invoke<T = void>(
+        method: string,
+        ...params: any[]
+    ): Promise<T | null> {
         try {
-            await this.connection.invoke(method, ...params);
+            return await this.connection.invoke<T>(method, ...params);
         } catch (e) {
             console.error(e);
         }
+
+        return null;
     }
 
     private async start(): Promise<boolean> {
