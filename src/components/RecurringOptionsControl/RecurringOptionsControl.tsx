@@ -17,44 +17,16 @@ const Option = Select.Option;
 
 interface IRecurringOptionProps {
     onChange?: (state: any) => void;
+    recurringOptions: Partial<RecurringOptions>;
     fd: <T extends Object = {}>(
         id: keyof T,
         options?: GetFieldDecoratorOptions | undefined
     ) => (node: React.ReactNode) => React.ReactNode;
 }
 
-interface IRecurringOptionState {
-    start: Date;
-    until?: Date;
-    iterations?: number;
-    every: number;
-    frequency: FrequencyOptions;
-}
-
-class RecurringOptionsControl extends React.Component<
-    IRecurringOptionProps,
-    IRecurringOptionState
-> {
-    public static getDerivedStateFromProps(nextProps) {
-        if ('value' in nextProps) {
-            return {
-                ...(nextProps.value || {}),
-            };
-        }
-        return null;
-    }
-
+class RecurringOptionsControl extends React.Component<IRecurringOptionProps> {
     constructor(props: any) {
         super(props);
-
-        const value = props.value || {};
-        this.state = {
-            start: value.start || new Date(),
-            until: value.until || undefined,
-            iterations: value.iterations || undefined,
-            every: value.every || 1,
-            frequency: value.frequency || 'daily',
-        };
     }
 
     private validate = (rule, value, callback) => {
@@ -68,33 +40,39 @@ class RecurringOptionsControl extends React.Component<
     };
 
     private onFrequencyChange = (value: string) => {
-        this.setState({ frequency: value as FrequencyOptions });
+        // this.setState({ frequency: value as FrequencyOptions });
         this.triggerChange({ frequency: value as FrequencyOptions });
     };
 
     private onDateChange = (date: moment.Moment, dateString: string) => {
-        this.setState({ start: date.toDate() });
+        // this.setState({ start: date.toDate() });
         this.triggerChange({ start: date.toDate() });
     };
 
     private onUntilChange = (date: moment.Moment, dateString: string) => {
-        this.setState({ start: date.toDate() });
+        // this.setState({ start: date.toDate() });
         this.triggerChange({ start: date.toDate() });
     };
 
     private onEveryChange = (value: number) => {
-        this.setState({ every: value });
+        // this.setState({ every: value });
         this.triggerChange({ every: value });
     };
 
     private onIterationChange = (value: number) => {
-        this.setState({ iterations: value });
+        // this.setState({ iterations: value });
         this.triggerChange({ iterations: value });
     };
 
     public render() {
-        const { fd } = this.props;
-        const { every, frequency, iterations, start, until } = this.state;
+        const { fd, recurringOptions } = this.props;
+        const {
+            start,
+            frequency,
+            every,
+            iterations,
+            until,
+        } = recurringOptions!;
 
         return (
             <>

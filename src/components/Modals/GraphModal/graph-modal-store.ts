@@ -12,7 +12,7 @@ class GraphModalStore extends ModalFormStore {
 
     @ignore
     @observable
-    public recurringOptions?: RecurringOptions;
+    public recurringOptions: Partial<RecurringOptions> = {};
 
     @action public async saveGraph(values: any) {
         this.saving = true;
@@ -60,7 +60,7 @@ class GraphModalStore extends ModalFormStore {
     }
 
     @action public resetModal() {
-        this.recurringOptions = undefined;
+        this.recurringOptions = {};
         this.constants = [];
         this.modalData = {};
     }

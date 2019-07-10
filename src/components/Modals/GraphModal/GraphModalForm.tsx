@@ -13,7 +13,7 @@ import { GraphModalStore } from './graph-modal-store';
 interface IFormDataProps {
     constants: Partial<ConstantData>[];
     data: Graph;
-    recurringOptions?: RecurringOptions;
+    recurringOptions: Partial<RecurringOptions>;
     onConstantDelete: (id: string) => void;
     onConstantAdd: () => void;
 }
@@ -33,6 +33,7 @@ const GraphForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
                 onConstantAdd,
                 onConstantDelete,
                 constants,
+                recurringOptions,
                 ...rest
             } = this.props;
             const { getFieldDecorator } = form;
@@ -89,7 +90,10 @@ const GraphForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
                             )}
                         </FormItem>
                         {isRecurring && (
-                            <RecurringOptionsControl fd={getFieldDecorator} />
+                            <RecurringOptionsControl
+                                fd={getFieldDecorator}
+                                recurringOptions={recurringOptions}
+                            />
                         )}
                         <ConstantsControl
                             fd={getFieldDecorator}
