@@ -327,9 +327,10 @@ class EditorView extends React.Component<
                     placement="bottom"
                     visible={showLogs}
                     onClose={this.hideLogDrawer}
-                    height={400}
+                    height="40%"
                     mask={false}
                     closable={true}
+                    className="log-drawer"
                 >
                     <LogView logs={logs} />
                 </Drawer>

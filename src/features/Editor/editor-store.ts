@@ -1,12 +1,9 @@
 import { notification } from 'antd';
+import _ from 'lodash';
 import { action, computed, observable, runInAction } from 'mobx';
 import { ignore } from 'mobx-sync';
 import { NodeService } from 'src/services';
 import { graphStore, IDisposableStore, macroStore } from 'src/stores';
-import { LinkImportExport } from './rete-engine/link';
-
-import { getGraphType } from '@utils';
-import _ from 'lodash';
 import { isMacro } from 'src/utils/typeguards';
 import GraphHub from './hubs/graph-hub';
 import TerminalHub from './hubs/terminal-hub';
@@ -74,18 +71,18 @@ class EditorStore implements IDisposableStore {
     constructor() {
         this.graphHub = new GraphHub();
         this.terminalHub = new TerminalHub();
-
-        this.graphHub.onBridgeInfo(data => this.setBridgeInfo(true, data));
-        this.graphHub.onBridgeLost(() => this.setBridgeInfo(false, null));
-
-        this.terminalHub.onLog(data => this.createLog(data, 'log'));
-        this.terminalHub.onLogDebug(data => this.createLog(data, 'debug'));
-        this.terminalHub.onLogWarn(data => this.createLog(data, 'warn'));
-        this.terminalHub.onLogError(data => this.createLog(data, 'error'));
     }
 
     @action public async initialize() {
         try {
+            this.graphHub.onBridgeInfo(data => this.setBridgeInfo(true, data));
+            this.graphHub.onBridgeLost(() => this.setBridgeInfo(false, null));
+
+            this.terminalHub.onLog(data => this.createLog(data, 'log'));
+            this.terminalHub.onLogDebug(data => this.createLog(data, 'debug'));
+            this.terminalHub.onLogWarn(data => this.createLog(data, 'warn'));
+            this.terminalHub.onLogError(data => this.createLog(data, 'error'));
+
             await this.graphHub.attemptConnect();
             await this.terminalHub.attemptConnect();
             runInAction(() => {
@@ -215,12 +212,17 @@ class EditorStore implements IDisposableStore {
     };
 
     @action
-    private createLog(data: string, type: LogType) {
+    public createLog(data: string, type: LogType) {
         this.logs.push({
             message: data,
             time: new Date(),
             type,
         });
+    }
+
+    @action
+    public clearLogs() {
+        this.logs = [];
     }
 
     @action public async saveGraph(
@@ -263,6 +265,7 @@ class EditorStore implements IDisposableStore {
 
     @action public dispose() {
         this.logs = [];
+        this.bridgeInfo = null;
     }
 
     @action public closeLogDrawer() {

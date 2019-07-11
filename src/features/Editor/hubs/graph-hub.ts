@@ -1,12 +1,6 @@
 import { SimpleObservable } from '@utils';
 import { BaseHub } from 'src/hubs/base-hub';
 
-export interface IBridgeInfo {
-    deviceName: string;
-    connectionId: string;
-    userId: string;
-}
-
 const graphHubPath = process.env.REACT_APP_GRAPH_HUB as string;
 class GraphHub extends BaseHub {
     private bridgeInfo: SimpleObservable<IBridgeInfo>;
@@ -44,6 +38,7 @@ class GraphHub extends BaseHub {
 
     public dispose() {
         super.dispose();
+        this.lostBridge.clear();
         this.bridgeInfo.clear();
     }
 }

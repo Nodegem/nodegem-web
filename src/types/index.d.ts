@@ -12,6 +12,8 @@ interface IHierarchicalNode<TItem> {
 
 interface IBridgeInfo {
     deviceName: string;
+    operatingSystem: string;
+    processorCount: number;
     connectionId: string;
     userId: string;
 }
