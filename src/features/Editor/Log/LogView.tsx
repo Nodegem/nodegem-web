@@ -22,12 +22,6 @@ class LogView extends React.Component<ILogViewProps> {
         maxLogsDisplayed: 250,
     };
 
-    private disposer: IReactionDisposer;
-
-    public componentWillUnmount() {
-        this.disposer();
-    }
-
     private onClearLogs = () => {
         this.props.editorStore!.clearLogs();
     };
