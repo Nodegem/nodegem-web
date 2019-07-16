@@ -287,7 +287,14 @@ class EditorStore implements IDisposableStore {
                 this.bridgeInfo &&
                 data.connectionId !== this.bridgeInfo.connectionId)
         ) {
-            this.createLog(`Connected to device: ${data.deviceName}`, 'log');
+            this.createLog(
+                `Connected to device: ${data.deviceName} (ID: ${
+                    data.deviceIdentifier
+                } OS: ${data.operatingSystem} Thread Count: ${
+                    data.processorCount
+                })`,
+                'log'
+            );
             this.bridgeInfo = data;
         } else if (!connected && this.bridgeInfo) {
             this.createLog(
