@@ -112,6 +112,7 @@ const GraphForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
 @observer
 class GraphModalFormController extends React.Component<{
     graphModalStore?: GraphModalStore;
+    onSave?: (graph: Graph | undefined) => void;
 }> {
     private formRef: Form;
 
@@ -124,7 +125,11 @@ class GraphModalFormController extends React.Component<{
                 return;
             }
 
-            await graphModalStore!.saveGraph(values);
+            const graph = await graphModalStore!.saveGraph(values);
+
+            if (this.props.onSave) {
+                this.props.onSave(graph);
+            }
 
             form!.resetFields();
             graphModalStore!.closeModal();

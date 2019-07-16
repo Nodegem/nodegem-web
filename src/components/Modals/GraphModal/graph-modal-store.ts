@@ -16,6 +16,7 @@ class GraphModalStore extends ModalFormStore {
 
     @action public async saveGraph(values: any) {
         this.saving = true;
+        let graph;
 
         const newData = {
             ...values,
@@ -27,15 +28,17 @@ class GraphModalStore extends ModalFormStore {
         }
 
         if (this.editMode) {
-            await graphStore!.updateGraph({
+            graph = await graphStore!.updateGraph({
                 ...this.modalData,
                 ...newData,
             });
         } else {
-            await graphStore!.createGraph(newData);
+            console.log(newData);
+            graph = await graphStore!.createGraph(newData);
         }
 
         this.saving = false;
+        return graph;
     }
 
     private createConstantsObject(values: any) {

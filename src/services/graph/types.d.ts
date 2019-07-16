@@ -65,5 +65,7 @@ interface CreateGraph {
     name: string;
     description: string;
     userId: string;
+    type: ExecutionType;
+    recurringOptions: RecurringOptions;
     constants: ConstantData[];
 }

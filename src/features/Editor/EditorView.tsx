@@ -260,9 +260,15 @@ class EditorView extends React.Component<
         this.props.macroModalStore!.openModal();
     };
 
+    private onSaveGraph = (graph: Graph | undefined) => {
+        if (graph) {
+            this.setState({ graph });
+        }
+    };
+
     private onSaveMacro = (macro: Macro | undefined) => {
         if (macro) {
-            this.props.history.push(`/editor/${macro.id}`);
+            this.props.history.push(`/editor/macro/${macro.id}`);
         }
     };
 
@@ -335,7 +341,7 @@ class EditorView extends React.Component<
                     <LogView logs={logs} />
                 </Drawer>
                 <MacroModalFormController onSave={this.onSaveMacro} />
-                <GraphModalFormController />
+                <GraphModalFormController onSave={this.onSaveGraph} />
             </div>
         );
     }
