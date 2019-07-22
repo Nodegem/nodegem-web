@@ -1,21 +1,20 @@
 import './EditorView.less';
 
 import { Drawer, Icon, notification, Spin } from 'antd';
+import { GraphModalStore } from 'components/Modals/GraphModal/graph-modal-store';
+import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
+import { MacroModalStore } from 'components/Modals/MacroModal/macro-modal-store';
+import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
+import { EditorStore } from 'features/Editor/editor-store';
 import { toJS } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { GraphModalStore } from 'src/components/Modals/GraphModal/graph-modal-store';
-import GraphModalFormController from 'src/components/Modals/GraphModal/GraphModalForm';
-import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
-import MacroModalFormController from 'src/components/Modals/MacroModal/MacroModalForm';
-import { EditorStore } from 'src/features/Editor/editor-store';
-import { GraphStore } from 'src/stores/graph-store';
-import { MacroStore } from 'src/stores/macro-store';
+import { GraphStore } from 'stores/graph-store';
+import { MacroStore } from 'stores/macro-store';
 
-import { getGraphType, isInput } from '@utils';
-import { GraphService } from 'src/services';
-import { MacroService } from 'src/services/macro';
+import { GraphService, MacroService } from 'services';
+import { getGraphType, isInput } from 'utils';
 import { ControlPanelView } from './ControlPanelView';
 import { GenericComponent } from './generic-component';
 import LogView from './Log/LogView';

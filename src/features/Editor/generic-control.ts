@@ -1,4 +1,4 @@
-import { mapToValueType } from 'src/utils/value-type-mapper';
+import { mapToValueType } from 'utils/value-type-mapper';
 
 import { Control } from './rete-engine/control';
 import { Emitter } from './rete-engine/core/emitter';

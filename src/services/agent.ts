@@ -1,4 +1,4 @@
-import { userStore } from 'src/stores';
+import { userStore } from 'stores';
 import superagent, { SuperAgentRequest } from 'superagent';
 
 const ROOT_URL = process.env.REACT_APP_API_BASE_URL;

@@ -1,40 +1,25 @@
 import './index.less';
 import './utils/extensions';
 
-import LocalForage from 'localforage';
 import { Provider } from 'mobx-react';
-import { AsyncTrunk } from 'mobx-sync';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Router } from 'react-router';
 
 import App from './App';
-import MobXPersistGate from './components/MobXPersistGate/MobXPersistGate';
-import registerServiceWorker from './registerServiceWorker';
-import { rootStore, rootStoreKey } from './stores';
+import * as servicerWorker from './serviceWorker';
+import * as stores from './stores';
 import history from './utils/history';
-
-const trunk = new AsyncTrunk(rootStore, {
-    storage: LocalForage as any,
-    storageKey: rootStoreKey,
-});
-
-trunk.init().then(() => {
-    rootStore.isLoaded = true;
-});
-
-const LoadingIcon = <></>;
 
 ReactDOM.render(
     <>
-        <MobXPersistGate rootStore={rootStore} loading={LoadingIcon}>
-            <Provider {...rootStore}>
-                <Router history={history}>
-                    <App />
-                </Router>
-            </Provider>
-        </MobXPersistGate>
+        <Provider {...stores}>
+            <Router history={history}>
+                <App />
+            </Router>
+        </Provider>
     </>,
     document.getElementById('root') as HTMLElement
 );
-registerServiceWorker();
+
+servicerWorker.unregister();

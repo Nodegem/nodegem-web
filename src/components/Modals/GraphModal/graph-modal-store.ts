@@ -1,16 +1,16 @@
 import { action, observable } from 'mobx';
-import { graphStore } from 'src/stores';
+import { graphStore } from 'stores';
 
 import { uuid } from 'lodash-uuid';
-import { ignore } from 'mobx-sync';
+
 import ModalFormStore from '../modal-form-store';
 
 class GraphModalStore extends ModalFormStore {
-    @ignore
+    
     @observable
     public constants: Array<Partial<ConstantData>> = [];
 
-    @ignore
+    
     @observable
     public recurringOptions: Partial<RecurringOptions> = {};
 

@@ -1,6 +1,6 @@
 import * as signalR from '@aspnet/signalr';
-import { userStore } from 'src/stores';
-import { exponentialBackoff, getBaseApiUrl } from 'src/utils';
+import { userStore } from 'stores';
+import { exponentialBackoff, getBaseApiUrl } from 'utils';
 import { SimpleObservable } from '../utils/simple-observable';
 
 abstract class BaseHub {

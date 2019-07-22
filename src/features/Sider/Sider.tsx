@@ -1,12 +1,12 @@
-import './Sider.scss';
+import './Sider.less';
 
 import { Icon, Layout, Menu } from 'antd';
 import { CollapseType } from 'antd/lib/layout/Sider';
 import { inject, observer } from 'mobx-react';
 import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import { AuthStore } from 'src/stores/auth-store';
-import { CommonStore } from 'src/stores/common-store';
+import { AuthStore } from 'stores/auth-store';
+import { CommonStore } from 'stores/common-store';
 
 const AntSider = Layout.Sider;
 

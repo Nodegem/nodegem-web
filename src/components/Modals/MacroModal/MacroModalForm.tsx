@@ -8,8 +8,8 @@ import * as React from 'react';
 import { FormComponentProps } from 'antd/lib/form';
 import { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
 import Modal, { ModalProps } from 'antd/lib/modal';
-import FlowField from 'src/components/PortFields/FlowField/FlowField';
-import ValueTypeField from 'src/components/PortFields/ValueTypeField/ValueTypeField';
+import FlowField from 'components/PortFields/FlowField/FlowField';
+import ValueTypeField from 'components/PortFields/ValueTypeField/ValueTypeField';
 import AddItem from './AddItem';
 import { MacroModalStore } from './macro-modal-store';
 

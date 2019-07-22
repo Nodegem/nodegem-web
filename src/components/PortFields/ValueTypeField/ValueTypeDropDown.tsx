@@ -1,7 +1,7 @@
 import { Select } from 'antd';
 import { SelectProps } from 'antd/lib/select';
 import * as React from 'react';
-import { valueMap } from 'src/utils/value-type-mapper';
+import { valueMap } from 'utils/value-type-mapper';
 
 const Option = Select.Option;
 

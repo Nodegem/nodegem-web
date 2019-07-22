@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Redirect, Route } from 'react-router';
-import userStore, { UserStore } from 'src/stores/user-store';
+import userStore, { UserStore } from 'stores/user-store';
 
 export const PublicRoute = ({
     component: Component,

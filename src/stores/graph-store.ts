@@ -1,14 +1,14 @@
 import { action, observable, runInAction } from 'mobx';
-import { ignore } from 'mobx-sync';
-import { GraphService } from 'src/services';
 
-import { IDisposableStore, userStore } from './';
+import { GraphService } from 'services';
+
+import { userStore } from '.';
 
 class GraphStore implements IDisposableStore {
     @observable
     public graphs: Array<Graph> = [];
 
-    @ignore
+    
     @observable
     public loadingGraphs: boolean = false;
 

@@ -3,7 +3,7 @@ import './Profile.less';
 import { Avatar, Divider } from 'antd';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
-import { UserStore } from 'src/stores/user-store';
+import { UserStore } from 'stores/user-store';
 
 interface IProfileViewProps {
     userStore?: UserStore;

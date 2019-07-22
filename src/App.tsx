@@ -3,7 +3,7 @@ import './App.less';
 import { Layout } from 'antd';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
-import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
+import { RouteComponentProps, Switch, withRouter } from 'react-router';
 
 import { AuthorizedRoute } from './components/AuthorizedRoute/AuthorizedRoute';
 import { PublicRoute } from './components/PublicRoute/AuthorizedRoute';
@@ -27,10 +27,6 @@ interface IAppProps {
 @inject('userStore')
 @observer
 class App extends React.Component<IAppProps & RouteComponentProps<any>> {
-    // private editorPageCondition(): boolean {
-    //     // return this.props.userStore!.isLoggedIn && this.
-    // }
-
     public render() {
         const { userStore } = this.props;
 

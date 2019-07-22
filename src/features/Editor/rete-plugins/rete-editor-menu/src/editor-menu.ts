@@ -2,7 +2,7 @@ import './editor-menu.less';
 
 import classNames from 'classnames';
 import Fuse from 'fuse.js';
-import { isDescendant } from 'src/utils';
+import { isDescendant } from 'utils';
 
 export interface IMenuContents {
     filterableItems?: Array<IMenuItem | ISubMenu>;

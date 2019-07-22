@@ -1,7 +1,7 @@
 import { Button, Checkbox, Col, Icon, Input, Row, Tooltip } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import * as React from 'react';
-import { valueMap } from 'src/utils/value-type-mapper';
+import { valueMap } from 'utils/value-type-mapper';
 import { ValueTypeDropDown } from '../PortFields';
 
 interface IConstantFieldProps {

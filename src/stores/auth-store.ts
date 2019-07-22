@@ -1,9 +1,9 @@
 import { notification } from 'antd';
 import { action, observable } from 'mobx';
-import { AuthService } from 'src/services';
-import history from 'src/utils/history';
+import { AuthService } from 'services';
+import history from 'utils/history';
 
-import { ignore } from 'mobx-sync';
+
 import { rootStore } from './';
 import userStore from './user-store';
 
@@ -16,7 +16,7 @@ class AuthStore {
     @observable public rememberMe: boolean = false;
     @observable public savedUsername: string = '';
 
-    @ignore
+    
     @observable
     public loading: boolean = false;
 

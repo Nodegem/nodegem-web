@@ -2,11 +2,10 @@ import './LogView.less';
 
 import classNames from 'classnames';
 import { inject, observer } from 'mobx-react';
-import * as moment from 'moment';
+import moment from 'moment';
 import * as React from 'react';
 
 import { Button } from 'antd';
-import { IReactionDisposer, reaction } from 'mobx';
 import { EditorStore, ILog } from '../editor-store';
 
 interface ILogViewProps {

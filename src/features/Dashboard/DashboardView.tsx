@@ -1,19 +1,19 @@
-import 'src/utils/extensions';
+import 'utils/extensions';
 import './Dashboard.less';
 
 import { Button, Card, List, Spin, Tooltip } from 'antd';
+import { GraphModalStore } from 'components/Modals/GraphModal/graph-modal-store';
+import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
+import { MacroModalStore } from 'components/Modals/MacroModal/macro-modal-store';
+import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
+import { EditorStore } from 'features/Editor/editor-store';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { GraphModalStore } from 'src/components/Modals/GraphModal/graph-modal-store';
-import GraphModalFormController from 'src/components/Modals/GraphModal/GraphModalForm';
-import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
-import MacroModalFormController from 'src/components/Modals/MacroModal/MacroModalForm';
-import { EditorStore } from 'src/features/Editor/editor-store';
-import { GraphStore } from 'src/stores/graph-store';
-import { MacroStore } from 'src/stores/macro-store';
+import { GraphStore } from 'stores/graph-store';
+import { MacroStore } from 'stores/macro-store';
 
-import { isMacro } from '@utils';
+import { isMacro } from 'utils';
 import DashboardCard from './DashboardCard';
 
 interface IDashboardProps {

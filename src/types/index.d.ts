@@ -18,3 +18,7 @@ interface IBridgeInfo {
     connectionId: string;
     userId: string;
 }
+
+interface IDisposableStore {
+    dispose: () => void;
+}

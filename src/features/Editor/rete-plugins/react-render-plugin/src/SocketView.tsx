@@ -1,7 +1,7 @@
 import './Socket.less';
 
+import { IO } from 'features/Editor/rete-engine/io';
 import * as React from 'react';
-import { IO } from 'src/features/Editor/rete-engine/io';
 
 type SocketType = 'input' | 'output';
 type SocketViewProps = {

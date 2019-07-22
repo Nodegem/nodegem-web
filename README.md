@@ -136,7 +136,7 @@ my-app/
   public/
     index.html
     favicon.ico
-  src/
+  
     App.css
     App.js
     App.test.js
@@ -148,7 +148,7 @@ my-app/
 For the project to build, **these files must exist with exact filenames**:
 
 * `public/index.html` is the page template;
-* `src/index.js` is the JavaScript entry point.
+* `index.js` is the JavaScript entry point.
 
 You can delete or rename the other files.
 
@@ -280,7 +280,7 @@ Then add the block below to your `launch.json` file and put it inside the `.vsco
     "webRoot": "${workspaceRoot}/src",
     "userDataDir": "${workspaceRoot}/.vscode/chrome",
     "sourceMapPathOverrides": {
-      "webpack:///src/*": "${webRoot}/*"
+      "webpack:///*": "${webRoot}/*"
     }
   }]
 }
@@ -339,7 +339,7 @@ Next we add a 'lint-staged' field to the `package.json`, for example:
     // ...
   },
 + "lint-staged": {
-+   "src/**/*.{js,jsx,json,css}": [
++   "**/*.{js,jsx,json,css}": [
 +     "prettier --single-quote --write",
 +     "git add"
 +   ]
@@ -347,7 +347,7 @@ Next we add a 'lint-staged' field to the `package.json`, for example:
   "scripts": {
 ```
 
-Now, whenever you make a commit, Prettier will format the changed files automatically. You can also run `./node_modules/.bin/prettier --single-quote --write "src/**/*.{js,jsx,json,css}"` to format your entire project for the first time.
+Now, whenever you make a commit, Prettier will format the changed files automatically. You can also run `./node_modules/.bin/prettier --single-quote --write "**/*.{js,jsx,json,css}"` to format your entire project for the first time.
 
 Next you might want to integrate Prettier in your favorite editor. Read the section on [Editor Integration](https://prettier.io/docs/en/editors.html) on the Prettier GitHub page.
 
@@ -509,7 +509,7 @@ class Button extends Component {
 
 In development, expressing dependencies this way allows your styles to be reloaded on the fly as you edit them. In production, all CSS files will be concatenated into a single minified `.css` file in the build output.
 
-If you are concerned about using Webpack-specific semantics, you can put all your CSS right into `src/index.css`. It would still be imported from `src/index.js`, but you could always remove that import if you later migrate to a different build tool.
+If you are concerned about using Webpack-specific semantics, you can put all your CSS right into `index.css`. It would still be imported from `index.js`, but you could always remove that import if you later migrate to a different build tool.
 
 ## Post-Processing CSS
 
@@ -566,8 +566,8 @@ Then in `package.json`, add the following lines to `scripts`:
 
 ```diff
    "scripts": {
-+    "build-css": "node-sass-chokidar src/ -o src/",
-+    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
++    "build-css": "node-sass-chokidar  -o ",
++    "watch-css": "npm run build-css && node-sass-chokidar  -o  --watch --recursive",
      "start": "react-scripts start",
      "build": "react-scripts build",
      "test": "react-scripts test --env=jsdom",
@@ -575,25 +575,25 @@ Then in `package.json`, add the following lines to `scripts`:
 
 >Note: To use a different preprocessor, replace `build-css` and `watch-css` commands according to your preprocessor’s documentation.
 
-Now you can rename `src/App.css` to `src/App.scss` and run `npm run watch-css`. The watcher will find every Sass file in `src` subdirectories, and create a corresponding CSS file next to it, in our case overwriting `src/App.css`. Since `src/App.js` still imports `src/App.css`, the styles become a part of your application. You can now edit `src/App.scss`, and `src/App.css` will be regenerated.
+Now you can rename `App.css` to `App.scss` and run `npm run watch-css`. The watcher will find every Sass file in `src` subdirectories, and create a corresponding CSS file next to it, in our case overwriting `App.css`. Since `App.js` still imports `App.css`, the styles become a part of your application. You can now edit `App.scss`, and `App.css` will be regenerated.
 
-To share variables between Sass files, you can use Sass imports. For example, `src/App.scss` and other component style files could include `@import "./shared.scss";` with variable definitions.
+To share variables between Sass files, you can use Sass imports. For example, `App.scss` and other component style files could include `@import "./shared.scss";` with variable definitions.
 
 To enable importing files without using relative paths, you can add the  `--include-path` option to the command in `package.json`.
 
 ```
-"build-css": "node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/",
-"watch-css": "npm run build-css && node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/ --watch --recursive",
+"build-css": "node-sass-chokidar --include-path ./src --include-path ./node_modules  -o ",
+"watch-css": "npm run build-css && node-sass-chokidar --include-path ./src --include-path ./node_modules  -o  --watch --recursive",
 ```
 
 This will allow you to do imports like
 
 ```scss
-@import 'styles/_colors.scss'; // assuming a styles directory under src/
+@import 'styles/_colors.scss'; // assuming a styles directory under 
 @import 'nprogress/nprogress'; // importing a css file from the nprogress node module
 ```
 
-At this point you might want to remove all CSS files from the source control, and add `src/**/*.css` to your `.gitignore` file. It is generally a good practice to keep the build products outside of the source control.
+At this point you might want to remove all CSS files from the source control, and add `**/*.css` to your `.gitignore` file. It is generally a good practice to keep the build products outside of the source control.
 
 As a final step, you may find it convenient to run `watch-css` automatically with `npm start`, and run `build-css` as a part of `npm run build`. You can use the `&&` operator to execute two scripts sequentially. However, there is no cross-platform way to run two scripts in parallel, so we will install a package for this:
 
@@ -611,8 +611,8 @@ Then we can change `start` and `build` scripts to include the CSS preprocessor c
 
 ```diff
    "scripts": {
-     "build-css": "node-sass-chokidar src/ -o src/",
-     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
+     "build-css": "node-sass-chokidar  -o ",
+     "watch-css": "npm run build-css && node-sass-chokidar  -o  --watch --recursive",
 -    "start": "react-scripts-ts start",
 -    "build": "react-scripts-ts build",
 +    "start-js": "react-scripts-ts start",
@@ -789,7 +789,7 @@ Alternatively you may use `yarn`:
 yarn add react-bootstrap bootstrap@3
 ```
 
-Import Bootstrap CSS and optionally Bootstrap theme CSS in the beginning of your ```src/index.js``` file:
+Import Bootstrap CSS and optionally Bootstrap theme CSS in the beginning of your ```index.js``` file:
 
 ```js
 import 'bootstrap/dist/css/bootstrap.css';
@@ -798,7 +798,7 @@ import 'bootstrap/dist/css/bootstrap-theme.css';
 // components takes precedence over default styles.
 ```
 
-Import required React Bootstrap components within ```src/App.js``` file or your custom component files:
+Import required React Bootstrap components within ```App.js``` file or your custom component files:
 
 ```js
 import { Navbar, Jumbotron, Button } from 'react-bootstrap';
@@ -828,7 +828,7 @@ To add Flow to a Create React App project, follow these steps:
 1. Run `npm install --save flow-bin` (or `yarn add flow-bin`).
 2. Add `"flow": "flow"` to the `scripts` section of your `package.json`.
 3. Run `npm run flow init` (or `yarn flow init`) to create a [`.flowconfig` file](https://flowtype.org/docs/advanced-configuration.html) in the root directory.
-4. Add `// @flow` to any files you want to type check (for example, to `src/App.js`).
+4. Add `// @flow` to any files you want to type check (for example, to `App.js`).
 
 Now you can run `npm run flow` (or `yarn flow`) to check the files for type errors.
 You can optionally use an IDE like [Nuclide](https://nuclide.io/docs/languages/flow/) for a better integrated experience.
@@ -852,7 +852,7 @@ Alternatively you may use `yarn`:
 yarn add react-router-dom
 ```
 
-To try it, delete all the code in `src/App.js` and replace it with any of the examples on its website. The [Basic Example](https://reacttraining.com/react-router/web/example/basic) is a good place to get started.
+To try it, delete all the code in `App.js` and replace it with any of the examples on its website. The [Basic Example](https://reacttraining.com/react-router/web/example/basic) is a good place to get started.
 
 Note that [you may need to configure your production server to support client-side routing](#serving-apps-with-client-side-routing) before deploying your app.
 
@@ -1355,7 +1355,7 @@ it('renders without crashing', () => {
 });
 ```
 
-This test mounts a component and makes sure that it didn’t throw during rendering. Tests like this provide a lot of value with very little effort so they are great as a starting point, and this is the test you will find in `src/App.test.tsx`.
+This test mounts a component and makes sure that it didn’t throw during rendering. Tests like this provide a lot of value with very little effort so they are great as a starting point, and this is the test you will find in `App.test.tsx`.
 
 When you encounter bugs caused by changing components, you will gain a deeper insight into which parts of them are worth testing in your application. This might be a good time to introduce more specific tests asserting specific expected output or behavior.
 
@@ -1371,7 +1371,7 @@ Alternatively you may use `yarn`:
 yarn add --dev enzyme @types/enzyme enzyme-adapter-react-16 @types/enzyme-adapter-react-16 react-test-renderer @types/react-test-renderer
 ```
 
-#### `src/setupTests.ts`
+#### `setupTests.ts`
 ```ts
 import * as Enzyme from 'enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
@@ -1379,7 +1379,7 @@ import * as Adapter from 'enzyme-adapter-react-16';
 Enzyme.configure({ adapter: new Adapter() });
 ```
 
->Note: Keep in mind that if you decide to "eject" before creating `src/setupTests.js`, the resulting `package.json` file won't contain any reference to it. [Read here](#initializing-test-environment) to learn how to add this after ejecting.
+>Note: Keep in mind that if you decide to "eject" before creating `setupTests.js`, the resulting `package.json` file won't contain any reference to it. [Read here](#initializing-test-environment) to learn how to add this after ejecting.
 
 Now you can write a smoke test with it:
 
@@ -1433,7 +1433,7 @@ Alternatively you may use `yarn`:
 yarn add jest-enzyme
 ```
 
-Import it in [`src/setupTests.ts`](#initializing-test-environment) to make its matchers available in every test:
+Import it in [`setupTests.ts`](#initializing-test-environment) to make its matchers available in every test:
 
 ```js
 import 'jest-enzyme';
@@ -1456,11 +1456,11 @@ and then use them in your tests like you normally do.
 
 >Note: this feature is available with `react-scripts@0.4.0` and higher.
 
-If your app uses a browser API that you need to mock in your tests or if you just need a global setup before running your tests, add a `src/setupTests.ts` to your project. It will be automatically executed before running your tests.
+If your app uses a browser API that you need to mock in your tests or if you just need a global setup before running your tests, add a `setupTests.ts` to your project. It will be automatically executed before running your tests.
 
 For example:
 
-#### `src/setupTests.ts`
+#### `setupTests.ts`
 ```ts
 const localStorageMock = {
   getItem: jest.fn(),
@@ -1470,12 +1470,12 @@ const localStorageMock = {
 global.localStorage = localStorageMock
 ```
 
->Note: Keep in mind that if you decide to "eject" before creating `src/setupTests.js`, the resulting `package.json` file won't contain any reference to it, so you should manually create the property `setupTestFrameworkScriptFile` in the configuration for Jest, something like the following:
+>Note: Keep in mind that if you decide to "eject" before creating `setupTests.js`, the resulting `package.json` file won't contain any reference to it, so you should manually create the property `setupTestFrameworkScriptFile` in the configuration for Jest, something like the following:
 
 >```js
 >"jest": {
 >   // ...
->   "setupTestFrameworkScriptFile": "<rootDir>/src/setupTests.js"
+>   "setupTestFrameworkScriptFile": "<rootDir>/setupTests.js"
 >  }
 >  ```
 
@@ -1588,7 +1588,7 @@ To help you make up your mind, here is a list of APIs that **need jsdom**:
 
 * Any browser globals like `window` and `document`
 * [`ReactDOM.render()`](https://facebook.github.io/react/docs/top-level-api.html#reactdom.render)
-* [`TestUtils.renderIntoDocument()`](https://facebook.github.io/react/docs/test-utils.html#renderintodocument) ([a shortcut](https://github.com/facebook/react/blob/34761cf9a252964abfaab6faf74d473ad95d1f21/src/test/ReactTestUtils.js#L83-L91) for the above)
+* [`TestUtils.renderIntoDocument()`](https://facebook.github.io/react/docs/test-utils.html#renderintodocument) ([a shortcut](https://github.com/facebook/react/blob/34761cf9a252964abfaab6faf74d473ad95d1f21/test/ReactTestUtils.js#L83-L91) for the above)
 * [`mount()`](http://airbnb.io/enzyme/docs/api/mount.html) in [Enzyme](http://airbnb.io/enzyme/index.html)
 
 In contrast, **jsdom is not needed** for the following APIs:
@@ -1774,12 +1774,12 @@ that your web app is reliably fast, even on a slow or unreliable network.
 
 If you would prefer not to enable service workers prior to your initial
 production deployment, then remove the call to `serviceWorkerRegistration.register()`
-from [`src/index.js`](src/index.js).
+from [`index.js`](index.js).
 
 If you had previously enabled service workers in your production deployment and
 have decided that you would like to disable them for all your existing users,
 you can swap out the call to `serviceWorkerRegistration.register()` in
-[`src/index.js`](src/index.js) with a call to `serviceWorkerRegistration.unregister()`.
+[`index.js`](index.js) with a call to `serviceWorkerRegistration.unregister()`.
 After the user visits a page that has `serviceWorkerRegistration.unregister()`,
 the service worker will be uninstalled. Note that depending on how `/service-worker.js` is served,
 it may take up to 24 hours for the cache to be invalidated.
@@ -1793,7 +1793,7 @@ If your production web server does not support HTTPS, then the service worker
 registration will fail, but the rest of your web app will remain functional.
 
 1. Service workers are [not currently supported](https://jakearchibald.github.io/isserviceworkerready/)
-in all web browsers. Service worker registration [won't be attempted](src/registerServiceWorker.js)
+in all web browsers. Service worker registration [won't be attempted](registerServiceWorker.js)
 on browsers that lack support.
 
 1. The service worker is only enabled in the [production environment](#deployment),
@@ -1827,7 +1827,7 @@ app works offline!" message) and also let them know when the service worker has
 fetched the latest updates that will be available the next time they load the
 page (showing a "New content is available; please refresh." message). Showing
 this messages is currently left as an exercise to the developer, but as a
-starting point, you can make use of the logic included in [`src/registerServiceWorker.js`](src/registerServiceWorker.js), which
+starting point, you can make use of the logic included in [`registerServiceWorker.js`](registerServiceWorker.js), which
 demonstrates which service worker lifecycle events to listen for to detect each
 scenario, and which as a default, just logs appropriate messages to the
 JavaScript console.
@@ -2398,7 +2398,7 @@ This is considered poor practice in the ecosystem and does not have an escape ha
 To resolve this:
 1. Open an issue on the dependency's issue tracker and ask that the package be published pre-compiled (retaining ES6 Modules).
 2. Fork the package and publish a corrected version yourself.
-3. If the dependency is small enough, copy it to your `src/` folder and treat it as application code.
+3. If the dependency is small enough, copy it to your `` folder and treat it as application code.
 
 In the future, we might start automatically compiling incompatible third-party modules, but it is not currently supported. This approach would also slow down the production builds.
 

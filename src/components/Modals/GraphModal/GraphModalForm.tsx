@@ -6,8 +6,8 @@ import * as React from 'react';
 
 import { FormComponentProps } from 'antd/lib/form';
 import { ModalProps } from 'antd/lib/modal';
-import ConstantsControl from 'src/components/ConstantsControl/ConstantsControl';
-import RecurringOptionsControl from 'src/components/RecurringOptionsControl/RecurringOptionsControl';
+import ConstantsControl from 'components/ConstantsControl/ConstantsControl';
+import RecurringOptionsControl from 'components/RecurringOptionsControl/RecurringOptionsControl';
 import { GraphModalStore } from './graph-modal-store';
 
 interface IFormDataProps {

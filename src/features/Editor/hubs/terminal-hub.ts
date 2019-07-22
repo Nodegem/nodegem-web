@@ -1,5 +1,5 @@
-import { BaseHub } from 'src/hubs/base-hub';
-import { SimpleObservable } from 'src/utils/simple-observable';
+import { BaseHub } from 'hubs/base-hub';
+import { SimpleObservable } from 'utils/simple-observable';
 
 const terminalPath = process.env.REACT_APP_TERMINAL_HUB as string;
 

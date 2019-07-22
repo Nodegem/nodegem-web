@@ -1,13 +1,13 @@
 import { action, observable, runInAction } from 'mobx';
-import { ignore } from 'mobx-sync';
-import { MacroService } from 'src/services/macro';
 
-import { IDisposableStore, userStore } from './';
+import { MacroService } from 'services';
+
+import { userStore } from '.';
 
 class MacroStore implements IDisposableStore {
     @observable public macros: Array<Macro> = [];
 
-    @ignore
+    
     @observable
     public loadingMacros: boolean = false;
 

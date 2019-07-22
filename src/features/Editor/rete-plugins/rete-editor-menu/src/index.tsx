@@ -1,7 +1,7 @@
+import { NodeEditor } from 'features/Editor/rete-engine/editor';
+import { Node } from 'features/Editor/rete-engine/node';
+import { createNode } from 'features/Editor/utils';
 import * as React from 'react';
-import { NodeEditor } from 'src/features/Editor/rete-engine/editor';
-import { Node } from 'src/features/Editor/rete-engine/node';
-import { createNode } from 'src/features/Editor/utils';
 
 import contextMenu, { IMenuContents, IMenuItem, ISubMenu } from './editor-menu';
 

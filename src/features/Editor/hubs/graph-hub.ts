@@ -1,5 +1,5 @@
-import { SimpleObservable } from '@utils';
-import { BaseHub } from 'src/hubs/base-hub';
+import { BaseHub } from 'hubs/base-hub';
+import { SimpleObservable } from 'utils';
 
 const graphHubPath = process.env.REACT_APP_GRAPH_HUB as string;
 class GraphHub extends BaseHub {

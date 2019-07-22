@@ -1,10 +1,10 @@
 import { notification } from 'antd';
 import _ from 'lodash';
 import { action, computed, observable, runInAction } from 'mobx';
-import { ignore } from 'mobx-sync';
-import { NodeService } from 'src/services';
-import { graphStore, IDisposableStore, macroStore } from 'src/stores';
-import { isMacro } from 'src/utils/typeguards';
+
+import { NodeService } from 'services';
+import { graphStore, macroStore } from 'stores';
+import { isMacro } from 'utils/typeguards';
 import GraphHub from './hubs/graph-hub';
 import TerminalHub from './hubs/terminal-hub';
 import { EditorImportExport, NodeEditor } from './rete-engine/editor';
@@ -18,53 +18,53 @@ export interface ILog {
 }
 
 class EditorStore implements IDisposableStore {
-    @ignore
+    
     @computed
     get nodeDefinitionList(): NodeDefinition[] {
         return this.getNodeDefinitions(this.nodeDefinitions);
     }
 
-    @ignore
+    
     @observable
     public running: boolean = false;
 
-    @ignore
+    
     @observable
     public connected: boolean = false;
 
-    @ignore
+    
     @observable
     public saving: boolean = false;
 
-    @ignore
+    
     @observable
     public loadingDefinitions: boolean = false;
 
-    @ignore
+    
     @observable
     public loadingGraph: boolean = false;
 
-    @ignore
+    
     @observable
     public nodeDefinitions: IHierarchicalNode<NodeDefinition>;
 
-    @ignore
+    
     @observable
     public showLogs: boolean = false;
 
-    @ignore
+    
     public graphHub: GraphHub;
-    @ignore
+    
     private terminalHub: TerminalHub;
 
-    @ignore
+    
     @observable
     public logs: Array<ILog> = [];
 
-    @ignore
+    
     public nodeEditor: NodeEditor;
 
-    @ignore
+    
     @observable
     public bridgeInfo: IBridgeInfo | null;
 

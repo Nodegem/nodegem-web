@@ -1,4 +1,4 @@
-import { clamp } from '@utils';
+import { clamp } from 'utils';
 import { Emitter } from '../core/emitter';
 import { Drag } from './drag';
 import { Zoom } from './zoom';

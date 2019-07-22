@@ -1,9 +1,9 @@
 import './Node.less';
 
 import classNames from 'classnames';
+import { NodeEditor } from 'features/Editor/rete-engine/editor';
+import { Node } from 'features/Editor/rete-engine/node';
 import * as React from 'react';
-import { NodeEditor } from 'src/features/Editor/rete-engine/editor';
-import { Node } from 'src/features/Editor/rete-engine/node';
 
 import GenericControlView from './GenericControlView';
 import SocketView from './SocketView';

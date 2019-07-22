@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Redirect, Route } from 'react-router';
-import userStore from 'src/stores/user-store';
+import userStore from 'stores/user-store';
 
 export const AuthorizedRoute = ({
     component: Component,
