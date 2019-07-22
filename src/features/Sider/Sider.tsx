@@ -22,14 +22,15 @@ interface ISiderProps {
     authStore?: AuthStore;
 }
 
-let ranOnceCuzBullshitHack = false;
-
 @inject('commonStore', 'userStore', 'authStore')
 @observer
 class Sider extends React.Component<ISiderProps & RouteComponentProps<any>> {
+    private hack = false;
+
     public handleCollapse = (collapsed: boolean, type: CollapseType) => {
-        if (type === 'responsive' && !ranOnceCuzBullshitHack) {
-            ranOnceCuzBullshitHack = true;
+        const isCollapsed = this.props.commonStore!.collapsed;
+        if (!this.hack && isCollapsed && type === 'responsive' && !collapsed) {
+            this.hack = true;
             return;
         }
         this.props.commonStore!.toggleCollapsed(collapsed);
@@ -60,7 +61,6 @@ class Sider extends React.Component<ISiderProps & RouteComponentProps<any>> {
             <AntSider
                 theme={theme}
                 collapsed={collapsed}
-                defaultCollapsed={true}
                 breakpoint="sm"
                 width={siderWidth}
                 collapsedWidth={collapseWidth}

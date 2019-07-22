@@ -17,7 +17,6 @@ import Sider from './features/Sider/Sider';
 import { UserStore } from './stores/user-store';
 
 const { Content } = Layout;
-
 const ForgotPassword = () => <div>Welp, that sucks duude</div>;
 
 interface IAppProps {

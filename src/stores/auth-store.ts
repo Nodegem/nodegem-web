@@ -3,7 +3,7 @@ import { action, observable } from 'mobx';
 import { AuthService } from 'services';
 import history from 'utils/history';
 
-
+import { saveToStorage } from 'utils';
 import { rootStore } from './';
 import userStore from './user-store';
 
@@ -16,7 +16,6 @@ class AuthStore {
     @observable public rememberMe: boolean = false;
     @observable public savedUsername: string = '';
 
-    
     @observable
     public loading: boolean = false;
 
@@ -79,6 +78,10 @@ class AuthStore {
 
         if (rememberMe) {
             this.savedUsername = savedUsername;
+            saveToStorage('rememberInfo', {
+                rememberMe: this.rememberMe,
+                username: this.savedUsername,
+            });
         }
     }
 

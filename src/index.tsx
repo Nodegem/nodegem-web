@@ -1,4 +1,5 @@
 import './index.less';
+import './styles/main.less';
 import './utils/extensions';
 
 import { Provider } from 'mobx-react';
