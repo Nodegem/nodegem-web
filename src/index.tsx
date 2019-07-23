@@ -7,6 +7,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Router } from 'react-router';
 
+import { StoreProvider } from 'stores/test-store';
 import App from './App';
 import * as servicerWorker from './serviceWorker';
 import * as stores from './stores';
@@ -15,9 +16,11 @@ import history from './utils/history';
 ReactDOM.render(
     <>
         <Provider {...stores}>
-            <Router history={history}>
-                <App />
-            </Router>
+            <StoreProvider>
+                <Router history={history}>
+                    <App />
+                </Router>
+            </StoreProvider>
         </Provider>
     </>,
     document.getElementById('root') as HTMLElement

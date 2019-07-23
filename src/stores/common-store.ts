@@ -9,7 +9,6 @@ class CommonStore {
     constructor() {
         this.theme = getFromStorage<SiderTheme>('theme')!;
         this.collapsed = getFromStorage<boolean>('siderCollapsed')!;
-        console.log(this.collapsed);
     }
 
     @computed
