@@ -103,4 +103,23 @@ class AuthStore {
 
 export default new AuthStore();
 
+export type TAuthStore = {
+    logout: () => Promise<void>;
+};
+
+export function createAuthStore() {
+    return {
+        async logout() {
+            try {
+                await AuthService.logout();
+            } catch (e) {
+                console.warn(e);
+            } finally {
+                rootStore.dispose();
+                history.push('/login');
+            }
+        },
+    };
+}
+
 export { AuthStore };

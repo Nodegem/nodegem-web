@@ -41,4 +41,16 @@ class CommonStore {
 
 export default new CommonStore();
 
+export type TCommonStore = {
+    theme: SiderTheme;
+    headerHeight: string;
+};
+
+export function createCommonStore(): TCommonStore {
+    return {
+        theme: 'dark',
+        headerHeight: '48px',
+    };
+}
+
 export { CommonStore };

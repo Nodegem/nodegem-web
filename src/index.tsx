@@ -7,7 +7,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Router } from 'react-router';
 
-import { StoreProvider } from 'stores/test-store';
+import { StoreProvider } from 'stores/StoreProvider';
 import App from './App';
 import * as servicerWorker from './serviceWorker';
 import * as stores from './stores';

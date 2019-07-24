@@ -1,11 +1,28 @@
 import { useLocalStore } from 'mobx-react-lite';
 import React from 'react';
-import { createStore, TStore } from './create-store';
+import {
+    createAuthStore,
+    createCommonStore,
+    TAuthStore,
+    TCommonStore,
+} from 'stores';
 
-const storeContext = React.createContext<TStore | null>(null);
+type TRootStore = {
+    commonStore: TCommonStore;
+    authStore: TAuthStore;
+};
+
+function createRootStore(): TRootStore {
+    return {
+        commonStore: createCommonStore(),
+        authStore: createAuthStore(),
+    };
+}
+
+const storeContext = React.createContext<TRootStore | null>(null);
 
 export const StoreProvider = ({ children }) => {
-    const store = useLocalStore(createStore);
+    const store = useLocalStore(createRootStore);
     return (
         <storeContext.Provider value={store}>{children}</storeContext.Provider>
     );

@@ -30,10 +30,17 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
     public render() {
         const { userStore } = this.props;
 
+        const minHeight = userStore!.isLoggedIn
+            ? 'calc(100vh - 64px)'
+            : '100vh';
+
         return (
             <Layout className="app-layout">
                 {userStore!.isLoggedIn && <Header />}
-                <Content className="app-layout-content">
+                <Content
+                    className="app-layout-content"
+                    style={{ minHeight }}
+                >
                     <Switch>
                         <AuthorizedRoute
                             exact
