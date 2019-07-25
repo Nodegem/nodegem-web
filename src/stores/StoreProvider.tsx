@@ -3,19 +3,23 @@ import React from 'react';
 import {
     createAuthStore,
     createCommonStore,
+    createUserStore,
     TAuthStore,
     TCommonStore,
+    TUserStore,
 } from 'stores';
 
 type TRootStore = {
     commonStore: TCommonStore;
     authStore: TAuthStore;
+    userStore: TUserStore;
 };
 
 function createRootStore(): TRootStore {
     return {
         commonStore: createCommonStore(),
         authStore: createAuthStore(),
+        userStore: createUserStore(),
     };
 }
 

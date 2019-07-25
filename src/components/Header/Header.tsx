@@ -4,15 +4,24 @@ import React from 'react';
 import { useStore } from 'stores/StoreProvider';
 
 import { SiderTheme } from 'antd/lib/layout/Sider';
+import { Link } from 'react-router-dom';
 import './Header.less';
 
 const AntHeader = Layout.Header;
 
 const menu = (theme: SiderTheme, logout: () => void) => (
     <Menu theme={theme}>
+        <Menu.Item key="dashboard">
+            <Link to="/">
+                <Icon type="dashboard" />
+                Home
+            </Link>
+        </Menu.Item>
         <Menu.Item key="settings">
-            <Icon type="setting" />
-            Settings
+            <Link to="/profile">
+                <Icon type="setting" />
+                Settings
+            </Link>
         </Menu.Item>
         <Menu.Divider />
         <Menu.Item key="logout" onClick={logout}>
@@ -23,7 +32,7 @@ const menu = (theme: SiderTheme, logout: () => void) => (
 );
 
 export const Header: React.FC = observer(() => {
-    const { commonStore, authStore } = useStore();
+    const { commonStore, authStore, userStore } = useStore();
     const headerHeight = commonStore.headerHeight;
     return (
         <AntHeader
@@ -31,11 +40,6 @@ export const Header: React.FC = observer(() => {
             style={{ height: headerHeight, lineHeight: headerHeight }}
         >
             <Row>
-                <Col span={2}>
-                    <div>
-                        <img src="https://via.placeholder.com/40" />
-                    </div>
-                </Col>
                 <Col span={20}>
                     <Menu
                         theme={commonStore.theme}
@@ -43,15 +47,20 @@ export const Header: React.FC = observer(() => {
                         style={{ lineHeight: commonStore.headerHeight }}
                     />
                 </Col>
-                <Col span={2}>
+                <Col span={4}>
                     <div className="app-avatar">
-                        <span className="username">Test</span>
                         <Dropdown
                             placement="bottomRight"
                             overlay={menu(commonStore.theme, authStore.logout)}
-                            trigger={['click', 'hover']}
+                            trigger={['click']}
                         >
-                            <Avatar size={35} icon="user" />
+                            <div style={{ cursor: 'pointer' }}>
+                                <span className="username">
+                                    {userStore.userData.userName}
+                                    <Icon type="caret-down" />
+                                </span>
+                                <Avatar size={35} icon="user" />
+                            </div>
                         </Dropdown>
                     </div>
                 </Col>

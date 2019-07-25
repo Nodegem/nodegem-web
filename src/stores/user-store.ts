@@ -32,4 +32,27 @@ class UserStore implements IDisposableStore {
 }
 
 export default new UserStore();
+
+export type TUserStore = ReturnType<typeof createUserStore>;
+export function createUserStore() {
+    return {
+        user: getFromStorage<User>('user'),
+        token: getFromStorage<TokenData>('token'),
+        get userData() {
+            return this.user!;
+        },
+        get tokenData() {
+            return this.token!;
+        },
+        get isLoggedIn() {
+            return !!this.user && !!this.token;
+        },
+        logout() {
+            deleteFromStorage('user', 'token');
+            this.user = null;
+            this.token = null;
+        },
+    };
+}
+
 export { UserStore };

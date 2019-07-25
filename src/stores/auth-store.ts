@@ -103,9 +103,7 @@ class AuthStore {
 
 export default new AuthStore();
 
-export type TAuthStore = {
-    logout: () => Promise<void>;
-};
+export type TAuthStore = ReturnType<typeof createAuthStore>;
 
 export function createAuthStore() {
     return {

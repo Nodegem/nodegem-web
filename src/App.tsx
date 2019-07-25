@@ -37,10 +37,7 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
         return (
             <Layout className="app-layout">
                 {userStore!.isLoggedIn && <Header />}
-                <Content
-                    className="app-layout-content"
-                    style={{ minHeight }}
-                >
+                <Content className="app-layout-content" style={{ minHeight }}>
                     <Switch>
                         <AuthorizedRoute
                             exact
@@ -52,7 +49,7 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
                             component={EditorView}
                         />
                         <AuthorizedRoute
-                            path="/sandbox/:type/:graphId"
+                            path="/sandbox"
                             component={SandboxView}
                         />
                         <AuthorizedRoute
