@@ -1,0 +1,38 @@
+.sandbox-container {
+    margin: 10px;
+    height: 100%;
+}
+
+.tab-container {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+.node-select {
+    flex-basis: 20%;
+
+    &.closed {
+        flex-basis: 3.1% !important;
+    }
+}
+
+.sandbox {
+    flex: 1 1 auto;
+}
+
+.node-info-container {
+    flex-basis: 20%;
+}
+
+.container {
+    display: flex;
+    overflow: hidden;
+    transition: flex 250ms ease-in;
+    &.closed {
+        flex: 0;
+    }
+}

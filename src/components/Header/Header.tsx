@@ -17,6 +17,12 @@ const menu = (theme: SiderTheme, logout: () => void) => (
                 Home
             </Link>
         </Menu.Item>
+        <Menu.Item key="Sandbox">
+            <Link to="/sandbox">
+                <Icon type="branches" />
+                Sandbox
+            </Link>
+        </Menu.Item>
         <Menu.Item key="settings">
             <Link to="/profile">
                 <Icon type="setting" />
@@ -25,8 +31,10 @@ const menu = (theme: SiderTheme, logout: () => void) => (
         </Menu.Item>
         <Menu.Divider />
         <Menu.Item key="logout" onClick={logout}>
-            <Icon type="logout" />
-            Logout
+            <Link to="/login">
+                <Icon type="logout" />
+                Logout
+            </Link>
         </Menu.Item>
     </Menu>
 );
