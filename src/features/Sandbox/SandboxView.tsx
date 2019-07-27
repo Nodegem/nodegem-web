@@ -1,6 +1,7 @@
 import { Col, Row, Tabs, Tooltip } from 'antd';
 import classNames from 'classnames';
 import DraggableTabs from 'components/DraggableTabs/DraggableTabs';
+import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
 import React, { useRef, useState } from 'react';
 import './Sandbox.less';
 
@@ -27,51 +28,18 @@ export const SandboxView: React.FC = () => {
             <DraggableTabs size="large">
                 <TabPane tab="sdas" key="1" closable={false}>
                     <div className="tab-container">
-                        <div className={selectInfo}>
-                            <Tabs
-                                style={{ width: '100%' }}
-                                tabPosition="right"
-                                onTabClick={() =>
-                                    setSelectClosed(!selectClosed)
-                                }
-                            >
-                                <TabPane tab="Stuff" key="1" closable={false}>
-                                    <div
-                                        className={classNames({
-                                            container: true,
-                                            closed: selectClosed,
-                                        })}
-                                    >
-                                        Hello
-                                    </div>
-                                </TabPane>
-                            </Tabs>
-                        </div>
+                        <VerticalCollapsible
+                            collapsed={false}
+                            tabContent={<div>Test Again</div>}
+                        >
+                            <div>test</div>
+                        </VerticalCollapsible>
                         <div className="sandbox">Sandbox</div>
                         <div
                             className={infoClasses}
                             onClick={() => setInfoClosed(!infoClosed)}
                         >
-                            <Tabs
-                                style={{ width: '100%' }}
-                                tabPosition="left"
-                                onTabClick={() => setSelectClosed(!infoClosed)}
-                            >
-                                <TabPane
-                                    tab="Other Stuff"
-                                    key="1"
-                                    closable={false}
-                                >
-                                    <div
-                                        className={classNames({
-                                            container: true,
-                                            closed: selectClosed,
-                                        })}
-                                    >
-                                        Node Info
-                                    </div>
-                                </TabPane>
-                            </Tabs>
+                            Test
                         </div>
                     </div>
                 </TabPane>

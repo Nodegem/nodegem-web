@@ -1,46 +1,16 @@
 import { Tabs } from 'antd';
 import { TabsProps } from 'antd/lib/tabs';
 import React from 'react';
-import { DndProvider, DragSource, DropTarget } from 'react-dnd';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 
-// Drag & Drop node
-const TabNode: React.FC<any> = props => {
-    const { connectDragSource, connectDropTarget, children } = props;
-    return connectDragSource(connectDropTarget(children));
+const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
 };
-
-const cardTarget = {
-    drop(props, monitor) {
-        const dragKey = monitor.getItem().index;
-        const hoverKey = props.index;
-
-        if (dragKey === hoverKey) {
-            return;
-        }
-
-        props.moveTabNode(dragKey, hoverKey);
-        monitor.getItem().index = hoverKey;
-    },
-};
-
-const cardSource = {
-    beginDrag(props) {
-        return {
-            id: props.id,
-            index: props.index,
-        };
-    },
-};
-
-const WrapTabNode = DropTarget('DND_NODE', cardTarget, connect => ({
-    connectDropTarget: connect.dropTarget(),
-}))(
-    DragSource('DND_NODE', cardSource, (connect, monitor) => ({
-        connectDragSource: connect.dragSource(),
-        isDragging: monitor.isDragging(),
-    }))(TabNode)
-);
 
 export default class DraggableTabs extends React.Component<
     TabsProps,
@@ -71,16 +41,34 @@ export default class DraggableTabs extends React.Component<
         });
     };
 
+    public onDragEnd = result => {
+        // dropped outside the list
+        if (!result.destination) {
+            return;
+        }
+
+        const items = reorder(
+            this.state.order,
+            result.source.index,
+            result.destination.index
+        );
+
+        this.setState({
+            order: items,
+        });
+    };
+
     public renderTabBar = (props, DefaultTabBar) => (
         <DefaultTabBar {...props}>
             {node => (
-                <WrapTabNode
-                    key={node.key}
-                    index={node.key}
-                    moveTabNode={this.moveTabNode}
-                >
-                    {node}
-                </WrapTabNode>
+                <div />
+                // <WrapTabNode
+                //     key={node.key}
+                //     index={node.key}
+                //     moveTabNode={this.moveTabNode}
+                // >
+                //     {node}
+                // </WrapTabNode>
             )}
         </DefaultTabBar>
     );
@@ -115,11 +103,15 @@ export default class DraggableTabs extends React.Component<
         });
 
         return (
-            <DndProvider backend={HTML5Backend}>
-                <Tabs renderTabBar={this.renderTabBar} {...this.props}>
-                    {orderTabs}
-                </Tabs>
-            </DndProvider>
+            <DragDropContext onDragEnd={this.onDragEnd}>
+                <Droppable droppableId="droppable">
+                    {(provided, snapshot) => (
+                        <Tabs renderTabBar={this.renderTabBar} {...this.props}>
+                            {orderTabs}
+                        </Tabs>
+                    )}
+                </Droppable>
+            </DragDropContext>
         );
     }
 }
