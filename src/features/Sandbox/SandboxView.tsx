@@ -25,21 +25,38 @@ export const SandboxView: React.FC = () => {
 
     return (
         <div className="sandbox-container">
-            <DraggableTabs size="large">
-                <TabPane tab="sdas" key="1" closable={false}>
+            <DraggableTabs size="default">
+                <TabPane tab="1" key="1" closable={false}>
                     <div className="tab-container">
-                        <VerticalCollapsible
+                        {/* <VerticalCollapsible
                             collapsed={false}
                             tabContent={<div>Test Again</div>}
                         >
                             <div>test</div>
-                        </VerticalCollapsible>
-                        <div className="sandbox">Sandbox</div>
+                        </VerticalCollapsible> */}
+                        <div className="sandbox">Tab 1</div>
                         <div
                             className={infoClasses}
                             onClick={() => setInfoClosed(!infoClosed)}
                         >
-                            Test
+                            Tab 1
+                        </div>
+                    </div>
+                </TabPane>
+                <TabPane tab="2" key="2" closable={false}>
+                    <div className="tab-container">
+                        {/* <VerticalCollapsible
+                            collapsed={false}
+                            tabContent={<div>Test Again</div>}
+                        >
+                            <div>test</div>
+                        </VerticalCollapsible> */}
+                        <div className="sandbox">Tab 2</div>
+                        <div
+                            className={infoClasses}
+                            onClick={() => setInfoClosed(!infoClosed)}
+                        >
+                            Tab 2
                         </div>
                     </div>
                 </TabPane>

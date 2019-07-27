@@ -1,6 +1,22 @@
 .vertical-collapse-container {
+    display: flex;
+    flex-direction: row;
+
+    &.tab-reverse {
+        flex-direction: row-reverse;
+    }
+
+    .content {
+        overflow: hidden;
+        width: 100%;
+        transition: width 250ms ease-in;
+
+        &.collapsed {
+            width: 0;
+        }
+    }
+
     .tab {
-        width: 20px;
-        display: block;
+        cursor: pointer;
     }
 }

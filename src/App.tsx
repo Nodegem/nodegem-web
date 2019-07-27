@@ -7,6 +7,7 @@ import { RouteComponentProps, Switch, withRouter } from 'react-router';
 
 import { Header } from 'components/Header/Header';
 import { SandboxView } from 'features/Sandbox/SandboxView';
+import { TestingGroundView } from 'features/TestingGround/TestingGroundView';
 import { AuthorizedRoute } from './components/AuthorizedRoute/AuthorizedRoute';
 import { PublicRoute } from './components/PublicRoute/AuthorizedRoute';
 import LoginView from './features/Account/Login/LoginFormView';
@@ -43,6 +44,10 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
                             exact
                             path="/"
                             component={DashboardView}
+                        />
+                        <AuthorizedRoute
+                            path="/testingGround"
+                            component={TestingGroundView}
                         />
                         <AuthorizedRoute
                             path="/editor/:type/:graphId"
