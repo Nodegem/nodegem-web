@@ -41,7 +41,7 @@ const menu = (theme: SiderTheme, logout: () => void) => (
 
 export const Header: React.FC = observer(() => {
     const { commonStore, authStore, userStore } = useStore();
-    const headerHeight = commonStore.headerHeight;
+    const headerHeight = `${commonStore.headerHeight}px`;
     return (
         <AntHeader
             className="app-header"

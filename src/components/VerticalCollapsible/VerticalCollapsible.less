@@ -1,9 +1,20 @@
 .vertical-collapse-container {
     display: flex;
     flex-direction: row;
+    align-items: stretch;
 
     &.tab-reverse {
         flex-direction: row-reverse;
+
+        .content {
+            margin-left: 10px;
+        }
+    }
+
+    &:not(.tab-reverse) {
+        .content {
+            margin-right: 10px;
+        }
     }
 
     .content {
@@ -13,10 +24,20 @@
 
         &.collapsed {
             width: 0;
+            margin: 0;
         }
     }
 
     .tab {
+        padding: 10px 0;
+        text-align: center;
+        user-select: none;
         cursor: pointer;
+        background-color: coral;
+
+        .tab-text {
+            writing-mode: vertical-lr;
+            text-orientation: upright;
+        }
     }
 }

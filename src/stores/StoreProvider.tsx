@@ -8,11 +8,13 @@ import {
     TCommonStore,
     TUserStore,
 } from 'stores';
+import { createSandboxStore, TSandboxStore } from './sandbox-store';
 
 type TRootStore = {
     commonStore: TCommonStore;
     authStore: TAuthStore;
     userStore: TUserStore;
+    sandboxStore: TSandboxStore;
 };
 
 function createRootStore(): TRootStore {
@@ -20,6 +22,7 @@ function createRootStore(): TRootStore {
         commonStore: createCommonStore(),
         authStore: createAuthStore(),
         userStore: createUserStore(),
+        sandboxStore: createSandboxStore(),
     };
 }
 

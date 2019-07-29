@@ -32,7 +32,7 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
         const { userStore } = this.props;
 
         const minHeight = userStore!.isLoggedIn
-            ? 'calc(100vh - 64px)'
+            ? 'calc(100vh - 52px)'
             : '100vh';
 
         return (

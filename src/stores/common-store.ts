@@ -45,7 +45,7 @@ export type TCommonStore = ReturnType<typeof createCommonStore>;
 export function createCommonStore() {
     return {
         theme: 'dark' as SiderTheme,
-        headerHeight: '52px',
+        headerHeight: 52,
     };
 }
 

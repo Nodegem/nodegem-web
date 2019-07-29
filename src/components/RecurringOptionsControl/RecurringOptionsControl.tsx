@@ -1,15 +1,5 @@
-import {
-    Card,
-    Col,
-    DatePicker,
-    Form,
-    Input,
-    InputNumber,
-    Row,
-    Select,
-} from 'antd';
+import { Card, Col, DatePicker, Form, InputNumber, Row, Select } from 'antd';
 import { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
-import { SelectProps } from 'antd/lib/select';
 import moment from 'moment';
 import * as React from 'react';
 
@@ -25,10 +15,6 @@ interface IRecurringOptionProps {
 }
 
 class RecurringOptionsControl extends React.Component<IRecurringOptionProps> {
-    constructor(props: any) {
-        super(props);
-    }
-
     private validate = (rule, value, callback) => {
         callback();
     };

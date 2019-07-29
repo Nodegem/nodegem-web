@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useState } from 'react';
 
 import './VerticalCollapsible.less';
 
@@ -16,14 +16,16 @@ interface IVerticalCollapsibleProps {
 }
 
 export const VerticalCollapsible: React.FC<IVerticalCollapsibleProps> = ({
-    width = '20%',
-    tabWidth = '40px',
+    width = '15%',
+    tabWidth = '30px',
     tabDirection = 'right',
     collapsed,
     tabContent,
     onTabClick,
     children,
 }: IVerticalCollapsibleProps) => {
+    const [containerWidth, setContainerWidth] = useState(width);
+
     const collapseClass = classNames({
         content: true,
         collapsed,
@@ -34,15 +36,25 @@ export const VerticalCollapsible: React.FC<IVerticalCollapsibleProps> = ({
         'tab-reverse': tabDirection === 'left',
     });
 
+    function onCollapseEnd() {
+        if (collapsed) {
+            setContainerWidth('auto');
+        } else {
+            setContainerWidth(width);
+        }
+    }
+
     return (
-        <div className={containerClass} style={{ width }}>
-            <div className={collapseClass}>{children}</div>
+        <div className={containerClass} style={{ width: containerWidth }}>
+            <div className={collapseClass} onTransitionEnd={onCollapseEnd}>
+                {children}
+            </div>
             <div
                 style={{ width: tabWidth }}
                 className="tab"
                 onClick={onTabClick}
             >
-                {tabContent}
+                <span className="tab-text">{tabContent}</span>
             </div>
         </div>
     );
