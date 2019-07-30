@@ -6,11 +6,13 @@ import {
     DropResult,
     ResponderProvided,
 } from 'react-beautiful-dnd';
-import { reorder } from 'utils';
+import { Node } from '../Node';
+
+import './NodeSelect.less';
 
 export const droppableDeleteId = 'deleteNode';
 
-const Node = ({ node, index }) => {
+const DraggableNode = ({ node, index }) => {
     return (
         <Draggable draggableId={node} index={index}>
             {(provided, snapshot) => (
@@ -19,7 +21,7 @@ const Node = ({ node, index }) => {
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                 >
-                    {node}
+                    <Node>{node}</Node>
                 </div>
             )}
         </Draggable>
@@ -29,15 +31,15 @@ const Node = ({ node, index }) => {
 const NodeList = React.memo<any>(function NodeListHelper({
     nodeItems,
 }: {
-    nodeItems: number[];
+    nodeItems: any[];
 }) {
     return nodeItems.map((nodeItem: number, index: number) => (
-        <Node node={nodeItem} index={index} key={index} />
+        <DraggableNode node={nodeItem} index={index} key={index} />
     ));
 });
 
 export const NodeSelect: React.FC = props => {
-    const testItems = [1, 2, 3, 4, 5];
+    const testItems = ['test', 'sdasda', 'sdasdasdas', 'sdasdsadasd'];
 
     function onDragEnd(result: DropResult, provided: ResponderProvided) {
         if (!result.destination) {
@@ -48,7 +50,7 @@ export const NodeSelect: React.FC = props => {
             result.source.droppableId !== droppableDeleteId &&
             result.destination.droppableId === droppableDeleteId
         ) {
-            // Delete stuff
+            // Delete stuff?
             return;
         }
     }
@@ -57,6 +59,7 @@ export const NodeSelect: React.FC = props => {
         <div className="node-select">
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable
+                    isDropDisabled={true}
                     direction="vertical"
                     droppableId={droppableDeleteId}
                     ignoreContainerClipping

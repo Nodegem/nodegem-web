@@ -4,19 +4,20 @@ import { Observer, useObserver } from 'mobx-react-lite';
 import React from 'react';
 import { useStore } from 'stores';
 import { NodeSelect } from './NodeSelect/NodeSelect';
-import './Sandbox.less';
+import { Sandbox } from './Sandbox/Sandbox';
+import './SandboxView.less';
 
 export const SandboxView = () => {
     const { sandboxStore } = useStore();
 
     return (
-        <div className="sandbox-container">
+        <div className="sandbox-view-container">
             <DraggableTabs>
-                <DraggableTabPane tab="Thing" tabId="1">
+                <DraggableTabPane tab="Thing" tabId="0">
                     <Observer>
                         {() => (
                             <VerticalCollapsible
-                                width="12%"
+                                width="10%"
                                 onTabClick={() =>
                                     sandboxStore.toggleNodeSelect()
                                 }
@@ -27,7 +28,7 @@ export const SandboxView = () => {
                             </VerticalCollapsible>
                         )}
                     </Observer>
-                    <div className="sandbox">Sandbox</div>
+                    <Observer>{() => <Sandbox />}</Observer>
                     <Observer>
                         {() => (
                             <VerticalCollapsible

@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import {
     DragDropContext,
     Draggable,
+    DraggableStateSnapshot,
     DraggingStyle,
     Droppable,
+    DroppableStateSnapshot,
     DropResult,
     NotDraggingStyle,
 } from 'react-beautiful-dnd';
 
+import classnames from 'classnames';
 import { reorder } from 'utils';
 import './DraggableTabs.less';
 
@@ -34,8 +37,8 @@ const defaultItemStyle = (isDragging, draggableStyle) => ({
 interface IDraggableTabPaneProps {
     tab: JSX.Element | string;
     tabStyle?: (
-        isDragging: boolean,
-        draggableStyle: DraggingStyle | NotDraggingStyle | undefined
+        draggableStyle: DraggingStyle | NotDraggingStyle | undefined,
+        snapshot: DraggableStateSnapshot
     ) => React.CSSProperties;
     tabId: string;
 }
@@ -48,25 +51,29 @@ function DraggableTab({
     tab,
     tabStyle,
     tabId,
+    isActive,
     onClick,
     index,
 }: IDraggableTabPaneProps & {
+    isActive: boolean;
     onClick: (tabId: string) => void;
     index: number;
 }) {
+    const classNames = classnames({ tab: true, active: isActive });
     return (
         <Draggable draggableId={tabId} index={index}>
             {(provided, snapshot) => (
                 <div
-                    onClick={() => onClick && onClick(tabId)}
+                    onClick={() => onClick(tabId)}
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
+                    className={classNames}
                     style={
                         (tabStyle &&
                             tabStyle(
-                                snapshot.isDragging,
-                                provided.draggableProps.style
+                                provided.draggableProps.style,
+                                snapshot
                             )) ||
                         defaultItemStyle(
                             snapshot.isDragging,
@@ -88,13 +95,14 @@ const DraggableTabList = React.memo(function TabList({ tabs }: any) {
 });
 interface IDraggableTabProps {
     onTabClick?: (tabId: string) => void;
-    tabBarStyle?: (isDraggingOver: boolean) => React.CSSProperties;
+    tabBarStyle?: (snapshot: DroppableStateSnapshot) => React.CSSProperties;
     defaultActiveTab?: string;
 }
 
 export const DraggableTabs: React.FC<IDraggableTabProps> = props => {
     const [state, setState] = useState({
         tabs: React.Children.toArray(props.children),
+        activeTab: props.defaultActiveTab || '0',
     });
 
     function onDragEnd(result: DropResult) {
@@ -112,8 +120,19 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = props => {
             result.destination.index
         );
 
-        setState({ tabs });
+        setState({ ...state, tabs });
     }
+
+    function onClick(tabId: string) {
+        setState({ ...state, activeTab: tabId });
+        if (props.onTabClick) {
+            props.onTabClick(tabId);
+        }
+    }
+
+    const content = state.tabs.find(
+        (x: any) => x.props.tabId === state.activeTab
+    );
 
     return (
         <>
@@ -125,16 +144,15 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = props => {
                             {...provided.droppableProps}
                             style={
                                 (props.tabBarStyle &&
-                                    props.tabBarStyle(
-                                        snapshot.isDraggingOver
-                                    )) ||
+                                    props.tabBarStyle(snapshot)) ||
                                 defaultListStyle(snapshot.isDraggingOver)
                             }
                         >
                             <DraggableTabList
                                 tabs={state.tabs.map((x: any) => ({
                                     ...x.props,
-                                    onClick: props.onTabClick,
+                                    isActive: state.activeTab === x.props.tabId,
+                                    onClick,
                                 }))}
                             />
                             {provided.placeholder}
@@ -142,7 +160,7 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = props => {
                     )}
                 </Droppable>
             </DragDropContext>
-            <div className="tab-container">{state.tabs[0]}</div>
+            <div className="tab-content">{content}</div>
         </>
     );
 };

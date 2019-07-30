@@ -7,6 +7,7 @@ type TTabDirection = 'left' | 'right';
 
 interface IVerticalCollapsibleProps {
     width?: string | number;
+    minWidth?: string | number;
     tabWidth?: string | number;
     tabDirection?: TTabDirection;
     collapsed: boolean;
@@ -17,6 +18,7 @@ interface IVerticalCollapsibleProps {
 
 export const VerticalCollapsible: React.FC<IVerticalCollapsibleProps> = ({
     width = '15%',
+    minWidth = '18em',
     tabWidth = '30px',
     tabDirection = 'right',
     collapsed,
@@ -24,8 +26,6 @@ export const VerticalCollapsible: React.FC<IVerticalCollapsibleProps> = ({
     onTabClick,
     children,
 }: IVerticalCollapsibleProps) => {
-    const [containerWidth, setContainerWidth] = useState(width);
-
     const collapseClass = classNames({
         content: true,
         collapsed,
@@ -36,19 +36,12 @@ export const VerticalCollapsible: React.FC<IVerticalCollapsibleProps> = ({
         'tab-reverse': tabDirection === 'left',
     });
 
-    function onCollapseEnd() {
-        if (collapsed) {
-            setContainerWidth('auto');
-        } else {
-            setContainerWidth(width);
-        }
-    }
+    minWidth = collapsed ? 0 : minWidth;
+    width = collapsed ? tabWidth : width;
 
     return (
-        <div className={containerClass} style={{ width: containerWidth }}>
-            <div className={collapseClass} onTransitionEnd={onCollapseEnd}>
-                {children}
-            </div>
+        <div className={containerClass} style={{ minWidth, width }}>
+            <div className={collapseClass}>{children}</div>
             <div
                 style={{ width: tabWidth }}
                 className="tab"
