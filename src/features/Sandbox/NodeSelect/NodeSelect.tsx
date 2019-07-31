@@ -20,6 +20,7 @@ const DraggableNode = ({ node, index }) => {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
+                    style={provided.draggableProps.style}
                 >
                     <Node>{node}</Node>
                 </div>

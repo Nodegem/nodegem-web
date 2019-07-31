@@ -10,6 +10,7 @@ import {
     NotDraggingStyle,
 } from 'react-beautiful-dnd';
 
+import { Button } from 'antd';
 import classnames from 'classnames';
 import { reorder } from 'utils';
 import './DraggableTabs.less';
@@ -94,6 +95,7 @@ const DraggableTabList = React.memo(function TabList({ tabs }: any) {
     ));
 });
 interface IDraggableTabProps {
+    onTabAdd?: () => void;
     onTabClick?: (tabId: string) => void;
     tabBarStyle?: (snapshot: DroppableStateSnapshot) => React.CSSProperties;
     defaultActiveTab?: string;
@@ -156,6 +158,14 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = props => {
                                 }))}
                             />
                             {provided.placeholder}
+                            <Button
+                                type="dashed"
+                                size="large"
+                                ghost
+                                icon="plus"
+                                style={{ width: '45px' }}
+                                onClick={props.onTabAdd}
+                            />
                         </div>
                     )}
                 </Droppable>

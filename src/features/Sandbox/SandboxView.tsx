@@ -4,7 +4,7 @@ import { Observer, useObserver } from 'mobx-react-lite';
 import React from 'react';
 import { useStore } from 'stores';
 import { NodeSelect } from './NodeSelect/NodeSelect';
-import { Sandbox } from './Sandbox/Sandbox';
+import { SandboxCanvas } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
 
 export const SandboxView = () => {
@@ -28,7 +28,7 @@ export const SandboxView = () => {
                             </VerticalCollapsible>
                         )}
                     </Observer>
-                    <Observer>{() => <Sandbox />}</Observer>
+                    <Observer>{() => <SandboxCanvas />}</Observer>
                     <Observer>
                         {() => (
                             <VerticalCollapsible
