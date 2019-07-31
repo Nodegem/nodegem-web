@@ -1,3 +1,4 @@
+import { isTouchEvent } from 'utils';
 import { Vector2 } from './drag';
 
 export type ZoomEvent = (delta: number, position: Vector2) => void;
@@ -6,7 +7,6 @@ class Zoom {
     public distance: number | null;
 
     constructor(
-        container: HTMLElement,
         private el: HTMLElement,
         private intensity: number,
         private onZoom: ZoomEvent
@@ -16,18 +16,17 @@ class Zoom {
 
         this.distance = null;
 
-        container.addEventListener('wheel', this.handleWheel);
-        container.addEventListener('touchmove', this.handleMove);
-        container.addEventListener('touchend', this.handleEnd);
-        container.addEventListener('touchcancel', this.handleEnd);
+        el.addEventListener('wheel', this.handleWheel);
+        el.addEventListener('touchmove', this.handleMove);
+        el.addEventListener('touchend', this.handleEnd);
+        el.addEventListener('touchcancel', this.handleEnd);
     }
 
     public handleWheel = (e: WheelEvent) => {
         e.preventDefault();
 
         const rect = this.el.getBoundingClientRect();
-        const delta =
-            (e.deltaY ? e.deltaY / 120 : -e.deltaY / 3) * this.intensity;
+        const delta = (-e.deltaY / 120) * this.intensity;
 
         const ox = (rect.left - e.clientX) * delta;
         const oy = (rect.top - e.clientY) * delta;
@@ -48,7 +47,7 @@ class Zoom {
     }
 
     public handleMove = (e: MouseEvent | TouchEvent) => {
-        if (e instanceof TouchEvent && e.touches.length < 2) {
+        if (isTouchEvent(e) && e.touches.length < 2) {
             return;
         }
 

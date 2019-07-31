@@ -1,3 +1,5 @@
+import { isTouchEvent } from 'utils';
+
 export type Vector2 = {
     x: number;
     y: number;
@@ -39,7 +41,7 @@ class Drag {
     }
 
     private getCoords(event: MouseEvent | TouchEvent): Vector2 {
-        const props = event instanceof TouchEvent ? event.touches[0] : event;
+        const props = isTouchEvent(event) ? event.touches[0] : event;
         return { x: props.pageX, y: props.pageY };
     }
 
