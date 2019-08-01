@@ -13,27 +13,21 @@ class Drag {
     private mouseStart: Vector2 | null;
 
     constructor(
-        private el: HTMLElement,
+        private container: HTMLElement,
         public onTranslate: DragTranslateEvent = () => {},
         public onStart: DragStartEvent = () => {},
         public onDragUp: DragUpEvent = () => {}
     ) {
         this.mouseStart = null;
-
-        this.el = el;
-        this.onTranslate = onTranslate;
-        this.onStart = onStart;
-        this.onDragUp = onDragUp;
-
         this.initEvents();
     }
 
     private initEvents() {
-        this.el.addEventListener('mousedown', this.handleDown);
+        this.container.addEventListener('mousedown', this.handleDown);
         window.addEventListener('mousemove', this.handleMove);
         window.addEventListener('mouseup', this.handleUp);
 
-        this.el.addEventListener('touchstart', this.handleDown);
+        this.container.addEventListener('touchstart', this.handleDown);
         window.addEventListener('touchmove', this.handleMove, {
             passive: false,
         });
@@ -51,9 +45,7 @@ class Drag {
         }
 
         event.stopPropagation();
-        event.preventDefault();
         this.mouseStart = this.getCoords(event);
-
         this.onStart(event as MouseEvent);
     };
 
@@ -67,7 +59,8 @@ class Drag {
         const { x, y } = this.getCoords(event);
         const delta = { dX: x - this.mouseStart.x, dY: y - this.mouseStart.y };
         const zoom =
-            this.el.getBoundingClientRect().width / this.el.offsetWidth;
+            this.container.getBoundingClientRect().width /
+            this.container.offsetWidth;
 
         this.onTranslate(
             { x: delta.dX / zoom, y: delta.dY / zoom },

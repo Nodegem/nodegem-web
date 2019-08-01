@@ -1,32 +1,65 @@
 import { DraggableTabPane, DraggableTabs } from 'components/DraggableTabs';
 import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
-import { Observer, useObserver } from 'mobx-react-lite';
+import { Observer } from 'mobx-react-lite';
 import React from 'react';
 import {
     DragDropContext,
+    DraggableStateSnapshot,
+    DraggingStyle,
     DragUpdate,
     DropResult,
+    NotDraggingStyle,
     ResponderProvided,
 } from 'react-beautiful-dnd';
 import { useStore } from 'stores';
-import { NodeSelect } from './NodeSelect/NodeSelect';
-import { SandboxCanvas } from './Sandbox/SandboxCanvas';
+import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
+import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
+
+const nodeDragStyle = (
+    style: DraggingStyle | NotDraggingStyle | undefined,
+    snapshot: DraggableStateSnapshot
+): React.CSSProperties => {
+    if (
+        snapshot.draggingOver !== sandboxDroppableId ||
+        !snapshot.isDropAnimating
+    ) {
+        return { ...style };
+    }
+
+    return {
+        ...style,
+        visibility: 'hidden',
+        transitionDuration: '75ms',
+    };
+};
 
 export const SandboxView = () => {
     const { sandboxStore } = useStore();
 
     function onDragEnd(result: DropResult, provided: ResponderProvided) {
-        console.log(result, provided);
-
         if (!result.destination) {
+            return;
+        }
+
+        if (
+            result.source.droppableId === nodeSelectDroppableId &&
+            result.destination.droppableId === sandboxDroppableId
+        ) {
+            console.log('Adding node');
+            return;
+        }
+
+        if (
+            result.source.droppableId === sandboxDroppableId &&
+            result.destination.droppableId === nodeSelectDroppableId
+        ) {
+            console.log('Deleting node');
             return;
         }
     }
 
-    function onDragUpdate(initial: DragUpdate, provided: ResponderProvided) {
-        console.log(initial, provided);
-    }
+    function onDragUpdate(initial: DragUpdate, provided: ResponderProvided) {}
 
     return (
         <div className="sandbox-view-container">
@@ -46,7 +79,10 @@ export const SandboxView = () => {
                                     tabContent="Nodes"
                                     collapsed={sandboxStore.nodeSelectClosed}
                                 >
-                                    <NodeSelect />
+                                    <NodeSelect
+                                        dragStyle={nodeDragStyle}
+                                        nodes={['1', '2', '3']}
+                                    />
                                 </VerticalCollapsible>
                             )}
                         </Observer>

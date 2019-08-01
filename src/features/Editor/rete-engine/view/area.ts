@@ -98,7 +98,6 @@ export class Area extends Emitter {
         }
 
         const d = (k - params.zoom) / (k - zoom || 1);
-
         this.transform.k = params.zoom || 1;
         this.transform.x += ox * d;
         this.transform.y += oy * d;

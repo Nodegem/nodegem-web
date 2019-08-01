@@ -5,6 +5,7 @@
     "dependencies": {
         "@aspnet/signalr": "^1.0.4",
         "antd": "^3.20.1",
+        "between.js": "^0.1.2-fix.2",
         "classnames": "^2.2.6",
         "fuse.js": "^3.3.0",
         "localforage": "^1.7.2",
@@ -16,7 +17,6 @@
         "moment": "^2.23.0",
         "react": "^16.8.6",
         "react-beautiful-dnd": "^11.0.5",
-        "react-dnd-html5-backend": "^9.3.2",
         "react-dom": "^16.8.6",
         "react-router-dom": "^5.0.1",
         "shortid": "^2.2.13",

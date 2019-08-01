@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
 import {
-    DragDropContext,
     Draggable,
+    DraggableStateSnapshot,
+    DraggingStyle,
     Droppable,
-    DropResult,
-    ResponderProvided,
+    NotDraggingStyle,
 } from 'react-beautiful-dnd';
 import { Node } from '../Node';
 
 import './NodeSelect.less';
 
-export const droppableDeleteId = 'deleteNode';
+export const nodeSelectDroppableId = 'nodeSelect';
 
-const DraggableNode = ({ node, index }) => {
+const DraggableNode = ({
+    node,
+    index,
+    dragStyle,
+}: {
+    node: string;
+    index: number;
+    dragStyle?: (
+        style: DraggingStyle | NotDraggingStyle | undefined,
+        snapshot: DraggableStateSnapshot
+    ) => React.CSSProperties;
+}) => {
     return (
         <Draggable draggableId={node} index={index}>
             {(provided, snapshot) => (
@@ -20,7 +31,14 @@ const DraggableNode = ({ node, index }) => {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    style={provided.draggableProps.style}
+                    style={
+                        (dragStyle &&
+                            dragStyle(
+                                provided.draggableProps.style,
+                                snapshot
+                            )) ||
+                        provided.draggableProps.style
+                    }
                 >
                     <Node>{node}</Node>
                 </div>
@@ -31,28 +49,47 @@ const DraggableNode = ({ node, index }) => {
 
 const NodeList = React.memo<any>(function NodeListHelper({
     nodeItems,
+    dragStyle,
 }: {
     nodeItems: any[];
+    dragStyle?: (
+        style: DraggingStyle | NotDraggingStyle | undefined,
+        snapshot: DraggableStateSnapshot
+    ) => React.CSSProperties;
 }) {
-    return nodeItems.map((nodeItem: number, index: number) => (
-        <DraggableNode node={nodeItem} index={index} key={index} />
+    return nodeItems.map((nodeItem: any, index: number) => (
+        <DraggableNode
+            dragStyle={dragStyle}
+            node={nodeItem}
+            index={index}
+            key={index}
+        />
     ));
 });
 
-export const NodeSelect: React.FC = props => {
-    const testItems = ['test', 'sdasda', 'sdasdasdas', 'sdasdsadasd'];
+interface INodeSelectProps {
+    nodes: string[];
+    dragStyle?: (
+        style: DraggingStyle | NotDraggingStyle | undefined,
+        snapshot: DraggableStateSnapshot
+    ) => React.CSSProperties;
+}
 
+export const NodeSelect: React.FC<INodeSelectProps> = props => {
     return (
         <div className="node-select">
             <Droppable
                 isDropDisabled={true}
                 direction="vertical"
-                droppableId={droppableDeleteId}
+                droppableId={nodeSelectDroppableId}
                 ignoreContainerClipping
             >
                 {(provided, snapshot) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}>
-                        <NodeList nodeItems={testItems} />
+                        <NodeList
+                            nodeItems={props.nodes}
+                            dragStyle={props.dragStyle}
+                        />
                         {provided.placeholder}
                     </div>
                 )}

@@ -7,27 +7,31 @@ class Zoom {
     public distance: number | null;
 
     constructor(
-        private el: HTMLElement,
+        parentContainer: HTMLElement,
+        private viewContainer: HTMLElement,
         private intensity: number,
         private onZoom: ZoomEvent
     ) {
-        this.el = el;
         this.intensity = intensity;
-
         this.distance = null;
 
-        el.addEventListener('wheel', this.handleWheel);
-        el.addEventListener('touchmove', this.handleMove);
-        el.addEventListener('touchend', this.handleEnd);
-        el.addEventListener('touchcancel', this.handleEnd);
+        parentContainer.addEventListener('wheel', this.handleWheel);
+        parentContainer.addEventListener('dblclick', this.handleDblClick);
+        parentContainer.addEventListener('touchmove', this.handleMove);
+        parentContainer.addEventListener('touchend', this.handleEnd);
+        parentContainer.addEventListener('touchcancel', this.handleEnd);
     }
 
     public handleWheel = (e: WheelEvent) => {
         e.preventDefault();
 
-        const rect = this.el.getBoundingClientRect();
-        const delta = (-e.deltaY / 120) * this.intensity;
+        const rect = this.viewContainer.getBoundingClientRect();
+        const eLegacy = e as any;
+        const delta =
+            (eLegacy.wheelDelta ? eLegacy.wheelDelta / 120 : -e.deltaY / 3) *
+            this.intensity;
 
+        console.log(rect.left - e.clientX);
         const ox = (rect.left - e.clientX) * delta;
         const oy = (rect.top - e.clientY) * delta;
 
@@ -51,7 +55,7 @@ class Zoom {
             return;
         }
 
-        const rect = this.el.getBoundingClientRect();
+        const rect = this.viewContainer.getBoundingClientRect();
         const { cx, cy, distance } = this.touches(e as TouchEvent);
 
         if (this.distance !== null) {
@@ -72,7 +76,7 @@ class Zoom {
     public handleDblClick = (e: MouseEvent) => {
         e.preventDefault();
 
-        const rect = this.el.getBoundingClientRect();
+        const rect = this.viewContainer.getBoundingClientRect();
         const delta = 4 * this.intensity;
 
         const ox = (rect.left - e.clientX) * delta;

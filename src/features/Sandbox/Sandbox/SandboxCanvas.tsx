@@ -1,21 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { Droppable } from 'react-beautiful-dnd';
 import CanvasContainer from './Canvas/canvas-container';
 import './SandboxCanvas.less';
 
+export const sandboxDroppableId = 'sandboxId';
+
 export interface ISandboxProps {
     size?: { width: number; height: number };
-}
-
-function getStyle(style, snapshot) {
-    if (!snapshot.isDropAnimating) {
-        return style;
-    }
-    return {
-        ...style,
-        // cannot be 0, but make it super tiny
-        transitionDuration: `0.001s`,
-    };
 }
 
 export const SandboxCanvas: React.FC<ISandboxProps> = ({
@@ -23,41 +14,42 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
 }: ISandboxProps) => {
     const canvasRef = useRef<HTMLDivElement>(null);
     const { width, height } = size;
-    const left = width / 2;
-    const top = height / 2;
+    const { halfWidth, halfHeight } = {
+        halfWidth: width / 2,
+        halfHeight: height / 2,
+    };
+    const bounds = {
+        top: -halfWidth,
+        left: -halfHeight,
+        width: halfWidth,
+        height: halfHeight,
+    };
 
     useEffect(() => {
         const canvasElement = canvasRef.current!;
-        const canvas = new CanvasContainer(canvasElement, {
-            top: -top,
-            left: -left,
-            width,
-            height,
-        });
+        const canvas = new CanvasContainer(canvasElement, bounds);
+
+        function handleKeyPress(event: KeyboardEvent) {
+            if (event.keyCode === 32) {
+                canvas.reset();
+            }
+        }
+
+        window.addEventListener('keypress', handleKeyPress);
     }, [canvasRef]);
 
     return (
-        <div className="sandbox">
-            <Droppable droppableId="test">
-                {(provided, snapshot) => (
-                    <div
-                        className="canvas"
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                    >
-                        <div
-                            ref={canvasRef}
-                            className="view-container"
-                            style={{
-                                top: -top,
-                                left: -left,
-                                width,
-                                height,
-                            }}
-                        />
-                    </div>
-                )}
-            </Droppable>
-        </div>
+        <Droppable droppableId={sandboxDroppableId}>
+            {(provided, snapshot) => (
+                <div
+                    className="sandbox"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                >
+                    <div className="canvas" ref={canvasRef} />
+                    {provided.placeholder}
+                </div>
+            )}
+        </Droppable>
     );
 };
