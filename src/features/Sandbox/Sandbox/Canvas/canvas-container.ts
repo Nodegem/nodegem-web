@@ -1,6 +1,6 @@
 import Between from 'between.js';
 import { clamp } from 'utils';
-import Drag, { Vector2 } from './drag';
+import Drag from './drag';
 import Zoom from './zoom';
 
 export type CanvasBounds = {
@@ -14,7 +14,16 @@ export type ZoomBounds = {
     max: number;
 };
 
-export type Transform = { x: number; y: number; scale: number };
+const defaultTween = (oldTransform: Transform, newTransform: Transform) => {
+    return new Between(oldTransform, newTransform)
+        .time(500)
+        .easing(Between.Easing.Cubic.InOut);
+};
+
+export type TweenFunc = (
+    oldTransform: Transform,
+    newTransform: Transform
+) => any;
 
 class CanvasContainer {
     private _mousePos: Vector2;
@@ -22,13 +31,14 @@ class CanvasContainer {
         return this._mousePos;
     }
 
+    private anchor: Vector2;
     private parentElement: HTMLElement;
     private backgroundElement: HTMLDivElement;
     private transform: Transform;
-    private startPosition: Vector2;
 
     private drag: Drag;
     private zoom: Zoom;
+    private transformOrigin: Vector2;
 
     constructor(
         private canvas: HTMLDivElement,
@@ -37,36 +47,43 @@ class CanvasContainer {
     ) {
         this._mousePos = { x: 0, y: 0 };
         this.canvas.style.transformOrigin = '0 0';
+
+        this.transformOrigin = {
+            x: 0,
+            y: 0,
+        };
+
         this.transform = {
-            x: bounds.width / 2,
-            y: bounds.height / 2,
+            x: 0,
+            y: 0,
             scale: 1,
         };
+        // this.anchor = this.transform;
 
         this.backgroundElement = document.createElement('div');
         this.backgroundElement.classList.add('view-background');
         this.backgroundElement.style.left = `${bounds.left}px`;
         this.backgroundElement.style.top = `${bounds.top}px`;
-        this.backgroundElement.style.width = `${bounds.width}px`;
-        this.backgroundElement.style.height = `${bounds.height}px`;
+        this.backgroundElement.style.width = `${bounds.width * 2}px`;
+        this.backgroundElement.style.height = `${bounds.height * 2}px`;
         this.canvas.prepend(this.backgroundElement);
 
         this.parentElement = this.canvas.parentElement!;
+        this.parentElement.addEventListener('mousedown', this.onMouseDown);
         this.parentElement.addEventListener('mousemove', this.onMouseMove);
         this.parentElement.addEventListener('resize', () =>
             this.translate(this.transform)
         );
 
-        this.drag = new Drag(
-            this.parentElement,
-            this.onTranslate,
-            this.onStart
-        );
-
+        this.drag = new Drag(this.parentElement, this.onTranslate);
         this.zoom = new Zoom(this.parentElement, this.canvas, 0.1, this.onZoom);
 
         this.update();
     }
+
+    private onMouseDown = (e: MouseEvent) => {
+        this.anchor = this.transform;
+    };
 
     private onMouseMove = (e: MouseEvent) => {
         const rect = this.canvas.getBoundingClientRect();
@@ -78,58 +95,68 @@ class CanvasContainer {
     };
 
     public update() {
+        const oX = this.transformOrigin.x;
+        const oY = this.transformOrigin.y;
         const { x, y, scale } = this.transform;
-        this.canvas.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+        this.canvas.style.transform = `translate(${oX + x}px, ${oY +
+            y}px) scale(${scale})`;
     }
 
-    private onStart = (e: MouseEvent) => {
-        this.startPosition = {
-            x: this.transform.x,
-            y: this.transform.y,
-        };
-    };
-
     private onTranslate = (delta: Vector2, e: MouseEvent) => {
-        const { x, y } = this.startPosition;
+        const { x, y } = this.anchor;
+        const { scale } = this.transform;
         this.translate({
             x: x + delta.x,
             y: y + delta.y,
-            scale: this.transform.scale,
+            scale,
         });
     };
 
-    public translate(position: Transform, animate: boolean = false) {
+    public translate(position: Transform, tweenFunc?: TweenFunc) {
         const { x, y, scale } = position;
         const { width, height } = this.parentElement.getBoundingClientRect();
         const oldTransform = this.transform;
+
+        const minBounds = {
+            x: this.bounds.left * scale + width,
+            y: this.bounds.top * scale + height,
+        };
+        const maxBounds = {
+            x: -this.bounds.left * scale,
+            y: -this.bounds.top * scale,
+        };
+
+        const clampedX = clamp(x, minBounds.x, maxBounds.x);
+        const clampedY = clamp(y, minBounds.y, maxBounds.y);
+
         const newTransform = {
-            x: clamp(x, 0 + width, this.bounds.width - width),
-            y: clamp(y, 0 + height, this.bounds.height - height),
+            x: clampedX,
+            y: clampedY,
             scale,
         };
 
-        if (!animate) {
+        if (!tweenFunc) {
             this.transform = newTransform;
             this.update();
         } else {
-            new Between(oldTransform, newTransform)
-                .time(250)
-                .easing(Between.Easing.Cubic.InOut)
-                .on('update', value => {
+            tweenFunc(oldTransform, newTransform).on(
+                'update',
+                (value: Transform) => {
                     this.transform = value;
                     this.update();
-                });
+                }
+            );
         }
     }
 
     public reset() {
         this.translate(
             {
-                x: this.bounds.width / 2,
-                y: this.bounds.height / 2,
+                x: 0,
+                y: 0,
                 scale: 1,
             },
-            true
+            defaultTween
         );
     }
 
@@ -147,11 +174,12 @@ class CanvasContainer {
 
         const d = (scale - clampedZoom) / (scale - zoomDelta || 1);
 
-        this.transform.scale = clampedZoom || 1;
-        this.transform.x += position.x * d;
-        this.transform.y += position.y * d;
-
-        this.update();
+        const { x, y } = this.transform;
+        this.translate({
+            x: x + position.x * d,
+            y: y + position.y * d,
+            scale: clampedZoom || 1,
+        });
     };
 }
 

@@ -28,9 +28,9 @@ export class Zoom {
             (e.wheelDelta ? e.wheelDelta / 120 : -e.deltaY / 3) *
             this.intensity;
 
-        console.log(rect, e.clientX);
         const ox = (rect.left - e.clientX) * delta;
         const oy = (rect.top - e.clientY) * delta;
+        console.log(this.el);
 
         this.onzoom(delta, ox, oy);
     }

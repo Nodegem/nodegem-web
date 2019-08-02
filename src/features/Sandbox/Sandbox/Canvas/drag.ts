@@ -1,10 +1,5 @@
 import { isTouchEvent } from 'utils';
 
-export type Vector2 = {
-    x: number;
-    y: number;
-};
-
 export type DragStartEvent = (e: MouseEvent) => void;
 export type DragTranslateEvent = (delta: Vector2, e: MouseEvent) => void;
 export type DragUpEvent = (e: MouseEvent) => void;
@@ -15,7 +10,6 @@ class Drag {
     constructor(
         private container: HTMLElement,
         public onTranslate: DragTranslateEvent = () => {},
-        public onStart: DragStartEvent = () => {},
         public onDragUp: DragUpEvent = () => {}
     ) {
         this.mouseStart = null;
@@ -46,7 +40,6 @@ class Drag {
 
         event.stopPropagation();
         this.mouseStart = this.getCoords(event);
-        this.onStart(event as MouseEvent);
     };
 
     private handleMove = (event: MouseEvent | TouchEvent) => {

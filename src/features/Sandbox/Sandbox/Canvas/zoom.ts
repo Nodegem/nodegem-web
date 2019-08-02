@@ -1,5 +1,4 @@
 import { isTouchEvent } from 'utils';
-import { Vector2 } from './drag';
 
 export type ZoomEvent = (delta: number, position: Vector2) => void;
 
@@ -31,7 +30,6 @@ class Zoom {
             (eLegacy.wheelDelta ? eLegacy.wheelDelta / 120 : -e.deltaY / 3) *
             this.intensity;
 
-        console.log(rect.left - e.clientX);
         const ox = (rect.left - e.clientX) * delta;
         const oy = (rect.top - e.clientY) * delta;
 

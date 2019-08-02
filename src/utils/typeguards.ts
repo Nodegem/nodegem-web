@@ -10,3 +10,9 @@ export function isTouchEvent(
         (event as TouchEvent).touches !== undefined
     );
 }
+
+export function isMouseEvent(
+    event: TouchEvent | MouseEvent
+): event is MouseEvent {
+    return !isTouchEvent(event);
+}
