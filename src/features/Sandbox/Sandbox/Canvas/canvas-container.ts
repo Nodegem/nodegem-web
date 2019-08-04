@@ -3,9 +3,7 @@ import { clamp } from 'utils';
 import Drag from './drag';
 import Zoom from './zoom';
 
-export type CanvasBounds = {
-    left: number;
-    top: number;
+export type CanvasDimensions = {
     width: number;
     height: number;
 };
@@ -39,33 +37,44 @@ class CanvasContainer {
     private drag: Drag;
     private zoom: Zoom;
     private transformOrigin: Vector2;
+    private bounds: { left: number; top: number } & CanvasDimensions;
 
     constructor(
         private canvas: HTMLDivElement,
-        private bounds: CanvasBounds,
+        private dimensions: CanvasDimensions,
         private zoomBounds: ZoomBounds = { min: 0.4, max: 2.5 }
     ) {
         this._mousePos = { x: 0, y: 0 };
-        this.canvas.style.transformOrigin = '0 0';
 
         this.transformOrigin = {
             x: 0,
             y: 0,
         };
 
+        this.canvas.style.transformOrigin = `${this.transformOrigin.x} ${
+            this.transformOrigin.y
+        }`;
+
         this.transform = {
             x: 0,
             y: 0,
             scale: 1,
         };
-        // this.anchor = this.transform;
+        this.anchor = this.transform;
+
+        this.bounds = {
+            left: -dimensions.width / 2,
+            top: -dimensions.height / 2,
+            width: dimensions.width / 2,
+            height: dimensions.height / 2,
+        };
 
         this.backgroundElement = document.createElement('div');
         this.backgroundElement.classList.add('view-background');
-        this.backgroundElement.style.left = `${bounds.left}px`;
-        this.backgroundElement.style.top = `${bounds.top}px`;
-        this.backgroundElement.style.width = `${bounds.width * 2}px`;
-        this.backgroundElement.style.height = `${bounds.height * 2}px`;
+        this.backgroundElement.style.left = `${this.bounds.left}px`;
+        this.backgroundElement.style.top = `${this.bounds.top}px`;
+        this.backgroundElement.style.width = `${this.bounds.width * 2}px`;
+        this.backgroundElement.style.height = `${this.bounds.height * 2}px`;
         this.canvas.prepend(this.backgroundElement);
 
         this.parentElement = this.canvas.parentElement!;

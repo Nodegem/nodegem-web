@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import CanvasContainer from './Canvas/canvas-container';
+import SandboxManager from './sandbox-manager';
 import './SandboxCanvas.less';
 
 export const sandboxDroppableId = 'sandboxId';
@@ -10,28 +11,19 @@ export interface ISandboxProps {
 }
 
 export const SandboxCanvas: React.FC<ISandboxProps> = ({
-    size = { width: 32000, height: 32000 },
+    size = { width: 12000, height: 12000 },
 }: ISandboxProps) => {
     const canvasRef = useRef<HTMLDivElement>(null);
-    const { width, height } = size;
-    const { halfWidth, halfHeight } = {
-        halfWidth: width / 2,
-        halfHeight: height / 2,
-    };
-    const bounds = {
-        top: -halfWidth,
-        left: -halfHeight,
-        width: halfWidth,
-        height: halfHeight,
-    };
+
+    const testNodes = ['1', '2', '3'];
 
     useEffect(() => {
         const canvasElement = canvasRef.current!;
-        const canvas = new CanvasContainer(canvasElement, bounds);
+        const canvas = new SandboxManager(canvasElement, size);
 
         function handleKeyPress(event: KeyboardEvent) {
             if (event.keyCode === 32) {
-                canvas.reset();
+                canvas.resetView();
             }
         }
 

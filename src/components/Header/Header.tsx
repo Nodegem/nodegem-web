@@ -47,32 +47,26 @@ export const Header: React.FC = observer(() => {
             className="app-header"
             style={{ height: headerHeight, lineHeight: headerHeight }}
         >
-            <Row>
-                <Col span={20}>
-                    <Menu
-                        theme={commonStore.theme}
-                        mode="horizontal"
-                        style={{ lineHeight: commonStore.headerHeight }}
-                    />
-                </Col>
-                <Col span={4}>
-                    <div className="app-avatar">
-                        <Dropdown
-                            placement="bottomRight"
-                            overlay={menu(commonStore.theme, authStore.logout)}
-                            trigger={['click']}
-                        >
-                            <div style={{ cursor: 'pointer' }}>
-                                <span className="username">
-                                    {userStore.userData.userName}
-                                    <Icon type="caret-down" />
-                                </span>
-                                <Avatar size={35} icon="user" />
-                            </div>
-                        </Dropdown>
+            <Menu
+                theme={commonStore.theme}
+                mode="horizontal"
+                style={{ lineHeight: commonStore.headerHeight }}
+            />
+            <div className="app-avatar">
+                <Dropdown
+                    placement="bottomRight"
+                    overlay={menu(commonStore.theme, authStore.logout)}
+                    trigger={['click']}
+                >
+                    <div style={{ cursor: 'pointer' }}>
+                        <span className="username">
+                            {userStore.userData.userName}
+                            <Icon type="caret-down" />
+                        </span>
+                        <Avatar size={35} icon="user" />
                     </div>
-                </Col>
-            </Row>
+                </Dropdown>
+            </div>
         </AntHeader>
     );
 });

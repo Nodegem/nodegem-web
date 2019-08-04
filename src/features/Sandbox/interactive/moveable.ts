@@ -1,4 +1,4 @@
-import { isMouseEvent } from 'utils';
+import { isMouseEvent, isTouchEvent } from 'utils';
 
 class Moveable implements IDisposable {
     private _position: Vector2 = { x: 0, y: 0 };
@@ -14,13 +14,19 @@ class Moveable implements IDisposable {
         return this._isDragging;
     }
 
-    private _domElement: HTMLElement;
-    constructor(element: HTMLElement) {
+    private anchor: Vector2;
+    private _domElement: Element;
+    constructor(element: Element) {
         element.addEventListener('mousedown', this.handleMouseDown);
         window.addEventListener('mousemove', this.handleMouseMove);
         window.addEventListener('mouseup', this.handleMouseUp);
 
         this._domElement = element;
+    }
+
+    private getCoords(event: MouseEvent | TouchEvent): Vector2 {
+        const props = isTouchEvent(event) ? event.touches[0] : event;
+        return { x: props.pageX, y: props.pageY };
     }
 
     private handleMouseDown = (event: MouseEvent | TouchEvent) => {
@@ -33,14 +39,16 @@ class Moveable implements IDisposable {
         event.preventDefault();
         event.stopPropagation();
         this._isDragging = true;
+        this.anchor = this.getCoords(event);
     };
 
     private handleMouseMove = (event: MouseEvent | TouchEvent) => {
         if (!this.isDragging) {
             return;
         }
-
         event.preventDefault();
+
+        this.anchor = this.getCoords(event);
     };
 
     private handleMouseUp = (event: MouseEvent | TouchEvent) => {
