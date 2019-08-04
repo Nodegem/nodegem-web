@@ -1,21 +1,36 @@
+import NodeController from '../Node/node-controller';
 import CanvasContainer, {
     CanvasDimensions,
     ZoomBounds,
 } from './Canvas/canvas-container';
 
-class SandboxManager {
+class SandboxManager<TNodeData = any> {
+    public get nodes(): NodeController<TNodeData>[] {
+        return this._nodes;
+    }
+
     private canvasContainer: CanvasContainer;
+    private _nodes: NodeController<TNodeData>[];
 
     constructor(
         private canvasElement: HTMLDivElement,
         bounds: CanvasDimensions,
         zoomBounds?: ZoomBounds
     ) {
+        this._nodes = [];
         this.canvasContainer = new CanvasContainer(
             canvasElement,
             bounds,
             zoomBounds
         );
+    }
+
+    public load(data: TNodeData[]) {
+        this._nodes = data.map(x => new NodeController(x));
+    }
+
+    public clearView() {
+        this._nodes = [];
     }
 
     public resetView() {

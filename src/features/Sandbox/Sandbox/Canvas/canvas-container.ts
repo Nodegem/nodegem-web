@@ -1,7 +1,7 @@
 import Between from 'between.js';
 import { clamp } from 'utils';
 import Drag from './drag';
-import Zoom from './zoom';
+import Zoom, { ZoomType } from './zoom';
 
 export type CanvasDimensions = {
     width: number;
@@ -15,6 +15,12 @@ export type ZoomBounds = {
 const defaultTween = (oldTransform: Transform, newTransform: Transform) => {
     return new Between(oldTransform, newTransform)
         .time(500)
+        .easing(Between.Easing.Cubic.InOut);
+};
+
+const defaultZoomTween = (oldTransform: Transform, newTransform: Transform) => {
+    return new Between(oldTransform, newTransform)
+        .time(350)
         .easing(Between.Easing.Cubic.InOut);
 };
 
@@ -41,7 +47,7 @@ class CanvasContainer {
 
     constructor(
         private canvas: HTMLDivElement,
-        private dimensions: CanvasDimensions,
+        dimensions: CanvasDimensions,
         private zoomBounds: ZoomBounds = { min: 0.4, max: 2.5 }
     ) {
         this._mousePos = { x: 0, y: 0 };
@@ -169,13 +175,14 @@ class CanvasContainer {
         );
     }
 
-    private onZoom = (delta: number, position: Vector2) => {
-        this.performZoom(this.transform.scale * (1 + delta), position);
+    private onZoom = (delta: number, position: Vector2, type: ZoomType) => {
+        this.performZoom(this.transform.scale * (1 + delta), position, type);
     };
 
     private performZoom = (
         zoomDelta: number,
-        position: Vector2 = { x: 0, y: 0 }
+        position: Vector2 = { x: 0, y: 0 },
+        type: ZoomType
     ) => {
         const { scale } = this.transform;
         const { min, max } = this.zoomBounds;
@@ -184,11 +191,17 @@ class CanvasContainer {
         const d = (scale - clampedZoom) / (scale - zoomDelta || 1);
 
         const { x, y } = this.transform;
-        this.translate({
+
+        const newTransform = {
             x: x + position.x * d,
             y: y + position.y * d,
             scale: clampedZoom || 1,
-        });
+        };
+        if (type !== 'dblClick') {
+            this.translate(newTransform);
+        } else {
+            this.translate(newTransform, defaultZoomTween);
+        }
     };
 }
 

@@ -14,14 +14,22 @@ class Moveable implements IDisposable {
         return this._isDragging;
     }
 
+    public disabled = false;
+
     private anchor: Vector2;
-    private _domElement: Element;
-    constructor(element: Element) {
+    private _domElement: HTMLElement;
+    constructor(element: HTMLElement) {
         element.addEventListener('mousedown', this.handleMouseDown);
         window.addEventListener('mousemove', this.handleMouseMove);
         window.addEventListener('mouseup', this.handleMouseUp);
 
         this._domElement = element;
+        this.update();
+    }
+
+    private update() {
+        const { x, y } = this._position;
+        this._domElement.style.transform = `translate(${x}px, ${y}px)`;
     }
 
     private getCoords(event: MouseEvent | TouchEvent): Vector2 {
@@ -35,6 +43,12 @@ class Moveable implements IDisposable {
                 return;
             }
         }
+
+        if (!this.disabled) {
+            return;
+        }
+
+        console.log(event);
 
         event.preventDefault();
         event.stopPropagation();

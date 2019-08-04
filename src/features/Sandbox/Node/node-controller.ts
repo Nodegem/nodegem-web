@@ -1,6 +1,6 @@
 import Moveable from '../interactive/moveable';
 
-class NodeController<TNode> {
+class NodeController<TNode = any> {
     public get position(): Vector2 {
         return this.moveable.position;
     }
@@ -10,10 +10,14 @@ class NodeController<TNode> {
     }
 
     private moveable: Moveable;
+    private element: Element;
 
-    constructor(private containerElement: Element, private _nodeData: TNode) {
-        this.moveable = new Moveable(containerElement);
-    }
+    constructor(private _nodeData: TNode) {}
+
+    public getElementRef = (element: HTMLElement) => {
+        this.element = element;
+        this.moveable = new Moveable(element);
+    };
 }
 
 export default NodeController;

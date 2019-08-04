@@ -1,6 +1,11 @@
 import { isTouchEvent } from 'utils';
 
-export type ZoomEvent = (delta: number, position: Vector2) => void;
+export type ZoomEvent = (
+    delta: number,
+    position: Vector2,
+    type: ZoomType
+) => void;
+export type ZoomType = 'wheel' | 'touch' | 'dblClick';
 
 class Zoom {
     public distance: number | null;
@@ -33,7 +38,7 @@ class Zoom {
         const ox = (rect.left - e.clientX) * delta;
         const oy = (rect.top - e.clientY) * delta;
 
-        this.onZoom(delta, { x: ox, y: oy });
+        this.onZoom(delta, { x: ox, y: oy }, 'wheel');
     };
 
     public touches(e: TouchEvent) {
@@ -62,7 +67,7 @@ class Zoom {
             const ox = (rect.left - cx) * delta;
             const oy = (rect.top - cy) * delta;
 
-            this.onZoom(delta, { x: ox, y: oy });
+            this.onZoom(delta, { x: ox, y: oy }, 'touch');
         }
         this.distance = distance;
     };
@@ -75,12 +80,12 @@ class Zoom {
         e.preventDefault();
 
         const rect = this.viewContainer.getBoundingClientRect();
-        const delta = 4 * this.intensity;
+        const delta = 8 * this.intensity;
 
         const ox = (rect.left - e.clientX) * delta;
         const oy = (rect.top - e.clientY) * delta;
 
-        this.onZoom(delta, { x: ox, y: oy });
+        this.onZoom(delta, { x: ox, y: oy }, 'dblClick');
     };
 }
 

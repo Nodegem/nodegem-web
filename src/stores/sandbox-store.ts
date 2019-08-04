@@ -1,3 +1,5 @@
+import { NodeService } from 'services';
+
 export type TSandboxStore = ReturnType<typeof createSandboxStore>;
 
 export function createSandboxStore() {
@@ -9,6 +11,9 @@ export function createSandboxStore() {
         nodeInfoClosed: true,
         toggleNodeInfo() {
             this.nodeInfoClosed = !this.nodeInfoClosed;
+        },
+        loadDefinitions(graphId: string, type: GraphType) {
+            return NodeService.getAllNodeDefinitions(graphId, type);
         },
     };
 }

@@ -1,4 +1,4 @@
-import { isInput } from '../../../../utils';
+import { isInput } from 'utils';
 
 export type DragStartEvent = (e: MouseEvent) => void;
 export type DragTranslateEvent = (x: number, y: number, e: MouseEvent) => void;

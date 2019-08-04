@@ -6,7 +6,6 @@ import {
     DragDropContext,
     DraggableStateSnapshot,
     DraggingStyle,
-    DragUpdate,
     DropResult,
     NotDraggingStyle,
     ResponderProvided,
@@ -59,16 +58,11 @@ export const SandboxView = () => {
         }
     }
 
-    function onDragUpdate(initial: DragUpdate, provided: ResponderProvided) {}
-
     return (
         <div className="sandbox-view-container">
             <DraggableTabs>
                 <DraggableTabPane tab="Thing" tabId="0">
-                    <DragDropContext
-                        onDragEnd={onDragEnd}
-                        onDragUpdate={onDragUpdate}
-                    >
+                    <DragDropContext onDragEnd={onDragEnd}>
                         <Observer>
                             {() => (
                                 <VerticalCollapsible

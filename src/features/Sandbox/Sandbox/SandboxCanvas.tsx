@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
+import { Node, SandboxNode } from '../Node';
 import CanvasContainer from './Canvas/canvas-container';
 import SandboxManager from './sandbox-manager';
 import './SandboxCanvas.less';
@@ -10,16 +11,26 @@ export interface ISandboxProps {
     size?: { width: number; height: number };
 }
 
+type SandboxState = {
+    manager: SandboxManager<string> | null;
+};
+
 export const SandboxCanvas: React.FC<ISandboxProps> = ({
     size = { width: 12000, height: 12000 },
 }: ISandboxProps) => {
     const canvasRef = useRef<HTMLDivElement>(null);
+    const [state, setState] = useState<SandboxState>({
+        manager: null,
+    });
 
     const testNodes = ['1', '2', '3'];
 
     useEffect(() => {
         const canvasElement = canvasRef.current!;
-        const canvas = new SandboxManager(canvasElement, size);
+        const canvas = new SandboxManager<string>(canvasElement, size);
+        canvas.load(testNodes);
+
+        setState({ manager: canvas });
 
         function handleKeyPress(event: KeyboardEvent) {
             if (event.keyCode === 32) {
@@ -31,17 +42,27 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
     }, [canvasRef]);
 
     return (
-        <Droppable droppableId={sandboxDroppableId}>
-            {(provided, snapshot) => (
-                <div
-                    className="sandbox"
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                >
-                    <div className="canvas" ref={canvasRef} />
-                    {provided.placeholder}
-                </div>
-            )}
-        </Droppable>
+        <div className="sandbox">
+            <Droppable droppableId={sandboxDroppableId}>
+                {(provided, snapshot) => (
+                    <div
+                        ref={provided.innerRef}
+                        className="droppable-area"
+                        {...provided.droppableProps}
+                        style={{ width: '100%', height: '100%' }}
+                    />
+                )}
+            </Droppable>
+            <div className="canvas" ref={canvasRef}>
+                {state.manager &&
+                    state.manager.nodes.map((n, index) => (
+                        <SandboxNode
+                            key={index}
+                            getRef={n.getElementRef}
+                            name={n.nodeData}
+                        />
+                    ))}
+            </div>
+        </div>
     );
 };

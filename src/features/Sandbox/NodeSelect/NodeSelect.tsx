@@ -40,7 +40,7 @@ const DraggableNode = ({
                         provided.draggableProps.style
                     }
                 >
-                    <Node>{node}</Node>
+                    <Node name={node} />
                 </div>
             )}
         </Draggable>
