@@ -4,7 +4,7 @@ export type DragStartEvent = (e: MouseEvent) => void;
 export type DragTranslateEvent = (delta: Vector2, e: MouseEvent) => void;
 export type DragUpEvent = (e: MouseEvent) => void;
 
-class Drag {
+class Drag implements IDisposable {
     private mouseStart: Vector2 | null;
 
     constructor(
@@ -50,13 +50,13 @@ class Drag {
         event.stopPropagation();
 
         const { x, y } = this.getCoords(event);
-        const delta = { dX: x - this.mouseStart.x, dY: y - this.mouseStart.y };
+        const delta = { x: x - this.mouseStart.x, y: y - this.mouseStart.y };
         const zoom =
             this.container.getBoundingClientRect().width /
             this.container.offsetWidth;
 
         this.onTranslate(
-            { x: delta.dX / zoom, y: delta.dY / zoom },
+            { x: delta.x / zoom, y: delta.y / zoom },
             event as MouseEvent
         );
     };
@@ -69,6 +69,16 @@ class Drag {
         this.mouseStart = null;
         this.onDragUp(event as MouseEvent);
     };
+
+    public dispose(): void {
+        this.container.removeEventListener('mousedown', this.handleDown);
+        window.removeEventListener('mousemove', this.handleMove);
+        window.removeEventListener('mouseup', this.handleUp);
+
+        this.container.removeEventListener('touchstart', this.handleDown);
+        window.removeEventListener('touchmove', this.handleMove);
+        window.removeEventListener('touchend', this.handleUp);
+    }
 }
 
 export default Drag;

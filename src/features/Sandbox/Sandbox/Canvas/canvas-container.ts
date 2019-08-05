@@ -29,10 +29,22 @@ export type TweenFunc = (
     newTransform: Transform
 ) => any;
 
-class CanvasContainer {
+class CanvasContainer implements IDisposable {
     private _mousePos: Vector2;
     public get mousePos(): Vector2 {
         return this._mousePos;
+    }
+
+    public get scale(): number {
+        return this.transform.scale;
+    }
+
+    public get position(): Vector2 {
+        return this.transform;
+    }
+
+    public get elementDimensions(): CanvasDimensions {
+        return this.parentElement.getBoundingClientRect();
     }
 
     private anchor: Vector2;
@@ -47,7 +59,7 @@ class CanvasContainer {
 
     constructor(
         private canvas: HTMLDivElement,
-        dimensions: CanvasDimensions,
+        private dimensions: CanvasDimensions,
         private zoomBounds: ZoomBounds = { min: 0.4, max: 2.5 }
     ) {
         this._mousePos = { x: 0, y: 0 };
@@ -68,27 +80,15 @@ class CanvasContainer {
         };
         this.anchor = this.transform;
 
-        this.bounds = {
-            left: -dimensions.width / 2,
-            top: -dimensions.height / 2,
-            width: dimensions.width / 2,
-            height: dimensions.height / 2,
-        };
-
-        this.backgroundElement = document.createElement('div');
-        this.backgroundElement.classList.add('view-background');
-        this.backgroundElement.style.left = `${this.bounds.left}px`;
-        this.backgroundElement.style.top = `${this.bounds.top}px`;
-        this.backgroundElement.style.width = `${this.bounds.width * 2}px`;
-        this.backgroundElement.style.height = `${this.bounds.height * 2}px`;
-        this.canvas.prepend(this.backgroundElement);
-
         this.parentElement = this.canvas.parentElement!;
         this.parentElement.addEventListener('mousedown', this.onMouseDown);
         this.parentElement.addEventListener('mousemove', this.onMouseMove);
-        this.parentElement.addEventListener('resize', () =>
-            this.translate(this.transform)
-        );
+        this.parentElement.addEventListener('resize', this.resize);
+
+        this.backgroundElement = document.createElement('div');
+        this.backgroundElement.classList.add('view-background');
+        this.resize();
+        this.canvas.prepend(this.backgroundElement);
 
         this.drag = new Drag(this.parentElement, this.onTranslate);
         this.zoom = new Zoom(this.parentElement, this.canvas, 0.1, this.onZoom);
@@ -129,12 +129,12 @@ class CanvasContainer {
 
     public translate(position: Transform, tweenFunc?: TweenFunc) {
         const { x, y, scale } = position;
-        const { width, height } = this.parentElement.getBoundingClientRect();
+        const { width, height } = this.elementDimensions;
         const oldTransform = this.transform;
 
         const minBounds = {
-            x: this.bounds.left * scale + width,
-            y: this.bounds.top * scale + height,
+            x: this.bounds.left * scale,
+            y: this.bounds.top * scale,
         };
         const maxBounds = {
             x: -this.bounds.left * scale,
@@ -203,6 +203,34 @@ class CanvasContainer {
             this.translate(newTransform, defaultZoomTween);
         }
     };
+
+    private resize() {
+        const { width, height } = this.elementDimensions;
+
+        this.bounds = {
+            left: -this.dimensions.width / 2,
+            top: -this.dimensions.height / 2,
+            width: this.dimensions.width / 2,
+            height: this.dimensions.height / 2,
+        };
+
+        this.backgroundElement.style.left = `${this.bounds.left - width}px`;
+        this.backgroundElement.style.top = `${this.bounds.top - height}px`;
+        this.backgroundElement.style.width = `${width +
+            this.bounds.width * 2}px`;
+        this.backgroundElement.style.height = `${height +
+            this.bounds.height * 2}px`;
+        this.translate(this.transform);
+    }
+
+    public dispose(): void {
+        this.parentElement.removeEventListener('mousedown', this.onMouseDown);
+        this.parentElement.removeEventListener('mousemove', this.onMouseMove);
+        this.parentElement.removeEventListener('resize', this.resize);
+
+        this.drag.dispose();
+        this.zoom.dispose();
+    }
 }
 
 export default CanvasContainer;

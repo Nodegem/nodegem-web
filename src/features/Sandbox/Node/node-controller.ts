@@ -1,4 +1,5 @@
 import Moveable from '../interactive/moveable';
+import CanvasContainer from '../Sandbox/Canvas/canvas-container';
 
 class NodeController<TNode = any> {
     public get position(): Vector2 {
@@ -12,11 +13,14 @@ class NodeController<TNode = any> {
     private moveable: Moveable;
     private element: Element;
 
-    constructor(private _nodeData: TNode) {}
+    constructor(
+        private _nodeData: TNode,
+        private canvasContainer: CanvasContainer
+    ) {}
 
     public getElementRef = (element: HTMLElement) => {
         this.element = element;
-        this.moveable = new Moveable(element);
+        this.moveable = new Moveable(element, this.canvasContainer);
     };
 }
 

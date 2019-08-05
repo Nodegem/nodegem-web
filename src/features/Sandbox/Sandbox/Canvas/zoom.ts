@@ -7,17 +7,17 @@ export type ZoomEvent = (
 ) => void;
 export type ZoomType = 'wheel' | 'touch' | 'dblClick';
 
-class Zoom {
-    public distance: number | null;
+class Zoom implements IDisposable {
+    private _distance: number | null;
 
     constructor(
-        parentContainer: HTMLElement,
+        private parentContainer: HTMLElement,
         private viewContainer: HTMLElement,
         private intensity: number,
         private onZoom: ZoomEvent
     ) {
         this.intensity = intensity;
-        this.distance = null;
+        this._distance = null;
 
         parentContainer.addEventListener('wheel', this.handleWheel);
         parentContainer.addEventListener('dblclick', this.handleDblClick);
@@ -61,19 +61,19 @@ class Zoom {
         const rect = this.viewContainer.getBoundingClientRect();
         const { cx, cy, distance } = this.touches(e as TouchEvent);
 
-        if (this.distance !== null) {
-            const delta = distance / this.distance - 1;
+        if (this._distance !== null) {
+            const delta = distance / this._distance - 1;
 
             const ox = (rect.left - cx) * delta;
             const oy = (rect.top - cy) * delta;
 
             this.onZoom(delta, { x: ox, y: oy }, 'touch');
         }
-        this.distance = distance;
+        this._distance = distance;
     };
 
     public handleEnd = () => {
-        this.distance = null;
+        this._distance = null;
     };
 
     public handleDblClick = (e: MouseEvent) => {
@@ -87,6 +87,17 @@ class Zoom {
 
         this.onZoom(delta, { x: ox, y: oy }, 'dblClick');
     };
+
+    public dispose(): void {
+        this.parentContainer.removeEventListener('wheel', this.handleWheel);
+        this.parentContainer.removeEventListener(
+            'dblclick',
+            this.handleDblClick
+        );
+        this.parentContainer.removeEventListener('touchmove', this.handleMove);
+        this.parentContainer.removeEventListener('touchend', this.handleEnd);
+        this.parentContainer.removeEventListener('touchcancel', this.handleEnd);
+    }
 }
 
 export default Zoom;

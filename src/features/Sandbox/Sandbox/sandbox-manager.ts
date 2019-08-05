@@ -4,7 +4,7 @@ import CanvasContainer, {
     ZoomBounds,
 } from './Canvas/canvas-container';
 
-class SandboxManager<TNodeData = any> {
+class SandboxManager<TNodeData = any> implements IDisposable {
     public get nodes(): NodeController<TNodeData>[] {
         return this._nodes;
     }
@@ -26,7 +26,9 @@ class SandboxManager<TNodeData = any> {
     }
 
     public load(data: TNodeData[]) {
-        this._nodes = data.map(x => new NodeController(x));
+        this._nodes = data.map(
+            x => new NodeController(x, this.canvasContainer)
+        );
     }
 
     public clearView() {
@@ -35,6 +37,10 @@ class SandboxManager<TNodeData = any> {
 
     public resetView() {
         this.canvasContainer.reset();
+    }
+
+    public dispose(): void {
+        this.canvasContainer.dispose();
     }
 }
 

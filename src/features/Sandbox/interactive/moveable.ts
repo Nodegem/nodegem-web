@@ -1,4 +1,5 @@
 import { isMouseEvent, isTouchEvent } from 'utils';
+import CanvasContainer from '../Sandbox/Canvas/canvas-container';
 
 class Moveable implements IDisposable {
     private _position: Vector2 = { x: 0, y: 0 };
@@ -16,10 +17,15 @@ class Moveable implements IDisposable {
 
     public disabled = false;
 
+    private posStart: Vector2;
     private anchor: Vector2;
     private _domElement: HTMLElement;
-    constructor(element: HTMLElement) {
+    constructor(
+        element: HTMLElement,
+        private canvasContainer: CanvasContainer
+    ) {
         element.addEventListener('mousedown', this.handleMouseDown);
+        element.addEventListener('dblclick', e => e.stopPropagation());
         window.addEventListener('mousemove', this.handleMouseMove);
         window.addEventListener('mouseup', this.handleMouseUp);
 
@@ -28,7 +34,7 @@ class Moveable implements IDisposable {
     }
 
     private update() {
-        const { x, y } = this._position;
+        const { x, y } = this.position;
         this._domElement.style.transform = `translate(${x}px, ${y}px)`;
     }
 
@@ -44,16 +50,15 @@ class Moveable implements IDisposable {
             }
         }
 
-        if (!this.disabled) {
+        if (this.disabled) {
             return;
         }
-
-        console.log(event);
 
         event.preventDefault();
         event.stopPropagation();
         this._isDragging = true;
         this.anchor = this.getCoords(event);
+        this.posStart = this.position;
     };
 
     private handleMouseMove = (event: MouseEvent | TouchEvent) => {
@@ -62,8 +67,27 @@ class Moveable implements IDisposable {
         }
         event.preventDefault();
 
-        this.anchor = this.getCoords(event);
+        const coords = this.getCoords(event);
+        const delta = {
+            x: coords.x - this.anchor.x,
+            y: coords.y - this.anchor.y,
+        };
+
+        const { scale } = this.canvasContainer;
+        this.translate({
+            x: delta.x / scale,
+            y: delta.y / scale,
+        });
     };
+
+    public translate(delta: Vector2) {
+        const { x, y } = this.posStart;
+        this._position = {
+            x: x + delta.x,
+            y: y + delta.y,
+        };
+        this.update();
+    }
 
     private handleMouseUp = (event: MouseEvent | TouchEvent) => {
         if (!this.isDragging) {
@@ -71,6 +95,7 @@ class Moveable implements IDisposable {
         }
 
         event.preventDefault();
+        this._isDragging = false;
     };
 
     public dispose(): void {
