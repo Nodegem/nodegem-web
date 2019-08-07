@@ -165,8 +165,6 @@ class CanvasContainer implements IDisposable {
             y: -top * scale,
         };
 
-        console.log(maxBounds.y - this.elementDimensions.height * scale);
-
         const clampedX = clamp(x, minBounds.x, maxBounds.x);
         const clampedY = clamp(y, minBounds.y, maxBounds.y);
 
