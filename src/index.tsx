@@ -12,6 +12,9 @@ import * as servicerWorker from './serviceWorker';
 import * as stores from './stores';
 import history from './utils/history';
 
+import { ElementQueries } from 'css-element-queries';
+ElementQueries.listen();
+
 ReactDOM.render(
     <>
         <Provider {...stores}>

@@ -1,12 +1,14 @@
 import Between from 'between.js';
+import { ResizeSensor } from 'css-element-queries';
 import { clamp } from 'utils';
 import Drag from './drag';
 import Zoom, { ZoomType } from './zoom';
 
-export type CanvasDimensions = {
-    width: number;
-    height: number;
-};
+interface ICanvasBounds extends Dimensions {
+    left: number;
+    top: number;
+}
+
 export type ZoomBounds = {
     min: number;
     max: number;
@@ -43,8 +45,17 @@ class CanvasContainer implements IDisposable {
         return this.transform;
     }
 
-    public get elementDimensions(): CanvasDimensions {
+    public get elementDimensions(): Dimensions {
         return this.parentElement.getBoundingClientRect();
+    }
+
+    private get bounds(): ICanvasBounds {
+        return {
+            left: -this.dimensions.width / 2,
+            top: -this.dimensions.height / 2,
+            width: this.dimensions.width / 2,
+            height: this.dimensions.height / 2,
+        };
     }
 
     private anchor: Vector2;
@@ -55,23 +66,31 @@ class CanvasContainer implements IDisposable {
     private drag: Drag;
     private zoom: Zoom;
     private transformOrigin: Vector2;
-    private bounds: { left: number; top: number } & CanvasDimensions;
+
+    private get offset(): Vector2 {
+        const { width, height } = this.elementDimensions;
+        const { x, y } = this.transformOrigin;
+        return {
+            x: width * x,
+            y: height * y,
+        };
+    }
+
+    private sensor: ResizeSensor;
 
     constructor(
         private canvas: HTMLDivElement,
-        private dimensions: CanvasDimensions,
+        private dimensions: Dimensions,
         private zoomBounds: ZoomBounds = { min: 0.4, max: 2.5 }
     ) {
         this._mousePos = { x: 0, y: 0 };
 
         this.transformOrigin = {
-            x: 0,
-            y: 0,
+            x: 0.5,
+            y: 0.5,
         };
 
-        this.canvas.style.transformOrigin = `${this.transformOrigin.x} ${
-            this.transformOrigin.y
-        }`;
+        this.canvas.style.transformOrigin = `0 0`;
 
         this.transform = {
             x: 0,
@@ -83,16 +102,17 @@ class CanvasContainer implements IDisposable {
         this.parentElement = this.canvas.parentElement!;
         this.parentElement.addEventListener('mousedown', this.onMouseDown);
         this.parentElement.addEventListener('mousemove', this.onMouseMove);
-        this.parentElement.addEventListener('resize', this.resize);
+        window.addEventListener('resize', ev => this.resize(ev));
 
         this.backgroundElement = document.createElement('div');
         this.backgroundElement.classList.add('view-background');
-        this.resize();
         this.canvas.prepend(this.backgroundElement);
 
         this.drag = new Drag(this.parentElement, this.onTranslate);
         this.zoom = new Zoom(this.parentElement, this.canvas, 0.1, this.onZoom);
+        this.sensor = new ResizeSensor(this.parentElement, () => this.resize());
 
+        this.resize();
         this.update();
     }
 
@@ -110,11 +130,15 @@ class CanvasContainer implements IDisposable {
     };
 
     public update() {
-        const oX = this.transformOrigin.x;
-        const oY = this.transformOrigin.y;
         const { x, y, scale } = this.transform;
-        this.canvas.style.transform = `translate(${oX + x}px, ${oY +
-            y}px) scale(${scale})`;
+        const offset = this.offset;
+        const newTransform = {
+            x: -offset.x + x,
+            y: offset.y + y,
+        };
+        this.canvas.style.transform = `translate(${newTransform.x}px, ${
+            newTransform.y
+        }px) scale(${scale})`;
     }
 
     private onTranslate = (delta: Vector2, e: MouseEvent) => {
@@ -129,17 +153,19 @@ class CanvasContainer implements IDisposable {
 
     public translate(position: Transform, tweenFunc?: TweenFunc) {
         const { x, y, scale } = position;
-        const { width, height } = this.elementDimensions;
         const oldTransform = this.transform;
+        const { left, top } = this.bounds;
 
         const minBounds = {
-            x: this.bounds.left * scale,
-            y: this.bounds.top * scale,
+            x: left * scale,
+            y: top * scale,
         };
         const maxBounds = {
-            x: -this.bounds.left * scale,
-            y: -this.bounds.top * scale,
+            x: -left * scale,
+            y: -top * scale,
         };
+
+        console.log(maxBounds.y - this.elementDimensions.height * scale);
 
         const clampedX = clamp(x, minBounds.x, maxBounds.x);
         const clampedY = clamp(y, minBounds.y, maxBounds.y);
@@ -189,7 +215,6 @@ class CanvasContainer implements IDisposable {
         const clampedZoom = clamp(zoomDelta, min, max);
 
         const d = (scale - clampedZoom) / (scale - zoomDelta || 1);
-
         const { x, y } = this.transform;
 
         const newTransform = {
@@ -197,6 +222,7 @@ class CanvasContainer implements IDisposable {
             y: y + position.y * d,
             scale: clampedZoom || 1,
         };
+
         if (type !== 'dblClick') {
             this.translate(newTransform);
         } else {
@@ -204,32 +230,26 @@ class CanvasContainer implements IDisposable {
         }
     };
 
-    private resize() {
-        const { width, height } = this.elementDimensions;
+    private resize = (event?: UIEvent) => {
+        const { x, y } = this.offset;
 
-        this.bounds = {
-            left: -this.dimensions.width / 2,
-            top: -this.dimensions.height / 2,
-            width: this.dimensions.width / 2,
-            height: this.dimensions.height / 2,
-        };
-
-        this.backgroundElement.style.left = `${this.bounds.left - width}px`;
-        this.backgroundElement.style.top = `${this.bounds.top - height}px`;
-        this.backgroundElement.style.width = `${width +
-            this.bounds.width * 2}px`;
-        this.backgroundElement.style.height = `${height +
-            this.bounds.height * 2}px`;
-        this.translate(this.transform);
-    }
+        this.backgroundElement.style.left = `${this.bounds.left - x}px`;
+        this.backgroundElement.style.top = `${this.bounds.top - y}px`;
+        this.backgroundElement.style.width = `${this.bounds.width * 2 +
+            x * 2}px`;
+        this.backgroundElement.style.height = `${this.bounds.height * 2 +
+            y * 2}px`;
+        this.translate(this.transform, event && defaultTween);
+    };
 
     public dispose(): void {
         this.parentElement.removeEventListener('mousedown', this.onMouseDown);
         this.parentElement.removeEventListener('mousemove', this.onMouseMove);
-        this.parentElement.removeEventListener('resize', this.resize);
+        window.removeEventListener('resize', this.resize);
 
         this.drag.dispose();
         this.zoom.dispose();
+        this.sensor.detach();
     }
 }
 

@@ -1,8 +1,5 @@
 import NodeController from '../Node/node-controller';
-import CanvasContainer, {
-    CanvasDimensions,
-    ZoomBounds,
-} from './Canvas/canvas-container';
+import CanvasContainer, { ZoomBounds } from './Canvas/canvas-container';
 
 class SandboxManager<TNodeData = any> implements IDisposable {
     public get nodes(): NodeController<TNodeData>[] {
@@ -14,7 +11,7 @@ class SandboxManager<TNodeData = any> implements IDisposable {
 
     constructor(
         private canvasElement: HTMLDivElement,
-        bounds: CanvasDimensions,
+        bounds: Dimensions,
         zoomBounds?: ZoomBounds
     ) {
         this._nodes = [];

@@ -4,6 +4,11 @@ type Vector2 = {
     y: number;
 };
 
+type Dimensions = {
+    width: number;
+    height: number;
+};
+
 interface IDisposable {
     dispose(): void;
 }

@@ -1,7 +1,20 @@
-import { isMouseEvent, isTouchEvent } from 'utils';
+import { ResizeSensor } from 'css-element-queries';
+import { clamp, isMouseEvent, isTouchEvent } from 'utils';
 import CanvasContainer from '../Sandbox/Canvas/canvas-container';
 
 class Moveable implements IDisposable {
+    private _transformOrigin: Vector2;
+    public get transformOrigin(): Vector2 {
+        return this._transformOrigin;
+    }
+
+    public set transformOrigin(value: Vector2) {
+        this._transformOrigin = {
+            x: clamp(value.x, 0, 1),
+            y: clamp(value.y, 0, 1),
+        };
+    }
+
     private _position: Vector2 = { x: 0, y: 0 };
     public get position() {
         return this._position;
@@ -17,25 +30,40 @@ class Moveable implements IDisposable {
 
     public disabled = false;
 
+    private get elementDimensions(): Dimensions {
+        return this.element.getBoundingClientRect();
+    }
+
+    private get offset(): Vector2 {
+        const { width, height } = this.elementDimensions;
+        const { x, y } = this.transformOrigin;
+        return { x: x * width, y: y * height };
+    }
+
     private posStart: Vector2;
     private anchor: Vector2;
-    private _domElement: HTMLElement;
+    private sensor: ResizeSensor;
     constructor(
-        element: HTMLElement,
-        private canvasContainer: CanvasContainer
+        private element: HTMLElement,
+        private canvasContainer: CanvasContainer,
+        transformOrigin: Vector2 = { x: 0.5, y: 0.5 }
     ) {
         element.addEventListener('mousedown', this.handleMouseDown);
         element.addEventListener('dblclick', e => e.stopPropagation());
         window.addEventListener('mousemove', this.handleMouseMove);
         window.addEventListener('mouseup', this.handleMouseUp);
 
-        this._domElement = element;
+        this.sensor = new ResizeSensor(element, () => this.update());
+
+        this.transformOrigin = transformOrigin;
         this.update();
     }
 
     private update() {
         const { x, y } = this.position;
-        this._domElement.style.transform = `translate(${x}px, ${y}px)`;
+        const offset = this.offset;
+        this.element.style.transform = `translate(${x - offset.x}px, ${y -
+            offset.y}px)`;
     }
 
     private getCoords(event: MouseEvent | TouchEvent): Vector2 {
@@ -99,9 +127,10 @@ class Moveable implements IDisposable {
     };
 
     public dispose(): void {
-        this._domElement.removeEventListener('mousedown', this.handleMouseDown);
+        this.element.removeEventListener('mousedown', this.handleMouseDown);
         window.removeEventListener('mousemove', this.handleMouseMove);
         window.removeEventListener('mouseup', this.handleMouseUp);
+        this.sensor.detach();
     }
 }
 

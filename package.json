@@ -7,6 +7,7 @@
         "antd": "^3.20.1",
         "between.js": "^0.1.2-fix.2",
         "classnames": "^2.2.6",
+        "css-element-queries": "^1.2.1",
         "fuse.js": "^3.3.0",
         "localforage": "^1.7.2",
         "lodash": "^4.17.14",
