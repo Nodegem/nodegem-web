@@ -51,10 +51,10 @@ class CanvasContainer implements IDisposable {
 
     private get bounds(): ICanvasBounds {
         return {
-            left: -this.dimensions.width / 2,
-            top: -this.dimensions.height / 2,
-            width: this.dimensions.width / 2,
-            height: this.dimensions.height / 2,
+            left: -this.dimensions.width * 0.5,
+            top: -this.dimensions.height * 0.5,
+            width: this.dimensions.width * 0.5,
+            height: this.dimensions.height * 0.5,
         };
     }
 
@@ -155,14 +155,19 @@ class CanvasContainer implements IDisposable {
         const { x, y, scale } = position;
         const oldTransform = this.transform;
         const { left, top } = this.bounds;
+        const { width, height } = this.elementDimensions;
+        const { halfWidth, halfHeight } = {
+            halfWidth: width * 0.5,
+            halfHeight: height * 0.5,
+        };
 
         const minBounds = {
-            x: left * scale,
-            y: top * scale,
+            x: left * scale + halfWidth,
+            y: top * scale + halfHeight,
         };
         const maxBounds = {
-            x: -left * scale,
-            y: -top * scale,
+            x: -left * scale - halfWidth,
+            y: -top * scale - halfHeight,
         };
 
         const clampedX = clamp(x, minBounds.x, maxBounds.x);

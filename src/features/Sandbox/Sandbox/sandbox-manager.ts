@@ -29,6 +29,10 @@ class SandboxManager<TNodeData = any> implements IDisposable {
     }
 
     public clearView() {
+        for (const node of this._nodes) {
+            node.dispose();
+        }
+
         this._nodes = [];
     }
 
