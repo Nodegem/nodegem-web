@@ -1,13 +1,8 @@
 import Between from 'between.js';
 import { ResizeSensor } from 'css-element-queries';
 import { clamp } from 'utils';
-import Drag from './drag';
-import Zoom, { ZoomType } from './zoom';
-
-interface ICanvasBounds extends Dimensions {
-    left: number;
-    top: number;
-}
+import DragController from './drag-controller';
+import ZoomController, { ZoomType } from './zoom-controller';
 
 export type ZoomBounds = {
     min: number;
@@ -31,7 +26,7 @@ export type TweenFunc = (
     newTransform: Transform
 ) => any;
 
-class CanvasContainer implements IDisposable {
+class CanvasController implements IDisposable {
     private _mousePos: Vector2;
     public get mousePos(): Vector2 {
         return this._mousePos;
@@ -49,7 +44,7 @@ class CanvasContainer implements IDisposable {
         return this.parentElement.getBoundingClientRect();
     }
 
-    private get bounds(): ICanvasBounds {
+    private get bounds(): Bounds {
         return {
             left: -this.dimensions.width * 0.5,
             top: -this.dimensions.height * 0.5,
@@ -63,8 +58,8 @@ class CanvasContainer implements IDisposable {
     private backgroundElement: HTMLDivElement;
     private transform: Transform;
 
-    private drag: Drag;
-    private zoom: Zoom;
+    private drag: DragController;
+    private zoom: ZoomController;
     private transformOrigin: Vector2;
 
     private get offset(): Vector2 {
@@ -79,7 +74,7 @@ class CanvasContainer implements IDisposable {
     private sensor: ResizeSensor;
 
     constructor(
-        private canvas: HTMLDivElement,
+        public canvas: HTMLDivElement,
         private dimensions: Dimensions,
         private zoomBounds: ZoomBounds = { min: 0.4, max: 2.5 }
     ) {
@@ -108,8 +103,13 @@ class CanvasContainer implements IDisposable {
         this.backgroundElement.classList.add('view-background');
         this.canvas.prepend(this.backgroundElement);
 
-        this.drag = new Drag(this.parentElement, this.onTranslate);
-        this.zoom = new Zoom(this.parentElement, this.canvas, 0.1, this.onZoom);
+        this.drag = new DragController(this.parentElement, this.onTranslate);
+        this.zoom = new ZoomController(
+            this.parentElement,
+            this.canvas,
+            0.1,
+            this.onZoom
+        );
         this.sensor = new ResizeSensor(this.parentElement, () => this.resize());
 
         this.resize();
@@ -256,4 +256,4 @@ class CanvasContainer implements IDisposable {
     }
 }
 
-export default CanvasContainer;
+export default CanvasController;

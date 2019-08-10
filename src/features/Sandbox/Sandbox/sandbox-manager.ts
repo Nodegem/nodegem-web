@@ -1,12 +1,12 @@
 import NodeController from '../Node/node-controller';
-import CanvasContainer, { ZoomBounds } from './Canvas/canvas-container';
+import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
 
 class SandboxManager<TNodeData = any> implements IDisposable {
     public get nodes(): NodeController<TNodeData>[] {
         return this._nodes;
     }
 
-    private canvasContainer: CanvasContainer;
+    private canvasController: CanvasController;
     private _nodes: NodeController<TNodeData>[];
 
     constructor(
@@ -15,7 +15,7 @@ class SandboxManager<TNodeData = any> implements IDisposable {
         zoomBounds?: ZoomBounds
     ) {
         this._nodes = [];
-        this.canvasContainer = new CanvasContainer(
+        this.canvasController = new CanvasController(
             canvasElement,
             bounds,
             zoomBounds
@@ -24,7 +24,7 @@ class SandboxManager<TNodeData = any> implements IDisposable {
 
     public load(data: TNodeData[]) {
         this._nodes = data.map(
-            x => new NodeController(x, this.canvasContainer)
+            x => new NodeController(x, this.canvasController)
         );
     }
 
@@ -37,11 +37,11 @@ class SandboxManager<TNodeData = any> implements IDisposable {
     }
 
     public resetView() {
-        this.canvasContainer.reset();
+        this.canvasController.reset();
     }
 
     public dispose(): void {
-        this.canvasContainer.dispose();
+        this.canvasController.dispose();
     }
 }
 

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
-import { Node, SandboxNode } from '../Node';
-import CanvasContainer from './Canvas/canvas-container';
+import { SandboxNode } from '../Node';
 import SandboxManager from './sandbox-manager';
 import './SandboxCanvas.less';
 

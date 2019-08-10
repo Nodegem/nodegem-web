@@ -1,3 +1,4 @@
-export * from './canvas-container';
-export * from './drag';
-export * from './zoom';
+export * from './canvas-controller';
+export * from './drag-controller';
+export * from './select-controller';
+export * from './zoom-controller';

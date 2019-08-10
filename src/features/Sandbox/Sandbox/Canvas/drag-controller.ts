@@ -4,7 +4,7 @@ export type DragStartEvent = (e: MouseEvent) => void;
 export type DragTranslateEvent = (delta: Vector2, e: MouseEvent) => void;
 export type DragUpEvent = (e: MouseEvent) => void;
 
-class Drag implements IDisposable {
+class DragController implements IDisposable {
     private mouseStart: Vector2 | null;
 
     constructor(
@@ -81,4 +81,4 @@ class Drag implements IDisposable {
     }
 }
 
-export default Drag;
+export default DragController;

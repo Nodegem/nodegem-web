@@ -9,6 +9,11 @@ type Dimensions = {
     height: number;
 };
 
+type Bounds = {
+    left: number;
+    top: number;
+} & Dimensions;
+
 interface IDisposable {
     dispose(): void;
 }

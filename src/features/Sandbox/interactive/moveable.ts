@@ -1,6 +1,6 @@
 import { ResizeSensor } from 'css-element-queries';
 import { clamp, isMouseEvent, isTouchEvent } from 'utils';
-import CanvasContainer from '../Sandbox/Canvas/canvas-container';
+import CanvasController from '../Sandbox/Canvas/canvas-controller';
 
 class Moveable implements IDisposable {
     private _transformOrigin: Vector2;
@@ -45,7 +45,7 @@ class Moveable implements IDisposable {
     private sensor: ResizeSensor;
     constructor(
         private element: HTMLElement,
-        private canvasContainer: CanvasContainer,
+        private canvasContainer: CanvasController,
         transformOrigin: Vector2 = { x: 0.5, y: 0.5 }
     ) {
         element.addEventListener('mousedown', this.handleMouseDown);

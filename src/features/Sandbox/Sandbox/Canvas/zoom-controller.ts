@@ -7,7 +7,7 @@ export type ZoomEvent = (
 ) => void;
 export type ZoomType = 'wheel' | 'touch' | 'dblClick';
 
-class Zoom implements IDisposable {
+class ZoomController implements IDisposable {
     private _distance: number | null;
 
     constructor(
@@ -100,4 +100,4 @@ class Zoom implements IDisposable {
     }
 }
 
-export default Zoom;
+export default ZoomController;

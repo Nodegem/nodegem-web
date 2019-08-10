@@ -1,5 +1,5 @@
 import Moveable from '../interactive/moveable';
-import CanvasContainer from '../Sandbox/Canvas/canvas-container';
+import CanvasController from '../Sandbox/Canvas/canvas-controller';
 
 class NodeController<TNode = any> implements IDisposable {
     public get position(): Vector2 {
@@ -15,11 +15,13 @@ class NodeController<TNode = any> implements IDisposable {
 
     constructor(
         private _nodeData: TNode,
-        private canvasContainer: CanvasContainer
+        private canvasContainer: CanvasController
     ) {}
 
     public getElementRef = (element: HTMLElement) => {
-        if (!element) { return; }
+        if (!element) {
+            return;
+        }
         this.element = element;
         this.moveable = new Moveable(element, this.canvasContainer);
     };
