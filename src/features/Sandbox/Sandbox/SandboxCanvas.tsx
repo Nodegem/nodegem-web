@@ -30,14 +30,6 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
         canvas.load(testNodes);
 
         setState({ manager: canvas });
-
-        function handleKeyPress(event: KeyboardEvent) {
-            if (event.keyCode === 32) {
-                canvas.resetView();
-            }
-        }
-
-        window.addEventListener('keypress', handleKeyPress);
     }, [canvasRef]);
 
     return (

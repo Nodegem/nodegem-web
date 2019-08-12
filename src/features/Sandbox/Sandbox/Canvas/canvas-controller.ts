@@ -32,6 +32,11 @@ class CanvasController implements IDisposable {
         return this._mousePos;
     }
 
+    private disableDragging = false;
+    public get isDraggingDisabled(): boolean {
+        return this.disableDragging;
+    }
+
     public get scale(): number {
         return this.transform.scale;
     }
@@ -152,6 +157,10 @@ class CanvasController implements IDisposable {
     };
 
     public translate(position: Transform, tweenFunc?: TweenFunc) {
+        if (this.isDraggingDisabled) {
+            return;
+        }
+
         const { x, y, scale } = position;
         const oldTransform = this.transform;
         const { left, top } = this.bounds;
@@ -191,6 +200,14 @@ class CanvasController implements IDisposable {
                 }
             );
         }
+    }
+
+    public disableDrag() {
+        this.disableDragging = true;
+    }
+
+    public enableDrag() {
+        this.disableDragging = false;
     }
 
     public reset() {

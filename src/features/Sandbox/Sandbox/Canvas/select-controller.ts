@@ -17,21 +17,33 @@ class SelectController implements IDisposable {
         private onSelected: SelectedEvent
     ) {
         this.selectElement = document.createElement('div');
+        this.selectElement.style.position = 'absolute';
+        this.selectElement.style.display = 'none';
         this.selectElement.style.zIndex = '999';
         this.selectElement.classList.add('select-container');
+        window.addEventListener('mousemove', this.onSelecting);
         this.canvasContainer.canvas.appendChild(this.selectElement);
     }
 
     public startSelect(pos: Vector2) {
+        this.selectElement.style.display = 'block';
         this.selectElement.classList.add(selectingClass);
         this.start = pos;
     }
 
-    public stopSelect(pos: Vector2) {
+    private onSelecting = (event: MouseEvent) => {
         if (!this.selecting) {
             return;
         }
 
+        // this.selectElement.style.transform = `translate(${})`;
+    };
+
+    public stopSelect(pos: Vector2) {
+        this.selectElement.style.display = 'none';
+        if (!this.selecting) {
+            return;
+        }
         this.selectElement.classList.remove(selectingClass);
         const { x, y } = this.start!;
         this.onSelected({
@@ -46,6 +58,7 @@ class SelectController implements IDisposable {
 
     public dispose(): void {
         this.selectElement.remove();
+        window.removeEventListener('mousemove', this.onSelecting);
     }
 }
 
