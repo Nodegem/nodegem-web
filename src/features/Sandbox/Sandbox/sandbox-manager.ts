@@ -1,13 +1,13 @@
 import NodeController from '../Node/node-controller';
 import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
-import SelectController from './Canvas/select-controller';
+import SelectionController from './Canvas/selection-controller';
 
 class SandboxManager<TNodeData = any> implements IDisposable {
     public get nodes(): NodeController<TNodeData>[] {
         return this._nodes;
     }
 
-    private selectController: SelectController;
+    private selectController: SelectionController;
     private canvasController: CanvasController;
     private _nodes: NodeController<TNodeData>[];
 
@@ -22,9 +22,9 @@ class SandboxManager<TNodeData = any> implements IDisposable {
             bounds,
             zoomBounds
         );
-        this.selectController = new SelectController(
+        this.selectController = new SelectionController(
             this.canvasController,
-            this.onSelected
+            this.onSelection
         );
 
         canvasElement.parentElement!.addEventListener(
@@ -52,7 +52,7 @@ class SandboxManager<TNodeData = any> implements IDisposable {
         this._nodes = [];
     }
 
-    public onSelected = (bounds: Bounds) => {
+    public onSelection = (bounds: Bounds) => {
         console.log(bounds);
     };
 
@@ -64,9 +64,7 @@ class SandboxManager<TNodeData = any> implements IDisposable {
     };
 
     private handleMouseUp = (event: MouseEvent) => {
-        this.selectController.stopSelect(
-            this.canvasController.mousePos
-        );
+        this.selectController.stopSelect(this.canvasController.mousePos);
         this.canvasController.enableDrag();
     };
 
@@ -82,6 +80,15 @@ class SandboxManager<TNodeData = any> implements IDisposable {
 
     public dispose(): void {
         this.canvasController.dispose();
+        this.canvasElement.parentElement!.removeEventListener(
+            'mousedown',
+            this.handleMouseDown
+        );
+        this.canvasElement.parentElement!.removeEventListener(
+            'mouseup',
+            this.handleMouseUp
+        );
+        window.removeEventListener('keypress', this.handleKeyPress);
     }
 }
 

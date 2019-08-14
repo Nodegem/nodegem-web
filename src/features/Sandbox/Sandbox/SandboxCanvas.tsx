@@ -1,5 +1,7 @@
+import { observer } from 'mobx-react-lite';
 import React, { useEffect, useRef, useState } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
+import { useStore } from 'stores';
 import { SandboxNode } from '../Node';
 import SandboxManager from './sandbox-manager';
 import './SandboxCanvas.less';
@@ -10,50 +12,44 @@ export interface ISandboxProps {
     size?: { width: number; height: number };
 }
 
-type SandboxState = {
-    manager: SandboxManager<string> | null;
-};
+export const SandboxCanvas: React.FC<ISandboxProps> = observer(
+    ({ size = { width: 12000, height: 12000 } }: ISandboxProps) => {
+        const canvasRef = useRef<HTMLDivElement>(null);
+        const { sandboxCanvasStore } = useStore();
+        const { sandboxManager } = sandboxCanvasStore;
 
-export const SandboxCanvas: React.FC<ISandboxProps> = ({
-    size = { width: 12000, height: 12000 },
-}: ISandboxProps) => {
-    const canvasRef = useRef<HTMLDivElement>(null);
-    const [state, setState] = useState<SandboxState>({
-        manager: null,
-    });
+        useEffect(() => {
+            const canvasElement = canvasRef.current!;
+            const canvas = new SandboxManager<string>(canvasElement, size);
 
-    const testNodes = ['1', '2', '3'];
+            canvas.load(['1', '2', '3']);
 
-    useEffect(() => {
-        const canvasElement = canvasRef.current!;
-        const canvas = new SandboxManager<string>(canvasElement, size);
-        canvas.load(testNodes);
+            sandboxCanvasStore.sandboxManager = canvas;
+        }, [canvasRef]);
 
-        setState({ manager: canvas });
-    }, [canvasRef]);
-
-    return (
-        <div className="sandbox">
-            <Droppable droppableId={sandboxDroppableId}>
-                {(provided, snapshot) => (
-                    <div
-                        ref={provided.innerRef}
-                        className="droppable-area"
-                        {...provided.droppableProps}
-                        style={{ width: '100%', height: '100%' }}
-                    />
-                )}
-            </Droppable>
-            <div className="canvas" ref={canvasRef}>
-                {state.manager &&
-                    state.manager.nodes.map((n, index) => (
-                        <SandboxNode
-                            key={index}
-                            getRef={n.getElementRef}
-                            name={n.nodeData}
+        return (
+            <div className="sandbox">
+                <Droppable droppableId={sandboxDroppableId}>
+                    {(provided, snapshot) => (
+                        <div
+                            ref={provided.innerRef}
+                            className="droppable-area"
+                            {...provided.droppableProps}
+                            style={{ width: '100%', height: '100%' }}
                         />
-                    ))}
+                    )}
+                </Droppable>
+                <div className="canvas" ref={canvasRef}>
+                    {sandboxManager &&
+                        sandboxManager.nodes.map((n, index) => (
+                            <SandboxNode
+                                key={index}
+                                getRef={n.getElementRef}
+                                name={n.nodeData}
+                            />
+                        ))}
+                </div>
             </div>
-        </div>
-    );
-};
+        );
+    }
+);

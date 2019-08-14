@@ -15,9 +15,13 @@ export const Node: React.FC<INodeProps> = props => {
             props.getRef(instance);
         }
     };
+
     return (
         <div ref={attemptRef} className="node-container" {...rest}>
             {props.name}
+            <div className="value-ports">
+                <div className="port" />
+            </div>
         </div>
     );
 };

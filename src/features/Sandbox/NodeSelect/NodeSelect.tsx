@@ -28,6 +28,7 @@ const DraggableNode = ({
         <Draggable draggableId={node} index={index}>
             {(provided, snapshot) => (
                 <div
+                    className="node-select"
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}

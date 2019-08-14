@@ -62,8 +62,9 @@ class Moveable implements IDisposable {
     private update() {
         const { x, y } = this.position;
         const offset = this.offset;
-        this.element.style.transform = `translate(${x - offset.x}px, ${y -
-            offset.y}px)`;
+        const { scale } = this.canvasContainer;
+        this.element.style.transform = `translate(${x -
+            offset.x / scale}px, ${y - offset.y / scale}px)`;
     }
 
     private getCoords(event: MouseEvent | TouchEvent): Vector2 {

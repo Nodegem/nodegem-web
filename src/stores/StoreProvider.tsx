@@ -3,18 +3,22 @@ import React from 'react';
 import {
     createAuthStore,
     createCommonStore,
+    createSandboxCanvasStore,
+    createSandboxStore,
     createUserStore,
     TAuthStore,
     TCommonStore,
+    TSandboxCanvasStore,
+    TSandboxStore,
     TUserStore,
 } from 'stores';
-import { createSandboxStore, TSandboxStore } from './sandbox-store';
 
 type TRootStore = {
     commonStore: TCommonStore;
     authStore: TAuthStore;
     userStore: TUserStore;
     sandboxStore: TSandboxStore;
+    sandboxCanvasStore: TSandboxCanvasStore;
 };
 
 function createRootStore(): TRootStore {
@@ -23,6 +27,7 @@ function createRootStore(): TRootStore {
         authStore: createAuthStore(),
         userStore: createUserStore(),
         sandboxStore: createSandboxStore(),
+        sandboxCanvasStore: createSandboxCanvasStore(),
     };
 }
 
