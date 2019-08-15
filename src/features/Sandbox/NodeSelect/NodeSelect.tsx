@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import classnames from 'classnames';
+import React from 'react';
 import {
     Draggable,
     DraggableStateSnapshot,
@@ -28,7 +29,10 @@ const DraggableNode = ({
         <Draggable draggableId={node} index={index}>
             {(provided, snapshot) => (
                 <div
-                    className="node-select"
+                    className={classnames({
+                        'node-select': true,
+                        dragging: snapshot.isDragging,
+                    })}
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}

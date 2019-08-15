@@ -5,14 +5,24 @@
     overflow: hidden;
 }
 
+@background: #333d49;
+@lighter-background: lighten(@background, 7%);
+
 .view-background {
     position: absolute;
     display: table;
     user-select: none;
-    background-color: #3e69c3;
-    background-image: url(http://scarbroughstudios.com/img/codepen.svg);
-    background-position: center center;
-    background-size: 500px;
+    background: radial-gradient(
+                circle,
+                transparent 20%,
+                @background 20%,
+                @background 80%
+            )
+            75px 75px,
+        linear-gradient(@lighter-background 1px, transparent 1px) 0 -1px,
+        linear-gradient(90deg, @lighter-background 1px, transparent 1px) -1px 0;
+    background-color: @background;
+    background-size: 150px 150px;
     user-select: none;
 }
 

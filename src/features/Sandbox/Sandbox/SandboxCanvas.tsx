@@ -22,7 +22,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = observer(
             const canvasElement = canvasRef.current!;
             const canvas = new SandboxManager<string>(canvasElement, size);
 
-            canvas.load(['1', '2', '3']);
+            canvas.load(['1']);
 
             sandboxCanvasStore.sandboxManager = canvas;
         }, [canvasRef]);

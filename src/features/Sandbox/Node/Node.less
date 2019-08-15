@@ -3,17 +3,41 @@
     width: 150px;
     min-height: 50px;
     border: 2px solid black;
-    text-align: center;
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding-left: 2em;
+    align-items: center;
     border-radius: 30px;
+    cursor: grab;
 }
 
-.value-ports {
-    margin: 10px 0;
+.value-inputs {
+    position: absolute;
+    left: 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.value-output-ports {
     position: relative;
-    left: -28px;
+    right: -28px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.flow-input-ports {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.flow-output-ports {
+    position: relative;
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
@@ -21,7 +45,6 @@
 }
 
 .port {
-    margin: 5px 0;
     width: 15px;
     height: 15px;
     border: 1px solid darkmagenta;

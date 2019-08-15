@@ -66,7 +66,8 @@ export const SandboxView = () => {
                         <Observer>
                             {() => (
                                 <VerticalCollapsible
-                                    width="10%"
+                                    width="300px"
+                                    minWidth="0"
                                     onTabClick={() =>
                                         sandboxStore.toggleNodeSelect()
                                     }
