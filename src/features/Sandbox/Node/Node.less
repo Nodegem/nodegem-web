@@ -1,52 +1,87 @@
+@hOffset: 7px;
+@vOffset: 10px;
+@flowHeight: 15px;
+@valueWidth: 15px;
+
 .node-container {
-    min-width: 75px;
-    width: 150px;
-    min-height: 50px;
-    border: 2px solid black;
+    min-width: 150px;
+    border: 1px solid black;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    flex: 1 1 auto;
     display: flex;
     justify-content: center;
     align-items: center;
+    justify-items: center;
+}
+
+.inner {
+    display: flex;
+    flex: 1 1 auto;
+}
+
+.flow {
+    height: @flowHeight;
+    display: flex;
+    align-content: center;
     align-items: center;
-    border-radius: 30px;
-    cursor: grab;
+    justify-items: center;
+    justify-content: center;
+    .port {
+        margin: 0 3px;
+    }
+}
+
+.flow-inputs {
+    margin-top: -@vOffset;
+}
+
+.flow-outputs {
+    margin-bottom: -@vOffset;
+}
+
+.value {
+    width: @valueWidth;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    .port {
+        margin: 3px 0;
+    }
 }
 
 .value-inputs {
-    position: absolute;
-    left: 0px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    margin-left: -@hOffset;
 }
 
-.value-output-ports {
-    position: relative;
-    right: -28px;
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.flow-input-ports {
-    position: relative;
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.flow-output-ports {
-    position: relative;
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.value-outputs {
+    margin-right: -@hOffset;
 }
 
 .port {
-    width: 15px;
-    height: 15px;
-    border: 1px solid darkmagenta;
+    margin-bottom: 3px;
+    background-color: white;
+    width: 13px;
+    height: 13px;
+    border: 1px solid red;
     border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover::after {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        border: 1px solid red;
+        background-color: magenta;
+    }
 }

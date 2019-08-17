@@ -19,13 +19,22 @@ export const Node: React.FC<INodeProps> = props => {
 
     return (
         <div ref={attemptRef} className="node-container" {...rest}>
-            <span>{props.name}</span>
-
-            {showPorts && (
-                <div className="value-inputs">
+            <div className="flow flow-inputs">
+                <span />
+            </div>
+            <div className="inner">
+                <div className="value value-inputs">
                     <span className="port" />
                 </div>
-            )}
+                <span className="title">{props.name}</span>
+                <div className="value value-outputs">
+                    <span className="port" />
+                    <span className="port" />
+                </div>
+            </div>
+            <div className="flow flow-outputs">
+                <span />
+            </div>
         </div>
     );
 };
