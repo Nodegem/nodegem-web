@@ -7,5 +7,8 @@ export function createSandboxCanvasStore() {
         nodes() {
             return this.sandboxManager.nodes;
         },
+        get isDrawingLink() {
+            return this.sandboxManager.isDrawingLink;
+        },
     };
 }

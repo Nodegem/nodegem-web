@@ -1,12 +1,16 @@
+@background: #333d49;
+@lighter-background: lighten(@background, 7%);
+
 .sandbox {
     display: flex;
     width: 100%;
     position: relative;
     overflow: hidden;
-}
 
-@background: #333d49;
-@lighter-background: lighten(@background, 7%);
+    .port {
+        background-color: @background !important;
+    }
+}
 
 .view-background {
     position: absolute;

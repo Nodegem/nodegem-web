@@ -3,15 +3,20 @@
 @flowHeight: 15px;
 @valueWidth: 15px;
 
+@borderColor: #f1f1f1;
+@borderSize: 2px;
+
 .node-container {
+    cursor: grab;
     min-width: 150px;
-    border: 1px solid black;
+    border: @borderSize solid @borderColor;
     border-radius: 30px;
     display: flex;
     flex-direction: column;
 }
 
 .title {
+    color: @borderColor;
     flex: 1 1 auto;
     display: flex;
     justify-content: center;
@@ -66,11 +71,12 @@
 }
 
 .port {
+    cursor: pointer;
     margin-bottom: 3px;
     background-color: white;
     width: 13px;
     height: 13px;
-    border: 1px solid red;
+    border: @borderSize solid @borderColor;
     border-radius: 50%;
     display: flex;
     justify-content: center;

@@ -1,15 +1,25 @@
+import { computed } from 'mobx';
+import DrawLinkController from '../Link/draw-link-controller';
 import NodeController from '../Node/node-controller';
 import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
 import SelectionController from './Canvas/selection-controller';
 
 class SandboxManager<TNodeData = any> implements IDisposable {
+    @computed
     public get nodes(): NodeController<TNodeData>[] {
         return this._nodes;
+    }
+
+    @computed
+    public get isDrawingLink(): boolean {
+        return this.drawLinkController.isDrawing;
     }
 
     private selectController: SelectionController;
     private canvasController: CanvasController;
     private _nodes: NodeController<TNodeData>[];
+
+    private drawLinkController: DrawLinkController;
 
     constructor(
         private canvasElement: HTMLDivElement,
@@ -26,6 +36,8 @@ class SandboxManager<TNodeData = any> implements IDisposable {
             this.canvasController,
             this.onSelection
         );
+
+        this.drawLinkController = new DrawLinkController(this.canvasController);
 
         canvasElement.parentElement!.addEventListener(
             'mousedown',

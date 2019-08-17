@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React, { useEffect, useRef, useState } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { useStore } from 'stores';
+import { Link } from '../Link/Link';
 import { SandboxNode } from '../Node';
 import SandboxManager from './sandbox-manager';
 import './SandboxCanvas.less';
@@ -40,14 +41,28 @@ export const SandboxCanvas: React.FC<ISandboxProps> = observer(
                     )}
                 </Droppable>
                 <div className="canvas" ref={canvasRef}>
-                    {sandboxManager &&
-                        sandboxManager.nodes.map((n, index) => (
-                            <SandboxNode
-                                key={index}
-                                getRef={n.getElementRef}
-                                name={n.nodeData}
-                            />
-                        ))}
+                    <div
+                        className="links"
+                        style={{ position: 'absolute', zIndex: -1 }}
+                    >
+                        {sandboxManager && null
+                        /* <Link
+                            visible={sandboxCanvasStore.isDrawingLink}
+                            source={{ x: 0, y: 0 }}
+                            destination={{ x: 0, y: 0 }}
+                        /> */
+                        }
+                    </div>
+                    <div className="nodes">
+                        {sandboxManager &&
+                            sandboxManager.nodes.map((n, index) => (
+                                <SandboxNode
+                                    key={index}
+                                    getRef={n.getElementRef}
+                                    name={n.nodeData}
+                                />
+                            ))}
+                    </div>
                 </div>
             </div>
         );
