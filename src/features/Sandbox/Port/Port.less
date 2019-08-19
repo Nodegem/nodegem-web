@@ -1,0 +1,23 @@
+@import '../sandbox-variables.less';
+
+.port {
+    cursor: pointer;
+    margin-bottom: 3px;
+    background-color: white;
+    width: 13px;
+    height: 13px;
+    border: @borderSize solid @borderColor;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover::after {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        border: 1px solid red;
+        background-color: magenta;
+    }
+}

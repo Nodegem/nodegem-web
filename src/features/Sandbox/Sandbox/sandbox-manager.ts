@@ -1,18 +1,12 @@
-import { computed } from 'mobx';
+import { computed, observable } from 'mobx';
 import DrawLinkController from '../Link/draw-link-controller';
 import NodeController from '../Node/node-controller';
 import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
 import SelectionController from './Canvas/selection-controller';
 
-class SandboxManager<TNodeData = any> implements IDisposable {
-    @computed
+class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
     public get nodes(): NodeController<TNodeData>[] {
         return this._nodes;
-    }
-
-    @computed
-    public get isDrawingLink(): boolean {
-        return this.drawLinkController.isDrawing;
     }
 
     private selectController: SelectionController;
@@ -52,20 +46,26 @@ class SandboxManager<TNodeData = any> implements IDisposable {
 
     public load(data: TNodeData[]) {
         this._nodes = data.map(
-            x => new NodeController(x, this.canvasController)
+            x =>
+                new NodeController(
+                    x,
+                    this.canvasController,
+                    this.handlePortDown
+                )
         );
     }
 
     public clearView() {
-        for (const node of this._nodes) {
-            node.dispose();
-        }
-
+        this.disposeNodes();
         this._nodes = [];
     }
 
     public onSelection = (bounds: Bounds) => {
         console.log(bounds);
+    };
+
+    private handlePortDown = (element: HTMLElement, data: IPortData) => {
+        this.drawLinkController.beginDraw(element);
     };
 
     private handleMouseDown = (event: MouseEvent) => {
@@ -90,7 +90,14 @@ class SandboxManager<TNodeData = any> implements IDisposable {
         this.canvasController.reset();
     }
 
+    private disposeNodes() {
+        for (const node of this._nodes) {
+            node.dispose();
+        }
+    }
+
     public dispose(): void {
+        this.disposeNodes();
         this.canvasController.dispose();
         this.canvasElement.parentElement!.removeEventListener(
             'mousedown',

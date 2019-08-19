@@ -18,7 +18,7 @@ const DraggableNode = ({
     index,
     dragStyle,
 }: {
-    node: string;
+    node: INodeData;
     index: number;
     dragStyle?: (
         style: DraggingStyle | NotDraggingStyle | undefined,
@@ -26,7 +26,7 @@ const DraggableNode = ({
     ) => React.CSSProperties;
 }) => {
     return (
-        <Draggable draggableId={node} index={index}>
+        <Draggable draggableId={node.id} index={index}>
             {(provided, snapshot) => (
                 <div
                     className={classnames({
@@ -45,7 +45,7 @@ const DraggableNode = ({
                         provided.draggableProps.style
                     }
                 >
-                    <Node name={node} />
+                    <Node data={node} />
                 </div>
             )}
         </Draggable>
@@ -73,7 +73,7 @@ const NodeList = React.memo<any>(function NodeListHelper({
 });
 
 interface INodeSelectProps {
-    nodes: string[];
+    nodes: INodeData[];
     dragStyle?: (
         style: DraggingStyle | NotDraggingStyle | undefined,
         snapshot: DraggableStateSnapshot

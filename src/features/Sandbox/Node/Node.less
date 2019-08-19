@@ -1,14 +1,14 @@
+@import '../sandbox-variables.less';
+
 @hOffset: 7px;
 @vOffset: 10px;
 @flowHeight: 15px;
 @valueWidth: 15px;
 
-@borderColor: #f1f1f1;
-@borderSize: 2px;
-
 .node-container {
     cursor: grab;
     min-width: 150px;
+    min-height: 50px;
     border: @borderSize solid @borderColor;
     border-radius: 30px;
     display: flex;
@@ -68,26 +68,4 @@
 
 .value-outputs {
     margin-right: -@hOffset;
-}
-
-.port {
-    cursor: pointer;
-    margin-bottom: 3px;
-    background-color: white;
-    width: 13px;
-    height: 13px;
-    border: @borderSize solid @borderColor;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    &:hover::after {
-        content: '';
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        border: 1px solid red;
-        background-color: magenta;
-    }
 }

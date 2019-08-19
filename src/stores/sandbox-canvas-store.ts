@@ -3,12 +3,15 @@ import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
 export type TSandboxCanvasStore = ReturnType<typeof createSandboxCanvasStore>;
 export function createSandboxCanvasStore() {
     return {
-        sandboxManager: (null as unknown) as SandboxManager<string>,
-        nodes() {
+        sandboxManager: (null as unknown) as SandboxManager,
+        setManager(value: SandboxManager) {
+            this.sandboxManager = value;
+        },
+        get nodes() {
             return this.sandboxManager.nodes;
         },
-        get isDrawingLink() {
-            return this.sandboxManager.isDrawingLink;
+        loadNodes(nodes: any[]) {
+            this.sandboxManager.load(nodes);
         },
     };
 }

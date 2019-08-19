@@ -1,7 +1,9 @@
 import Moveable from '../interactive/moveable';
 import CanvasController from '../Sandbox/Canvas/canvas-controller';
 
-class NodeController<TNode = any> implements IDisposable {
+type PortClickEvent = (element: HTMLElement, data: IPortData) => void;
+
+class NodeController<TNode extends INodeData = any> implements IDisposable {
     public get position(): Vector2 {
         return this.moveable.position;
     }
@@ -15,7 +17,8 @@ class NodeController<TNode = any> implements IDisposable {
 
     constructor(
         private _nodeData: TNode,
-        private canvasContainer: CanvasController
+        private canvasContainer: CanvasController,
+        private portDownEvent: PortClickEvent
     ) {}
 
     public getElementRef = (element: HTMLElement) => {
@@ -24,6 +27,12 @@ class NodeController<TNode = any> implements IDisposable {
         }
         this.element = element;
         this.moveable = new Moveable(element, this.canvasContainer);
+    };
+
+    public onPortDown = (event: MouseEvent, data: IPortData) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.portDownEvent(event.target as HTMLElement, data);
     };
 
     public dispose(): void {

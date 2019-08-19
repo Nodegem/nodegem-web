@@ -1,9 +1,9 @@
-import { observer } from 'mobx-react-lite';
-import React, { useEffect, useRef, useState } from 'react';
+import { observer, useObserver } from 'mobx-react-lite';
+import React, { useEffect, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { useStore } from 'stores';
-import { Link } from '../Link/Link';
 import { SandboxNode } from '../Node';
+import { fakeNodeData } from '../SandboxView';
 import SandboxManager from './sandbox-manager';
 import './SandboxCanvas.less';
 
@@ -21,11 +21,10 @@ export const SandboxCanvas: React.FC<ISandboxProps> = observer(
 
         useEffect(() => {
             const canvasElement = canvasRef.current!;
-            const canvas = new SandboxManager<string>(canvasElement, size);
+            const manager = new SandboxManager(canvasElement, size);
+            sandboxCanvasStore.setManager(manager);
 
-            canvas.load(['1']);
-
-            sandboxCanvasStore.sandboxManager = canvas;
+            sandboxCanvasStore.loadNodes(fakeNodeData);
         }, [canvasRef]);
 
         return (
@@ -45,13 +44,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = observer(
                         className="links"
                         style={{ position: 'absolute', zIndex: -1 }}
                     >
-                        {sandboxManager && null
-                        /* <Link
-                            visible={sandboxCanvasStore.isDrawingLink}
-                            source={{ x: 0, y: 0 }}
-                            destination={{ x: 0, y: 0 }}
-                        /> */
-                        }
+                        <div />
                     </div>
                     <div className="nodes">
                         {sandboxManager &&
@@ -59,7 +52,8 @@ export const SandboxCanvas: React.FC<ISandboxProps> = observer(
                                 <SandboxNode
                                     key={index}
                                     getRef={n.getElementRef}
-                                    name={n.nodeData}
+                                    onPortDown={n.onPortDown}
+                                    data={n.nodeData}
                                 />
                             ))}
                     </div>

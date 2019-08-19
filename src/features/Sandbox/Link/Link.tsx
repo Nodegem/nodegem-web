@@ -18,6 +18,7 @@ export const Link: React.FC<ILinkProps> = ({
     const path = `M ${x} ${y} C ${hx1} ${y} ${hx2} ${destination.y} ${
         destination.x
     } ${destination.y}`;
+    console.log(visible);
     return visible ? (
         <svg className="link">
             <path d={path} />

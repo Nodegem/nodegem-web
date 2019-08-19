@@ -17,3 +17,18 @@ type Bounds = {
 interface IDisposable {
     dispose(): void;
 }
+
+interface IPortData {
+    id: string;
+}
+
+interface INodeData {
+    id: string;
+    title: string;
+    portData: {
+        flowInputs: IPortData[];
+        flowOutputs: IPortData[];
+        valueInputs: IPortData[];
+        valueOutputs: IPortData[];
+    };
+}

@@ -33,6 +33,31 @@ const nodeDragStyle = (
     };
 };
 
+export const fakeNodeData: INodeData[] = [
+    {
+        id: 'test',
+        portData: {
+            flowInputs: [
+                {
+                    id: '1',
+                },
+            ],
+            flowOutputs: [],
+            valueInputs: [
+                {
+                    id: '2',
+                },
+            ],
+            valueOutputs: [
+                {
+                    id: '5',
+                },
+            ],
+        },
+        title: 'A title',
+    },
+];
+
 export const SandboxView = () => {
     const { sandboxStore } = useStore();
 
@@ -76,7 +101,7 @@ export const SandboxView = () => {
                                 >
                                     <NodeSelect
                                         dragStyle={nodeDragStyle}
-                                        nodes={['1', '2', '3']}
+                                        nodes={fakeNodeData}
                                     />
                                 </VerticalCollapsible>
                             )}

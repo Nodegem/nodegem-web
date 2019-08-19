@@ -81,7 +81,7 @@ class CanvasController implements IDisposable {
     constructor(
         public canvas: HTMLDivElement,
         private dimensions: Dimensions,
-        private zoomBounds: ZoomBounds = { min: 0.4, max: 2.5 }
+        private zoomBounds: ZoomBounds = { min: 0.53, max: 2.75 }
     ) {
         this._mousePos = { x: 0, y: 0 };
 
