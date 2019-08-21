@@ -1,6 +1,7 @@
 import { DraggableTabPane, DraggableTabs } from 'components/DraggableTabs';
 import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
-import { Observer } from 'mobx-react-lite';
+import { keys } from 'mobx';
+import { Observer, observer } from 'mobx-react-lite';
 import React from 'react';
 import {
     DragDropContext,
@@ -58,8 +59,9 @@ export const fakeNodeData: INodeData[] = [
     },
 ];
 
-export const SandboxView = () => {
+export const SandboxView = observer(() => {
     const { sandboxStore } = useStore();
+    const { tabs } = sandboxStore;
 
     function onDragEnd(result: DropResult, provided: ResponderProvided) {
         if (!result.destination) {
@@ -86,44 +88,52 @@ export const SandboxView = () => {
     return (
         <div className="sandbox-view-container">
             <DraggableTabs>
-                <DraggableTabPane tab="Thing" tabId="0">
-                    <DragDropContext onDragEnd={onDragEnd}>
-                        <Observer>
-                            {() => (
-                                <VerticalCollapsible
-                                    width="300px"
-                                    minWidth="0"
-                                    onTabClick={() =>
-                                        sandboxStore.toggleNodeSelect()
-                                    }
-                                    tabContent="Nodes"
-                                    collapsed={sandboxStore.nodeSelectClosed}
-                                >
-                                    <NodeSelect
-                                        dragStyle={nodeDragStyle}
-                                        nodes={fakeNodeData}
-                                    />
-                                </VerticalCollapsible>
-                            )}
-                        </Observer>
-                        <Observer>{() => <SandboxCanvas />}</Observer>
-                        <Observer>
-                            {() => (
-                                <VerticalCollapsible
-                                    onTabClick={() =>
-                                        sandboxStore.toggleNodeInfo()
-                                    }
-                                    tabDirection="left"
-                                    tabContent="Node Info"
-                                    collapsed={sandboxStore.nodeInfoClosed}
-                                >
-                                    Hello I can collapse
-                                </VerticalCollapsible>
-                            )}
-                        </Observer>
-                    </DragDropContext>
-                </DraggableTabPane>
+                {tabs.map(tab => (
+                    <DraggableTabPane
+                        key={tab.graph.id}
+                        tab={tab.graph.name}
+                        tabId={tab.graph.id}
+                    >
+                        <DragDropContext onDragEnd={onDragEnd}>
+                            <Observer>
+                                {() => (
+                                    <VerticalCollapsible
+                                        width="300px"
+                                        minWidth="0"
+                                        onTabClick={() =>
+                                            sandboxStore.toggleNodeSelect()
+                                        }
+                                        tabContent="Nodes"
+                                        collapsed={
+                                            sandboxStore.nodeSelectClosed
+                                        }
+                                    >
+                                        <NodeSelect
+                                            dragStyle={nodeDragStyle}
+                                            nodes={fakeNodeData}
+                                        />
+                                    </VerticalCollapsible>
+                                )}
+                            </Observer>
+                            <SandboxCanvas manager={tab.manager} />
+                            <Observer>
+                                {() => (
+                                    <VerticalCollapsible
+                                        onTabClick={() =>
+                                            sandboxStore.toggleNodeInfo()
+                                        }
+                                        tabDirection="left"
+                                        tabContent="Node Info"
+                                        collapsed={sandboxStore.nodeInfoClosed}
+                                    >
+                                        Hello I can collapse
+                                    </VerticalCollapsible>
+                                )}
+                            </Observer>
+                        </DragDropContext>
+                    </DraggableTabPane>
+                ))}
             </DraggableTabs>
         </div>
     );
-};
+});

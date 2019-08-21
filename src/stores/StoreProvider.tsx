@@ -1,15 +1,13 @@
+import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
 import { useLocalStore } from 'mobx-react-lite';
 import React from 'react';
 import {
     createAuthStore,
     createCommonStore,
-    createSandboxCanvasStore,
-    createSandboxStore,
     createUserStore,
+    SandboxStore,
     TAuthStore,
     TCommonStore,
-    TSandboxCanvasStore,
-    TSandboxStore,
     TUserStore,
 } from 'stores';
 
@@ -17,8 +15,7 @@ type TRootStore = {
     commonStore: TCommonStore;
     authStore: TAuthStore;
     userStore: TUserStore;
-    sandboxStore: TSandboxStore;
-    sandboxCanvasStore: TSandboxCanvasStore;
+    sandboxStore: SandboxStore;
 };
 
 function createRootStore(): TRootStore {
@@ -26,8 +23,7 @@ function createRootStore(): TRootStore {
         commonStore: createCommonStore(),
         authStore: createAuthStore(),
         userStore: createUserStore(),
-        sandboxStore: createSandboxStore(),
-        sandboxCanvasStore: createSandboxCanvasStore(),
+        sandboxStore: new SandboxStore(),
     };
 }
 

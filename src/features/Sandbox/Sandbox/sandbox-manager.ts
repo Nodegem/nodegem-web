@@ -1,49 +1,51 @@
-import { computed, observable } from 'mobx';
-import DrawLinkController from '../Link/draw-link-controller';
+import { action, computed } from 'mobx';
 import NodeController from '../Node/node-controller';
 import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
 import SelectionController from './Canvas/selection-controller';
 
 class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
+    @computed
     public get nodes(): NodeController<TNodeData>[] {
         return this._nodes;
     }
 
+    private _nodes: NodeController<TNodeData>[] = [];
+
+    private canvasElement: HTMLDivElement;
     private selectController: SelectionController;
     private canvasController: CanvasController;
-    private _nodes: NodeController<TNodeData>[];
+    private bounds: Dimensions;
+    private zoomBounds?: ZoomBounds;
 
-    private drawLinkController: DrawLinkController;
-
-    constructor(
-        private canvasElement: HTMLDivElement,
+    @action
+    public setProperties(
+        element: HTMLDivElement,
         bounds: Dimensions,
         zoomBounds?: ZoomBounds
     ) {
-        this._nodes = [];
+        this.canvasElement = element;
+        this.bounds = bounds;
+        this.zoomBounds = zoomBounds;
+
         this.canvasController = new CanvasController(
-            canvasElement,
-            bounds,
-            zoomBounds
+            element,
+            this.bounds,
+            this.zoomBounds
         );
         this.selectController = new SelectionController(
             this.canvasController,
             this.onSelection
         );
 
-        this.drawLinkController = new DrawLinkController(this.canvasController);
-
-        canvasElement.parentElement!.addEventListener(
+        element.parentElement!.addEventListener(
             'mousedown',
             this.handleMouseDown
         );
-        canvasElement.parentElement!.addEventListener(
-            'mouseup',
-            this.handleMouseUp
-        );
+        element.parentElement!.addEventListener('mouseup', this.handleMouseUp);
         window.addEventListener('keypress', this.handleKeyPress);
     }
 
+    @action
     public load(data: TNodeData[]) {
         this._nodes = data.map(
             x =>
@@ -55,18 +57,15 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
         );
     }
 
+    @action
     public clearView() {
         this.disposeNodes();
         this._nodes = [];
     }
 
-    public onSelection = (bounds: Bounds) => {
-        console.log(bounds);
-    };
+    public onSelection = (bounds: Bounds) => {};
 
-    private handlePortDown = (element: HTMLElement, data: IPortData) => {
-        this.drawLinkController.beginDraw(element);
-    };
+    private handlePortDown = (element: HTMLElement, data: IPortData) => {};
 
     private handleMouseDown = (event: MouseEvent) => {
         if (event.ctrlKey) {

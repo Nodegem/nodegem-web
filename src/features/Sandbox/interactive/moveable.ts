@@ -85,7 +85,6 @@ class Moveable implements IDisposable {
 
         event.preventDefault();
         event.stopPropagation();
-        console.log('test');
         this._isDragging = true;
         this.anchor = this.getCoords(event);
         this.posStart = this.position;
