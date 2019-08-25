@@ -44,7 +44,7 @@ export const VerticalCollapsible: React.FC<IVerticalCollapsibleProps> = ({
             <div className={collapseClass}>{children}</div>
             <div
                 style={{ width: tabWidth }}
-                className="tab"
+                className="vertical-tab"
                 onClick={onTabClick}
             >
                 <span className="tab-text">{tabContent}</span>

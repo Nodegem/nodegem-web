@@ -1,8 +1,8 @@
-import { DraggableTabPane, DraggableTabs } from 'components/DraggableTabs';
+import { DraggableTabs } from 'components/DraggableTabs';
 import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
-import { keys } from 'mobx';
+import { keys, observable } from 'mobx';
 import { Observer, observer } from 'mobx-react-lite';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     DragDropContext,
     DraggableStateSnapshot,
@@ -11,7 +11,8 @@ import {
     NotDraggingStyle,
     ResponderProvided,
 } from 'react-beautiful-dnd';
-import { useStore } from 'stores';
+import { TabData, useStore } from 'stores';
+import { SimpleObservable } from 'utils';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
 import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
@@ -60,80 +61,109 @@ export const fakeNodeData: INodeData[] = [
 ];
 
 export const SandboxView = observer(() => {
+    const [state] = useState({
+        dragEndObservable: new SimpleObservable<{
+            result: DropResult;
+            provided: ResponderProvided;
+        }>(),
+    });
     const { sandboxStore } = useStore();
-    const { tabs } = sandboxStore;
+    const {
+        tabs,
+        addTab,
+        reorderTabs,
+        setActiveTab,
+        activeTab,
+        toggleNodeSelect,
+        nodeSelectClosed,
+        sandboxManager,
+        toggleNodeInfo,
+        nodeInfoClosed,
+    } = sandboxStore;
 
-    function onDragEnd(result: DropResult, provided: ResponderProvided) {
-        if (!result.destination) {
-            return;
-        }
+    useEffect(() => {
+        return () => {
+            state.dragEndObservable.clear();
+            sandboxStore.dispose();
+        };
+    }, [sandboxStore]);
 
-        if (
-            result.source.droppableId === nodeSelectDroppableId &&
-            result.destination.droppableId === sandboxDroppableId
-        ) {
-            console.log('Adding node');
-            return;
-        }
+    // function onDragEnd(result: DropResult, provided: ResponderProvided) {
+    //     if (!result.destination) {
+    //         return;
+    //     }
 
-        if (
-            result.source.droppableId === sandboxDroppableId &&
-            result.destination.droppableId === nodeSelectDroppableId
-        ) {
-            console.log('Deleting node');
-            return;
-        }
+    //     if (
+    //         result.source.droppableId === nodeSelectDroppableId &&
+    //         result.destination.droppableId === sandboxDroppableId
+    //     ) {
+    //         console.log('Adding node');
+    //         return;
+    //     }
+
+    //     if (
+    //         result.source.droppableId === sandboxDroppableId &&
+    //         result.destination.droppableId === nodeSelectDroppableId
+    //     ) {
+    //         console.log('Deleting node');
+    //         return;
+    //     }
+    // }
+
+    function handleTabClick(tabId: string, data: TabData) {
+        setActiveTab(tabId);
+    }
+
+    function handleTabReorder(orderedTabs: any[]) {
+        reorderTabs(orderedTabs.map(x => x.data));
     }
 
     return (
         <div className="sandbox-view-container">
-            <DraggableTabs>
-                {tabs.map(tab => (
-                    <DraggableTabPane
-                        key={tab.graph.id}
-                        tab={tab.graph.name}
-                        tabId={tab.graph.id}
+            <DragDropContext
+                onDragEnd={(result, provided) =>
+                    state.dragEndObservable.execute({ result, provided })
+                }
+            >
+                <DraggableTabs
+                    tabs={tabs.map(t => ({
+                        id: t.graph.id,
+                        name: t.graph.name,
+                        data: t,
+                    }))}
+                    activeTab={(activeTab && activeTab.graph.id) || '0'}
+                    onTabReorder={handleTabReorder}
+                    dragEndObservable={state.dragEndObservable}
+                    onTabAdd={addTab}
+                    onTabClick={handleTabClick}
+                />
+                <div className="tab-content">
+                    <VerticalCollapsible
+                        width="300px"
+                        minWidth="0"
+                        onTabClick={() => toggleNodeSelect()}
+                        tabContent="Nodes"
+                        collapsed={nodeSelectClosed}
                     >
-                        <DragDropContext onDragEnd={onDragEnd}>
-                            <Observer>
-                                {() => (
-                                    <VerticalCollapsible
-                                        width="300px"
-                                        minWidth="0"
-                                        onTabClick={() =>
-                                            sandboxStore.toggleNodeSelect()
-                                        }
-                                        tabContent="Nodes"
-                                        collapsed={
-                                            sandboxStore.nodeSelectClosed
-                                        }
-                                    >
-                                        <NodeSelect
-                                            dragStyle={nodeDragStyle}
-                                            nodes={fakeNodeData}
-                                        />
-                                    </VerticalCollapsible>
-                                )}
-                            </Observer>
-                            <SandboxCanvas manager={tab.manager} />
-                            <Observer>
-                                {() => (
-                                    <VerticalCollapsible
-                                        onTabClick={() =>
-                                            sandboxStore.toggleNodeInfo()
-                                        }
-                                        tabDirection="left"
-                                        tabContent="Node Info"
-                                        collapsed={sandboxStore.nodeInfoClosed}
-                                    >
-                                        Hello I can collapse
-                                    </VerticalCollapsible>
-                                )}
-                            </Observer>
-                        </DragDropContext>
-                    </DraggableTabPane>
-                ))}
-            </DraggableTabs>
+                        <NodeSelect
+                            dragStyle={nodeDragStyle}
+                            nodes={fakeNodeData}
+                        />
+                    </VerticalCollapsible>
+                    <SandboxCanvas
+                        manager={sandboxManager}
+                        graph={activeTab && activeTab.graph}
+                    />
+                    <VerticalCollapsible
+                        onTabClick={() => toggleNodeInfo()}
+                        tabDirection="left"
+                        tabContent="Node Info"
+                        collapsed={nodeInfoClosed}
+                    >
+                        Hello I can collapse
+                    </VerticalCollapsible>
+                </div>
+            </DragDropContext>
         </div>
     );
 });

@@ -12,10 +12,12 @@ export const sandboxDroppableId = 'sandboxId';
 
 export interface ISandboxProps {
     manager: SandboxManager;
+    graph?: Graph | Macro;
     size?: { width: number; height: number };
 }
 
 export const SandboxCanvas: React.FC<ISandboxProps> = ({
+    graph,
     manager,
     size = { width: 12000, height: 12000 },
 }: ISandboxProps) => {
@@ -24,10 +26,12 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
     useEffect(() => {
         const canvasElement = canvasRef.current!;
         manager.setProperties(canvasElement, size);
-        // const sm = new SandboxManager(size);
-        // sm.setElement(canvasElement);
-        // sm.load(fakeNodeData);
-    }, [canvasRef]);
+        console.log(graph);
+
+        if (graph) {
+            // manager.load(graph.nodes);
+        }
+    }, [canvasRef, manager, graph]);
 
     return (
         <div className="sandbox">

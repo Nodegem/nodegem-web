@@ -3,7 +3,8 @@ declare global {
     interface Array<T> {
         empty(): boolean;
         removeItem(T): T[];
-        firstOrDefault(): T | null;
+        removeWhere(predicate: (item: T) => boolean): void;
+        firstOrDefault(predicate?: (item: T) => boolean): T | undefined;
         lastOrDefault(): T | null;
         copy(): T[];
         toDictionary<T>(array: T[], indexKey: keyof T): { [key: string]: T };
@@ -19,12 +20,27 @@ Array.prototype.removeItem = function<T>(item: T): T[] {
     return this.splice(this.indexOf(item), 1);
 };
 
+Array.prototype.removeWhere = function<T>(
+    predicate: (item: T) => boolean
+): void {
+    const items = this.filter(predicate);
+    for (const i of items) {
+        this.removeItem(i);
+    }
+};
+
 Array.prototype.empty = function(): boolean {
     return this.length <= 0;
 };
 
-Array.prototype.firstOrDefault = function<T>(): T | null {
-    return !this.empty() ? this[0] : null;
+Array.prototype.firstOrDefault = function<T>(
+    predicate?: (item: T) => boolean
+): T | null {
+    return !this.empty()
+        ? !!predicate
+            ? this.filter(predicate)[0]
+            : this[0]
+        : null;
 };
 
 Array.prototype.lastOrDefault = function<T>(): T | null {

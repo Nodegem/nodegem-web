@@ -263,6 +263,7 @@ class CanvasController implements IDisposable {
     };
 
     public dispose(): void {
+        this.backgroundElement.remove();
         this.parentElement.removeEventListener('mousedown', this.onMouseDown);
         this.parentElement.removeEventListener('mousemove', this.onMouseMove);
         window.removeEventListener('resize', this.resize);

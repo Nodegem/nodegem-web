@@ -4,12 +4,16 @@ import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
 import SelectionController from './Canvas/selection-controller';
 
 class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
-    @computed
     public get nodes(): NodeController<TNodeData>[] {
         return this._nodes;
     }
 
     private _nodes: NodeController<TNodeData>[] = [];
+
+    private _hasBeenInitialized = false;
+    public get hasBeenInitialized() {
+        return this._hasBeenInitialized;
+    }
 
     private canvasElement: HTMLDivElement;
     private selectController: SelectionController;
@@ -17,12 +21,15 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
     private bounds: Dimensions;
     private zoomBounds?: ZoomBounds;
 
-    @action
     public setProperties(
         element: HTMLDivElement,
         bounds: Dimensions,
         zoomBounds?: ZoomBounds
     ) {
+        if (this.hasBeenInitialized) {
+            return;
+        }
+
         this.canvasElement = element;
         this.bounds = bounds;
         this.zoomBounds = zoomBounds;
@@ -43,9 +50,9 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
         );
         element.parentElement!.addEventListener('mouseup', this.handleMouseUp);
         window.addEventListener('keypress', this.handleKeyPress);
+        this._hasBeenInitialized = true;
     }
 
-    @action
     public load(data: TNodeData[]) {
         this._nodes = data.map(
             x =>
@@ -57,7 +64,6 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
         );
     }
 
-    @action
     public clearView() {
         this.disposeNodes();
         this._nodes = [];
@@ -98,6 +104,7 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
     public dispose(): void {
         this.disposeNodes();
         this.canvasController.dispose();
+        this.selectController.dispose();
         this.canvasElement.parentElement!.removeEventListener(
             'mousedown',
             this.handleMouseDown
@@ -107,6 +114,7 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
             this.handleMouseUp
         );
         window.removeEventListener('keypress', this.handleKeyPress);
+        this._hasBeenInitialized = false;
     }
 }
 

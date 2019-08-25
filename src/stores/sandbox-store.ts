@@ -1,17 +1,32 @@
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
 import { action, computed, observable } from 'mobx';
+import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { NodeService } from 'services';
+import { SimpleObservable } from './../utils/simple-observable';
 
-export class SandboxStore {
+let fake = 0;
+
+export type DragEndProps = { result: DropResult; provided: ResponderProvided };
+export type TabData = {
+    graph: Graph | Macro;
+};
+
+export class SandboxStore implements IDisposable {
     @observable
-    public sandboxes: Map<
-        string,
-        { manager: SandboxManager; graph: Graph | Macro }
-    > = new Map();
+    public tabs: TabData[] = [];
+
+    public dragEndDisposable: SimpleObservable<
+        DragEndProps
+    > = new SimpleObservable();
+
+    public sandboxManager: SandboxManager = new SandboxManager();
+
+    @observable
+    private _activeTab: string;
 
     @computed
-    public get tabs(): { graph: Graph | Macro; manager: SandboxManager }[] {
-        return Array.from(this.sandboxes).map(x => x[1]);
+    public get activeTab(): TabData | undefined {
+        return this.tabs.firstOrDefault(x => x.graph.id === this._activeTab);
     }
 
     @observable
@@ -36,16 +51,37 @@ export class SandboxStore {
     }
 
     @action
-    public addTab(graph: Graph | Macro) {
-        if (this.sandboxes.has(graph.id)) {
+    public setActiveTab = (id: string) => {
+        this._activeTab = id;
+    };
+
+    @action
+    public reorderTabs = (tabs: TabData[]) => {
+        this.tabs = tabs;
+    };
+
+    @action
+    public addTab = () => {
+        const id = fake.toString();
+        if (this.tabs.some(x => x.graph.id === id)) {
             return;
         }
 
-        this.sandboxes.set(graph.id, { manager: new SandboxManager(), graph });
-    }
+        this.tabs.push({
+            graph: { id, name: id } as any,
+        });
+
+        this.setActiveTab(id);
+        fake++;
+    };
 
     @action
-    public deleteTab(graphId: string) {
-        this.sandboxes.delete(graphId);
+    public deleteTab = (graphId: string) => {
+        this.tabs.removeWhere(x => x.graph.id === graphId);
+    };
+
+    public dispose(): void {
+        this.dragEndDisposable.clear();
+        this.tabs = [];
     }
 }
