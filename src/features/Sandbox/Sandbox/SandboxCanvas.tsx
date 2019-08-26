@@ -1,37 +1,31 @@
 import { observer, useObserver } from 'mobx-react-lite';
 import React, { useEffect, useRef, useState } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
-import { useStore } from 'stores';
+import { SandboxStore, useStore } from 'stores';
 import { Link } from '../Link/Link';
 import { SandboxNode } from '../Node';
-import { fakeNodeData } from '../SandboxView';
-import SandboxManager from './sandbox-manager';
+import NodeController from '../Node/node-controller';
 import './SandboxCanvas.less';
 
 export const sandboxDroppableId = 'sandboxId';
 
 export interface ISandboxProps {
-    manager: SandboxManager;
-    graph?: Graph | Macro;
+    sandboxStore: SandboxStore;
+    nodes: NodeController[];
     size?: { width: number; height: number };
 }
 
 export const SandboxCanvas: React.FC<ISandboxProps> = ({
-    graph,
-    manager,
+    sandboxStore,
+    nodes = [],
     size = { width: 12000, height: 12000 },
 }: ISandboxProps) => {
     const canvasRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const canvasElement = canvasRef.current!;
-        manager.setProperties(canvasElement, size);
-        console.log(graph);
-
-        if (graph) {
-            // manager.load(graph.nodes);
-        }
-    }, [canvasRef, manager, graph]);
+        sandboxStore.sandboxManager.setProperties(canvasElement, size);
+    }, [canvasRef, nodes]);
 
     return (
         <div className="sandbox">
@@ -56,15 +50,14 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                     )} */}
                 </div>
                 <div className="nodes">
-                    {/* {manager &&
-                        manager.nodes.map((n, index) => (
-                            <SandboxNode
-                                key={index}
-                                getRef={n.getElementRef}
-                                onPortDown={n.onPortDown}
-                                data={n.nodeData}
-                            />
-                        ))} */}
+                    {nodes.map((n, index) => (
+                        <SandboxNode
+                            key={index}
+                            getRef={n.getElementRef}
+                            onPortDown={n.onPortDown}
+                            data={n.nodeData}
+                        />
+                    ))}
                 </div>
             </div>
         </div>

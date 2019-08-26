@@ -11,7 +11,7 @@ import {
     NotDraggingStyle,
     ResponderProvided,
 } from 'react-beautiful-dnd';
-import { TabData, useStore } from 'stores';
+import { DragEndProps, TabData, testData, useStore } from 'stores';
 import { SimpleObservable } from 'utils';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
 import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
@@ -42,17 +42,20 @@ export const fakeNodeData: INodeData[] = [
             flowInputs: [
                 {
                     id: '1',
+                    name: '',
                 },
             ],
             flowOutputs: [],
             valueInputs: [
                 {
                     id: '2',
+                    name: '',
                 },
             ],
             valueOutputs: [
                 {
                     id: '5',
+                    name: '',
                 },
             ],
         },
@@ -61,79 +64,67 @@ export const fakeNodeData: INodeData[] = [
 ];
 
 export const SandboxView = observer(() => {
-    const [state] = useState({
-        dragEndObservable: new SimpleObservable<{
-            result: DropResult;
-            provided: ResponderProvided;
-        }>(),
-    });
     const { sandboxStore } = useStore();
     const {
         tabs,
         addTab,
-        reorderTabs,
+        setTabs,
+        dragEndObservable,
         setActiveTab,
         activeTab,
         toggleNodeSelect,
         nodeSelectClosed,
-        sandboxManager,
+        nodeControllers,
         toggleNodeInfo,
         nodeInfoClosed,
     } = sandboxStore;
 
     useEffect(() => {
+        setTabs([...testData], true);
+        dragEndObservable.subscribe(onDragEnd);
         return () => {
-            state.dragEndObservable.clear();
             sandboxStore.dispose();
         };
     }, [sandboxStore]);
 
-    // function onDragEnd(result: DropResult, provided: ResponderProvided) {
-    //     if (!result.destination) {
-    //         return;
-    //     }
+    function onDragEnd({ result, provided }: DragEndProps) {
+        if (!result.destination) {
+            return;
+        }
 
-    //     if (
-    //         result.source.droppableId === nodeSelectDroppableId &&
-    //         result.destination.droppableId === sandboxDroppableId
-    //     ) {
-    //         console.log('Adding node');
-    //         return;
-    //     }
-
-    //     if (
-    //         result.source.droppableId === sandboxDroppableId &&
-    //         result.destination.droppableId === nodeSelectDroppableId
-    //     ) {
-    //         console.log('Deleting node');
-    //         return;
-    //     }
-    // }
+        if (
+            result.source.droppableId === nodeSelectDroppableId &&
+            result.destination.droppableId === sandboxDroppableId
+        ) {
+            console.log('Adding node');
+            return;
+        }
+    }
 
     function handleTabClick(tabId: string, data: TabData) {
         setActiveTab(tabId);
     }
 
     function handleTabReorder(orderedTabs: any[]) {
-        reorderTabs(orderedTabs.map(x => x.data));
+        setTabs(orderedTabs.map(x => x.data));
     }
 
     return (
         <div className="sandbox-view-container">
             <DragDropContext
                 onDragEnd={(result, provided) =>
-                    state.dragEndObservable.execute({ result, provided })
+                    dragEndObservable.execute({ result, provided })
                 }
             >
                 <DraggableTabs
                     tabs={tabs.map(t => ({
-                        id: t.graph.id,
-                        name: t.graph.name,
+                        id: t.graph.id!,
+                        name: t.graph.name!,
                         data: t,
                     }))}
                     activeTab={(activeTab && activeTab.graph.id) || '0'}
                     onTabReorder={handleTabReorder}
-                    dragEndObservable={state.dragEndObservable}
+                    dragEndObservable={dragEndObservable}
                     onTabAdd={addTab}
                     onTabClick={handleTabClick}
                 />
@@ -141,7 +132,7 @@ export const SandboxView = observer(() => {
                     <VerticalCollapsible
                         width="300px"
                         minWidth="0"
-                        onTabClick={() => toggleNodeSelect()}
+                        onTabClick={toggleNodeSelect}
                         tabContent="Nodes"
                         collapsed={nodeSelectClosed}
                     >
@@ -151,11 +142,11 @@ export const SandboxView = observer(() => {
                         />
                     </VerticalCollapsible>
                     <SandboxCanvas
-                        manager={sandboxManager}
-                        graph={activeTab && activeTab.graph}
+                        sandboxStore={sandboxStore}
+                        nodes={nodeControllers}
                     />
                     <VerticalCollapsible
-                        onTabClick={() => toggleNodeInfo()}
+                        onTabClick={toggleNodeInfo}
                         tabDirection="left"
                         tabContent="Node Info"
                         collapsed={nodeInfoClosed}

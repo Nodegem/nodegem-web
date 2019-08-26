@@ -1,13 +1,15 @@
-import { action, computed } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import NodeController from '../Node/node-controller';
 import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
 import SelectionController from './Canvas/selection-controller';
 
 class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
+    @computed
     public get nodes(): NodeController<TNodeData>[] {
         return this._nodes;
     }
 
+    @observable
     private _nodes: NodeController<TNodeData>[] = [];
 
     private _hasBeenInitialized = false;
@@ -20,6 +22,11 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
     private canvasController: CanvasController;
     private bounds: Dimensions;
     private zoomBounds?: ZoomBounds;
+
+    constructor(
+        private onSelection: (bounds: Bounds) => void,
+        private onPortDown: (element: HTMLElement, data: IPortData) => void
+    ) {}
 
     public setProperties(
         element: HTMLDivElement,
@@ -41,7 +48,7 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
         );
         this.selectController = new SelectionController(
             this.canvasController,
-            this.onSelection
+            this.handleSelection
         );
 
         element.parentElement!.addEventListener(
@@ -53,7 +60,9 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
         this._hasBeenInitialized = true;
     }
 
+    @action
     public load(data: TNodeData[]) {
+        this.disposeNodes();
         this._nodes = data.map(
             x =>
                 new NodeController(
@@ -64,14 +73,19 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
         );
     }
 
+    @action
     public clearView() {
         this.disposeNodes();
         this._nodes = [];
     }
 
-    public onSelection = (bounds: Bounds) => {};
+    private handleSelection = (bounds: Bounds) => {
+        this.onSelection(bounds);
+    };
 
-    private handlePortDown = (element: HTMLElement, data: IPortData) => {};
+    private handlePortDown = (element: HTMLElement, data: IPortData) => {
+        this.onPortDown(element, data);
+    };
 
     private handleMouseDown = (event: MouseEvent) => {
         if (event.ctrlKey) {
@@ -81,8 +95,9 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
     };
 
     private handleMouseUp = (event: MouseEvent) => {
-        this.selectController.stopSelect(this.canvasController.mousePos);
-        this.canvasController.enableDrag();
+        if (this.selectController.selecting) {
+            this.selectController.stopSelect(this.canvasController.mousePos);
+        }
     };
 
     private handleKeyPress = (event: KeyboardEvent) => {

@@ -20,6 +20,7 @@ interface IDisposable {
 
 interface IPortData {
     id: string;
+    name: string;
 }
 
 interface INodeData {
@@ -31,4 +32,5 @@ interface INodeData {
         valueInputs: IPortData[];
         valueOutputs: IPortData[];
     };
+    position?: Vector2;
 }

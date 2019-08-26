@@ -25,8 +25,17 @@ class NodeController<TNode extends INodeData = any> implements IDisposable {
         if (!element) {
             return;
         }
+
+        if (this.element === element) {
+            return;
+        }
+
         this.element = element;
+        if (this.moveable) { this.moveable.dispose(); }
         this.moveable = new Moveable(element, this.canvasContainer);
+        if (this._nodeData.position) {
+            this.moveable.position = this._nodeData.position;
+        }
     };
 
     public onPortDown = (event: MouseEvent, data: IPortData) => {
