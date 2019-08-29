@@ -12,12 +12,21 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
     @observable
     private _nodes: NodeController<TNodeData>[] = [];
 
+    public get mousePos(): Vector2 {
+        return this.canvasController.mousePos;
+    }
+
     private _hasBeenInitialized = false;
     public get hasBeenInitialized() {
         return this._hasBeenInitialized;
     }
 
-    private canvasElement: HTMLDivElement;
+    private _canvasElement: HTMLDivElement;
+
+    public get canvasElement(): HTMLDivElement {
+        return this._canvasElement;
+    }
+
     private selectController: SelectionController;
     private canvasController: CanvasController;
     private bounds: Dimensions;
@@ -25,7 +34,11 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
 
     constructor(
         private onSelection: (bounds: Bounds) => void,
-        private onPortDown: (element: HTMLElement, data: IPortData) => void
+        private onPortEvent: (
+            event: PortEvent,
+            element: HTMLElement,
+            data: IPortData
+        ) => void
     ) {}
 
     public setProperties(
@@ -37,7 +50,7 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
             return;
         }
 
-        this.canvasElement = element;
+        this._canvasElement = element;
         this.bounds = bounds;
         this.zoomBounds = zoomBounds;
 
@@ -56,9 +69,12 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
             this.handleMouseDown
         );
         element.parentElement!.addEventListener('mouseup', this.handleMouseUp);
-        window.addEventListener('keypress', this.handleKeyPress);
         this._hasBeenInitialized = true;
     }
+
+    public convertCoordinates = (coords: Vector2) => {
+        return this.canvasController.convertCoordinates(coords);
+    };
 
     @action
     public load(data: TNodeData[]) {
@@ -68,12 +84,11 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
                 new NodeController(
                     x,
                     this.canvasController,
-                    this.handlePortDown
+                    this.handlePortEvent
                 )
         );
     }
 
-    @action
     public clearView() {
         this.disposeNodes();
         this._nodes = [];
@@ -83,8 +98,12 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
         this.onSelection(bounds);
     };
 
-    private handlePortDown = (element: HTMLElement, data: IPortData) => {
-        this.onPortDown(element, data);
+    private handlePortEvent = (
+        event: PortEvent,
+        element: HTMLElement,
+        data: IPortData
+    ) => {
+        this.onPortEvent(event, element, data);
     };
 
     private handleMouseDown = (event: MouseEvent) => {
@@ -97,12 +116,6 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
     private handleMouseUp = (event: MouseEvent) => {
         if (this.selectController.selecting) {
             this.selectController.stopSelect(this.canvasController.mousePos);
-        }
-    };
-
-    private handleKeyPress = (event: KeyboardEvent) => {
-        if (event.keyCode === 32) {
-            this.resetView();
         }
     };
 
@@ -120,15 +133,14 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
         this.disposeNodes();
         this.canvasController.dispose();
         this.selectController.dispose();
-        this.canvasElement.parentElement!.removeEventListener(
+        this._canvasElement.parentElement!.removeEventListener(
             'mousedown',
             this.handleMouseDown
         );
-        this.canvasElement.parentElement!.removeEventListener(
+        this._canvasElement.parentElement!.removeEventListener(
             'mouseup',
             this.handleMouseUp
         );
-        window.removeEventListener('keypress', this.handleKeyPress);
         this._hasBeenInitialized = false;
     }
 }

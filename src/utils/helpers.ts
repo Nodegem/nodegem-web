@@ -1,3 +1,4 @@
+import { timeout } from 'q';
 import { isMacro } from './typeguards';
 
 export const isInput = (target: Element): boolean => {
@@ -60,6 +61,14 @@ export async function exponentialBackoff<T>(
             onFail();
         }
     }
+}
+
+export function getCenterCoordinates(element: HTMLElement): Vector2 {
+    const { x, y, width, height } = element.getBoundingClientRect() as DOMRect;
+    return {
+        x: x + width / 2,
+        y: y + height / 2,
+    };
 }
 
 export const reorder = <T>(

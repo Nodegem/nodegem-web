@@ -1,18 +1,14 @@
 import { DraggableTabs } from 'components/DraggableTabs';
 import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
-import { keys, observable } from 'mobx';
-import { Observer, observer } from 'mobx-react-lite';
-import React, { useEffect, useState } from 'react';
+import { observer } from 'mobx-react-lite';
+import React, { useEffect } from 'react';
 import {
     DragDropContext,
     DraggableStateSnapshot,
     DraggingStyle,
-    DropResult,
     NotDraggingStyle,
-    ResponderProvided,
 } from 'react-beautiful-dnd';
 import { DragEndProps, TabData, testData, useStore } from 'stores';
-import { SimpleObservable } from 'utils';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
 import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
@@ -43,6 +39,8 @@ export const fakeNodeData: INodeData[] = [
                 {
                     id: '1',
                     name: '',
+                    type: 'flow',
+                    connected: false,
                 },
             ],
             flowOutputs: [],
@@ -50,12 +48,16 @@ export const fakeNodeData: INodeData[] = [
                 {
                     id: '2',
                     name: '',
+                    type: 'value',
+                    connected: false,
                 },
             ],
             valueOutputs: [
                 {
                     id: '5',
                     name: '',
+                    type: 'value',
+                    connected: false,
                 },
             ],
         },
@@ -77,6 +79,8 @@ export const SandboxView = observer(() => {
         nodeControllers,
         toggleNodeInfo,
         nodeInfoClosed,
+        link,
+        sandboxManager,
     } = sandboxStore;
 
     useEffect(() => {
@@ -142,7 +146,8 @@ export const SandboxView = observer(() => {
                         />
                     </VerticalCollapsible>
                     <SandboxCanvas
-                        sandboxStore={sandboxStore}
+                        link={link}
+                        sandboxManager={sandboxManager}
                         nodes={nodeControllers}
                     />
                     <VerticalCollapsible

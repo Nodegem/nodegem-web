@@ -1,9 +1,19 @@
+import { computed } from 'mobx';
 import Moveable from '../interactive/moveable';
 import CanvasController from '../Sandbox/Canvas/canvas-controller';
 
-type PortClickEvent = (element: HTMLElement, data: IPortData) => void;
+type PortClickEvent = (
+    event: PortEvent,
+    element: HTMLElement,
+    data: IPortData
+) => void;
 
 class NodeController<TNode extends INodeData = any> implements IDisposable {
+    @computed
+    public get id(): string {
+        return this._nodeData.id;
+    }
+
     public get position(): Vector2 {
         return this.moveable.position;
     }
@@ -18,7 +28,7 @@ class NodeController<TNode extends INodeData = any> implements IDisposable {
     constructor(
         private _nodeData: TNode,
         private canvasContainer: CanvasController,
-        private portDownEvent: PortClickEvent
+        private portEvent: PortClickEvent
     ) {}
 
     public getElementRef = (element: HTMLElement) => {
@@ -31,17 +41,22 @@ class NodeController<TNode extends INodeData = any> implements IDisposable {
         }
 
         this.element = element;
-        if (this.moveable) { this.moveable.dispose(); }
+        if (this.moveable) {
+            this.moveable.dispose();
+        }
+
         this.moveable = new Moveable(element, this.canvasContainer);
         if (this._nodeData.position) {
             this.moveable.position = this._nodeData.position;
         }
     };
 
-    public onPortDown = (event: MouseEvent, data: IPortData) => {
-        event.preventDefault();
-        event.stopPropagation();
-        this.portDownEvent(event.target as HTMLElement, data);
+    public onPortEvent = (
+        event: PortEvent,
+        element: HTMLElement,
+        data: IPortData
+    ) => {
+        this.portEvent(event, element, data);
     };
 
     public dispose(): void {

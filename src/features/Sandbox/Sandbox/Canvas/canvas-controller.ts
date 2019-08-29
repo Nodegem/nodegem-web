@@ -126,12 +126,18 @@ class CanvasController implements IDisposable {
     };
 
     private onMouseMove = (e: MouseEvent) => {
-        const rect = this.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const k = this.transform.scale;
+        this._mousePos = this.convertCoordinates({
+            x: e.clientX,
+            y: e.clientY,
+        });
+    };
 
-        this._mousePos = { x: x / k, y: y / k };
+    public convertCoordinates = (coords: Vector2) => {
+        const rect = this.canvas.getBoundingClientRect();
+        const x = coords.x - rect.left;
+        const y = coords.y - rect.top;
+        const k = this.transform.scale;
+        return { x: x / k, y: y / k };
     };
 
     public update() {

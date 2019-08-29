@@ -30,7 +30,9 @@ export class Drag {
     }
 
     initEvents(el) {
-        el.addEventListener('mousedown', this.down.bind(this));
+        el.addEventListener('mousedown', this.down.bind(this), {
+            passive: true,
+        });
         window.addEventListener('mousemove', this.move.bind(this));
         window.addEventListener('mouseup', this.up.bind(this));
 

@@ -14,6 +14,9 @@ type Bounds = {
     top: number;
 } & Dimensions;
 
+type PortEvent = 'up' | 'down';
+type PortType = 'value' | 'flow';
+
 interface IDisposable {
     dispose(): void;
 }
@@ -21,6 +24,8 @@ interface IDisposable {
 interface IPortData {
     id: string;
     name: string;
+    type: PortType;
+    connected: boolean;
 }
 
 interface INodeData {

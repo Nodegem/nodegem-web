@@ -1,5 +1,87 @@
-class DrawLinkController {
-    private _source: HTMLElement;
+import _ from 'lodash';
+
+export type DrawArgs = { element: HTMLElement; data: IPortData };
+
+class DrawLinkController implements IDisposable {
+    private _source?: DrawArgs;
+
+    private throttleEvent;
+
+    public get isDrawing() {
+        return !!this._source;
+    }
+
+    constructor(
+        private onDrawStart: (source: DrawArgs) => void,
+        private onDrawing: () => void,
+        private onDrawEnd: (source?: DrawArgs, destination?: DrawArgs) => void
+    ) {
+        this.throttleEvent = _.throttle(this.drawing, 20);
+    }
+
+    public toggleDraw(type: PortEvent, source: HTMLElement, data: IPortData) {
+        if (!this.isDrawing && type === 'down') {
+            this._source = { element: source, data };
+            window.addEventListener('contextmenu', this.canvasDownEvent);
+            window.addEventListener('mousemove', this.throttleEvent);
+            this.onDrawStart(this._source);
+        } else {
+            if (this.isDrawing) {
+                if (
+                    type === 'up' &&
+                    this._source &&
+                    this._source.element === source
+                ) {
+                    return;
+                }
+
+                if (
+                    type === 'down' &&
+                    this._source &&
+                    this._source.element === source
+                ) {
+                    this.onDrawEnd(this._source, undefined);
+                    this.stopDrawing();
+                    return;
+                }
+
+                this.onDrawEnd(this._source!, { element: source, data });
+                this.cleanUp();
+            }
+        }
+    }
+
+    public stopDrawing = () => {
+        this.onDrawEnd();
+        this.cleanUp();
+    };
+
+    private cleanUp = () => {
+        this._source = undefined;
+        window.removeEventListener('mousemove', this.throttleEvent);
+        window.removeEventListener('contextmenu', this.canvasDownEvent);
+    };
+
+    private canvasDownEvent = (event: MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.stopDrawing();
+    };
+
+    private drawing = (event: MouseEvent) => {
+        if (!this.isDrawing) {
+            return;
+        }
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.onDrawing();
+    };
+
+    public dispose(): void {
+        this.cleanUp();
+    }
 }
 
 export default DrawLinkController;
