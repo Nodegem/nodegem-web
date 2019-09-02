@@ -145,7 +145,7 @@ class SandboxManager<TNodeData extends INodeUIData = any>
 
     @action
     public load(data: TNodeData[]) {
-        this.clearNodes();
+        this.clearView();
         for (const node of data) {
             this._nodes.set(
                 node.id,

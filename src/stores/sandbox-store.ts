@@ -176,7 +176,7 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
-    public loadNodes = (nodes: NodeData[]) => {
+    public load = (nodes: NodeData[]) => {
         this.sandboxManager.load(
             nodes!.map<INodeUIData>(x => ({
                 id: x.id,
@@ -211,7 +211,7 @@ export class SandboxStore implements IDisposable {
         this._activeTab = id;
         if (this.activeTab) {
             const { nodes } = this.activeTab.graph;
-            this.loadNodes(nodes || []);
+            this.load(nodes || []);
         }
     };
 
