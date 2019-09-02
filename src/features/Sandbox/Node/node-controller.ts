@@ -1,15 +1,15 @@
-import { computed } from 'mobx';
 import Moveable from '../interactive/moveable';
+import LinkController from '../Link/link-controller';
 import CanvasController from '../Sandbox/Canvas/canvas-controller';
 
 type PortClickEvent = (
     event: PortEvent,
     element: HTMLElement,
-    data: IPortData
+    data: IPortUIData,
+    node: NodeController
 ) => void;
 
-class NodeController<TNode extends INodeData = any> implements IDisposable {
-    @computed
+class NodeController<TNode extends INodeUIData = any> implements IDisposable {
     public get id(): string {
         return this._nodeData.id;
     }
@@ -22,13 +22,16 @@ class NodeController<TNode extends INodeData = any> implements IDisposable {
         return this._nodeData;
     }
 
+    private links: Map<string, LinkController> = new Map();
+
     private moveable: Moveable;
     private element: Element;
 
     constructor(
         private _nodeData: TNode,
         private canvasContainer: CanvasController,
-        private portEvent: PortClickEvent
+        private portEvent: PortClickEvent,
+        private onMove?: (node: NodeController) => void
     ) {}
 
     public getElementRef = (element: HTMLElement) => {
@@ -45,18 +48,34 @@ class NodeController<TNode extends INodeData = any> implements IDisposable {
             this.moveable.dispose();
         }
 
-        this.moveable = new Moveable(element, this.canvasContainer);
+        this.moveable = new Moveable(
+            element,
+            this.canvasContainer,
+            () => this.onMove && this.onMove(this)
+        );
         if (this._nodeData.position) {
             this.moveable.position = this._nodeData.position;
         }
     };
 
+    public addLink = (link: LinkController) => {
+        this.links.set(link.id, link);
+    };
+
+    public removeLink = (link: LinkController) => {
+        this.links.delete(link.id);
+    };
+
+    public updateLinks = () => {
+        this.links.forEach(x => x.update());
+    };
+
     public onPortEvent = (
         event: PortEvent,
         element: HTMLElement,
-        data: IPortData
+        data: IPortUIData
     ) => {
-        this.portEvent(event, element, data);
+        this.portEvent(event, element, data, this);
     };
 
     public dispose(): void {

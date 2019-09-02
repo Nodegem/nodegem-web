@@ -1,18 +1,43 @@
 import React from 'react';
 
+import { Button, Tooltip } from 'antd';
 import { Socket as Port } from '../Port/Port';
+import NodeController from './node-controller';
 import './Node.less';
 
 interface INodeProps {
-    data: INodeData;
+    data: INodeUIData;
     showPorts?: boolean;
     getRef?: (instance: HTMLDivElement) => void;
     onPortEvent?: (
         event: PortEvent,
         element: HTMLElement,
-        data: IPortData
+        data: IPortUIData
     ) => void;
 }
+
+const ToolbarContents = props => {
+    return (
+        <span className="toolbar">
+            <Button type="primary" icon="dashboard" />
+            <Button type="primary" icon="dashboard" />
+            <Button type="primary" icon="dashboard" />
+            <Button type="primary" icon="dashboard" />
+        </span>
+    );
+};
+
+const Toolbar = props => {
+    return (
+        <Tooltip
+            trigger={'contextMenu'}
+            className="toolbar-tooltip"
+            title={<ToolbarContents />}
+        >
+            {props.children}
+        </Tooltip>
+    );
+};
 
 export const Node: React.FC<INodeProps> = ({
     getRef,
@@ -31,43 +56,53 @@ export const Node: React.FC<INodeProps> = ({
     };
 
     return (
-        <div ref={attemptRef} className="node-container" {...rest}>
-            <div className="flow flow-inputs">
-                {showPorts &&
-                    flowInputs.map(fi => (
-                        <Port key={fi.id} data={fi} onPortEvent={onPortEvent} />
-                    ))}
-            </div>
-            <div className="inner">
-                <div className="value value-inputs">
+        <Toolbar>
+            <div ref={attemptRef} className="node-container" {...rest}>
+                <div className="flow flow-inputs">
                     {showPorts &&
-                        valueInputs.map(vi => (
+                        flowInputs.map(fi => (
                             <Port
-                                key={vi.id}
-                                data={vi}
+                                key={fi.id}
+                                data={fi}
                                 onPortEvent={onPortEvent}
                             />
                         ))}
                 </div>
-                <span className="title">{title}</span>
-                <div className="value value-outputs">
+                <div className="inner">
+                    <div className="value value-inputs">
+                        {showPorts &&
+                            valueInputs.map(vi => (
+                                <Port
+                                    key={vi.id}
+                                    data={vi}
+                                    onPortEvent={onPortEvent}
+                                />
+                            ))}
+                    </div>
+                    <span className="title">{title}</span>
+                    <div className="value value-outputs">
+                        {showPorts &&
+                            valueOutputs.map(vo => (
+                                <Port
+                                    key={vo.id}
+                                    data={vo}
+                                    onPortEvent={onPortEvent}
+                                />
+                            ))}
+                    </div>
+                </div>
+                <div className="flow flow-outputs">
                     {showPorts &&
-                        valueOutputs.map(vo => (
+                        flowOutputs.map(fo => (
                             <Port
-                                key={vo.id}
-                                data={vo}
+                                key={fo.id}
+                                data={fo}
                                 onPortEvent={onPortEvent}
                             />
                         ))}
                 </div>
             </div>
-            <div className="flow flow-outputs">
-                {showPorts &&
-                    flowOutputs.map(fo => (
-                        <Port key={fo.id} data={fo} onPortEvent={onPortEvent} />
-                    ))}
-            </div>
-        </div>
+        </Toolbar>
     );
 };
 

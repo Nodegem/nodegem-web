@@ -21,21 +21,30 @@ interface IDisposable {
     dispose(): void;
 }
 
-interface IPortData {
+interface IPortUIData {
     id: string;
     name: string;
     type: PortType;
     connected: boolean;
 }
 
-interface INodeData {
+interface INodeUIData {
     id: string;
     title: string;
     portData: {
-        flowInputs: IPortData[];
-        flowOutputs: IPortData[];
-        valueInputs: IPortData[];
-        valueOutputs: IPortData[];
+        flowInputs: IPortUIData[];
+        flowOutputs: IPortUIData[];
+        valueInputs: IPortUIData[];
+        valueOutputs: IPortUIData[];
     };
     position?: Vector2;
+}
+
+interface ILinkUIData {
+    sourceNodeId: string;
+    source: HTMLElement;
+    sourceData: IPortUIData;
+    destinationNodeId: string;
+    destination: HTMLElement;
+    destinationData: IPortUIData;
 }

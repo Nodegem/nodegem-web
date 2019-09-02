@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { flowPath, valuePath } from './link-controller';
 import './Link.less';
 
-interface ILinkProps {
+interface IDrawLinkProps {
     visible?: boolean;
     source: Vector2;
     destination: Vector2;
     type: PortType;
 }
 
-export const Link: React.FC<ILinkProps> = ({
+export const DrawLink: React.FC<IDrawLinkProps> = ({
     visible,
     source,
     destination,
@@ -18,26 +19,34 @@ export const Link: React.FC<ILinkProps> = ({
         return null;
     }
 
-    const { x, y } = source;
-    let path = '';
-
-    if (type === 'flow') {
-        const hx1 = y + Math.abs(destination.y - y) * 0.5;
-        const hx2 = destination.y - Math.abs(destination.y - y) * 0.5;
-        path = `M ${x} ${y} C ${hx1} ${y} ${hx2} ${destination.y} ${
-            destination.x
-        } ${destination.y}`;
-    } else if (type === 'value') {
-        const hx1 = x + Math.abs(destination.x - x) * 0.5;
-        const hx2 = destination.x - Math.abs(destination.x - x) * 0.5;
-        path = `M ${x} ${y} C ${hx1} ${y} ${hx2} ${destination.y} ${
-            destination.x
-        } ${destination.y}`;
-    }
+    const path =
+        type === 'flow'
+            ? flowPath(source, destination)
+            : valuePath(source, destination);
 
     return (
         <svg className="link">
             <path d={path} />
+        </svg>
+    );
+};
+
+interface ILinkProps {
+    visible: boolean;
+    getRef: (element: SVGPathElement) => void;
+}
+
+export const Link: React.FC<ILinkProps> = ({ visible, getRef }) => {
+    const ref = useRef<SVGPathElement>(null);
+
+    useEffect(() => {
+        if (getRef) {
+            getRef(ref.current!);
+        }
+    }, [getRef]);
+    return (
+        <svg className="link">
+            <path ref={ref} />
         </svg>
     );
 };

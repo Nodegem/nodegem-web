@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import './Port.less';
 
 interface ISocketProps {
-    data: IPortData;
+    data: IPortUIData;
     onPortEvent?: (
         event: PortEvent,
         element: HTMLElement,
-        data: IPortData
+        data: IPortUIData
     ) => void;
 }
 

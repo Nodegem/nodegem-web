@@ -46,6 +46,7 @@ class Moveable implements IDisposable {
     constructor(
         private element: HTMLElement,
         private canvasContainer: CanvasController,
+        private onMove?: (pos: Vector2) => void,
         transformOrigin: Vector2 = { x: 0.5, y: 0.5 }
     ) {
         element.addEventListener('mousedown', this.handleMouseDown);
@@ -65,6 +66,10 @@ class Moveable implements IDisposable {
         const { scale } = this.canvasContainer;
         this.element.style.transform = `translate(${x -
             offset.x / scale}px, ${y - offset.y / scale}px)`;
+
+        if (this.onMove) {
+            this.onMove(this.position);
+        }
     }
 
     private getCoords(event: MouseEvent | TouchEvent): Vector2 {

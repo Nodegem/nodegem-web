@@ -31,7 +31,7 @@ const nodeDragStyle = (
     };
 };
 
-export const fakeNodeData: INodeData[] = [
+export const fakeNodeData: INodeUIData[] = [
     {
         id: 'test',
         portData: {
@@ -76,11 +76,13 @@ export const SandboxView = observer(() => {
         activeTab,
         toggleNodeSelect,
         nodeSelectClosed,
-        nodeControllers,
+        nodes: nodeControllers,
         toggleNodeInfo,
         nodeInfoClosed,
         link,
+        links,
         sandboxManager,
+        linksVisible,
     } = sandboxStore;
 
     useEffect(() => {
@@ -147,8 +149,10 @@ export const SandboxView = observer(() => {
                     </VerticalCollapsible>
                     <SandboxCanvas
                         link={link}
+                        links={links}
                         sandboxManager={sandboxManager}
                         nodes={nodeControllers}
+                        visibleLinks={linksVisible}
                     />
                     <VerticalCollapsible
                         onTabClick={toggleNodeInfo}

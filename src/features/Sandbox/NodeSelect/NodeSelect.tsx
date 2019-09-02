@@ -18,7 +18,7 @@ const DraggableNode = ({
     index,
     dragStyle,
 }: {
-    node: INodeData;
+    node: INodeUIData;
     index: number;
     dragStyle?: (
         style: DraggingStyle | NotDraggingStyle | undefined,
@@ -73,7 +73,7 @@ const NodeList = React.memo<any>(function NodeListHelper({
 });
 
 interface INodeSelectProps {
-    nodes: INodeData[];
+    nodes: INodeUIData[];
     dragStyle?: (
         style: DraggingStyle | NotDraggingStyle | undefined,
         snapshot: DraggableStateSnapshot

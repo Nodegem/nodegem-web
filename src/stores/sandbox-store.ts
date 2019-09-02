@@ -1,4 +1,5 @@
 import DrawLinkController from 'features/Sandbox/Link/draw-link-controller';
+import LinkController from 'features/Sandbox/Link/link-controller';
 import NodeController from 'features/Sandbox/Node/node-controller';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
 import { action, computed, observable, runInAction } from 'mobx';
@@ -52,7 +53,7 @@ export class SandboxStore implements IDisposable {
         DragEndProps
     > = new SimpleObservable();
 
-    public drawLinkController: DrawLinkController;
+    private _drawLinkController: DrawLinkController;
 
     @observable
     public link?: { source: Vector2; destination: Vector2; type: PortType };
@@ -69,8 +70,13 @@ export class SandboxStore implements IDisposable {
     }
 
     @computed
-    public get nodeControllers(): NodeController[] {
+    public get nodes(): NodeController[] {
         return this.sandboxManager.nodes;
+    }
+
+    @computed
+    public get links(): LinkController[] {
+        return this.sandboxManager.links;
     }
 
     @observable
@@ -79,12 +85,16 @@ export class SandboxStore implements IDisposable {
     @observable
     public nodeInfoClosed: boolean = true;
 
+    @observable
+    public linksVisible: boolean = true;
+
     constructor() {
-        this.drawLinkController = new DrawLinkController(
+        this._drawLinkController = new DrawLinkController(
             source => {
                 const { x, y } = this.sandboxManager.convertCoordinates(
                     getCenterCoordinates(source.element)
                 );
+
                 this.link = {
                     source: { x, y },
                     destination: this.sandboxManager.mousePos,
@@ -101,6 +111,11 @@ export class SandboxStore implements IDisposable {
                 };
             },
             (s, d) => {
+                if (s && d) {
+                    this.sandboxManager.addLink(s, d);
+                } else if (s) {
+                    s.data.connected = false;
+                }
                 this.link = undefined;
             }
         );
@@ -120,7 +135,7 @@ export class SandboxStore implements IDisposable {
                 this.sandboxManager.resetView();
                 break;
             case 27:
-                this.drawLinkController.stopDrawing();
+                this._drawLinkController.stopDrawing();
                 break;
         }
     };
@@ -136,6 +151,11 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
+    public toggleLinkVisibility = () => {
+        this.linksVisible = !this.linksVisible;
+    };
+
+    @action
     public loadDefinitions = (graphId: string, type: GraphType) => {
         return NodeService.getAllNodeDefinitions(graphId, type);
     };
@@ -144,9 +164,10 @@ export class SandboxStore implements IDisposable {
     public onPortEvent = (
         event: PortEvent,
         element: HTMLDivElement,
-        data: IPortData
+        data: IPortUIData,
+        node: NodeController
     ) => {
-        this.drawLinkController.toggleDraw(event, element, data);
+        this._drawLinkController.toggleDraw(event, element, data, node);
     };
 
     @action
@@ -157,7 +178,7 @@ export class SandboxStore implements IDisposable {
     @action
     public loadNodes = (nodes: NodeData[]) => {
         this.sandboxManager.load(
-            nodes!.map<INodeData>(x => ({
+            nodes!.map<INodeUIData>(x => ({
                 id: x.id,
                 title: x.fullName,
                 portData: {
@@ -170,7 +191,14 @@ export class SandboxStore implements IDisposable {
                         },
                     ],
                     valueInputs: [],
-                    flowOutputs: [],
+                    flowOutputs: [
+                        {
+                            id: '0',
+                            name: 'test',
+                            type: 'flow',
+                            connected: false,
+                        },
+                    ],
                     valueOutputs: [],
                 },
                 position: x.position,
@@ -213,7 +241,7 @@ export class SandboxStore implements IDisposable {
     };
 
     public dispose(): void {
-        this.drawLinkController.dispose();
+        this._drawLinkController.dispose();
         this.dragEndObservable.clear();
         this.sandboxManager.dispose();
         this.tabs = [];

@@ -1,16 +1,26 @@
 import { action, computed, observable } from 'mobx';
+import LinkController from '../Link/link-controller';
 import NodeController from '../Node/node-controller';
 import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
 import SelectionController from './Canvas/selection-controller';
 
-class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
+class SandboxManager<TNodeData extends INodeUIData = any>
+    implements IDisposable {
     @computed
     public get nodes(): NodeController<TNodeData>[] {
-        return this._nodes;
+        return Array.from(this._nodes.values());
     }
 
     @observable
-    private _nodes: NodeController<TNodeData>[] = [];
+    private _nodes: Map<string, NodeController<TNodeData>> = new Map();
+
+    @observable
+    private _links: Map<string, LinkController> = new Map();
+
+    @computed
+    public get links(): LinkController[] {
+        return Array.from(this._links.values());
+    }
 
     public get mousePos(): Vector2 {
         return this.canvasController.mousePos;
@@ -37,7 +47,8 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
         private onPortEvent: (
             event: PortEvent,
             element: HTMLElement,
-            data: IPortData
+            data: IPortUIData,
+            node: NodeController
         ) => void
     ) {}
 
@@ -77,21 +88,86 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
     };
 
     @action
-    public load(data: TNodeData[]) {
-        this.disposeNodes();
-        this._nodes = data.map(
-            x =>
-                new NodeController(
-                    x,
-                    this.canvasController,
-                    this.handlePortEvent
-                )
+    public addLink = (
+        source: {
+            element: HTMLElement;
+            data: IPortUIData;
+            node: NodeController;
+        },
+        destination: {
+            element: HTMLElement;
+            data: IPortUIData;
+            node: NodeController;
+        }
+    ) => {
+        const linkController = new LinkController(
+            {
+                source: source.element,
+                sourceData: source.data,
+                sourceNodeId: source.node.id,
+                destination: destination.element,
+                destinationData: destination.data,
+                destinationNodeId: destination.node.id,
+            },
+            source.data.type,
+            this.canvasController
         );
+
+        this._links.set(linkController.id, linkController);
+        const sourceNode = this._nodes.get(linkController.sourceNodeId);
+        const destinationNode = this._nodes.get(
+            linkController.destinationNodeId
+        );
+
+        if (sourceNode) {
+            sourceNode.addLink(linkController);
+        }
+
+        if (destinationNode) {
+            destinationNode.addLink(linkController);
+        }
+    };
+
+    @action
+    public removeLink = (sourceId: string, destinationId: string) => {
+        // this._links = this._links.filter(
+        //     x =>
+        //         x.sourceData.id !== sourceId &&
+        //         x.destinationData.id !== destinationId
+        // );
+    };
+
+    @action
+    public clearLinks = () => {
+        this._links.forEach(l => l.dispose());
+        this._links.clear();
+    };
+
+    @action
+    public load(data: TNodeData[]) {
+        this.clearNodes();
+        for (const node of data) {
+            this._nodes.set(
+                node.id,
+                new NodeController(
+                    node,
+                    this.canvasController,
+                    this.handlePortEvent,
+                    this.onNodeMove
+                )
+            );
+        }
     }
 
+    @action
+    public onNodeMove = (node: NodeController) => {
+        node.updateLinks();
+    };
+
+    @action
     public clearView() {
-        this.disposeNodes();
-        this._nodes = [];
+        this.clearNodes();
+        this.clearLinks();
     }
 
     private handleSelection = (bounds: Bounds) => {
@@ -101,9 +177,10 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
     private handlePortEvent = (
         event: PortEvent,
         element: HTMLElement,
-        data: IPortData
+        data: IPortUIData,
+        node: NodeController
     ) => {
-        this.onPortEvent(event, element, data);
+        this.onPortEvent(event, element, data, node);
     };
 
     private handleMouseDown = (event: MouseEvent) => {
@@ -119,18 +196,20 @@ class SandboxManager<TNodeData extends INodeData = any> implements IDisposable {
         }
     };
 
+    @action
     public resetView() {
         this.canvasController.reset();
     }
 
-    private disposeNodes() {
-        for (const node of this._nodes) {
-            node.dispose();
-        }
+    @action
+    public clearNodes() {
+        this._nodes.forEach(n => n.dispose());
+        this._nodes.clear();
     }
 
     public dispose(): void {
-        this.disposeNodes();
+        this.clearNodes();
+        this.clearLinks();
         this.canvasController.dispose();
         this.selectController.dispose();
         this._canvasElement.parentElement!.removeEventListener(
