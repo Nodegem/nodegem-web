@@ -1,4 +1,4 @@
-import { isTouchEvent } from 'utils';
+import { isInput, isTouchEvent } from 'utils';
 
 export type ZoomEvent = (
     delta: number,
@@ -77,6 +77,10 @@ class ZoomController implements IDisposable {
     };
 
     public handleDblClick = (e: MouseEvent) => {
+        if (isInput(e.target as Element)) {
+            return;
+        }
+
         e.preventDefault();
 
         const rect = this.viewContainer.getBoundingClientRect();

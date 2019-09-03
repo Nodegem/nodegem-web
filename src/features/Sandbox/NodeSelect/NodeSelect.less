@@ -1,7 +1,32 @@
+.node-select-container {
+    background-color: #3d4c5c;
+}
+
+.node-select-drop-container {
+    padding: 10px 0;
+    width: 100%;
+    overflow: auto;
+    height: calc(100vh - 152px);
+    max-height: calc(100vh - 152px);
+}
+
 .node-select {
+    margin-bottom: 10px;
+    width: 100%;
     display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 10px;
+    justify-content: center;
+
+    .node-container {
+        width: 160px;
+    }
+}
+
+.filter {
+    input {
+        padding: 10px;
+        background-color: #26303c;
+        height: 50px;
+        border: none;
+        border-radius: 0;
+    }
 }

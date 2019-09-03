@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+    DragDropContext,
     Draggable,
     DraggableStateSnapshot,
     DraggingStyle,
@@ -157,46 +158,52 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
     }
 
     return (
-        <Row className="tabs-container">
-            <Col span={22}>
-                <Droppable droppableId={tabListId} direction="horizontal">
-                    {(provided, snapshot) => (
-                        <div
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}
-                            className={classnames({
-                                'tab-list': true,
-                                'dragging-over': snapshot.isDraggingOver,
-                            })}
-                        >
-                            <DraggableTabList
-                                tabs={tabs.map((x: ITab) => ({
-                                    id: x.id,
-                                    name: x.name,
-                                    data: x.data,
-                                    isActive: activeTab === x.id,
-                                    onClick,
-                                    tabTemplate,
-                                }))}
-                            />
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
-            </Col>
-            <Col span={2}>
-                <div className="tab-controls">
-                    {tabControls}
-                    <Button
-                        type="dashed"
-                        size="large"
-                        ghost
-                        icon="plus"
-                        style={{ width: '45px' }}
-                        onClick={onTabAdd}
-                    />
-                </div>
-            </Col>
-        </Row>
+        <DragDropContext
+            onDragEnd={(result, provided) =>
+                dragEndObservable.execute({ result, provided })
+            }
+        >
+            <Row className="tabs-container">
+                <Col span={22}>
+                    <Droppable droppableId={tabListId} direction="horizontal">
+                        {(provided, snapshot) => (
+                            <div
+                                ref={provided.innerRef}
+                                {...provided.droppableProps}
+                                className={classnames({
+                                    'tab-list': true,
+                                    'dragging-over': snapshot.isDraggingOver,
+                                })}
+                            >
+                                <DraggableTabList
+                                    tabs={tabs.map((x: ITab) => ({
+                                        id: x.id,
+                                        name: x.name,
+                                        data: x.data,
+                                        isActive: activeTab === x.id,
+                                        onClick,
+                                        tabTemplate,
+                                    }))}
+                                />
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                </Col>
+                <Col span={2}>
+                    <div className="tab-controls">
+                        {tabControls}
+                        <Button
+                            type="dashed"
+                            size="large"
+                            ghost
+                            icon="plus"
+                            style={{ width: '45px' }}
+                            onClick={onTabAdd}
+                        />
+                    </div>
+                </Col>
+            </Row>
+        </DragDropContext>
     );
 };

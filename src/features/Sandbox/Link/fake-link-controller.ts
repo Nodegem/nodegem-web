@@ -36,6 +36,8 @@ export default class FakeLinkController implements IDisposable {
     };
 
     public dispose(): void {
-        this.element.remove();
+        if (this.element) {
+            this.element.remove();
+        }
     }
 }

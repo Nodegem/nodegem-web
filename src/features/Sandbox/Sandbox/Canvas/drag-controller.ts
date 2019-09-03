@@ -1,4 +1,4 @@
-import { isTouchEvent } from 'utils';
+import { isInput, isTouchEvent } from 'utils';
 
 export type DragStartEvent = (e: MouseEvent) => void;
 export type DragTranslateEvent = (delta: Vector2, e: MouseEvent) => void;
@@ -34,7 +34,10 @@ class DragController implements IDisposable {
     }
 
     private handleDown = (event: MouseEvent | TouchEvent) => {
-        if (event instanceof MouseEvent && event.which === 3) {
+        if (
+            (event instanceof MouseEvent && event.which === 3) ||
+            isInput(event.target as Element)
+        ) {
             return;
         }
 

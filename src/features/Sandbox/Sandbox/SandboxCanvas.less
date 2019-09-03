@@ -33,3 +33,28 @@
 .select-container {
     border: 1px solid black;
 }
+
+@searchFontColor: lighten(black, 15%);
+
+.search {
+    bottom: 0px;
+    position: absolute;
+    margin: 15px 20px;
+
+    .ant-input-affix-wrapper {
+        > * {
+            color: @searchFontColor !important;
+        }
+    }
+
+    input {
+        border-radius: 30px;
+        background-color: lighten(#3d4c5c, 5%);
+        border: none;
+
+        &::placeholder {
+            font-style: italic;
+            color: @searchFontColor;
+        }
+    }
+}

@@ -9,24 +9,23 @@ import {
 } from 'react-beautiful-dnd';
 import { Node } from '../Node';
 
+import { Icon, Input } from 'antd';
 import './NodeSelect.less';
 
 export const nodeSelectDroppableId = 'nodeSelect';
 
-const DraggableNode = ({
-    node,
-    index,
+const NodeList = React.memo<any>(function NodeListHelper({
+    nodeItems,
     dragStyle,
 }: {
-    node: INodeUIData;
-    index: number;
+    nodeItems: any[];
     dragStyle?: (
         style: DraggingStyle | NotDraggingStyle | undefined,
         snapshot: DraggableStateSnapshot
     ) => React.CSSProperties;
-}) => {
-    return (
-        <Draggable draggableId={node.id} index={index}>
+}) {
+    return nodeItems.map((nodeItem: any, index: number) => (
+        <Draggable key={index} draggableId={nodeItem.id} index={index}>
             {(provided, snapshot) => (
                 <div
                     className={classnames({
@@ -45,30 +44,10 @@ const DraggableNode = ({
                         provided.draggableProps.style
                     }
                 >
-                    <Node data={node} />
+                    <Node data={nodeItem} />
                 </div>
             )}
         </Draggable>
-    );
-};
-
-const NodeList = React.memo<any>(function NodeListHelper({
-    nodeItems,
-    dragStyle,
-}: {
-    nodeItems: any[];
-    dragStyle?: (
-        style: DraggingStyle | NotDraggingStyle | undefined,
-        snapshot: DraggableStateSnapshot
-    ) => React.CSSProperties;
-}) {
-    return nodeItems.map((nodeItem: any, index: number) => (
-        <DraggableNode
-            dragStyle={dragStyle}
-            node={nodeItem}
-            index={index}
-            key={index}
-        />
     ));
 });
 
@@ -82,23 +61,36 @@ interface INodeSelectProps {
 
 export const NodeSelect: React.FC<INodeSelectProps> = props => {
     return (
-        <div className="node-select">
-            <Droppable
-                isDropDisabled={true}
-                direction="vertical"
-                droppableId={nodeSelectDroppableId}
-                ignoreContainerClipping
-            >
-                {(provided, snapshot) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps}>
-                        <NodeList
-                            nodeItems={props.nodes}
-                            dragStyle={props.dragStyle}
-                        />
-                        {provided.placeholder}
-                    </div>
-                )}
-            </Droppable>
-        </div>
+        <>
+            <div className="node-select-container">
+                <Droppable
+                    isDropDisabled={true}
+                    direction="vertical"
+                    droppableId={nodeSelectDroppableId}
+                    ignoreContainerClipping
+                >
+                    {(provided, snapshot) => (
+                        <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className="node-select-drop-container"
+                        >
+                            <NodeList
+                                nodeItems={props.nodes}
+                                dragStyle={props.dragStyle}
+                            />
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
+            </div>
+            <div className="filter">
+                <Input
+                    prefix={<Icon type="search" />}
+                    allowClear
+                    placeholder="Filter Nodes"
+                />
+            </div>
+        </>
     );
 };

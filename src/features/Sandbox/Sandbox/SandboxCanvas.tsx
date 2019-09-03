@@ -1,6 +1,7 @@
+import { Icon, Input } from 'antd';
 import React, { useEffect, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
-import { DrawLink, Link } from '../Link/Link';
+import { Link } from '../Link/Link';
 import LinkController from '../Link/link-controller';
 import { SandboxNode } from '../Node';
 import NodeController from '../Node/node-controller';
@@ -44,7 +45,9 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                         className="droppable-area"
                         {...provided.droppableProps}
                         style={{ width: '100%', height: '100%' }}
-                    />
+                    >
+                        {provided.placeholder}
+                    </div>
                 )}
             </Droppable>
             <div className="canvas" ref={canvasRef}>
@@ -71,6 +74,13 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                         />
                     ))}
                 </div>
+            </div>
+            <div className="search">
+                <Input
+                    prefix={<Icon type="search" />}
+                    allowClear
+                    placeholder="Search Nodes"
+                />
             </div>
         </div>
     );

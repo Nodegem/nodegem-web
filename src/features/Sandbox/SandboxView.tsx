@@ -35,7 +35,7 @@ const nodeDragStyle = (
 
 export const fakeNodeData: INodeUIData[] = [
     {
-        id: 'test',
+        id: '0',
         portData: {
             flowInputs: [
                 {
@@ -62,6 +62,88 @@ export const fakeNodeData: INodeUIData[] = [
                     connected: false,
                 },
             ],
+        },
+        title: 'A title',
+    },
+    {
+        id: '1',
+        portData: {
+            flowInputs: [
+                {
+                    id: '1',
+                    name: '',
+                    type: 'flow',
+                    connected: false,
+                },
+            ],
+            flowOutputs: [],
+            valueInputs: [
+                {
+                    id: '2',
+                    name: '',
+                    type: 'value',
+                    connected: false,
+                },
+            ],
+            valueOutputs: [
+                {
+                    id: '5',
+                    name: '',
+                    type: 'value',
+                    connected: false,
+                },
+            ],
+        },
+        title: 'A title',
+    },
+    {
+        id: '2',
+        portData: {
+            flowInputs: [
+                {
+                    id: '1',
+                    name: '',
+                    type: 'flow',
+                    connected: false,
+                },
+            ],
+            flowOutputs: [],
+            valueInputs: [],
+            valueOutputs: [],
+        },
+        title: 'A title',
+    },
+    {
+        id: '3',
+        portData: {
+            flowInputs: [
+                {
+                    id: '1',
+                    name: '',
+                    type: 'flow',
+                    connected: false,
+                },
+            ],
+            flowOutputs: [],
+            valueInputs: [],
+            valueOutputs: [],
+        },
+        title: 'A title',
+    },
+    {
+        id: '4',
+        portData: {
+            flowInputs: [
+                {
+                    id: '1',
+                    name: '',
+                    type: 'flow',
+                    connected: false,
+                },
+            ],
+            flowOutputs: [],
+            valueInputs: [],
+            valueOutputs: [],
         },
         title: 'A title',
     },
@@ -124,23 +206,23 @@ export const SandboxView = observer(() => {
 
     return (
         <div className="sandbox-view-container">
+            <DraggableTabs
+                tabs={tabs.map(t => ({
+                    id: t.graph.id!,
+                    name: t.graph.name!,
+                    data: t,
+                }))}
+                activeTab={(activeTab && activeTab.graph.id) || '0'}
+                onTabReorder={handleTabReorder}
+                dragEndObservable={dragEndObservable}
+                onTabAdd={addTab}
+                onTabClick={handleTabClick}
+            />
             <DragDropContext
                 onDragEnd={(result, provided) =>
                     dragEndObservable.execute({ result, provided })
                 }
             >
-                <DraggableTabs
-                    tabs={tabs.map(t => ({
-                        id: t.graph.id!,
-                        name: t.graph.name!,
-                        data: t,
-                    }))}
-                    activeTab={(activeTab && activeTab.graph.id) || '0'}
-                    onTabReorder={handleTabReorder}
-                    dragEndObservable={dragEndObservable}
-                    onTabAdd={addTab}
-                    onTabClick={handleTabClick}
-                />
                 <div className="tab-content">
                     <VerticalCollapsible
                         width="300px"
