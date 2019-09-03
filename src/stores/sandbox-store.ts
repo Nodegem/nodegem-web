@@ -1,4 +1,5 @@
 import DrawLinkController from 'features/Sandbox/Link/draw-link-controller';
+import FakeLinkController from 'features/Sandbox/Link/fake-link-controller';
 import LinkController from 'features/Sandbox/Link/link-controller';
 import NodeController from 'features/Sandbox/Node/node-controller';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
@@ -55,8 +56,10 @@ export class SandboxStore implements IDisposable {
 
     private _drawLinkController: DrawLinkController;
 
+    public fakeLink: FakeLinkController;
+
     @observable
-    public link?: { source: Vector2; destination: Vector2; type: PortType };
+    public isDrawing: boolean = false;
 
     @observable
     public sandboxManager: SandboxManager;
@@ -91,24 +94,19 @@ export class SandboxStore implements IDisposable {
     constructor() {
         this._drawLinkController = new DrawLinkController(
             source => {
-                const { x, y } = this.sandboxManager.convertCoordinates(
+                const start = this.sandboxManager.convertCoordinates(
                     getCenterCoordinates(source.element)
                 );
 
-                this.link = {
-                    source: { x, y },
-                    destination: this.sandboxManager.mousePos,
-                    type: source.data.type,
-                };
+                console.log(source.element, start);
+
+                this.isDrawing = true;
+                this.fakeLink.begin(start, source.data.type);
 
                 source.data.connected = true;
             },
             () => {
-                this.link = {
-                    source: this.link!.source,
-                    destination: this.sandboxManager.mousePos,
-                    type: this.link!.type,
-                };
+                this.fakeLink.update(this.sandboxManager.mousePos);
             },
             (s, d) => {
                 if (s && d) {
@@ -116,7 +114,9 @@ export class SandboxStore implements IDisposable {
                 } else if (s) {
                     s.data.connected = false;
                 }
-                this.link = undefined;
+
+                this.fakeLink.stop();
+                this.isDrawing = false;
             }
         );
 
@@ -124,6 +124,8 @@ export class SandboxStore implements IDisposable {
             this.onSelection,
             this.onPortEvent
         );
+
+        this.fakeLink = new FakeLinkController();
 
         window.addEventListener('keyup', this.handleKeyPress);
     }
@@ -241,6 +243,7 @@ export class SandboxStore implements IDisposable {
     };
 
     public dispose(): void {
+        this.fakeLink.dispose();
         this._drawLinkController.dispose();
         this.dragEndObservable.clear();
         this.sandboxManager.dispose();

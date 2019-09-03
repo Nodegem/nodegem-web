@@ -23,7 +23,7 @@ class SandboxManager<TNodeData extends INodeUIData = any>
     }
 
     public get mousePos(): Vector2 {
-        return this.canvasController.mousePos;
+        return this._canvasController.mousePos;
     }
 
     private _hasBeenInitialized = false;
@@ -37,8 +37,12 @@ class SandboxManager<TNodeData extends INodeUIData = any>
         return this._canvasElement;
     }
 
+    public get canvasController(): CanvasController {
+        return this._canvasController;
+    }
+
     private selectController: SelectionController;
-    private canvasController: CanvasController;
+    private _canvasController: CanvasController;
     private bounds: Dimensions;
     private zoomBounds?: ZoomBounds;
 
@@ -65,13 +69,13 @@ class SandboxManager<TNodeData extends INodeUIData = any>
         this.bounds = bounds;
         this.zoomBounds = zoomBounds;
 
-        this.canvasController = new CanvasController(
+        this._canvasController = new CanvasController(
             element,
             this.bounds,
             this.zoomBounds
         );
         this.selectController = new SelectionController(
-            this.canvasController,
+            this._canvasController,
             this.handleSelection
         );
 
@@ -84,7 +88,31 @@ class SandboxManager<TNodeData extends INodeUIData = any>
     }
 
     public convertCoordinates = (coords: Vector2) => {
-        return this.canvasController.convertCoordinates(coords);
+        return this._canvasController.convertCoordinates(coords);
+    };
+
+    @action
+    public addNode = (node: TNodeData, id: string, position?: Vector2) => {
+        node.id = id;
+
+        if (position) {
+            node.position = position;
+        }
+
+        this._nodes.set(
+            id,
+            new NodeController(
+                node,
+                this._canvasController,
+                this.handlePortEvent,
+                this.onNodeMove
+            )
+        );
+    };
+
+    @action
+    public removeNode = (nodeId: string) => {
+        this._nodes.delete(nodeId);
     };
 
     @action
@@ -110,7 +138,7 @@ class SandboxManager<TNodeData extends INodeUIData = any>
                 destinationNodeId: destination.node.id,
             },
             source.data.type,
-            this.canvasController
+            this._canvasController
         );
 
         this._links.set(linkController.id, linkController);
@@ -129,12 +157,8 @@ class SandboxManager<TNodeData extends INodeUIData = any>
     };
 
     @action
-    public removeLink = (sourceId: string, destinationId: string) => {
-        // this._links = this._links.filter(
-        //     x =>
-        //         x.sourceData.id !== sourceId &&
-        //         x.destinationData.id !== destinationId
-        // );
+    public removeLink = (linkId: string) => {
+        this._links.delete(linkId);
     };
 
     @action
@@ -147,15 +171,7 @@ class SandboxManager<TNodeData extends INodeUIData = any>
     public load(data: TNodeData[]) {
         this.clearView();
         for (const node of data) {
-            this._nodes.set(
-                node.id,
-                new NodeController(
-                    node,
-                    this.canvasController,
-                    this.handlePortEvent,
-                    this.onNodeMove
-                )
-            );
+            this.addNode(node, node.id, node.position);
         }
     }
 
@@ -185,20 +201,20 @@ class SandboxManager<TNodeData extends INodeUIData = any>
 
     private handleMouseDown = (event: MouseEvent) => {
         if (event.ctrlKey) {
-            this.canvasController.disableDrag();
-            this.selectController.startSelect(this.canvasController.mousePos);
+            this._canvasController.disableDrag();
+            this.selectController.startSelect(this._canvasController.mousePos);
         }
     };
 
     private handleMouseUp = (event: MouseEvent) => {
         if (this.selectController.selecting) {
-            this.selectController.stopSelect(this.canvasController.mousePos);
+            this.selectController.stopSelect(this._canvasController.mousePos);
         }
     };
 
     @action
     public resetView() {
-        this.canvasController.reset();
+        this._canvasController.reset();
     }
 
     @action
@@ -210,7 +226,7 @@ class SandboxManager<TNodeData extends INodeUIData = any>
     public dispose(): void {
         this.clearNodes();
         this.clearLinks();
-        this.canvasController.dispose();
+        this._canvasController.dispose();
         this.selectController.dispose();
         this._canvasElement.parentElement!.removeEventListener(
             'mousedown',

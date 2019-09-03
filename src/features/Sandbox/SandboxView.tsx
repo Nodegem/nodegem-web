@@ -1,5 +1,7 @@
 import { DraggableTabs } from 'components/DraggableTabs';
 import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
+import _ from 'lodash';
+import { uuid } from 'lodash-uuid';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect } from 'react';
 import {
@@ -76,13 +78,14 @@ export const SandboxView = observer(() => {
         activeTab,
         toggleNodeSelect,
         nodeSelectClosed,
-        nodes: nodeControllers,
+        nodes,
         toggleNodeInfo,
         nodeInfoClosed,
-        link,
+        fakeLink,
         links,
         sandboxManager,
         linksVisible,
+        isDrawing,
     } = sandboxStore;
 
     useEffect(() => {
@@ -93,7 +96,7 @@ export const SandboxView = observer(() => {
         };
     }, [sandboxStore]);
 
-    function onDragEnd({ result, provided }: DragEndProps) {
+    function onDragEnd({ result }: DragEndProps) {
         if (!result.destination) {
             return;
         }
@@ -102,8 +105,12 @@ export const SandboxView = observer(() => {
             result.source.droppableId === nodeSelectDroppableId &&
             result.destination.droppableId === sandboxDroppableId
         ) {
-            console.log('Adding node');
-            return;
+            const nodeData = fakeNodeData[result.source.index];
+            sandboxManager.addNode(
+                _.cloneDeep(nodeData),
+                uuid(),
+                sandboxManager.mousePos
+            );
         }
     }
 
@@ -148,10 +155,11 @@ export const SandboxView = observer(() => {
                         />
                     </VerticalCollapsible>
                     <SandboxCanvas
-                        link={link}
+                        getDrawLinkRef={fakeLink.getElementRef}
+                        isDrawing={isDrawing}
                         links={links}
                         sandboxManager={sandboxManager}
-                        nodes={nodeControllers}
+                        nodes={nodes}
                         visibleLinks={linksVisible}
                     />
                     <VerticalCollapsible

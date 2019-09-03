@@ -2,19 +2,19 @@ import { getCenterCoordinates } from 'utils';
 import CanvasController from '../Sandbox/Canvas/canvas-controller';
 
 export const flowPath = (source: Vector2, destination: Vector2) => {
-    const hx1 = source.y + Math.abs(destination.y - source.y) * 0.5;
-    const hx2 = destination.y - Math.abs(destination.y - source.y) * 0.5;
-    return `M ${source.x} ${source.y} C ${hx1} ${source.y} ${hx2} ${
-        destination.y
-    } ${destination.x} ${destination.y}`;
+    const s = source.y < destination.y ? source : destination;
+    const d = source.y < destination.y ? destination : source;
+    const hy1 = s.y + Math.abs(d.y - s.y) * 0.5;
+    const hy2 = d.y - Math.abs(d.y - s.y) * 0.5;
+    return `M ${s.x} ${s.y} C ${s.x} ${hy1} ${d.x} ${hy2} ${d.x} ${d.y}`;
 };
 
 export const valuePath = (source: Vector2, destination: Vector2) => {
-    const hx1 = source.y + Math.abs(destination.y - source.y) * 0.5;
-    const hx2 = destination.y - Math.abs(destination.y - source.y) * 0.5;
-    return `M ${source.x} ${source.y} C ${hx1} ${source.y} ${hx2} ${
-        destination.y
-    } ${destination.x} ${destination.y}`;
+    const s = source.x < destination.x ? source : destination;
+    const d = source.x < destination.x ? destination : source;
+    const hx1 = s.x + Math.abs(d.x - s.x) * 0.5;
+    const hx2 = d.x - Math.abs(d.x - s.x) * 0.5;
+    return `M ${s.x} ${s.y} C ${hx1} ${s.y} ${hx2} ${d.y} ${d.x} ${d.y}`;
 };
 
 export default class LinkController<T extends ILinkUIData = any>

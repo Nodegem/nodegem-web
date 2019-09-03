@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
-import { getCenterCoordinates } from 'utils';
 import { DrawLink, Link } from '../Link/Link';
 import LinkController from '../Link/link-controller';
 import { SandboxNode } from '../Node';
@@ -12,18 +11,20 @@ export const sandboxDroppableId = 'sandboxId';
 
 export interface ISandboxProps {
     sandboxManager: SandboxManager;
+    getDrawLinkRef: (element: SVGPathElement) => void;
+    isDrawing: boolean;
     nodes: NodeController[];
     links: LinkController[];
-    link?: { source: Vector2; destination: Vector2; type: PortType };
     size?: { width: number; height: number };
     visibleLinks?: boolean;
 }
 
 export const SandboxCanvas: React.FC<ISandboxProps> = ({
     sandboxManager,
+    getDrawLinkRef,
+    isDrawing,
     nodes = [],
     links = [],
-    link,
     visibleLinks = true,
     size = { width: 12000, height: 12000 },
 }: ISandboxProps) => {
@@ -51,17 +52,12 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                     {links.map(l => (
                         <Link
                             key={l.id}
-                            visible={true}
+                            visible={visibleLinks}
                             getRef={l.getElementRef}
                         />
                     ))}
-                    {link && (
-                        <DrawLink
-                            visible={true}
-                            source={link.source}
-                            destination={link.destination}
-                            type={link.type}
-                        />
+                    {isDrawing && (
+                        <Link visible={true} getRef={getDrawLinkRef} />
                     )}
                 </div>
                 <div className="nodes">
@@ -71,6 +67,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                             getRef={n.getElementRef}
                             onPortEvent={n.onPortEvent}
                             data={n.nodeData}
+                            removeNode={sandboxManager.removeNode}
                         />
                     ))}
                 </div>

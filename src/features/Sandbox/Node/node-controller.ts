@@ -51,11 +51,9 @@ class NodeController<TNode extends INodeUIData = any> implements IDisposable {
         this.moveable = new Moveable(
             element,
             this.canvasContainer,
-            () => this.onMove && this.onMove(this)
+            () => this.onMove && this.onMove(this),
+            this._nodeData.position
         );
-        if (this._nodeData.position) {
-            this.moveable.position = this._nodeData.position;
-        }
     };
 
     public addLink = (link: LinkController) => {

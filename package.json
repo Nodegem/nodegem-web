@@ -12,6 +12,7 @@
         "localforage": "^1.7.2",
         "lodash": "^4.17.14",
         "lodash-uuid": "^0.0.3",
+        "lodash.clonedeep": "^4.5.0",
         "lodash.throttle": "^4.1.1",
         "mobx": "5.13.0",
         "mobx-react": "^6.1.3",

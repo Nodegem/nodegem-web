@@ -14,14 +14,27 @@ import { reorder, SimpleObservable } from 'utils';
 import './DraggableTabs.less';
 
 interface IDraggableTabPaneProps {
-    tabStyle?: (
-        draggableStyle: DraggingStyle | NotDraggingStyle | undefined,
-        snapshot: DraggableStateSnapshot
-    ) => React.CSSProperties;
     tabId: string;
     name: string;
     tabTemplate?: JSX.Element;
 }
+
+const tabListId = 'tabList';
+
+const tabDragStyle = (
+    style: DraggingStyle | NotDraggingStyle | undefined,
+    snapshot: DraggableStateSnapshot
+): React.CSSProperties => {
+    if (snapshot.draggingOver === tabListId || !snapshot.isDropAnimating) {
+        return { ...style };
+    }
+
+    return {
+        ...style,
+        visibility: 'hidden',
+        transitionDuration: '75ms',
+    };
+};
 
 function DraggableTab({
     tabId,
@@ -48,6 +61,10 @@ function DraggableTab({
                         active: isActive,
                         dragging: snapshot.isDragging,
                     })}
+                    style={tabDragStyle(
+                        provided.draggableProps.style,
+                        snapshot
+                    )}
                 >
                     <div className="tab-container">{tabTemplate || name}</div>
                 </div>
@@ -119,6 +136,10 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
             return;
         }
 
+        if (result.source.droppableId !== result.destination.droppableId) {
+            return;
+        }
+
         const orderedTabs = reorder(
             tabs,
             result.source.index,
@@ -138,7 +159,7 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
     return (
         <Row className="tabs-container">
             <Col span={22}>
-                <Droppable droppableId="tabList" direction="horizontal">
+                <Droppable droppableId={tabListId} direction="horizontal">
                     {(provided, snapshot) => (
                         <div
                             ref={provided.innerRef}

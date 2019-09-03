@@ -2,12 +2,12 @@ import React from 'react';
 
 import { Button, Tooltip } from 'antd';
 import { Socket as Port } from '../Port/Port';
-import NodeController from './node-controller';
 import './Node.less';
 
 interface INodeProps {
     data: INodeUIData;
     showPorts?: boolean;
+    removeNode?: (id: string) => void;
     getRef?: (instance: HTMLDivElement) => void;
     onPortEvent?: (
         event: PortEvent,
@@ -16,25 +16,31 @@ interface INodeProps {
     ) => void;
 }
 
-const ToolbarContents = props => {
+const ToolbarContents: React.FC<IToolbarProps> = ({ nodeData, remove }) => {
     return (
         <span className="toolbar">
-            <Button type="primary" icon="dashboard" />
-            <Button type="primary" icon="dashboard" />
-            <Button type="primary" icon="dashboard" />
-            <Button type="primary" icon="dashboard" />
+            <Button
+                onClick={() => remove(nodeData.id)}
+                type="danger"
+                icon="delete"
+            />
         </span>
     );
 };
 
-const Toolbar = props => {
+interface IToolbarProps {
+    nodeData: INodeUIData;
+    remove: (id: string) => void;
+}
+
+const Toolbar: React.FC<IToolbarProps> = ({ remove, nodeData, children }) => {
     return (
         <Tooltip
             trigger={'contextMenu'}
             className="toolbar-tooltip"
-            title={<ToolbarContents />}
+            title={<ToolbarContents remove={remove} nodeData={nodeData} />}
         >
-            {props.children}
+            {children}
         </Tooltip>
     );
 };
@@ -42,6 +48,7 @@ const Toolbar = props => {
 export const Node: React.FC<INodeProps> = ({
     getRef,
     data,
+    removeNode = () => {},
     showPorts,
     onPortEvent,
     ...rest
@@ -56,7 +63,7 @@ export const Node: React.FC<INodeProps> = ({
     };
 
     return (
-        <Toolbar>
+        <Toolbar remove={removeNode!} nodeData={data}>
             <div ref={attemptRef} className="node-container" {...rest}>
                 <div className="flow flow-inputs">
                     {showPorts &&
