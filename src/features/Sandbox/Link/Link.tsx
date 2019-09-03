@@ -45,7 +45,7 @@ export const Link: React.FC<ILinkProps> = ({ visible, getRef }) => {
         }
     }, [getRef]);
     return (
-        <svg className="link">
+        <svg className="link" style={{ position: 'absolute' }}>
             <path ref={ref} />
         </svg>
     );

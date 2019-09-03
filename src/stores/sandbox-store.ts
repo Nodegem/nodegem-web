@@ -98,8 +98,6 @@ export class SandboxStore implements IDisposable {
                     getCenterCoordinates(source.element)
                 );
 
-                console.log(source.element, start);
-
                 this.isDrawing = true;
                 this.fakeLink.begin(start, source.data.type);
 
