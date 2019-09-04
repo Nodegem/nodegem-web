@@ -7,12 +7,13 @@
 .node-select-drop-container {
     padding: 20px 0;
     width: 100%;
-    overflow: auto;
     height: calc(100vh - 152px);
     max-height: calc(100vh - 152px);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.node-select {
+.draggable-node {
     margin-bottom: 20px;
     width: 100%;
     display: flex;

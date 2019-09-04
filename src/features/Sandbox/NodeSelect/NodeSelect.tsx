@@ -30,7 +30,7 @@ const NodeList = React.memo<any>(function NodeListHelper({
             {(provided, snapshot) => (
                 <div
                     className={classnames({
-                        'node-select': true,
+                        'draggable-node': true,
                         dragging: snapshot.isDragging,
                     })}
                     ref={provided.innerRef}

@@ -17,28 +17,39 @@ export const valuePath = (source: Vector2, destination: Vector2) => {
     return `M ${s.x} ${s.y} C ${hx1} ${s.y} ${hx2} ${d.y} ${d.x} ${d.y}`;
 };
 
-export default class LinkController<T extends ILinkUIData = any>
-    implements IDisposable {
+export default class LinkController implements IDisposable {
     private element: SVGPathElement;
 
     public get id(): string {
-        return `${this._linkData.sourceNodeId}|${
-            this._linkData.sourceData.id
-        }|${this._linkData.destinationNodeId}|${
-            this._linkData.destinationData.id
-        }`;
+        return `${this._linkData.sourceNodeId}|${this._linkData.sourceData.id}|${this._linkData.destinationNodeId}|${this._linkData.destinationData.id}`;
     }
 
     public get sourceNodeId(): string {
         return this._linkData.sourceNodeId;
     }
 
+    public get sourceElement(): HTMLElement {
+        return this._linkData.source;
+    }
+
+    public get sourcePortId(): string {
+        return this._linkData.sourceData.id;
+    }
+
+    public get destinationElement(): HTMLElement {
+        return this._linkData.destination;
+    }
+
     public get destinationNodeId(): string {
         return this._linkData.destinationNodeId;
     }
 
+    public get destinationPortId(): string {
+        return this._linkData.destinationData.id;
+    }
+
     constructor(
-        private _linkData: T,
+        private _linkData: ILinkUIData,
         private type: PortType,
         private canvasController: CanvasController
     ) {
@@ -63,6 +74,56 @@ export default class LinkController<T extends ILinkUIData = any>
                 : valuePath(source, destination);
         this.element.setAttribute('d', path);
     }
+
+    public getSourceData = (element: HTMLElement) => {
+        return element === this.sourceElement
+            ? this._linkData.sourceData
+            : this._linkData.destinationData;
+    };
+
+    public getSourceNodeId = (element: HTMLElement) => {
+        return element === this.sourceElement
+            ? this.sourceNodeId
+            : this.destinationNodeId;
+    };
+
+    public getOppositePortElement = (element: HTMLElement) => {
+        return element === this.sourceElement
+            ? this.destinationElement
+            : this.sourceElement;
+    };
+
+    public getOppositeData = (element: HTMLElement) => {
+        return element === this.sourceElement
+            ? this._linkData.destinationData
+            : this._linkData.sourceData;
+    };
+
+    public getOppositeNodeId = (element: HTMLElement) => {
+        return element === this.sourceElement
+            ? this.destinationNodeId
+            : this.sourceNodeId;
+    };
+
+    public toggleSourcePort = (element: HTMLElement) => {
+        if (element === this.sourceElement) {
+            this._linkData.sourceData.connected = !this._linkData
+                .destinationData.connected;
+        } else {
+            this._linkData.destinationData.connected = !this._linkData
+                .sourceData.connected;
+        }
+    };
+
+    public toggleOppositePort = (element: HTMLElement) => {
+        if (element === this.sourceElement) {
+            this._linkData.destinationData.connected = !this._linkData
+                .destinationData.connected;
+        } else {
+            this._linkData.sourceData.connected = !this._linkData.sourceData
+                .connected;
+        }
+    };
 
     public dispose(): void {
         this._linkData.sourceData.connected = false;

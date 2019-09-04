@@ -10,7 +10,7 @@ export type DrawArgs = {
 class DrawLinkController implements IDisposable {
     private _source?: DrawArgs;
 
-    private throttleEvent;
+    private throttleEvent: ((event: MouseEvent) => void) & _.Cancelable;
 
     public get isDrawing() {
         return !!this._source;
@@ -50,7 +50,7 @@ class DrawLinkController implements IDisposable {
                     this._source &&
                     this._source.element === source
                 ) {
-                    this.onDrawEnd(this._source, undefined);
+                    this.onDrawEnd(this._source, this._source);
                     this.cleanUp();
                     return;
                 }

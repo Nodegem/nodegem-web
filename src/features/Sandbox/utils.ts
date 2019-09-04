@@ -1,5 +1,7 @@
 import { uuid } from 'lodash-uuid';
 
+export const isConnected = (port: IPortUIData) => port.connected;
+
 export const definitionToNode = (
     definition: NodeDefinition,
     position: Vector2 = { x: 0, y: 0 },

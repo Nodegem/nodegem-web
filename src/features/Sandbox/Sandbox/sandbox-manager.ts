@@ -103,6 +103,8 @@ class SandboxManager implements IDisposable {
         );
     };
 
+    public getNode = (nodeId: string) => this._nodes.get(nodeId);
+
     @action
     public removeNode = (nodeId: string) => {
         const node = this._nodes.get(nodeId);
@@ -154,10 +156,32 @@ class SandboxManager implements IDisposable {
         }
     };
 
+    public getLinkByNode = (nodeId: string, portId: string) => {
+        const node = this.getNode(nodeId);
+        if (node) {
+            const link = node.links.find(
+                x => x.sourcePortId === portId || x.destinationPortId === portId
+            );
+            return link;
+        }
+
+        return undefined;
+    };
+
+    public getLink = (linkId: string) => this._links.get(linkId);
+
     @action
     public removeLink = (linkId: string) => {
         const link = this._links.get(linkId);
         if (link) {
+            const sourceNode = this.getNode(link.sourceNodeId);
+            const destinationNode = this.getNode(link.destinationNodeId);
+            if (sourceNode) {
+                sourceNode.removeLink(link);
+            }
+            if (destinationNode) {
+                destinationNode.removeLink(link);
+            }
             link.dispose();
             this._links.delete(linkId);
         }
@@ -198,7 +222,6 @@ class SandboxManager implements IDisposable {
         data: IPortUIData,
         node: NodeController
     ) => {
-        console.log(data);
         this.onPortEvent(event, element, data, node);
     };
 
