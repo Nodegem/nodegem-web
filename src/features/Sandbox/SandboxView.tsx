@@ -14,6 +14,7 @@ import { DragEndProps, TabData, testData, useStore } from 'stores';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
 import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
+import { definitionToNode } from './utils';
 
 const nodeDragStyle = (
     style: DraggingStyle | NotDraggingStyle | undefined,
@@ -33,119 +34,31 @@ const nodeDragStyle = (
     };
 };
 
-export const fakeNodeData: INodeUIData[] = [
+export const fakeDefinitions: NodeDefinition[] = [
     {
-        id: '0',
-        portData: {
-            flowInputs: [
-                {
-                    id: '1',
-                    name: '',
-                    type: 'flow',
-                    connected: false,
-                },
-            ],
-            flowOutputs: [],
-            valueInputs: [
-                {
-                    id: '2',
-                    name: '',
-                    type: 'value',
-                    connected: false,
-                },
-            ],
-            valueOutputs: [
-                {
-                    id: '5',
-                    name: '',
-                    type: 'value',
-                    connected: false,
-                },
-            ],
-        },
-        title: 'A title',
+        description: 'this is a description',
+        title: 'Node 1',
+        fullName: 'a full title',
+        flowInputs: [{ key: '0', label: 'flow-in' }],
+        flowOutputs: [{ key: '0', label: 'flow-out' }],
+        valueInputs: [
+            {
+                key: '0',
+                label: 'value-in',
+                defaultValue: 0,
+                valueType: 0,
+            },
+        ],
+        valueOutputs: [{ key: '0', label: 'value-out' }],
     },
     {
-        id: '1',
-        portData: {
-            flowInputs: [
-                {
-                    id: '1',
-                    name: '',
-                    type: 'flow',
-                    connected: false,
-                },
-            ],
-            flowOutputs: [],
-            valueInputs: [
-                {
-                    id: '2',
-                    name: '',
-                    type: 'value',
-                    connected: false,
-                },
-            ],
-            valueOutputs: [
-                {
-                    id: '5',
-                    name: '',
-                    type: 'value',
-                    connected: false,
-                },
-            ],
-        },
-        title: 'A title',
-    },
-    {
-        id: '2',
-        portData: {
-            flowInputs: [
-                {
-                    id: '1',
-                    name: '',
-                    type: 'flow',
-                    connected: false,
-                },
-            ],
-            flowOutputs: [],
-            valueInputs: [],
-            valueOutputs: [],
-        },
-        title: 'A title',
-    },
-    {
-        id: '3',
-        portData: {
-            flowInputs: [
-                {
-                    id: '1',
-                    name: '',
-                    type: 'flow',
-                    connected: false,
-                },
-            ],
-            flowOutputs: [],
-            valueInputs: [],
-            valueOutputs: [],
-        },
-        title: 'A title',
-    },
-    {
-        id: '4',
-        portData: {
-            flowInputs: [
-                {
-                    id: '1',
-                    name: '',
-                    type: 'flow',
-                    connected: false,
-                },
-            ],
-            flowOutputs: [],
-            valueInputs: [],
-            valueOutputs: [],
-        },
-        title: 'A title',
+        description: 'this is a description',
+        title: 'Node 2',
+        fullName: 'a full title',
+        flowInputs: [{ key: '0', label: 'flow-in' }],
+        flowOutputs: [{ key: '0', label: 'flow-out' }],
+        valueInputs: [],
+        valueOutputs: [{ key: '0', label: 'value-out' }],
     },
 ];
 
@@ -187,11 +100,9 @@ export const SandboxView = observer(() => {
             result.source.droppableId === nodeSelectDroppableId &&
             result.destination.droppableId === sandboxDroppableId
         ) {
-            const nodeData = fakeNodeData[result.source.index];
+            const definition = fakeDefinitions[result.source.index];
             sandboxManager.addNode(
-                _.cloneDeep(nodeData),
-                uuid(),
-                sandboxManager.mousePos
+                definitionToNode(definition, sandboxManager.mousePos)
             );
         }
     }
@@ -233,7 +144,7 @@ export const SandboxView = observer(() => {
                     >
                         <NodeSelect
                             dragStyle={nodeDragStyle}
-                            nodes={fakeNodeData}
+                            definitions={fakeDefinitions}
                         />
                     </VerticalCollapsible>
                     <SandboxCanvas

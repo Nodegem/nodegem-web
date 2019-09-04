@@ -6,7 +6,7 @@ import './Node.less';
 
 interface INodeProps {
     data: INodeUIData;
-    showPorts?: boolean;
+    sandboxMode?: boolean;
     removeNode?: (id: string) => void;
     getRef?: (instance: HTMLDivElement) => void;
     onPortEvent?: (
@@ -29,19 +29,27 @@ const ToolbarContents: React.FC<IToolbarProps> = ({ nodeData, remove }) => {
 };
 
 interface IToolbarProps {
+    sandboxMode?: boolean;
     nodeData: INodeUIData;
     remove: (id: string) => void;
 }
 
-const Toolbar: React.FC<IToolbarProps> = ({ remove, nodeData, children }) => {
-    return (
+const Toolbar: React.FC<IToolbarProps> = ({
+    remove,
+    nodeData,
+    sandboxMode,
+    children,
+}) => {
+    return sandboxMode ? (
         <Tooltip
-            trigger={'contextMenu'}
+            trigger="contextMenu"
             className="toolbar-tooltip"
             title={<ToolbarContents remove={remove} nodeData={nodeData} />}
         >
             {children}
         </Tooltip>
+    ) : (
+        <>{children}</>
     );
 };
 
@@ -49,7 +57,7 @@ export const Node: React.FC<INodeProps> = ({
     getRef,
     data,
     removeNode = () => {},
-    showPorts,
+    sandboxMode,
     onPortEvent,
     ...rest
 }: INodeProps) => {
@@ -63,50 +71,50 @@ export const Node: React.FC<INodeProps> = ({
     };
 
     return (
-        <Toolbar remove={removeNode!} nodeData={data}>
+        <Toolbar remove={removeNode!} nodeData={data} sandboxMode={sandboxMode}>
             <div ref={attemptRef} className="node-container" {...rest}>
                 <div className="flow flow-inputs">
-                    {showPorts &&
-                        flowInputs.map(fi => (
-                            <Port
-                                key={fi.id}
-                                data={fi}
-                                onPortEvent={onPortEvent}
-                            />
-                        ))}
+                    {flowInputs.map(fi => (
+                        <Port
+                            key={fi.id}
+                            data={fi}
+                            onPortEvent={onPortEvent}
+                            sandboxMode={sandboxMode}
+                        />
+                    ))}
                 </div>
                 <div className="inner">
                     <div className="value value-inputs">
-                        {showPorts &&
-                            valueInputs.map(vi => (
-                                <Port
-                                    key={vi.id}
-                                    data={vi}
-                                    onPortEvent={onPortEvent}
-                                />
-                            ))}
+                        {valueInputs.map(vi => (
+                            <Port
+                                key={vi.id}
+                                data={vi}
+                                onPortEvent={onPortEvent}
+                                sandboxMode={sandboxMode}
+                            />
+                        ))}
                     </div>
                     <span className="title">{title}</span>
                     <div className="value value-outputs">
-                        {showPorts &&
-                            valueOutputs.map(vo => (
-                                <Port
-                                    key={vo.id}
-                                    data={vo}
-                                    onPortEvent={onPortEvent}
-                                />
-                            ))}
+                        {valueOutputs.map(vo => (
+                            <Port
+                                key={vo.id}
+                                data={vo}
+                                onPortEvent={onPortEvent}
+                                sandboxMode={sandboxMode}
+                            />
+                        ))}
                     </div>
                 </div>
                 <div className="flow flow-outputs">
-                    {showPorts &&
-                        flowOutputs.map(fo => (
-                            <Port
-                                key={fo.id}
-                                data={fo}
-                                onPortEvent={onPortEvent}
-                            />
-                        ))}
+                    {flowOutputs.map(fo => (
+                        <Port
+                            key={fo.id}
+                            data={fo}
+                            onPortEvent={onPortEvent}
+                            sandboxMode={sandboxMode}
+                        />
+                    ))}
                 </div>
             </div>
         </Toolbar>
@@ -115,5 +123,5 @@ export const Node: React.FC<INodeProps> = ({
 
 export const SandboxNode: React.FC<INodeProps> = props => {
     const style: React.CSSProperties = { position: 'absolute' };
-    return React.cloneElement(<Node {...props} showPorts />, { style });
+    return React.cloneElement(<Node {...props} sandboxMode />, { style });
 };

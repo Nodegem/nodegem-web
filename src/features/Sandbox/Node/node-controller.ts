@@ -1,5 +1,6 @@
 import Moveable from '../interactive/moveable';
 import LinkController from '../Link/link-controller';
+import PortController from '../Port/port-controller';
 import CanvasController from '../Sandbox/Canvas/canvas-controller';
 
 type PortClickEvent = (
@@ -9,7 +10,7 @@ type PortClickEvent = (
     node: NodeController
 ) => void;
 
-class NodeController<TNode extends INodeUIData = any> implements IDisposable {
+class NodeController implements IDisposable {
     public get id(): string {
         return this._nodeData.id;
     }
@@ -18,17 +19,21 @@ class NodeController<TNode extends INodeUIData = any> implements IDisposable {
         return this.moveable.position;
     }
 
-    public get nodeData(): TNode {
+    public get nodeData(): INodeUIData {
         return this._nodeData;
     }
 
-    private links: Map<string, LinkController> = new Map();
+    public get links(): LinkController[] {
+        return Array.from(this._links.values());
+    }
+
+    private _links: Map<string, LinkController> = new Map();
 
     private moveable: Moveable;
     private element: Element;
 
     constructor(
-        private _nodeData: TNode,
+        private _nodeData: INodeUIData,
         private canvasContainer: CanvasController,
         private portEvent: PortClickEvent,
         private onMove?: (node: NodeController) => void
@@ -57,15 +62,15 @@ class NodeController<TNode extends INodeUIData = any> implements IDisposable {
     };
 
     public addLink = (link: LinkController) => {
-        this.links.set(link.id, link);
+        this._links.set(link.id, link);
     };
 
     public removeLink = (link: LinkController) => {
-        this.links.delete(link.id);
+        this._links.delete(link.id);
     };
 
     public updateLinks = () => {
-        this.links.forEach(x => x.update());
+        this._links.forEach(x => x.update());
     };
 
     public onPortEvent = (

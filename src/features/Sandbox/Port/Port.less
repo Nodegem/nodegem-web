@@ -12,21 +12,23 @@
     justify-content: center;
     align-items: center;
 
-    &:hover::after {
-        content: '';
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        border: 1px solid @connectionColor;
-        background-color: @connectionColor;
-    }
+    &.sandbox-mode {
+        &:hover::after {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            border: 1px solid @connectionColor;
+            background-color: @connectionColor;
+        }
 
-    &.connected::after {
-        content: '';
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        border: 1px solid @connectionColor;
-        background-color: @connectionColor;
+        &.connected::after {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            border: 1px solid @connectionColor;
+            background-color: @connectionColor;
+        }
     }
 }

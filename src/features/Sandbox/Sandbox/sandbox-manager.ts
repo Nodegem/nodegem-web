@@ -4,15 +4,14 @@ import NodeController from '../Node/node-controller';
 import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
 import SelectionController from './Canvas/selection-controller';
 
-class SandboxManager<TNodeData extends INodeUIData = any>
-    implements IDisposable {
+class SandboxManager implements IDisposable {
     @computed
-    public get nodes(): NodeController<TNodeData>[] {
+    public get nodes(): NodeController[] {
         return Array.from(this._nodes.values());
     }
 
     @observable
-    private _nodes: Map<string, NodeController<TNodeData>> = new Map();
+    private _nodes: Map<string, NodeController> = new Map();
 
     @observable
     private _links: Map<string, LinkController> = new Map();
@@ -92,15 +91,9 @@ class SandboxManager<TNodeData extends INodeUIData = any>
     };
 
     @action
-    public addNode = (node: TNodeData, id: string, position?: Vector2) => {
-        node.id = id;
-
-        if (position) {
-            node.position = position;
-        }
-
+    public addNode = (node: INodeUIData) => {
         this._nodes.set(
-            id,
+            node.id,
             new NodeController(
                 node,
                 this._canvasController,
@@ -112,7 +105,12 @@ class SandboxManager<TNodeData extends INodeUIData = any>
 
     @action
     public removeNode = (nodeId: string) => {
-        this._nodes.delete(nodeId);
+        const node = this._nodes.get(nodeId);
+        if (node) {
+            node.links.forEach(x => this.removeLink(x.id));
+            node.dispose();
+            this._nodes.delete(nodeId);
+        }
     };
 
     @action
@@ -158,7 +156,11 @@ class SandboxManager<TNodeData extends INodeUIData = any>
 
     @action
     public removeLink = (linkId: string) => {
-        this._links.delete(linkId);
+        const link = this._links.get(linkId);
+        if (link) {
+            link.dispose();
+            this._links.delete(linkId);
+        }
     };
 
     @action
@@ -168,10 +170,10 @@ class SandboxManager<TNodeData extends INodeUIData = any>
     };
 
     @action
-    public load(data: TNodeData[]) {
+    public load(data: INodeUIData[]) {
         this.clearView();
         for (const node of data) {
-            this.addNode(node, node.id, node.position);
+            this.addNode(node);
         }
     }
 
@@ -196,6 +198,7 @@ class SandboxManager<TNodeData extends INodeUIData = any>
         data: IPortUIData,
         node: NodeController
     ) => {
+        console.log(data);
         this.onPortEvent(event, element, data, node);
     };
 

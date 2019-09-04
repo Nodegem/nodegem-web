@@ -10,22 +10,23 @@ import {
 import { Node } from '../Node';
 
 import { Icon, Input } from 'antd';
+import { definitionToNode } from '../utils';
 import './NodeSelect.less';
 
 export const nodeSelectDroppableId = 'nodeSelect';
 
 const NodeList = React.memo<any>(function NodeListHelper({
-    nodeItems,
+    definitions,
     dragStyle,
 }: {
-    nodeItems: any[];
+    definitions: NodeDefinition[];
     dragStyle?: (
         style: DraggingStyle | NotDraggingStyle | undefined,
         snapshot: DraggableStateSnapshot
     ) => React.CSSProperties;
 }) {
-    return nodeItems.map((nodeItem: any, index: number) => (
-        <Draggable key={index} draggableId={nodeItem.id} index={index}>
+    return definitions.map((definition: NodeDefinition, index: number) => (
+        <Draggable key={index} draggableId={`${index}`} index={index}>
             {(provided, snapshot) => (
                 <div
                     className={classnames({
@@ -44,7 +45,7 @@ const NodeList = React.memo<any>(function NodeListHelper({
                         provided.draggableProps.style
                     }
                 >
-                    <Node data={nodeItem} />
+                    <Node data={definitionToNode(definition)} />
                 </div>
             )}
         </Draggable>
@@ -52,14 +53,17 @@ const NodeList = React.memo<any>(function NodeListHelper({
 });
 
 interface INodeSelectProps {
-    nodes: INodeUIData[];
+    definitions: NodeDefinition[];
     dragStyle?: (
         style: DraggingStyle | NotDraggingStyle | undefined,
         snapshot: DraggableStateSnapshot
     ) => React.CSSProperties;
 }
 
-export const NodeSelect: React.FC<INodeSelectProps> = props => {
+export const NodeSelect: React.FC<INodeSelectProps> = ({
+    definitions,
+    dragStyle,
+}) => {
     return (
         <>
             <div className="node-select-container">
@@ -76,8 +80,8 @@ export const NodeSelect: React.FC<INodeSelectProps> = props => {
                             className="node-select-drop-container"
                         >
                             <NodeList
-                                nodeItems={props.nodes}
-                                dragStyle={props.dragStyle}
+                                definitions={definitions}
+                                dragStyle={dragStyle}
                             />
                             {provided.placeholder}
                         </div>

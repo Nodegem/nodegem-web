@@ -16,6 +16,7 @@ type Bounds = {
 
 type PortEvent = 'up' | 'down';
 type PortType = 'value' | 'flow';
+type PortIOType = 'input' | 'output';
 
 interface IDisposable {
     dispose(): void;
@@ -25,6 +26,7 @@ interface IPortUIData {
     id: string;
     name: string;
     type: PortType;
+    io: PortIOType;
     connected: boolean;
 }
 
