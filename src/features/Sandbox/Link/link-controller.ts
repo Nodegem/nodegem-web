@@ -48,9 +48,13 @@ export default class LinkController implements IDisposable {
         return this._linkData.destinationData.id;
     }
 
+    public get type(): PortType {
+        return this._type;
+    }
+
     constructor(
         private _linkData: ILinkUIData,
-        private type: PortType,
+        private _type: PortType,
         private canvasController: CanvasController
     ) {
         this._linkData.sourceData.connected = true;
@@ -69,7 +73,7 @@ export default class LinkController implements IDisposable {
         const source = this.convert(this._linkData.source);
         const destination = this.convert(this._linkData.destination);
         const path =
-            this.type === 'flow'
+            this._type === 'flow'
                 ? flowPath(source, destination)
                 : valuePath(source, destination);
         this.element.setAttribute('d', path);
@@ -115,7 +119,7 @@ export default class LinkController implements IDisposable {
         }
     };
 
-    public toggleOppositePort = (element: HTMLElement) => {
+    public toggleConnectedOppositePort = (element: HTMLElement) => {
         if (element === this.sourceElement) {
             this._linkData.destinationData.connected = !this._linkData
                 .destinationData.connected;
@@ -125,9 +129,25 @@ export default class LinkController implements IDisposable {
         }
     };
 
-    public dispose(): void {
+    public toggleConnectingOppositePort = (element: HTMLElement) => {
+        if (element === this.sourceElement) {
+            this._linkData.destinationData.connecting = !this._linkData
+                .destinationData.connecting;
+        } else {
+            this._linkData.sourceData.connecting = !this._linkData.sourceData
+                .connecting;
+        }
+    };
+
+    public disconnect = () => {
+        this._linkData.sourceData.connecting = false;
+        this._linkData.destinationData.connecting = false;
         this._linkData.sourceData.connected = false;
         this._linkData.destinationData.connected = false;
+    };
+
+    public dispose(): void {
+        this.disconnect();
         this.element.remove();
     }
 }

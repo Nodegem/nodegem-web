@@ -14,6 +14,7 @@ export interface ISandboxProps {
     sandboxManager: SandboxManager;
     getDrawLinkRef: (element: SVGPathElement) => void;
     isDrawing: boolean;
+    linkType?: PortType;
     nodes: NodeController[];
     links: LinkController[];
     size?: { width: number; height: number };
@@ -24,6 +25,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
     sandboxManager,
     getDrawLinkRef,
     isDrawing,
+    linkType,
     nodes = [],
     links = [],
     visibleLinks = true,
@@ -55,13 +57,16 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                     {links.map(l => (
                         <Link
                             key={l.id}
+                            type={l.type}
                             visible={visibleLinks}
                             getRef={l.getElementRef}
                         />
                     ))}
-                    {isDrawing && (
-                        <Link visible={true} getRef={getDrawLinkRef} />
-                    )}
+                    <Link
+                        visible={isDrawing}
+                        type={linkType!}
+                        getRef={getDrawLinkRef}
+                    />
                 </div>
                 <div className="nodes">
                     {nodes.map(n => (

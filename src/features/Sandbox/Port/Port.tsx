@@ -69,6 +69,7 @@ export const Socket: React.FC<ISocketProps> = ({
                 className={classNames({
                     port: true,
                     'sandbox-mode': sandboxMode,
+                    connecting: data.connecting,
                     connected: data.connected,
                 })}
             />

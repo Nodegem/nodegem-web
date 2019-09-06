@@ -1,42 +1,14 @@
+import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
-import { flowPath, valuePath } from './link-controller';
 import './Link.less';
-
-interface IDrawLinkProps {
-    visible?: boolean;
-    source: Vector2;
-    destination: Vector2;
-    type: PortType;
-}
-
-export const DrawLink: React.FC<IDrawLinkProps> = ({
-    visible,
-    source,
-    destination,
-    type,
-}) => {
-    if (!visible) {
-        return null;
-    }
-
-    const path =
-        type === 'flow'
-            ? flowPath(source, destination)
-            : valuePath(source, destination);
-
-    return (
-        <svg className="link">
-            <path d={path} />
-        </svg>
-    );
-};
 
 interface ILinkProps {
     visible: boolean;
+    type: PortType;
     getRef: (element: SVGPathElement) => void;
 }
 
-export const Link: React.FC<ILinkProps> = ({ visible, getRef }) => {
+export const Link: React.FC<ILinkProps> = ({ visible, type, getRef }) => {
     const ref = useRef<SVGPathElement>(null);
 
     useEffect(() => {
@@ -44,8 +16,16 @@ export const Link: React.FC<ILinkProps> = ({ visible, getRef }) => {
             getRef(ref.current!);
         }
     }, [getRef]);
+
     return (
-        <svg className="link" style={{ position: 'absolute' }}>
+        <svg
+            className={classNames({
+                link: true,
+                value: type === 'value',
+                flow: type === 'flow',
+            })}
+            style={{ position: 'absolute', opacity: visible ? 1 : 0 }}
+        >
             <path ref={ref} />
         </svg>
     );

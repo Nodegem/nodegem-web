@@ -6,8 +6,11 @@ export default class FakeLinkController implements IDisposable {
     private element: SVGPathElement;
     private source?: Vector2;
     private portType?: PortType;
+    private isModifying: boolean;
 
-    constructor() {}
+    public get type() {
+        return this.portType;
+    }
 
     public getElementRef = (element: SVGPathElement) => {
         this.element = element;

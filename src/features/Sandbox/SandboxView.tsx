@@ -150,6 +150,7 @@ export const SandboxView = observer(() => {
                     <SandboxCanvas
                         getDrawLinkRef={fakeLink.getElementRef}
                         isDrawing={isDrawing}
+                        linkType={fakeLink.type}
                         links={links}
                         sandboxManager={sandboxManager}
                         nodes={nodes}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Button, Tooltip } from 'antd';
 import { Socket as Port } from '../Port/Port';
@@ -29,12 +29,14 @@ const ToolbarContents: React.FC<IToolbarProps> = ({ nodeData, remove }) => {
 };
 
 interface IToolbarProps {
+    visible?: boolean;
     sandboxMode?: boolean;
     nodeData: INodeUIData;
     remove: (id: string) => void;
 }
 
 const Toolbar: React.FC<IToolbarProps> = ({
+    visible,
     remove,
     nodeData,
     sandboxMode,
@@ -42,7 +44,7 @@ const Toolbar: React.FC<IToolbarProps> = ({
 }) => {
     return sandboxMode ? (
         <Tooltip
-            trigger="contextMenu"
+            visible={visible}
             className="toolbar-tooltip"
             title={<ToolbarContents remove={remove} nodeData={nodeData} />}
         >
@@ -63,16 +65,66 @@ export const Node: React.FC<INodeProps> = ({
 }: INodeProps) => {
     const { portData, title } = data;
     const { flowInputs, flowOutputs, valueInputs, valueOutputs } = portData;
+    const container = useRef<HTMLDivElement>(null);
+    const [visibleToolbar, setVisible] = useState(false);
 
-    const attemptRef = (instance: HTMLDivElement) => {
+    useEffect(() => {
         if (getRef) {
-            getRef(instance);
+            getRef(container.current!);
         }
-    };
+
+        if (!sandboxMode) {
+            return;
+        }
+
+        const preventDefault = (event: MouseEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+        };
+
+        const disable = (event: MouseEvent) => {
+            if (event.button === 2) {
+                event.stopPropagation();
+                event.preventDefault();
+                setVisible(!visibleToolbar);
+            } else {
+                setVisible(false);
+            }
+        };
+
+        const outsideClick = (event: MouseEvent) => {
+            if (visibleToolbar) {
+                event.preventDefault();
+                event.stopPropagation();
+                setVisible(false);
+            }
+        };
+
+        window.addEventListener('contextmenu', outsideClick);
+        container.current!.addEventListener('mousedown', disable);
+        container.current!.addEventListener('contextmenu', preventDefault);
+        return () => {
+            if (!sandboxMode) {
+                return;
+            }
+
+            window.removeEventListener('contextmenu', outsideClick);
+            container.current!.removeEventListener('mousedown', disable);
+            container.current!.removeEventListener(
+                'contextmenu',
+                preventDefault
+            );
+        };
+    }, [container, visibleToolbar]);
 
     return (
-        <Toolbar remove={removeNode!} nodeData={data} sandboxMode={sandboxMode}>
-            <div ref={attemptRef} className="node-container" {...rest}>
+        <Toolbar
+            visible={visibleToolbar}
+            remove={removeNode!}
+            nodeData={data}
+            sandboxMode={sandboxMode}
+        >
+            <div ref={container} className="node-container" {...rest}>
                 <div className="flow flow-inputs">
                     {flowInputs.map(fi => (
                         <Port

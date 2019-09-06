@@ -21,7 +21,7 @@ class DrawLinkController implements IDisposable {
         private onDrawing: () => void,
         private onDrawEnd: (source?: DrawArgs, destination?: DrawArgs) => void
     ) {
-        this.throttleEvent = _.throttle(this.drawing, 20);
+        this.throttleEvent = _.throttle(this.drawing, 5);
     }
 
     public toggleDraw(

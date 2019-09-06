@@ -3,11 +3,12 @@ import FakeLinkController from 'features/Sandbox/Link/fake-link-controller';
 import LinkController from 'features/Sandbox/Link/link-controller';
 import NodeController from 'features/Sandbox/Node/node-controller';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
-import { isConnected } from 'features/Sandbox/utils';
+import { isValidConnection } from 'features/Sandbox/utils';
 import { action, computed, observable } from 'mobx';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { NodeService } from 'services';
 import { getCenterCoordinates } from 'utils';
+import { DrawArgs } from './../features/Sandbox/Link/draw-link-controller';
 import { SimpleObservable } from './../utils/simple-observable';
 
 let fake = 1;
@@ -98,82 +99,9 @@ export class SandboxStore implements IDisposable {
 
     constructor() {
         this._drawLinkController = new DrawLinkController(
-            source => {
-                const connected = isConnected(source.data);
-                let startElement = source.element;
-                if (connected) {
-                    const link = this.sandboxManager.getLinkByNode(
-                        source.node.id,
-                        source.data.id
-                    );
-
-                    if (link) {
-                        startElement = link.getOppositePortElement(
-                            source.element
-                        );
-                        this.sandboxManager.removeLink(link.id);
-                        link.toggleOppositePort(source.element);
-
-                        this.modifiedLink = {
-                            link,
-                            startElement,
-                        };
-                    }
-                }
-
-                const start = this.sandboxManager.convertCoordinates(
-                    getCenterCoordinates(startElement)
-                );
-
-                this.isDrawing = true;
-                this.fakeLink.begin(start, source.data.type);
-
-                source.data.connected = !connected;
-            },
+            this.handleDrawStart,
             () => this.fakeLink.update(this.sandboxManager.mousePos),
-            (s, d) => {
-                if (s && d) {
-                    if (s === d) {
-                        if (this.modifiedLink) {
-                            const { link, startElement } = this.modifiedLink;
-
-                            this.sandboxManager.addLink(
-                                {
-                                    element: startElement,
-                                    data: link.getSourceData(startElement),
-                                    node: this.sandboxManager.getNode(
-                                        link.getSourceNodeId(startElement)
-                                    )!,
-                                },
-                                {
-                                    element: link.getOppositePortElement(
-                                        startElement
-                                    ),
-                                    data: link.getOppositeData(startElement),
-                                    node: this.sandboxManager.getNode(
-                                        link.getOppositeNodeId(startElement)
-                                    )!,
-                                }
-                            );
-                        } else {
-                            s.data.connected = false;
-                            d.data.connected = false;
-                        }
-                    } else {
-                        this.sandboxManager.addLink(s, d);
-                    }
-                } else if (s) {
-                    s.data.connected = false;
-                    if (this.modifiedLink) {
-                        const { link } = this.modifiedLink;
-                        link.dispose();
-                    }
-                }
-
-                this.fakeLink.stop();
-                this.isDrawing = false;
-                this.modifiedLink = undefined;
-            }
+            this.handleDrawEnd
         );
 
         this.sandboxManager = new SandboxManager(
@@ -246,7 +174,6 @@ export class SandboxStore implements IDisposable {
                             name: 'test',
                             type: 'flow',
                             io: 'input',
-                            connected: false,
                         },
                     ],
                     valueInputs: [],
@@ -256,7 +183,6 @@ export class SandboxStore implements IDisposable {
                             name: 'test',
                             type: 'flow',
                             io: 'output',
-                            connected: false,
                         },
                     ],
                     valueOutputs: [],
@@ -308,4 +234,100 @@ export class SandboxStore implements IDisposable {
         this.tabs = [];
         window.removeEventListener('keypress', this.handleKeyPress);
     }
+
+    private handleDrawStart = (source: DrawArgs) => {
+        let startElement = source.element;
+        if (
+            source.data.connected &&
+            !(source.data.io === 'output' && source.data.type === 'value')
+        ) {
+            const link = this.sandboxManager.getLinkByNode(
+                source.node.id,
+                source.data.id
+            );
+
+            if (link) {
+                startElement = link.getOppositePortElement(source.element);
+                this.sandboxManager.removeLink(link.id);
+                link.toggleConnectingOppositePort(source.element);
+
+                this.modifiedLink = {
+                    link,
+                    startElement,
+                };
+            }
+        } else {
+            source.data.connecting = true;
+        }
+
+        const start = this.sandboxManager.convertCoordinates(
+            getCenterCoordinates(startElement)
+        );
+
+        this.isDrawing = true;
+        this.fakeLink.begin(start, source.data.type);
+        this.fakeLink.update(this.sandboxManager.mousePos);
+    };
+
+    private handleDrawEnd = (s: DrawArgs, d: DrawArgs) => {
+        if (s && d) {
+            if (this.modifiedLink) {
+                const { link, startElement } = this.modifiedLink;
+                const start = {
+                    element: startElement,
+                    data: link.getSourceData(startElement),
+                    node: this.sandboxManager.getNode(
+                        link.getSourceNodeId(startElement)
+                    )!,
+                };
+                const destination =
+                    s === d
+                        ? {
+                              element: link.getOppositePortElement(
+                                  startElement
+                              ),
+                              data: link.getOppositeData(startElement),
+                              node: this.sandboxManager.getNode(
+                                  link.getOppositeNodeId(startElement)
+                              )!,
+                          }
+                        : d;
+
+                if (
+                    isValidConnection(
+                        { nodeId: start.node.id, port: start.data },
+                        {
+                            nodeId: destination.node.id,
+                            port: destination.data,
+                        }
+                    )
+                ) {
+                    this.sandboxManager.addLink(start, destination);
+                } else {
+                    link.dispose();
+                }
+            } else {
+                if (
+                    isValidConnection(
+                        { nodeId: s.node.id, port: s.data },
+                        { nodeId: d.node.id, port: d.data }
+                    )
+                ) {
+                    this.sandboxManager.addLink(s, d);
+                }
+            }
+            s.data.connecting = false;
+            d.data.connecting = false;
+        } else if (s) {
+            s.data.connecting = false;
+            if (this.modifiedLink) {
+                const { link } = this.modifiedLink;
+                link.dispose();
+            }
+        }
+
+        this.fakeLink.stop();
+        this.isDrawing = false;
+        this.modifiedLink = undefined;
+    };
 }

@@ -1,6 +1,30 @@
 import { uuid } from 'lodash-uuid';
 
-export const isConnected = (port: IPortUIData) => port.connected;
+export const isValidConnection = (
+    p1: { nodeId: string; port: IPortUIData },
+    p2: { nodeId: string; port: IPortUIData }
+): boolean => {
+    if (p1.port.io === p2.port.io) {
+        return false;
+    }
+
+    if (p1.port.type !== p2.port.type) {
+        return false;
+    }
+
+    if (p1.nodeId === p2.nodeId) {
+        return false;
+    }
+
+    const source = p1.port.io === 'output' ? p1 : p2;
+    const destination = p1.port.io === 'output' ? p2 : p1;
+
+    if (source.port.type === 'flow' && source.port.connected) {
+        return false;
+    }
+
+    return true;
+};
 
 export const definitionToNode = (
     definition: NodeDefinition,

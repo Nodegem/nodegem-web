@@ -1,6 +1,5 @@
 import Moveable from '../interactive/moveable';
 import LinkController from '../Link/link-controller';
-import PortController from '../Port/port-controller';
 import CanvasController from '../Sandbox/Canvas/canvas-controller';
 
 type PortClickEvent = (
