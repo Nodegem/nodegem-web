@@ -80,7 +80,7 @@ const TabTemplate: React.FC<ITab & { deleteTab: (tabId: string) => void }> = ({
             {deleteVisible && (
                 <span style={{ position: 'absolute' }}>
                     <Button
-                        onClick={() => deleteTab(id)}
+                        onMouseUp={() => deleteTab(id)}
                         style={{
                             position: 'absolute',
                             right: '-35px',
@@ -97,11 +97,7 @@ const TabTemplate: React.FC<ITab & { deleteTab: (tabId: string) => void }> = ({
 };
 
 const GraphControls: React.FC = () => {
-    return (
-        <>
-            <div>Test</div>
-        </>
-    );
+    return <div>Test</div>;
 };
 
 export const SandboxView = observer(() => {

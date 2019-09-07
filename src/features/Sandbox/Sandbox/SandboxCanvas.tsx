@@ -1,4 +1,4 @@
-import { Icon, Input } from 'antd';
+import { Button, Icon, Input } from 'antd';
 import React, { useEffect, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { Link } from '../Link/Link';
@@ -89,6 +89,11 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                     allowClear
                     placeholder="Search Nodes"
                 />
+            </div>
+            <div className="zoom-controls">
+                <Button type="primary" shape="circle" icon="minus" />
+                <Button type="primary" shape="circle" icon="block" />
+                <Button type="primary" shape="circle" icon="plus" />
             </div>
         </div>
     );

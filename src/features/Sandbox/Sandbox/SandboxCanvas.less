@@ -1,5 +1,8 @@
+@import '../../../styles/vars.less';
+
 @background: #333d49;
 @lighter-background: lighten(@background, 7%);
+@control-bg-color: lighten(#3d4c5c, 5%);
 
 .sandbox {
     display: flex;
@@ -49,12 +52,25 @@
 
     input {
         border-radius: 30px;
-        background-color: lighten(#3d4c5c, 5%);
+        background-color: @control-bg-color;
         border: none;
 
         &::placeholder {
             font-style: italic;
             color: @searchFontColor;
         }
+    }
+}
+
+.zoom-controls {
+    bottom: 0px;
+    right: 0px;
+    position: absolute;
+    margin: 15px 20px;
+
+    button {
+        margin-left: 10px;
+        border-color: @control-bg-color;
+        background-color: @control-bg-color;
     }
 }
