@@ -7,6 +7,7 @@ import './Node.less';
 interface INodeProps {
     data: INodeUIData;
     sandboxMode?: boolean;
+    editNode?: (nodeData: INodeUIData) => void;
     removeNode?: (id: string) => void;
     getRef?: (instance: HTMLDivElement) => void;
     onPortEvent?: (
@@ -16,9 +17,22 @@ interface INodeProps {
     ) => void;
 }
 
-const ToolbarContents: React.FC<IToolbarProps> = ({ nodeData, remove }) => {
+const ToolbarContents: React.FC<IToolbarProps> = ({
+    nodeData,
+    edit,
+    remove,
+    forceClose,
+}) => {
     return (
         <span className="toolbar">
+            <Button
+                onClick={() => {
+                    edit(nodeData);
+                    forceClose();
+                }}
+                type="primary"
+                icon="edit"
+            />
             <Button
                 onClick={() => remove(nodeData.id)}
                 type="danger"
@@ -32,12 +46,16 @@ interface IToolbarProps {
     visible?: boolean;
     sandboxMode?: boolean;
     nodeData: INodeUIData;
+    edit: (data: INodeUIData) => void;
     remove: (id: string) => void;
+    forceClose: () => void;
 }
 
 const Toolbar: React.FC<IToolbarProps> = ({
     visible,
     remove,
+    edit,
+    forceClose,
     nodeData,
     sandboxMode,
     children,
@@ -46,7 +64,14 @@ const Toolbar: React.FC<IToolbarProps> = ({
         <Tooltip
             visible={visible}
             className="toolbar-tooltip"
-            title={<ToolbarContents remove={remove} nodeData={nodeData} />}
+            title={
+                <ToolbarContents
+                    edit={edit}
+                    remove={remove}
+                    nodeData={nodeData}
+                    forceClose={forceClose}
+                />
+            }
         >
             {children}
         </Tooltip>
@@ -58,6 +83,7 @@ const Toolbar: React.FC<IToolbarProps> = ({
 export const Node: React.FC<INodeProps> = ({
     getRef,
     data,
+    editNode = () => {},
     removeNode = () => {},
     sandboxMode,
     onPortEvent,
@@ -117,10 +143,14 @@ export const Node: React.FC<INodeProps> = ({
         };
     }, [container, visibleToolbar]);
 
+    const closeToolbar = () => setVisible(false);
+
     return (
         <Toolbar
+            forceClose={closeToolbar}
             visible={visibleToolbar}
-            remove={removeNode!}
+            edit={editNode}
+            remove={removeNode}
             nodeData={data}
             sandboxMode={sandboxMode}
         >

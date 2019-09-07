@@ -8,16 +8,15 @@ import {
     NotDraggingStyle,
 } from 'react-beautiful-dnd';
 
-import { Button, Col, Row } from 'antd';
+import { Button, Col, Row, Tooltip } from 'antd';
 import classnames from 'classnames';
 import { DragEndProps } from 'stores';
 import { reorder, SimpleObservable } from 'utils';
 import './DraggableTabs.less';
 
 interface IDraggableTabPaneProps {
-    tabId: string;
-    name: string;
-    tabTemplate?: JSX.Element;
+    tab: ITab;
+    tabTemplate: (tab: ITab) => JSX.Element;
 }
 
 const tabListId = 'tabList';
@@ -38,11 +37,10 @@ const tabDragStyle = (
 };
 
 function DraggableTab({
-    tabId,
+    tab,
     isActive,
     onClick,
     index,
-    name,
     tabTemplate,
 }: IDraggableTabPaneProps & {
     isActive: boolean;
@@ -50,10 +48,10 @@ function DraggableTab({
     index: number;
 }) {
     return (
-        <Draggable draggableId={tabId} index={index}>
+        <Draggable draggableId={tab.id} index={index}>
             {(provided, snapshot) => (
                 <div
-                    onClick={() => onClick(tabId)}
+                    onClick={() => onClick(tab.id)}
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
@@ -67,33 +65,34 @@ function DraggableTab({
                         snapshot
                     )}
                 >
-                    <div className="tab-container">{tabTemplate || name}</div>
+                    {tabTemplate(tab)}
                 </div>
             )}
         </Draggable>
     );
 }
 
+interface IDragTab extends ITab {
+    tabTemplate: (tab: ITab) => JSX.Element;
+    isActive: boolean;
+    onClick: (tabId: string) => void;
+}
+
 interface IDraggableTabList {
-    tabs: any[];
+    tabs: IDragTab[];
 }
 
 const DraggableTabList: React.FC<IDraggableTabList> = ({ tabs }) => {
     return (
         <>
-            {tabs.map((tab: any, index: number) => (
-                <DraggableTab
-                    {...tab}
-                    tabId={tab.id}
-                    index={index}
-                    key={tab.id}
-                />
+            {tabs.map((tab: IDragTab, index: number) => (
+                <DraggableTab {...tab} tab={tab} index={index} key={tab.id} />
             ))}
         </>
     );
 };
 
-interface ITab {
+export interface ITab {
     id: string;
     name: string;
     data: any;
@@ -103,7 +102,7 @@ interface IDraggableTabProps {
     tabs: ITab[];
     activeTab?: string;
     tabControls?: JSX.Element;
-    tabTemplate?: JSX.Element;
+    tabTemplate: (tab: ITab) => JSX.Element;
     dragEndObservable: SimpleObservable<DragEndProps>;
     onTabReorder: (tabs: ITab[]) => void;
     onTabAdd?: () => void;
@@ -193,14 +192,15 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
                 <Col span={2}>
                     <div className="tab-controls">
                         {tabControls}
-                        <Button
-                            type="dashed"
-                            size="large"
-                            ghost
-                            icon="plus"
-                            style={{ width: '45px' }}
-                            onClick={onTabAdd}
-                        />
+                        <Tooltip title="New Graph" placement="left">
+                            <Button
+                                type="primary"
+                                size="default"
+                                ghost
+                                icon="plus"
+                                onClick={onTabAdd}
+                            />
+                        </Tooltip>
                     </div>
                 </Col>
             </Row>

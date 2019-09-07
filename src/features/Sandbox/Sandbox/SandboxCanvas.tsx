@@ -12,6 +12,7 @@ export const sandboxDroppableId = 'sandboxId';
 
 export interface ISandboxProps {
     sandboxManager: SandboxManager;
+    editNode: (data: INodeUIData) => void;
     getDrawLinkRef: (element: SVGPathElement) => void;
     isDrawing: boolean;
     linkType?: PortType;
@@ -23,6 +24,7 @@ export interface ISandboxProps {
 
 export const SandboxCanvas: React.FC<ISandboxProps> = ({
     sandboxManager,
+    editNode,
     getDrawLinkRef,
     isDrawing,
     linkType,
@@ -75,6 +77,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                             getRef={n.getElementRef}
                             onPortEvent={n.onPortEvent}
                             data={n.nodeData}
+                            editNode={editNode}
                             removeNode={sandboxManager.removeNode}
                         />
                     ))}

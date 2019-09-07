@@ -19,7 +19,7 @@ interface IVerticalCollapsibleProps {
 export const VerticalCollapsible: React.FC<IVerticalCollapsibleProps> = ({
     width = '15%',
     minWidth = '18em',
-    tabWidth = '30px',
+    tabWidth = '25px',
     tabDirection = 'right',
     collapsed,
     tabContent,
@@ -36,7 +36,6 @@ export const VerticalCollapsible: React.FC<IVerticalCollapsibleProps> = ({
         'tab-reverse': tabDirection === 'left',
     });
 
-    minWidth = collapsed ? 0 : minWidth;
     width = collapsed ? tabWidth : width;
 
     return (

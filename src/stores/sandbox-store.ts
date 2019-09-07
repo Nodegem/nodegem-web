@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import DrawLinkController from 'features/Sandbox/Link/draw-link-controller';
 import FakeLinkController from 'features/Sandbox/Link/fake-link-controller';
 import LinkController from 'features/Sandbox/Link/link-controller';
@@ -127,8 +128,11 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
-    public toggleNodeInfo = () => {
-        this.nodeInfoClosed = !this.nodeInfoClosed;
+    public toggleNodeInfo = (value?: boolean) => {
+        if (value === undefined) {
+            value = !this.nodeInfoClosed;
+        }
+        this.nodeInfoClosed = value;
     };
 
     @action
@@ -144,6 +148,11 @@ export class SandboxStore implements IDisposable {
     @action
     public loadDefinitions = (graphId: string, type: GraphType) => {
         return NodeService.getAllNodeDefinitions(graphId, type);
+    };
+
+    @action
+    public onNodeEdit = (node: INodeUIData) => {
+        this.toggleNodeInfo(false);
     };
 
     @action
@@ -223,7 +232,16 @@ export class SandboxStore implements IDisposable {
 
     @action
     public deleteTab = (graphId: string) => {
-        this.tabs.removeWhere(x => x.graph.id === graphId);
+        const index = this.tabs.findIndex(x => x.graph.id === graphId);
+        if (index >= 0) {
+            if (index + 1 < this.tabs.length) {
+                const nextTab = this.tabs[index + 1];
+                this.setActiveTab(nextTab.graph.id!);
+            } else {
+                this.sandboxManager.clearView();
+            }
+            this.tabs.removeWhere(x => x.graph.id === graphId);
+        }
     };
 
     public dispose(): void {
@@ -234,6 +252,17 @@ export class SandboxStore implements IDisposable {
         this.tabs = [];
         window.removeEventListener('keypress', this.handleKeyPress);
     }
+
+    private onGraphError = (
+        msg: string,
+        type: 'warning' | 'error' = 'warning'
+    ) => {
+        if (type === 'warning') {
+            message.warning(msg, 2);
+        } else {
+            message.error(msg, 2);
+        }
+    };
 
     private handleDrawStart = (source: DrawArgs) => {
         let startElement = source.element;
@@ -304,6 +333,7 @@ export class SandboxStore implements IDisposable {
                 ) {
                     this.sandboxManager.addLink(start, destination);
                 } else {
+                    this.onGraphError('Not a valid connection');
                     link.dispose();
                 }
             } else {
@@ -314,6 +344,8 @@ export class SandboxStore implements IDisposable {
                     )
                 ) {
                     this.sandboxManager.addLink(s, d);
+                } else {
+                    this.onGraphError('Not a valid connection');
                 }
             }
             s.data.connecting = false;

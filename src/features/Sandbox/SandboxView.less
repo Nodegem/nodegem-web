@@ -1,3 +1,6 @@
+@activeTabColor: #00d6da;
+@tabColor: #cfcfcf;
+
 .sandbox-view-container {
     height: 100%;
     display: flex;
@@ -6,13 +9,41 @@
     flex-grow: 1;
 }
 
-.tab-content {
+.graph-content {
     display: flex;
     flex: 1 1 auto;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-between;
     align-items: stretch;
+}
+
+.tabs-container {
+    .tab-list {
+        margin: 0 30px;
+        height: 42px;
+    }
+
+    .tab-controls {
+        margin: 5px 10px;
+    }
+
+    .tab {
+        color: white;
+        height: auto;
+        width: 120px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        display: flex;
+        margin-right: 15px;
+        justify-content: center;
+        align-items: center;
+        background-color: @tabColor;
+
+        &.active {
+            background-color: @activeTabColor !important;
+        }
+    }
 }
 
 .node-select {

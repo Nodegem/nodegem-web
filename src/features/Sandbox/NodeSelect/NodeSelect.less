@@ -1,4 +1,5 @@
 @nodeSelectBackgroundColor: #3d4c5c;
+@selectHeight: calc(100vh - 144px);
 
 .node-select-container {
     background-color: @nodeSelectBackgroundColor;
@@ -7,8 +8,8 @@
 .node-select-drop-container {
     padding: 20px 0;
     width: 100%;
-    height: calc(100vh - 152px);
-    max-height: calc(100vh - 152px);
+    height: @selectHeight;
+    max-height: @selectHeight;
     overflow-y: auto;
     overflow-x: hidden;
 }

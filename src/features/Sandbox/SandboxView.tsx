@@ -1,9 +1,9 @@
-import { DraggableTabs } from 'components/DraggableTabs';
+import { Button, Dropdown, Icon, Menu } from 'antd';
+import { DraggableTabs, ITab } from 'components/DraggableTabs';
 import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
 import _ from 'lodash';
-import { uuid } from 'lodash-uuid';
 import { observer } from 'mobx-react-lite';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     DragDropContext,
     DraggableStateSnapshot,
@@ -62,6 +62,48 @@ export const fakeDefinitions: NodeDefinition[] = [
     },
 ];
 
+const TabTemplate: React.FC<ITab & { deleteTab: (tabId: string) => void }> = ({
+    name,
+    id,
+    data,
+    deleteTab,
+}) => {
+    const [deleteVisible, toggleDelete] = useState(false);
+
+    return (
+        <div
+            style={{ padding: '8px 45px' }}
+            onMouseEnter={() => toggleDelete(true)}
+            onMouseLeave={() => toggleDelete(false)}
+        >
+            <span>{name}</span>
+            {deleteVisible && (
+                <span style={{ position: 'absolute' }}>
+                    <Button
+                        onClick={() => deleteTab(id)}
+                        style={{
+                            position: 'absolute',
+                            right: '-35px',
+                            top: '-1px',
+                        }}
+                        type="link"
+                        size="small"
+                        icon="close"
+                    />
+                </span>
+            )}
+        </div>
+    );
+};
+
+const GraphControls: React.FC = () => {
+    return (
+        <>
+            <div>Test</div>
+        </>
+    );
+};
+
 export const SandboxView = observer(() => {
     const { sandboxStore } = useStore();
     const {
@@ -81,6 +123,8 @@ export const SandboxView = observer(() => {
         sandboxManager,
         linksVisible,
         isDrawing,
+        onNodeEdit,
+        deleteTab,
     } = sandboxStore;
 
     useEffect(() => {
@@ -128,13 +172,17 @@ export const SandboxView = observer(() => {
                 dragEndObservable={dragEndObservable}
                 onTabAdd={addTab}
                 onTabClick={handleTabClick}
+                tabControls={<GraphControls />}
+                tabTemplate={tab => (
+                    <TabTemplate {...tab} deleteTab={deleteTab} />
+                )}
             />
             <DragDropContext
                 onDragEnd={(result, provided) =>
                     dragEndObservable.execute({ result, provided })
                 }
             >
-                <div className="tab-content">
+                <div className="graph-content">
                     <VerticalCollapsible
                         width="300px"
                         minWidth="0"
@@ -148,6 +196,7 @@ export const SandboxView = observer(() => {
                         />
                     </VerticalCollapsible>
                     <SandboxCanvas
+                        editNode={onNodeEdit}
                         getDrawLinkRef={fakeLink.getElementRef}
                         isDrawing={isDrawing}
                         linkType={fakeLink.type}
@@ -157,7 +206,9 @@ export const SandboxView = observer(() => {
                         visibleLinks={linksVisible}
                     />
                     <VerticalCollapsible
-                        onTabClick={toggleNodeInfo}
+                        width="450px"
+                        minWidth="0"
+                        onTabClick={() => toggleNodeInfo()}
                         tabDirection="left"
                         tabContent="Node Info"
                         collapsed={nodeInfoClosed}
