@@ -1,8 +1,22 @@
+@import '../../styles/vars.less';
+
 .tab-list {
     display: flex;
+
+    > button {
+        justify-items: flex-end;
+    }
+
+    button {
+        align-self: center;
+        color: @primary-color;
+        border-color: @primary-color;
+    }
 }
 
 .tab-controls {
+    height: 42px;
+    align-items: center;
     display: flex;
     justify-content: flex-end;
 }

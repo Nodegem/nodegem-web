@@ -6,17 +6,15 @@ import { uuid } from 'lodash-uuid';
 import ModalFormStore from '../modal-form-store';
 
 class GraphModalStore extends ModalFormStore {
-    
     @observable
     public constants: Array<Partial<ConstantData>> = [];
 
-    
     @observable
     public recurringOptions: Partial<RecurringOptions> = {};
 
     @action public async saveGraph(values: any) {
         this.saving = true;
-        let graph;
+        let graph: Graph | undefined;
 
         const newData = {
             ...values,
@@ -33,7 +31,6 @@ class GraphModalStore extends ModalFormStore {
                 ...newData,
             });
         } else {
-            console.log(newData);
             graph = await graphStore!.createGraph(newData);
         }
 

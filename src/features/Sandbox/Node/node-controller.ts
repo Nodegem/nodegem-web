@@ -81,7 +81,9 @@ class NodeController implements IDisposable {
     };
 
     public dispose(): void {
-        this.moveable.dispose();
+        if (this.moveable) {
+            this.moveable.dispose();
+        }
     }
 }
 

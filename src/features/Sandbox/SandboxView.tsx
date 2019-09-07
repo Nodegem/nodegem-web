@@ -1,5 +1,7 @@
-import { Button, Dropdown, Icon, Menu } from 'antd';
+import { Button, Dropdown, Icon, Menu, Switch } from 'antd';
 import { DraggableTabs, ITab } from 'components/DraggableTabs';
+import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
+import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
 import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
 import _ from 'lodash';
 import { observer } from 'mobx-react-lite';
@@ -10,7 +12,16 @@ import {
     DraggingStyle,
     NotDraggingStyle,
 } from 'react-beautiful-dnd';
-import { DragEndProps, TabData, testData, useStore } from 'stores';
+import {
+    DragEndProps,
+    graphModalStore,
+    macroModalStore,
+    TabData,
+    testData,
+    useStore,
+} from 'stores';
+import { isMacro } from 'utils';
+import NodeInfo from './NodeInfo/NodeInfo';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
 import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
@@ -62,6 +73,14 @@ export const fakeDefinitions: NodeDefinition[] = [
     },
 ];
 
+const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
+    if (event.button === 1) {
+        event.preventDefault();
+        event.stopPropagation();
+        deleteTab();
+    }
+};
+
 const TabTemplate: React.FC<ITab & { deleteTab: (tabId: string) => void }> = ({
     name,
     id,
@@ -73,12 +92,15 @@ const TabTemplate: React.FC<ITab & { deleteTab: (tabId: string) => void }> = ({
     return (
         <div
             style={{ padding: '8px 45px' }}
+            onMouseDown={event =>
+                middleDelete(event.nativeEvent, () => deleteTab(id))
+            }
             onMouseEnter={() => toggleDelete(true)}
             onMouseLeave={() => toggleDelete(false)}
         >
             <span>{name}</span>
             {deleteVisible && (
-                <span style={{ position: 'absolute' }}>
+                <span className="tab-delete" style={{ position: 'absolute' }}>
                     <Button
                         onMouseUp={() => deleteTab(id)}
                         style={{
@@ -96,12 +118,40 @@ const TabTemplate: React.FC<ITab & { deleteTab: (tabId: string) => void }> = ({
     );
 };
 
-const GraphControls: React.FC = () => {
-    return <div>Test</div>;
+interface IGraphControlProps {
+    graph?: Partial<Graph | Macro>;
+    openModal: (graph: Partial<Graph | Macro>) => void;
+}
+const GraphControls: React.FC<IGraphControlProps> = ({ graph, openModal }) => {
+    return (
+        <div className="tab-controls">
+            <Button
+                disabled={!graph}
+                size="small"
+                shape="round"
+                type="primary"
+                icon="setting"
+                onClick={() => openModal(graph!)}
+            >
+                Graph Settings
+            </Button>
+            <Button
+                disabled={!graph}
+                size="small"
+                shape="round"
+                type="primary"
+                icon="save"
+                loading={false}
+                onClick={() => {}}
+            >
+                Save
+            </Button>
+        </div>
+    );
 };
 
 export const SandboxView = observer(() => {
-    const { sandboxStore } = useStore();
+    const { sandboxStore, graphStore, macroStore } = useStore();
     const {
         tabs,
         addTab,
@@ -155,64 +205,81 @@ export const SandboxView = observer(() => {
         setTabs(orderedTabs.map(x => x.data));
     }
 
+    function editGraph(graph: Partial<Graph | Macro>) {
+        if (isMacro(graph)) {
+            macroModalStore.openModal(graph, true);
+        } else {
+            graphModalStore.openModal(graph, true);
+        }
+    }
+
     return (
-        <div className="sandbox-view-container">
-            <DraggableTabs
-                tabs={tabs.map(t => ({
-                    id: t.graph.id!,
-                    name: t.graph.name!,
-                    data: t,
-                }))}
-                activeTab={(activeTab && activeTab.graph.id) || '0'}
-                onTabReorder={handleTabReorder}
-                dragEndObservable={dragEndObservable}
-                onTabAdd={addTab}
-                onTabClick={handleTabClick}
-                tabControls={<GraphControls />}
-                tabTemplate={tab => (
-                    <TabTemplate {...tab} deleteTab={deleteTab} />
-                )}
-            />
-            <DragDropContext
-                onDragEnd={(result, provided) =>
-                    dragEndObservable.execute({ result, provided })
-                }
-            >
-                <div className="graph-content">
-                    <VerticalCollapsible
-                        width="300px"
-                        minWidth="0"
-                        onTabClick={toggleNodeSelect}
-                        tabContent="Nodes"
-                        collapsed={nodeSelectClosed}
-                    >
-                        <NodeSelect
-                            dragStyle={nodeDragStyle}
-                            definitions={fakeDefinitions}
+        <>
+            <div className="sandbox-view-container">
+                <DraggableTabs
+                    tabs={tabs.map(t => ({
+                        id: t.graph.id!,
+                        name: t.graph.name!,
+                        data: t,
+                    }))}
+                    activeTab={(activeTab && activeTab.graph.id) || '0'}
+                    onTabReorder={handleTabReorder}
+                    dragEndObservable={dragEndObservable}
+                    onTabAdd={addTab}
+                    onTabClick={handleTabClick}
+                    tabControls={
+                        <GraphControls
+                            graph={activeTab && activeTab.graph}
+                            openModal={editGraph}
                         />
-                    </VerticalCollapsible>
-                    <SandboxCanvas
-                        editNode={onNodeEdit}
-                        getDrawLinkRef={fakeLink.getElementRef}
-                        isDrawing={isDrawing}
-                        linkType={fakeLink.type}
-                        links={links}
-                        sandboxManager={sandboxManager}
-                        nodes={nodes}
-                        visibleLinks={linksVisible}
-                    />
-                    <VerticalCollapsible
-                        width="450px"
-                        minWidth="0"
-                        onTabClick={() => toggleNodeInfo()}
-                        tabDirection="left"
-                        tabContent="Node Info"
-                        collapsed={nodeInfoClosed}
-                    >
-                        Hello I can collapse
-                    </VerticalCollapsible>
-                </div>
-            </DragDropContext>
-        </div>
+                    }
+                    tabTemplate={tab => (
+                        <TabTemplate {...tab} deleteTab={deleteTab} />
+                    )}
+                />
+                <DragDropContext
+                    onDragEnd={(result, provided) =>
+                        dragEndObservable.execute({ result, provided })
+                    }
+                >
+                    <div className="graph-content">
+                        <VerticalCollapsible
+                            width="300px"
+                            minWidth="0"
+                            onTabClick={toggleNodeSelect}
+                            tabContent="Nodes"
+                            collapsed={nodeSelectClosed}
+                        >
+                            <NodeSelect
+                                dragStyle={nodeDragStyle}
+                                definitions={fakeDefinitions}
+                            />
+                        </VerticalCollapsible>
+                        <SandboxCanvas
+                            editNode={onNodeEdit}
+                            getDrawLinkRef={fakeLink.getElementRef}
+                            isDrawing={isDrawing}
+                            linkType={fakeLink.type}
+                            links={links}
+                            sandboxManager={sandboxManager}
+                            nodes={nodes}
+                            visibleLinks={linksVisible}
+                        />
+                        <VerticalCollapsible
+                            width="450px"
+                            minWidth="0"
+                            onTabClick={() => toggleNodeInfo()}
+                            tabDirection="left"
+                            tabContent="Node Info"
+                            collapsed={nodeInfoClosed}
+                        >
+                            <NodeInfo />
+                        </VerticalCollapsible>
+                    </div>
+                </DragDropContext>
+            </div>
+            <GraphModalFormController />
+            <MacroModalFormController />
+        </>
     );
 });

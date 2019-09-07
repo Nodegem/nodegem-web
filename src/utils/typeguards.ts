@@ -1,4 +1,4 @@
-export function isMacro(graph: Graph | Macro): graph is Macro {
+export function isMacro(graph: any): graph is Macro {
     return (graph as Macro).flowInputs !== undefined;
 }
 

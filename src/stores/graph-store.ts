@@ -8,22 +8,22 @@ class GraphStore implements IDisposableStore {
     @observable
     public graphs: Array<Graph> = [];
 
-    
     @observable
     public loadingGraphs: boolean = false;
 
     @action
     public async createGraph(graph: CreateGraph) {
         this.loadingGraphs = true;
+        let newGraph: Graph | undefined;
 
         try {
             const { id } = userStore.user!;
-            const newGraph = await GraphService.create({
+            newGraph = await GraphService.create({
                 ...graph,
                 userId: id,
             });
             runInAction(() => {
-                this.graphs.push(newGraph);
+                this.graphs.push(newGraph!);
             });
         } catch (e) {
             console.warn(e);
@@ -32,6 +32,8 @@ class GraphStore implements IDisposableStore {
                 this.loadingGraphs = false;
             });
         }
+
+        return newGraph;
     }
 
     @action

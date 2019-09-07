@@ -1,3 +1,9 @@
+import graphModalStore, {
+    GraphModalStore,
+} from 'components/Modals/GraphModal/graph-modal-store';
+import macroModalStore, {
+    MacroModalStore,
+} from 'components/Modals/MacroModal/macro-modal-store';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
 import { useLocalStore } from 'mobx-react-lite';
 import React from 'react';
@@ -15,6 +21,8 @@ type TRootStore = {
     commonStore: TCommonStore;
     authStore: TAuthStore;
     userStore: TUserStore;
+    graphStore: GraphModalStore;
+    macroStore: MacroModalStore;
     sandboxStore: SandboxStore;
 };
 
@@ -23,6 +31,8 @@ function createRootStore(): TRootStore {
         commonStore: createCommonStore(),
         authStore: createAuthStore(),
         userStore: createUserStore(),
+        macroStore: macroModalStore,
+        graphStore: graphModalStore,
         sandboxStore: new SandboxStore(),
     };
 }

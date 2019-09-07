@@ -25,7 +25,11 @@
     }
 
     .tab-controls {
-        margin: 5px 10px;
+        margin: 0 10px;
+
+        > * {
+            margin-right: 5px;
+        }
     }
 
     .tab {
@@ -43,19 +47,17 @@
         &.active {
             background-color: @activeTabColor !important;
         }
-    }
-}
 
-.node-select {
-    flex-basis: 20%;
+        .tab-delete {
+            button {
+                border: none;
+            }
+        }
+    }
 }
 
 .sandbox {
     flex: 1 1 auto;
-}
-
-.node-info {
-    flex-basis: 20%;
 }
 
 .container {

@@ -234,8 +234,8 @@ export class SandboxStore implements IDisposable {
     public deleteTab = (graphId: string) => {
         const index = this.tabs.findIndex(x => x.graph.id === graphId);
         if (index >= 0) {
-            if (index + 1 < this.tabs.length) {
-                const nextTab = this.tabs[index + 1];
+            if (index - 1 >= 0) {
+                const nextTab = this.tabs[index - 1];
                 this.setActiveTab(nextTab.graph.id!);
             } else {
                 this.sandboxManager.clearView();

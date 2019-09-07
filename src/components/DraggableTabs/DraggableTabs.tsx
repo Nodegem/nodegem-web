@@ -163,7 +163,7 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
             }
         >
             <Row className="tabs-container">
-                <Col span={22}>
+                <Col span={20}>
                     <Droppable droppableId={tabListId} direction="horizontal">
                         {(provided, snapshot) => (
                             <div
@@ -185,24 +185,20 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
                                     }))}
                                 />
                                 {provided.placeholder}
+                                <Tooltip title="New Graph" placement="right">
+                                    <Button
+                                        type="dashed"
+                                        size="default"
+                                        ghost
+                                        icon="plus"
+                                        onClick={onTabAdd}
+                                    />
+                                </Tooltip>
                             </div>
                         )}
                     </Droppable>
                 </Col>
-                <Col span={2}>
-                    <div className="tab-controls">
-                        {tabControls}
-                        <Tooltip title="New Graph" placement="left">
-                            <Button
-                                type="primary"
-                                size="default"
-                                ghost
-                                icon="plus"
-                                onClick={onTabAdd}
-                            />
-                        </Tooltip>
-                    </div>
-                </Col>
+                {tabControls && <Col span={4}>{tabControls}</Col>}
             </Row>
         </DragDropContext>
     );

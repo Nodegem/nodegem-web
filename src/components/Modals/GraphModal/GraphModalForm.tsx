@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Radio } from 'antd';
+import { Form, Input, Modal, Radio, Switch } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
@@ -9,6 +9,8 @@ import { ModalProps } from 'antd/lib/modal';
 import ConstantsControl from 'components/ConstantsControl/ConstantsControl';
 import RecurringOptionsControl from 'components/RecurringOptionsControl/RecurringOptionsControl';
 import { GraphModalStore } from './graph-modal-store';
+
+import './GraphModalForm.less';
 
 interface IFormDataProps {
     constants: Partial<ConstantData>[];
@@ -108,15 +110,47 @@ const GraphForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
     }
 );
 
+interface IHeaderProps {
+    text: string;
+    active: boolean;
+    toggleActive: () => void;
+}
+
+const Header: React.FC<IHeaderProps> = ({ text, active, toggleActive }) => {
+    return (
+        <div className="graph-modal-header">
+            <span>{text}</span>
+            <Switch
+                className="active-toggle"
+                checked={active}
+                checkedChildren="Active"
+                unCheckedChildren="Inactive"
+                onChange={toggleActive}
+            />
+        </div>
+    );
+};
+
 @inject('graphModalStore')
 @observer
-class GraphModalFormController extends React.Component<{
-    graphModalStore?: GraphModalStore;
-    onSave?: (graph: Graph | undefined) => void;
-}> {
+class GraphModalFormController extends React.Component<
+    {
+        graphModalStore?: GraphModalStore;
+        onSave?: (graph: Graph | undefined) => void;
+    },
+    { active: boolean }
+> {
     private formRef: Form;
 
+    public state = { active: false };
+
+    public componentDidMount() {
+        const { graphModalStore } = this.props;
+        this.setState({ active: graphModalStore!.modalData.isActive || false });
+    }
+
     public handleSubmit = async () => {
+        const { active } = this.state;
         const { graphModalStore } = this.props;
         const { form } = this.formRef.props;
 
@@ -124,8 +158,10 @@ class GraphModalFormController extends React.Component<{
             if (err) {
                 return;
             }
-
-            const graph = await graphModalStore!.saveGraph(values);
+            const graph = await graphModalStore!.saveGraph({
+                ...values,
+                isActive: active,
+            });
 
             if (this.props.onSave) {
                 this.props.onSave(graph);
@@ -156,6 +192,10 @@ class GraphModalFormController extends React.Component<{
         this.formRef = formRef;
     };
 
+    public toggleActive = () => {
+        this.setState({ active: !this.state.active });
+    };
+
     public render() {
         const { graphModalStore } = this.props;
         const {
@@ -166,6 +206,7 @@ class GraphModalFormController extends React.Component<{
             constants,
             recurringOptions,
         } = graphModalStore!;
+        const { active } = this.state;
 
         const modalTitle = editMode ? 'Edit Graph Settings' : 'Add Graph';
 
@@ -180,7 +221,13 @@ class GraphModalFormController extends React.Component<{
         return (
             <GraphForm
                 wrappedComponentRef={this.saveFormRef}
-                title={modalTitle}
+                title={
+                    <Header
+                        active={active}
+                        toggleActive={this.toggleActive}
+                        text={modalTitle}
+                    />
+                }
                 visible={isVisible}
                 okText={okButton}
                 onOk={this.handleSubmit}
@@ -192,6 +239,7 @@ class GraphModalFormController extends React.Component<{
                 recurringOptions={recurringOptions}
                 onConstantAdd={this.onConstantAdd}
                 onConstantDelete={this.onConstantDelete}
+                closable={false}
             />
         );
     }
