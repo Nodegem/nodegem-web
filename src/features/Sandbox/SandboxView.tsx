@@ -249,6 +249,7 @@ export const SandboxView = observer(() => {
                             />
                         </VerticalCollapsible>
                         <SandboxCanvas
+                            isActive={sandboxStore.hasActiveTab}
                             editNode={onNodeEdit}
                             getDrawLinkRef={fakeLink.getElementRef}
                             isDrawing={isDrawing}

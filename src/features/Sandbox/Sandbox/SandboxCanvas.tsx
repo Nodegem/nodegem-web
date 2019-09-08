@@ -1,4 +1,5 @@
 import { Button, Icon, Input } from 'antd';
+import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { Link } from '../Link/Link';
@@ -12,6 +13,7 @@ export const sandboxDroppableId = 'sandboxId';
 
 export interface ISandboxProps {
     sandboxManager: SandboxManager;
+    isActive?: boolean;
     editNode: (data: INodeUIData) => void;
     getDrawLinkRef: (element: SVGPathElement) => void;
     isDrawing: boolean;
@@ -25,6 +27,7 @@ export interface ISandboxProps {
 export const SandboxCanvas: React.FC<ISandboxProps> = ({
     sandboxManager,
     editNode,
+    isActive,
     getDrawLinkRef,
     isDrawing,
     linkType,
@@ -41,7 +44,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
     }, [sandboxManager]);
 
     return (
-        <div className="sandbox">
+        <div className={classNames({ sandbox: true, disabled: !isActive })}>
             <Droppable droppableId={sandboxDroppableId}>
                 {(provided, snapshot) => (
                     <div

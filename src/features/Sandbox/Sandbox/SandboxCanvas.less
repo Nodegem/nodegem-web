@@ -13,6 +13,13 @@
     .port {
         background-color: @background !important;
     }
+
+    transition: opacity 250ms ease-in;
+
+    &.disabled {
+        opacity: 0.8;
+        pointer-events: none;
+    }
 }
 
 .view-background {

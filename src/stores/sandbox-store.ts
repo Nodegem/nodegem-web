@@ -119,7 +119,7 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
-    public loadDefinitions = (graphId: string, type: GraphType) => {
+    public loadDefinitions = async (graphId: string, type: GraphType) => {
         return NodeService.getAllNodeDefinitions(graphId, type);
     };
 
