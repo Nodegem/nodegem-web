@@ -27,6 +27,19 @@ export const isValidConnection = (
     return true;
 };
 
+export const flatten = <T>(tree: IHierarchicalNode<T>): T[] => {
+    const list = [] as T[];
+    list.push(...tree.items);
+
+    if (tree.children) {
+        Object.keys(tree.children).forEach(k =>
+            list.push(...flatten(tree.children[k]))
+        );
+    }
+
+    return list;
+};
+
 export const getGraphType = (graph: Graph | Macro): GraphType => {
     return isMacro(graph) ? 'macro' : 'graph';
 };

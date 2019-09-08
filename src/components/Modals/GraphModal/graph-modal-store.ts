@@ -12,6 +12,9 @@ class GraphModalStore extends ModalFormStore {
     @observable
     public recurringOptions: Partial<RecurringOptions> = {};
 
+    @observable
+    public isActive: boolean = true;
+
     @action public async saveGraph(values: any) {
         this.saving = true;
         let graph: Graph | undefined;
@@ -19,6 +22,7 @@ class GraphModalStore extends ModalFormStore {
         const newData = {
             ...values,
             ...this.createConstantsObject(values),
+            isActive: this.isActive,
         };
 
         if (values.type !== 'recurring') {
@@ -65,7 +69,13 @@ class GraphModalStore extends ModalFormStore {
         this.modalData = {};
     }
 
+    @action
+    public toggleActive = () => {
+        this.isActive = !this.isActive;
+    };
+
     public onDataLoad(data: Graph) {
+        this.isActive = data.isActive || true;
         this.constants = [...(data.constants || [])];
         this.recurringOptions = { ...data.recurringOptions };
     }

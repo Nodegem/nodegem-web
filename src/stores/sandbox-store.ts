@@ -4,7 +4,7 @@ import FakeLinkController from 'features/Sandbox/Link/fake-link-controller';
 import LinkController from 'features/Sandbox/Link/link-controller';
 import NodeController from 'features/Sandbox/Node/node-controller';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
-import { isValidConnection } from 'features/Sandbox/utils';
+import { flatten, isValidConnection } from 'features/Sandbox/utils';
 import { action, computed, observable } from 'mobx';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { NodeService } from 'services';
@@ -18,6 +18,10 @@ export type TabData = {
 };
 
 export class SandboxStore implements IDisposable {
+    private _cachedDefinitions: {
+        [graphId: string]: IHierarchicalNode<NodeDefinition>;
+    } = {};
+
     @observable
     public tabs: TabData[] = [];
 
@@ -41,6 +45,9 @@ export class SandboxStore implements IDisposable {
 
     @observable
     private _activeTab: string;
+
+    @observable
+    public modalVisible: boolean = false;
 
     @computed
     public get activeTab(): TabData | undefined {
@@ -101,6 +108,11 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
+    public toggleModal = () => {
+        this.modalVisible = !this.modalVisible;
+    };
+
+    @action
     public toggleNodeInfo = (value?: boolean) => {
         if (value === undefined) {
             value = !this.nodeInfoClosed;
@@ -119,8 +131,24 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
-    public loadDefinitions = async (graphId: string, type: GraphType) => {
-        return NodeService.getAllNodeDefinitions(graphId, type);
+    public loadDefinitions = async (
+        graphId: string,
+        type: GraphType,
+        forceRefresh?: boolean
+    ) => {
+        let definitions: IHierarchicalNode<NodeDefinition>;
+
+        if (!forceRefresh && this._cachedDefinitions[graphId]) {
+            definitions = this._cachedDefinitions[graphId];
+        } else {
+            definitions = await NodeService.getAllNodeDefinitions(
+                graphId,
+                type
+            );
+            this._cachedDefinitions[graphId] = definitions;
+        }
+
+        return definitions;
     };
 
     @action
@@ -144,34 +172,29 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
-    public load = (nodes: NodeData[]) => {
-        this.sandboxManager.load(
-            nodes!.map<INodeUIData>(x => ({
-                id: x.id,
-                title: x.fullName,
+    public load = async (graph: Partial<Graph | Macro>) => {
+        const { nodes, links, id } = graph;
+        const definitions = flatten(
+            await this.loadDefinitions(id!, getGraphType(graph))
+        );
+
+        console.log(definitions);
+
+        const uiNodes = (nodes || []).map<INodeUIData>(n => {
+            return {
+                id: n.id,
+                position: n.position,
                 portData: {
-                    flowInputs: [
-                        {
-                            id: '0',
-                            name: 'test',
-                            type: 'flow',
-                            io: 'input',
-                        },
-                    ],
+                    flowInputs: [],
+                    flowOutputs: [],
                     valueInputs: [],
-                    flowOutputs: [
-                        {
-                            id: '0',
-                            name: 'test',
-                            type: 'flow',
-                            io: 'output',
-                        },
-                    ],
                     valueOutputs: [],
                 },
-                position: x.position,
-            }))
-        );
+                title: 's',
+            };
+        });
+
+        this.sandboxManager.load(uiNodes);
     };
 
     @action
@@ -179,8 +202,7 @@ export class SandboxStore implements IDisposable {
         this._activeTab = id;
         if (this.activeTab) {
             const { nodes } = this.activeTab.graph;
-            this.loadDefinitions(id, getGraphType(this.activeTab.graph));
-            this.load(nodes || []);
+            this.load(this.activeTab.graph);
         }
     };
 

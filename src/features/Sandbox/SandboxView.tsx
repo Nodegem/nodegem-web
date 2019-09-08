@@ -1,4 +1,4 @@
-import { Button, Dropdown, Icon, Menu, Switch } from 'antd';
+import { Button, Modal } from 'antd';
 import { DraggableTabs, ITab } from 'components/DraggableTabs';
 import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
 import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
@@ -16,6 +16,7 @@ import { DragEndProps, TabData, useStore } from 'stores';
 import { isMacro } from 'utils';
 import NodeInfo from './NodeInfo/NodeInfo';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
+import PromptGraph from './PromptGraph/PromptGraph';
 import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
 import { definitionToNode } from './utils';
@@ -91,14 +92,14 @@ const TabTemplate: React.FC<ITab & { deleteTab: (tabId: string) => void }> = ({
             onMouseEnter={() => toggleDelete(true)}
             onMouseLeave={() => toggleDelete(false)}
         >
-            <span>{name}</span>
+            <span className="tab-title-text">{name}</span>
             {deleteVisible && (
                 <span className="tab-delete" style={{ position: 'absolute' }}>
                     <Button
                         onMouseUp={() => deleteTab(id)}
                         style={{
                             position: 'absolute',
-                            right: '-35px',
+                            left: '40px',
                             top: '-1px',
                         }}
                         type="link"
@@ -162,6 +163,8 @@ export const SandboxView = observer(() => {
         isDrawing,
         onNodeEdit,
         deleteTab,
+        modalVisible,
+        toggleModal,
     } = sandboxStore;
 
     useEffect(() => {
@@ -203,6 +206,15 @@ export const SandboxView = observer(() => {
         }
     }
 
+    function handleGraphCreate(type: GraphType) {
+        toggleModal();
+        if (type === 'graph') {
+            graphStore.openModal({ isActive: true });
+        } else {
+            macroStore.openModal();
+        }
+    }
+
     return (
         <>
             <div className="sandbox-view-container">
@@ -218,7 +230,7 @@ export const SandboxView = observer(() => {
                     }
                     onTabReorder={handleTabReorder}
                     dragEndObservable={dragEndObservable}
-                    onTabAdd={() => {}}
+                    onTabAdd={toggleModal}
                     onTabClick={handleTabClick}
                     tabControls={
                         <GraphControls
@@ -272,8 +284,24 @@ export const SandboxView = observer(() => {
                     </div>
                 </DragDropContext>
             </div>
-            <GraphModalFormController />
-            <MacroModalFormController />
+            <GraphModalFormController
+                onSave={(graph, edit) =>
+                    graph && !edit && sandboxStore.addTab(graph)
+                }
+            />
+            <MacroModalFormController
+                onSave={(macro, edit) =>
+                    macro && !edit && sandboxStore.addTab(macro)
+                }
+            />
+            <Modal
+                visible={modalVisible}
+                title="Select Type"
+                footer={null}
+                onCancel={toggleModal}
+            >
+                <PromptGraph onTypeSelect={handleGraphCreate} />
+            </Modal>
         </>
     );
 });

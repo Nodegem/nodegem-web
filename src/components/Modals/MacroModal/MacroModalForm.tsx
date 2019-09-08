@@ -233,7 +233,7 @@ const MacroForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
 @observer
 class MacroModalFormController extends React.Component<{
     macroModalStore?: MacroModalStore;
-    onSave?: (macro: Macro | undefined) => void;
+    onSave?: (macro: Macro | undefined, edit: boolean) => void;
 }> {
     private formRef: Form;
 
@@ -254,7 +254,7 @@ class MacroModalFormController extends React.Component<{
             const macro = await macroModalStore!.saveMacro(values);
 
             if (this.props.onSave) {
-                this.props.onSave(macro);
+                this.props.onSave(macro, macroModalStore!.editMode);
             }
 
             form!.resetFields();

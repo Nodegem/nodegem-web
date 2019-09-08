@@ -6,31 +6,24 @@ import { uuid } from 'lodash-uuid';
 import ModalFormStore from '../modal-form-store';
 
 class MacroModalStore extends ModalFormStore {
-    
     @observable
     public parentKey: string | string[] | undefined;
 
-    
     @observable
     public inputKey: string | string[] | undefined;
 
-    
     @observable
     public outputKey: string | string[] | undefined;
 
-    
     @observable
     public flowInputs: Array<Partial<FlowInputFieldDto>> = [];
 
-    
     @observable
     public valueInputs: Array<Partial<ValueInputFieldDto>> = [];
 
-    
     @observable
     public flowOutputs: Array<Partial<FlowOutputFieldDto>> = [];
 
-    
     @observable
     public valueOutputs: Array<Partial<ValueOutputFieldDto>> = [];
 

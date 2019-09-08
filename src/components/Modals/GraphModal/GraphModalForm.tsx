@@ -133,24 +133,13 @@ const Header: React.FC<IHeaderProps> = ({ text, active, toggleActive }) => {
 
 @inject('graphModalStore')
 @observer
-class GraphModalFormController extends React.Component<
-    {
-        graphModalStore?: GraphModalStore;
-        onSave?: (graph: Graph | undefined) => void;
-    },
-    { active: boolean }
-> {
+class GraphModalFormController extends React.Component<{
+    graphModalStore?: GraphModalStore;
+    onSave?: (graph: Graph | undefined, edit: boolean) => void;
+}> {
     private formRef: Form;
 
-    public state = { active: false };
-
-    public componentDidMount() {
-        const { graphModalStore } = this.props;
-        this.setState({ active: graphModalStore!.modalData.isActive || false });
-    }
-
     public handleSubmit = async () => {
-        const { active } = this.state;
         const { graphModalStore } = this.props;
         const { form } = this.formRef.props;
 
@@ -160,11 +149,10 @@ class GraphModalFormController extends React.Component<
             }
             const graph = await graphModalStore!.saveGraph({
                 ...values,
-                isActive: active,
             });
 
             if (this.props.onSave) {
-                this.props.onSave(graph);
+                this.props.onSave(graph, graphModalStore!.editMode);
             }
 
             form!.resetFields();
@@ -192,21 +180,18 @@ class GraphModalFormController extends React.Component<
         this.formRef = formRef;
     };
 
-    public toggleActive = () => {
-        this.setState({ active: !this.state.active });
-    };
-
     public render() {
         const { graphModalStore } = this.props;
         const {
+            isActive,
             saving,
             editMode,
             modalData,
             isVisible,
             constants,
             recurringOptions,
+            toggleActive,
         } = graphModalStore!;
-        const { active } = this.state;
 
         const modalTitle = editMode ? 'Edit Graph Settings' : 'Add Graph';
 
@@ -223,8 +208,8 @@ class GraphModalFormController extends React.Component<
                 wrappedComponentRef={this.saveFormRef}
                 title={
                     <Header
-                        active={active}
-                        toggleActive={this.toggleActive}
+                        active={isActive}
+                        toggleActive={toggleActive}
                         text={modalTitle}
                     />
                 }
