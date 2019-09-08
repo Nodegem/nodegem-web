@@ -12,14 +12,7 @@ import {
     DraggingStyle,
     NotDraggingStyle,
 } from 'react-beautiful-dnd';
-import {
-    DragEndProps,
-    graphModalStore,
-    macroModalStore,
-    TabData,
-    testData,
-    useStore,
-} from 'stores';
+import { DragEndProps, TabData, useStore } from 'stores';
 import { isMacro } from 'utils';
 import NodeInfo from './NodeInfo/NodeInfo';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
@@ -154,8 +147,6 @@ export const SandboxView = observer(() => {
     const { sandboxStore, graphStore, macroStore } = useStore();
     const {
         tabs,
-        addTab,
-        setTabs,
         dragEndObservable,
         setActiveTab,
         activeTab,
@@ -174,7 +165,6 @@ export const SandboxView = observer(() => {
     } = sandboxStore;
 
     useEffect(() => {
-        setTabs([...testData], true);
         dragEndObservable.subscribe(onDragEnd);
         return () => {
             sandboxStore.dispose();
@@ -202,14 +192,14 @@ export const SandboxView = observer(() => {
     }
 
     function handleTabReorder(orderedTabs: any[]) {
-        setTabs(orderedTabs.map(x => x.data));
+        sandboxStore.setTabs(orderedTabs.map(x => x.data));
     }
 
     function editGraph(graph: Partial<Graph | Macro>) {
         if (isMacro(graph)) {
-            macroModalStore.openModal(graph, true);
+            macroStore.openModal(graph, true);
         } else {
-            graphModalStore.openModal(graph, true);
+            graphStore.openModal(graph, true);
         }
     }
 
@@ -222,10 +212,13 @@ export const SandboxView = observer(() => {
                         name: t.graph.name!,
                         data: t,
                     }))}
-                    activeTab={(activeTab && activeTab.graph.id) || '0'}
+                    activeTab={
+                        sandboxStore.activeTab &&
+                        sandboxStore.activeTab.graph.id
+                    }
                     onTabReorder={handleTabReorder}
                     dragEndObservable={dragEndObservable}
-                    onTabAdd={addTab}
+                    onTabAdd={() => {}}
                     onTabClick={handleTabClick}
                     tabControls={
                         <GraphControls

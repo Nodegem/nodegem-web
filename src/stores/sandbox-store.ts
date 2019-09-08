@@ -8,46 +8,14 @@ import { isValidConnection } from 'features/Sandbox/utils';
 import { action, computed, observable } from 'mobx';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { NodeService } from 'services';
-import { getCenterCoordinates } from 'utils';
+import { getCenterCoordinates, getGraphType, isMacro } from 'utils';
 import { DrawArgs } from './../features/Sandbox/Link/draw-link-controller';
 import { SimpleObservable } from './../utils/simple-observable';
-
-let fake = 1;
 
 export type DragEndProps = { result: DropResult; provided: ResponderProvided };
 export type TabData = {
     graph: Partial<Graph | Macro>;
 };
-
-export const testData: TabData[] = [
-    {
-        graph: {
-            id: '0',
-            name: 'test',
-            nodes: [
-                {
-                    id: '0',
-                    fullName: 'A',
-                    position: { x: 0, y: -50 },
-                },
-                {
-                    id: '1',
-                    fullName: 'B',
-                    position: { x: 0, y: 50 },
-                },
-            ],
-            links: [
-                {
-                    sourceNode: '0',
-                    sourceKey: '0',
-                    destinationNode: '1',
-                    destinationKey: '1',
-                },
-            ],
-            description: 'a test one',
-        },
-    },
-];
 
 export class SandboxStore implements IDisposable {
     @observable
@@ -77,6 +45,11 @@ export class SandboxStore implements IDisposable {
     @computed
     public get activeTab(): TabData | undefined {
         return this.tabs.firstOrDefault(x => x.graph.id === this._activeTab);
+    }
+
+    @computed
+    public get hasActiveTab(): boolean {
+        return !!this._activeTab;
     }
 
     @computed
@@ -206,6 +179,7 @@ export class SandboxStore implements IDisposable {
         this._activeTab = id;
         if (this.activeTab) {
             const { nodes } = this.activeTab.graph;
+            this.loadDefinitions(id, getGraphType(this.activeTab.graph));
             this.load(nodes || []);
         }
     };
@@ -219,15 +193,9 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
-    public addTab = () => {
-        const id = fake.toString();
-
-        this.tabs.push({
-            graph: { id, name: id } as any,
-        });
-
-        this.setActiveTab(id);
-        fake++;
+    public addTab = (graph: Graph | Macro) => {
+        this.tabs.push({ graph });
+        this.setActiveTab(graph.id);
     };
 
     @action
@@ -236,6 +204,9 @@ export class SandboxStore implements IDisposable {
         if (index >= 0) {
             if (index - 1 >= 0) {
                 const nextTab = this.tabs[index - 1];
+                this.setActiveTab(nextTab.graph.id!);
+            } else if (this.tabs.length > 0) {
+                const nextTab = this.tabs[index + 1];
                 this.setActiveTab(nextTab.graph.id!);
             } else {
                 this.sandboxManager.clearView();

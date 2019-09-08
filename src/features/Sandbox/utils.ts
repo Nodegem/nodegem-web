@@ -1,4 +1,5 @@
 import { uuid } from 'lodash-uuid';
+import { isMacro } from 'utils';
 
 export const isValidConnection = (
     p1: { nodeId: string; port: IPortUIData },
@@ -24,6 +25,10 @@ export const isValidConnection = (
     }
 
     return true;
+};
+
+export const getGraphType = (graph: Graph | Macro): GraphType => {
+    return isMacro(graph) ? 'macro' : 'graph';
 };
 
 export const definitionToNode = (

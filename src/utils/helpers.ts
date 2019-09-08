@@ -37,7 +37,9 @@ export function getCookie(name): string | undefined {
     return undefined;
 }
 
-export function getGraphType(graph: Graph | Macro): GraphType {
+export function getGraphType(
+    graph: Graph | Macro | (Partial<Graph | Macro>)
+): GraphType {
     return isMacro(graph) ? 'macro' : 'graph';
 }
 
