@@ -185,7 +185,7 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
                                     }))}
                                 />
                                 {provided.placeholder}
-                                <Tooltip title="New Graph" placement="right">
+                                <Tooltip title="New" placement="right">
                                     <Button
                                         type="dashed"
                                         size="default"

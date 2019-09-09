@@ -47,11 +47,21 @@ export class SandboxStore implements IDisposable {
     private _activeTab: string;
 
     @observable
-    public modalVisible: boolean = false;
+    public selectionModalVisible: boolean = false;
+
+    @observable
+    public selectGraphVisible: boolean = false;
 
     @computed
     public get activeTab(): TabData | undefined {
         return this.tabs.firstOrDefault(x => x.graph.id === this._activeTab);
+    }
+
+    @computed
+    public get activeTabDefinitions():
+        | IHierarchicalNode<NodeDefinition>
+        | undefined {
+        return this.activeTab && this._cachedDefinitions[this._activeTab];
     }
 
     @computed
@@ -108,8 +118,13 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
-    public toggleModal = () => {
-        this.modalVisible = !this.modalVisible;
+    public toggleSelectionModal = () => {
+        this.selectionModalVisible = !this.selectionModalVisible;
+    };
+
+    @action
+    public toggleGraphSelectModal = () => {
+        this.selectGraphVisible = !this.selectGraphVisible;
     };
 
     @action

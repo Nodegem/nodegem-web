@@ -121,7 +121,6 @@ const GraphControls: React.FC<IGraphControlProps> = ({ graph, openModal }) => {
         <div className="tab-controls">
             <Button
                 disabled={!graph}
-                size="small"
                 shape="round"
                 type="primary"
                 icon="setting"
@@ -131,7 +130,6 @@ const GraphControls: React.FC<IGraphControlProps> = ({ graph, openModal }) => {
             </Button>
             <Button
                 disabled={!graph}
-                size="small"
                 shape="round"
                 type="primary"
                 icon="save"
@@ -163,11 +161,15 @@ export const SandboxView = observer(() => {
         isDrawing,
         onNodeEdit,
         deleteTab,
-        modalVisible,
-        toggleModal,
+        selectionModalVisible,
+        toggleSelectionModal,
     } = sandboxStore;
 
     useEffect(() => {
+        if (!sandboxStore.hasActiveTab) {
+            toggleSelectionModal();
+        }
+
         dragEndObservable.subscribe(onDragEnd);
         return () => {
             sandboxStore.dispose();
@@ -175,7 +177,7 @@ export const SandboxView = observer(() => {
     }, [sandboxStore]);
 
     function onDragEnd({ result }: DragEndProps) {
-        if (!result.destination) {
+        if (!sandboxStore.hasActiveTab || !result.destination) {
             return;
         }
 
@@ -207,12 +209,16 @@ export const SandboxView = observer(() => {
     }
 
     function handleGraphCreate(type: GraphType) {
-        toggleModal();
+        toggleSelectionModal();
         if (type === 'graph') {
             graphStore.openModal({ isActive: true });
         } else {
             macroStore.openModal();
         }
+    }
+
+    function onGraphSelect() {
+        console.log('sda');
     }
 
     return (
@@ -230,7 +236,7 @@ export const SandboxView = observer(() => {
                     }
                     onTabReorder={handleTabReorder}
                     dragEndObservable={dragEndObservable}
-                    onTabAdd={toggleModal}
+                    onTabAdd={toggleSelectionModal}
                     onTabClick={handleTabClick}
                     tabControls={
                         <GraphControls
@@ -295,12 +301,15 @@ export const SandboxView = observer(() => {
                 }
             />
             <Modal
-                visible={modalVisible}
-                title="Select Type"
+                visible={selectionModalVisible}
                 footer={null}
-                onCancel={toggleModal}
+                onCancel={toggleSelectionModal}
+                width={750}
             >
-                <PromptGraph onTypeSelect={handleGraphCreate} />
+                <PromptGraph
+                    onSelectGraph={onGraphSelect}
+                    onTypeSelect={handleGraphCreate}
+                />
             </Modal>
         </>
     );
