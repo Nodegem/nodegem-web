@@ -58,6 +58,11 @@ export class SandboxStore implements IDisposable {
     }
 
     @computed
+    public get hasTabs(): boolean {
+        return !this.tabs.empty();
+    }
+
+    @computed
     public get activeTabDefinitions():
         | IHierarchicalNode<NodeDefinition>
         | undefined {

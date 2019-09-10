@@ -17,6 +17,7 @@ import { isMacro } from 'utils';
 import NodeInfo from './NodeInfo/NodeInfo';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
 import PromptGraph from './PromptGraph/PromptGraph';
+import SelectGraph from './PromptGraph/SelectGraph';
 import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
 import { definitionToNode } from './utils';
@@ -163,6 +164,8 @@ export const SandboxView = observer(() => {
         deleteTab,
         selectionModalVisible,
         toggleSelectionModal,
+        selectGraphVisible,
+        toggleGraphSelectModal,
     } = sandboxStore;
 
     useEffect(() => {
@@ -216,9 +219,9 @@ export const SandboxView = observer(() => {
             macroStore.openModal();
         }
     }
-
     function onGraphSelect() {
-        console.log('sda');
+        toggleSelectionModal();
+        toggleGraphSelectModal();
     }
 
     return (
@@ -301,14 +304,32 @@ export const SandboxView = observer(() => {
                 }
             />
             <Modal
+                maskClosable={sandboxStore.hasTabs}
                 visible={selectionModalVisible}
                 footer={null}
                 onCancel={toggleSelectionModal}
-                width={750}
+                width={900}
+                centered
             >
                 <PromptGraph
                     onSelectGraph={onGraphSelect}
                     onTypeSelect={handleGraphCreate}
+                />
+            </Modal>
+            <Modal
+                title="Select Graph or Macro"
+                maskClosable={sandboxStore.hasTabs}
+                visible={selectGraphVisible}
+                footer={null}
+                width={900}
+                onCancel={toggleGraphSelectModal}
+                centered
+            >
+                <SelectGraph
+                    onGraphSelect={g => {
+                        toggleGraphSelectModal();
+                        sandboxStore.addTab(g);
+                    }}
                 />
             </Modal>
         </>
