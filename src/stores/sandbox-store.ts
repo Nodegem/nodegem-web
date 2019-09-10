@@ -123,13 +123,15 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
-    public toggleSelectionModal = () => {
-        this.selectionModalVisible = !this.selectionModalVisible;
+    public toggleSelectionModal = (value?: boolean) => {
+        this.selectionModalVisible =
+            value === undefined ? !this.selectionModalVisible : value;
     };
 
     @action
-    public toggleGraphSelectModal = () => {
-        this.selectGraphVisible = !this.selectGraphVisible;
+    public toggleGraphSelectModal = (value?: boolean) => {
+        this.selectGraphVisible =
+            value === undefined ? !this.selectGraphVisible : value;
     };
 
     @action
@@ -254,6 +256,8 @@ export class SandboxStore implements IDisposable {
                 this.sandboxManager.clearView();
             }
             this.tabs.removeWhere(x => x.graph.id === graphId);
+            this.toggleSelectionModal(false);
+            this.toggleGraphSelectModal(false);
         }
     };
 
@@ -262,8 +266,11 @@ export class SandboxStore implements IDisposable {
         this._drawLinkController.dispose();
         this.dragEndObservable.clear();
         this.sandboxManager.dispose();
-        this.tabs = [];
         window.removeEventListener('keypress', this.handleKeyPress);
+        this.tabs = [];
+        this.toggleSelectionModal(false);
+        this.toggleGraphSelectModal(false);
+        this._activeTab = '';
     }
 
     private onGraphError = (

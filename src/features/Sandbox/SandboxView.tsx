@@ -169,8 +169,8 @@ export const SandboxView = observer(() => {
     } = sandboxStore;
 
     useEffect(() => {
-        if (!sandboxStore.hasActiveTab) {
-            toggleSelectionModal();
+        if (!sandboxStore.hasTabs) {
+            toggleSelectionModal(true);
         }
 
         dragEndObservable.subscribe(onDragEnd);
@@ -307,7 +307,7 @@ export const SandboxView = observer(() => {
                 maskClosable={sandboxStore.hasTabs}
                 visible={selectionModalVisible}
                 footer={null}
-                onCancel={toggleSelectionModal}
+                onCancel={() => toggleSelectionModal()}
                 width={900}
                 centered
             >
@@ -322,7 +322,7 @@ export const SandboxView = observer(() => {
                 visible={selectGraphVisible}
                 footer={null}
                 width={900}
-                onCancel={toggleGraphSelectModal}
+                onCancel={() => toggleGraphSelectModal()}
                 centered
             >
                 <SelectGraph
