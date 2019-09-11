@@ -163,7 +163,7 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
             }
         >
             <Row className="tabs-container">
-                <Col span={20}>
+                <Col span={18}>
                     <Droppable droppableId={tabListId} direction="horizontal">
                         {(provided, snapshot) => (
                             <div
@@ -198,7 +198,7 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
                         )}
                     </Droppable>
                 </Col>
-                {tabControls && <Col span={4}>{tabControls}</Col>}
+                {tabControls && <Col span={6}>{tabControls}</Col>}
             </Row>
         </DragDropContext>
     );

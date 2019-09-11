@@ -9,8 +9,9 @@ class DragController implements IDisposable {
 
     constructor(
         private container: HTMLElement,
-        public onTranslate: DragTranslateEvent = () => {},
-        public onDragUp: DragUpEvent = () => {}
+        private onTranslate: DragTranslateEvent = () => {},
+        private onDragUp: DragUpEvent = () => {},
+        private onCanvasDown: DragStartEvent = () => {}
     ) {
         this.mouseStart = null;
         this.initEvents();
@@ -42,6 +43,7 @@ class DragController implements IDisposable {
         }
 
         event.stopPropagation();
+        this.onCanvasDown(event as MouseEvent);
         this.mouseStart = this.getCoords(event);
     };
 

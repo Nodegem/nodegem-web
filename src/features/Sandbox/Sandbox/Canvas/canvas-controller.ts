@@ -81,7 +81,8 @@ class CanvasController implements IDisposable {
     constructor(
         public canvas: HTMLDivElement,
         private dimensions: Dimensions,
-        private zoomBounds: ZoomBounds = { min: 0.53, max: 2.75 }
+        private zoomBounds: ZoomBounds = { min: 0.53, max: 2.75 },
+        private onCanvasDown: (event: MouseEvent) => void
     ) {
         this._mousePos = { x: 0, y: 0 };
 
@@ -108,7 +109,12 @@ class CanvasController implements IDisposable {
         this.backgroundElement.classList.add('view-background');
         this.canvas.prepend(this.backgroundElement);
 
-        this.drag = new DragController(this.parentElement, this.onTranslate);
+        this.drag = new DragController(
+            this.parentElement,
+            this.onTranslate,
+            () => {},
+            this.onCanvasDown
+        );
         this.zoom = new ZoomController(
             this.parentElement,
             this.canvas,
@@ -147,9 +153,7 @@ class CanvasController implements IDisposable {
             x: -offset.x + x,
             y: offset.y + y,
         };
-        this.canvas.style.transform = `translate(${newTransform.x}px, ${
-            newTransform.y
-        }px) scale(${scale})`;
+        this.canvas.style.transform = `translate(${newTransform.x}px, ${newTransform.y}px) scale(${scale})`;
     }
 
     private onTranslate = (delta: Vector2, e: MouseEvent) => {

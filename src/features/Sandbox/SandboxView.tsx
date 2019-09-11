@@ -124,10 +124,19 @@ const GraphControls: React.FC<IGraphControlProps> = ({ graph, openModal }) => {
                 disabled={!graph}
                 shape="round"
                 type="primary"
+                icon="code"
+                onClick={() => openModal(graph!)}
+            >
+                Logs
+            </Button>
+            <Button
+                disabled={!graph}
+                shape="round"
+                type="primary"
                 icon="setting"
                 onClick={() => openModal(graph!)}
             >
-                Graph Settings
+                Settings
             </Button>
             <Button
                 disabled={!graph}

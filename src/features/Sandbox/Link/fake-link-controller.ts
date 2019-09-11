@@ -1,12 +1,9 @@
-import { getCenterCoordinates } from 'utils';
-import CanvasController from '../Sandbox/Canvas/canvas-controller';
 import { flowPath, valuePath } from './link-controller';
 
 export default class FakeLinkController implements IDisposable {
     private element: SVGPathElement;
     private source?: Vector2;
     private portType?: PortType;
-    private isModifying: boolean;
 
     public get type() {
         return this.portType;

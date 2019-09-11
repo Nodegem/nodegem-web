@@ -55,13 +55,14 @@ class NodeController implements IDisposable {
     > = new Map();
 
     private moveable: Moveable;
-    private element: Element;
+    private element: HTMLElement;
 
     constructor(
         private _nodeData: INodeUIData,
         private canvasContainer: CanvasController,
         private portEvent: PortClickEvent,
-        private onMove?: (node: NodeController) => void
+        private onMove?: (node: NodeController) => void,
+        private onDblClick?: (node: NodeController) => void
     ) {}
 
     public getElementRef = (element: HTMLElement) => {
@@ -83,6 +84,11 @@ class NodeController implements IDisposable {
             this.canvasContainer,
             () => this.onMove && this.onMove(this),
             this._nodeData.position
+        );
+
+        this.element.addEventListener(
+            'dblclick',
+            () => this.onDblClick && this.onDblClick(this)
         );
     };
 

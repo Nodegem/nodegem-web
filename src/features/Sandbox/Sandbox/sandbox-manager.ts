@@ -53,7 +53,9 @@ class SandboxManager implements IDisposable {
             element: HTMLElement,
             data: IPortUIData,
             node: NodeController
-        ) => void
+        ) => void,
+        private onCanvasDown: (event: MouseEvent) => void,
+        private onNodeDblClick: (node: NodeController) => void
     ) {}
 
     public setProperties(
@@ -72,7 +74,8 @@ class SandboxManager implements IDisposable {
         this._canvasController = new CanvasController(
             element,
             this.bounds,
-            this.zoomBounds
+            this.zoomBounds,
+            this.onCanvasDown
         );
         this.selectController = new SelectionController(
             this._canvasController,
@@ -99,7 +102,8 @@ class SandboxManager implements IDisposable {
                 node,
                 this._canvasController,
                 this.handlePortEvent,
-                this.onNodeMove
+                this.onNodeMove,
+                this.onNodeDblClick
             )
         );
     };
@@ -214,8 +218,6 @@ class SandboxManager implements IDisposable {
             const destinationPort = destinationNode.ports.get(
                 link.destinationData.id
             );
-
-            console.log(sourcePort, destinationPort);
 
             if (!sourcePort || !destinationPort) {
                 continue;

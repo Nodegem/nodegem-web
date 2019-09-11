@@ -99,7 +99,9 @@ export class SandboxStore implements IDisposable {
 
         this.sandboxManager = new SandboxManager(
             this.onSelection,
-            this.onPortEvent
+            this.onPortEvent,
+            this.handleCanvasDown,
+            this.handleNodeDblClick
         );
 
         this.fakeLink = new FakeLinkController();
@@ -116,6 +118,17 @@ export class SandboxStore implements IDisposable {
             case 27:
                 this._drawLinkController.stopDrawing();
                 break;
+        }
+    };
+
+    @action
+    private handleNodeDblClick = (node: NodeController) => {
+        console.log(node);
+    };
+
+    private handleCanvasDown = (event: MouseEvent) => {
+        if (this._drawLinkController.isDrawing) {
+            this._drawLinkController.stopDrawing();
         }
     };
 
@@ -164,10 +177,7 @@ export class SandboxStore implements IDisposable {
             this._cachedDefinitions[graphId] = {
                 definitionList,
                 definitions,
-                definitionLookup: definitionList.reduce(
-                    (prev, x) => ({ ...prev, [x.fullName]: x }),
-                    {}
-                ),
+                definitionLookup: definitionList.toDictionary('fullName'),
             };
         }
 
@@ -250,6 +260,8 @@ export class SandboxStore implements IDisposable {
                 )!,
             };
         });
+
+        console.log(definitions);
 
         this.sandboxManager.load(uiNodes, uiLinks);
     };
