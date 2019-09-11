@@ -4,7 +4,7 @@ import FakeLinkController from 'features/Sandbox/Link/fake-link-controller';
 import LinkController from 'features/Sandbox/Link/link-controller';
 import NodeController from 'features/Sandbox/Node/node-controller';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
-import { flatten, isValidConnection } from 'features/Sandbox/utils';
+import { flatten, getPort, isValidConnection } from 'features/Sandbox/utils';
 import { action, computed, observable } from 'mobx';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { NodeService } from 'services';
@@ -19,7 +19,11 @@ export type TabData = {
 
 export class SandboxStore implements IDisposable {
     private _cachedDefinitions: {
-        [graphId: string]: IHierarchicalNode<NodeDefinition>;
+        [graphId: string]: {
+            definitions: IHierarchicalNode<NodeDefinition>;
+            definitionList: NodeDefinition[];
+            definitionLookup: { [id: string]: NodeDefinition };
+        };
     } = {};
 
     @observable
@@ -60,13 +64,6 @@ export class SandboxStore implements IDisposable {
     @computed
     public get hasTabs(): boolean {
         return !this.tabs.empty();
-    }
-
-    @computed
-    public get activeTabDefinitions():
-        | IHierarchicalNode<NodeDefinition>
-        | undefined {
-        return this.activeTab && this._cachedDefinitions[this._activeTab];
     }
 
     @computed
@@ -158,19 +155,23 @@ export class SandboxStore implements IDisposable {
         type: GraphType,
         forceRefresh?: boolean
     ) => {
-        let definitions: IHierarchicalNode<NodeDefinition>;
-
-        if (!forceRefresh && this._cachedDefinitions[graphId]) {
-            definitions = this._cachedDefinitions[graphId];
-        } else {
-            definitions = await NodeService.getAllNodeDefinitions(
+        if (forceRefresh || !this._cachedDefinitions[graphId]) {
+            const definitions = await NodeService.getAllNodeDefinitions(
                 graphId,
                 type
             );
-            this._cachedDefinitions[graphId] = definitions;
+            const definitionList = flatten(definitions);
+            this._cachedDefinitions[graphId] = {
+                definitionList,
+                definitions,
+                definitionLookup: definitionList.reduce(
+                    (prev, x) => ({ ...prev, [x.fullName]: x }),
+                    {}
+                ),
+            };
         }
 
-        return definitions;
+        return this._cachedDefinitions[graphId];
     };
 
     @action
@@ -196,27 +197,61 @@ export class SandboxStore implements IDisposable {
     @action
     public load = async (graph: Partial<Graph | Macro>) => {
         const { nodes, links, id } = graph;
-        const definitions = flatten(
-            await this.loadDefinitions(id!, getGraphType(graph))
+        const definitions = await this.loadDefinitions(
+            id!,
+            getGraphType(graph)
         );
 
-        console.log(definitions);
-
         const uiNodes = (nodes || []).map<INodeUIData>(n => {
+            const info = definitions.definitionLookup[n.fullName];
             return {
                 id: n.id,
                 position: n.position,
                 portData: {
-                    flowInputs: [],
-                    flowOutputs: [],
-                    valueInputs: [],
-                    valueOutputs: [],
+                    flowInputs: info.flowInputs.map<IPortUIData>(fi => ({
+                        id: fi.key,
+                        name: fi.label,
+                        io: 'input',
+                        type: 'flow',
+                    })),
+                    flowOutputs: info.flowOutputs.map<IPortUIData>(fi => ({
+                        id: fi.key,
+                        name: fi.label,
+                        io: 'output',
+                        type: 'flow',
+                    })),
+                    valueInputs: info.valueInputs.map<IPortUIData>(fi => ({
+                        id: fi.key,
+                        name: fi.label,
+                        io: 'input',
+                        type: 'value',
+                    })),
+                    valueOutputs: info.valueOutputs.map<IPortUIData>(fi => ({
+                        id: fi.key,
+                        name: fi.label,
+                        io: 'output',
+                        type: 'value',
+                    })),
                 },
-                title: 's',
+                title: info.title,
             };
         });
 
-        this.sandboxManager.load(uiNodes);
+        const nodeLookup = uiNodes.toDictionary('id');
+
+        const uiLinks = (links || []).map<ILinkInitializeData>(l => {
+            return {
+                sourceNodeId: l.sourceNode,
+                sourceData: getPort(nodeLookup[l.sourceNode], l.sourceKey)!,
+                destinationNodeId: l.destinationNode,
+                destinationData: getPort(
+                    nodeLookup[l.destinationNode],
+                    l.destinationKey
+                )!,
+            };
+        });
+
+        this.sandboxManager.load(uiNodes, uiLinks);
     };
 
     @action

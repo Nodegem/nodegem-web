@@ -51,3 +51,10 @@ interface ILinkUIData {
     destination: HTMLElement;
     destinationData: IPortUIData;
 }
+
+interface ILinkInitializeData {
+    sourceNodeId: string;
+    sourceData: IPortUIData;
+    destinationNodeId: string;
+    destinationData: IPortUIData;
+}

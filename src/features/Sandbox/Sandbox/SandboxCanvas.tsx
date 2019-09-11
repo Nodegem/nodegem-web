@@ -78,6 +78,8 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                         <SandboxNode
                             key={n.id}
                             getRef={n.getElementRef}
+                            getPortRef={n.getPortRef}
+                            removePortRef={n.removePortRef}
                             onPortEvent={n.onPortEvent}
                             data={n.nodeData}
                             editNode={editNode}

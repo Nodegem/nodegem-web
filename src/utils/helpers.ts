@@ -73,6 +73,16 @@ export function getCenterCoordinates(element: HTMLElement): Vector2 {
     };
 }
 
+export const waitWhile = async (predicate: () => boolean) => {
+    while (!predicate()) {
+        await sleep(1);
+    }
+};
+
+export function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export const reorder = <T>(
     list: T[],
     startIndex: number,

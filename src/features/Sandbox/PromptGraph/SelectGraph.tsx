@@ -31,34 +31,26 @@ const SelectGraph: React.FC<ISelectGraph> = ({ onGraphSelect }) => {
     }, []);
 
     return (
-        <>
+        <div className="graph-select">
             <Card title="Graphs" loading={isLoading} type="inner">
                 {graphs.map((g, i) => (
                     <Card.Grid key={i}>
-                        <Button
-                            onClick={() => onGraphSelect(g)}
-                            type="link"
-                            block
-                        >
-                            {g.name}
-                        </Button>
+                        <div onClick={() => onGraphSelect(g)}>
+                            <a>{g.name}</a>
+                        </div>
                     </Card.Grid>
                 ))}
             </Card>
             <Card title="Macros" loading={isLoading} type="inner">
                 {macros.map((m, i) => (
                     <Card.Grid key={i}>
-                        <Button
-                            onClick={() => onGraphSelect(m)}
-                            type="link"
-                            block
-                        >
-                            {m.name}
-                        </Button>
+                        <div onClick={() => onGraphSelect(m)}>
+                            <a>{m.name}</a>
+                        </div>
                     </Card.Grid>
                 ))}
             </Card>
-        </>
+        </div>
     );
 };
 

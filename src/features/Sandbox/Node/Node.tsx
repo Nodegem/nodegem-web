@@ -10,6 +10,8 @@ interface INodeProps {
     editNode?: (nodeData: INodeUIData) => void;
     removeNode?: (id: string) => void;
     getRef?: (instance: HTMLDivElement) => void;
+    getPortRef?: (port: IPortUIData, element: HTMLElement) => void;
+    removePortRef?: (id: string) => void;
     onPortEvent?: (
         event: PortEvent,
         element: HTMLElement,
@@ -85,6 +87,8 @@ export const Node: React.FC<INodeProps> = ({
     data,
     editNode = () => {},
     removeNode = () => {},
+    getPortRef,
+    removePortRef,
     sandboxMode,
     onPortEvent,
     ...rest
@@ -158,6 +162,8 @@ export const Node: React.FC<INodeProps> = ({
                 <div className="flow flow-inputs">
                     {flowInputs.map(fi => (
                         <Port
+                            getPortRef={getPortRef}
+                            removePortRef={removePortRef}
                             key={fi.id}
                             data={fi}
                             onPortEvent={onPortEvent}
@@ -169,6 +175,8 @@ export const Node: React.FC<INodeProps> = ({
                     <div className="value value-inputs">
                         {valueInputs.map(vi => (
                             <Port
+                                getPortRef={getPortRef}
+                                removePortRef={removePortRef}
                                 key={vi.id}
                                 data={vi}
                                 onPortEvent={onPortEvent}
@@ -180,6 +188,8 @@ export const Node: React.FC<INodeProps> = ({
                     <div className="value value-outputs">
                         {valueOutputs.map(vo => (
                             <Port
+                                getPortRef={getPortRef}
+                                removePortRef={removePortRef}
                                 key={vo.id}
                                 data={vo}
                                 onPortEvent={onPortEvent}
@@ -191,6 +201,8 @@ export const Node: React.FC<INodeProps> = ({
                 <div className="flow flow-outputs">
                     {flowOutputs.map(fo => (
                         <Port
+                            getPortRef={getPortRef}
+                            removePortRef={removePortRef}
                             key={fo.id}
                             data={fo}
                             onPortEvent={onPortEvent}

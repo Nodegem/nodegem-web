@@ -8,6 +8,8 @@ import './Port.less';
 interface ISocketProps {
     data: IPortUIData;
     sandboxMode?: boolean;
+    getPortRef?: (port: IPortUIData, element: HTMLElement) => void;
+    removePortRef?: (id: string) => void;
     onPortEvent?: (
         event: PortEvent,
         element: HTMLElement,
@@ -18,6 +20,8 @@ interface ISocketProps {
 export const Socket: React.FC<ISocketProps> = ({
     onPortEvent,
     data,
+    getPortRef,
+    removePortRef,
     sandboxMode,
 }: ISocketProps) => {
     const portRef = useRef<HTMLSpanElement>(null);
@@ -38,6 +42,7 @@ export const Socket: React.FC<ISocketProps> = ({
         if (!sandboxMode) {
             return;
         }
+        getPortRef!(data, portRef.current!);
         portRef.current!.addEventListener('mousedown', portClick);
         portRef.current!.addEventListener('mouseup', portClick);
         portRef.current!.addEventListener('touchstart', portClick);
@@ -46,6 +51,7 @@ export const Socket: React.FC<ISocketProps> = ({
             if (!sandboxMode) {
                 return;
             }
+            removePortRef!(data.id);
             portRef.current!.removeEventListener('mousedown', portClick);
             portRef.current!.removeEventListener('mouseup', portClick);
             portRef.current!.removeEventListener('touchstart', portClick);

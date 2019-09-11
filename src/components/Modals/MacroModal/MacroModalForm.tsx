@@ -375,6 +375,7 @@ class MacroModalFormController extends React.Component<{
                 flowInputs={flowInputs}
                 flowOutputs={flowOutputs}
                 closable={false}
+                centered
             />
         );
     }

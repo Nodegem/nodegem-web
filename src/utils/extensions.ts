@@ -7,7 +7,7 @@ declare global {
         firstOrDefault(predicate?: (item: T) => boolean): T | undefined;
         lastOrDefault(): T | null;
         copy(): T[];
-        toDictionary<T>(array: T[], indexKey: keyof T): { [key: string]: T };
+        toDictionary(indexKey: keyof T): { [key: string]: T };
     }
 
     // tslint:disable-next-line: interface-name
@@ -52,11 +52,11 @@ Array.prototype.copy = function<T>(): T[] {
 };
 
 // tslint:disable-next-line: only-arrow-functions
-Array.prototype.toDictionary = function<T>(array: T[], indexKey: keyof T) {
+Array.prototype.toDictionary = function<T>(indexKey: keyof T) {
     const normalizedObject: any = {};
-    for (let i = 0; i < array.length; i++) {
-        const key = array[i][indexKey];
-        normalizedObject[key] = array[i];
+    for (let i = 0; i < this.length; i++) {
+        const key = this[i][indexKey];
+        normalizedObject[key] = this[i];
     }
     return normalizedObject as { [key: string]: T };
 };

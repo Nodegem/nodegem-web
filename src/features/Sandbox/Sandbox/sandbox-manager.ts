@@ -1,4 +1,5 @@
 import { action, computed, observable } from 'mobx';
+import { sleep, waitWhile } from 'utils';
 import LinkController from '../Link/link-controller';
 import NodeController from '../Node/node-controller';
 import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
@@ -194,10 +195,44 @@ class SandboxManager implements IDisposable {
     };
 
     @action
-    public load(data: INodeUIData[]) {
+    public async load(nodes: INodeUIData[], links: ILinkInitializeData[]) {
         this.clearView();
-        for (const node of data) {
+        for (const node of nodes) {
             this.addNode(node);
+        }
+
+        await waitWhile(() => this.nodes.every(n => n.hasLoaded));
+
+        for (const link of links) {
+            const sourceNode = this._nodes.get(link.sourceNodeId);
+            const destinationNode = this._nodes.get(link.destinationNodeId);
+            if (!sourceNode || !destinationNode) {
+                continue;
+            }
+
+            const sourcePort = sourceNode.ports.get(link.sourceData.id);
+            const destinationPort = destinationNode.ports.get(
+                link.destinationData.id
+            );
+
+            console.log(sourcePort, destinationPort);
+
+            if (!sourcePort || !destinationPort) {
+                continue;
+            }
+
+            this.addLink(
+                {
+                    node: sourceNode,
+                    data: sourcePort.port,
+                    element: sourcePort.element,
+                },
+                {
+                    node: destinationNode,
+                    data: destinationPort.port,
+                    element: destinationPort.element,
+                }
+            );
         }
     }
 

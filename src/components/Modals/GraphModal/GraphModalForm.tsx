@@ -225,6 +225,7 @@ class GraphModalFormController extends React.Component<{
                 onConstantAdd={this.onConstantAdd}
                 onConstantDelete={this.onConstantDelete}
                 closable={false}
+                centered
             />
         );
     }

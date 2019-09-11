@@ -76,7 +76,10 @@ export default class LinkController implements IDisposable {
             this._type === 'flow'
                 ? flowPath(source, destination)
                 : valuePath(source, destination);
-        this.element.setAttribute('d', path);
+
+        if (this.element) {
+            this.element.setAttribute('d', path);
+        }
     }
 
     public getSourceData = (element: HTMLElement) => {

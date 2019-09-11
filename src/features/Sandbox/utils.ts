@@ -44,6 +44,20 @@ export const getGraphType = (graph: Graph | Macro): GraphType => {
     return isMacro(graph) ? 'macro' : 'graph';
 };
 
+export const getAllPorts = (node: INodeUIData) => {
+    const {
+        flowInputs,
+        flowOutputs,
+        valueInputs,
+        valueOutputs,
+    } = node.portData;
+    return [...flowInputs, ...flowOutputs, ...valueInputs, ...valueOutputs];
+};
+
+export const getPort = (node: INodeUIData, key: string) => {
+    return getAllPorts(node).firstOrDefault(x => x.id === key);
+};
+
 export const definitionToNode = (
     definition: NodeDefinition,
     position: Vector2 = { x: 0, y: 0 },
