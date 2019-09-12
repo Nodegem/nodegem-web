@@ -16,7 +16,7 @@ import './DraggableTabs.less';
 
 interface IDraggableTabPaneProps {
     tab: ITab;
-    tabTemplate: (tab: ITab) => JSX.Element;
+    tabTemplate: (tab: ITab, isDragging: boolean) => JSX.Element;
 }
 
 const tabListId = 'tabList';
@@ -56,16 +56,15 @@ function DraggableTab({
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                     className={classnames({
-                        tab: true,
+                        'tab-drag': true,
                         active: isActive,
-                        dragging: snapshot.isDragging,
                     })}
                     style={tabDragStyle(
                         provided.draggableProps.style,
                         snapshot
                     )}
                 >
-                    {tabTemplate(tab)}
+                    {tabTemplate(tab, snapshot.isDragging)}
                 </div>
             )}
         </Draggable>
@@ -73,7 +72,7 @@ function DraggableTab({
 }
 
 interface IDragTab extends ITab {
-    tabTemplate: (tab: ITab) => JSX.Element;
+    tabTemplate: (tab: ITab, isDragging: boolean) => JSX.Element;
     isActive: boolean;
     onClick: (tabId: string) => void;
 }
@@ -102,7 +101,7 @@ interface IDraggableTabProps {
     tabs: ITab[];
     activeTab?: string;
     tabControls?: JSX.Element;
-    tabTemplate: (tab: ITab) => JSX.Element;
+    tabTemplate: (tab: ITab, isDragging: boolean) => JSX.Element;
     dragEndObservable: SimpleObservable<DragEndProps>;
     onTabReorder: (tabs: ITab[]) => void;
     onTabAdd?: () => void;

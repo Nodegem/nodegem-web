@@ -1,4 +1,5 @@
-import { Button, Modal } from 'antd';
+import { Button, Modal, Tooltip, Typography } from 'antd';
+import classNames from 'classnames';
 import { DraggableTabs, ITab } from 'components/DraggableTabs';
 import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
 import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
@@ -22,6 +23,8 @@ import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
 import { definitionToNode } from './utils';
 
+const { Paragraph } = Typography;
+
 const nodeDragStyle = (
     style: DraggingStyle | NotDraggingStyle | undefined,
     snapshot: DraggableStateSnapshot
@@ -40,34 +43,6 @@ const nodeDragStyle = (
     };
 };
 
-export const fakeDefinitions: NodeDefinition[] = [
-    {
-        description: 'this is a description',
-        title: 'Node 1',
-        fullName: 'a full title',
-        flowInputs: [{ key: '0', label: 'flow-in' }],
-        flowOutputs: [{ key: '0', label: 'flow-out' }],
-        valueInputs: [
-            {
-                key: '0',
-                label: 'value-in',
-                defaultValue: 0,
-                valueType: 0,
-            },
-        ],
-        valueOutputs: [{ key: '0', label: 'value-out' }],
-    },
-    {
-        description: 'this is a description',
-        title: 'Node 2',
-        fullName: 'a full title',
-        flowInputs: [{ key: '0', label: 'flow-in' }],
-        flowOutputs: [{ key: '0', label: 'flow-out' }],
-        valueInputs: [],
-        valueOutputs: [{ key: '0', label: 'value-out' }],
-    },
-];
-
 const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
     if (event.button === 1) {
         event.preventDefault();
@@ -76,40 +51,34 @@ const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
     }
 };
 
-const TabTemplate: React.FC<ITab & { deleteTab: (tabId: string) => void }> = ({
-    name,
-    id,
-    data,
-    deleteTab,
-}) => {
-    const [deleteVisible, toggleDelete] = useState(false);
-
+const TabTemplate: React.FC<
+    ITab & { deleteTab: (tabId: string) => void; isDragging: boolean }
+> = ({ name, id, isDragging, deleteTab }) => {
     return (
-        <div
-            style={{ padding: '8px 45px' }}
-            onMouseDown={event =>
-                middleDelete(event.nativeEvent, () => deleteTab(id))
+        <Tooltip
+            placement="bottom"
+            title={
+                <Button
+                    type="danger"
+                    icon="delete"
+                    onClick={() => deleteTab(id)}
+                />
             }
-            onMouseEnter={() => toggleDelete(true)}
-            onMouseLeave={() => toggleDelete(false)}
         >
-            <span className="tab-title-text">{name}</span>
-            {deleteVisible && (
-                <span className="tab-delete" style={{ position: 'absolute' }}>
-                    <Button
-                        onMouseUp={() => deleteTab(id)}
-                        style={{
-                            position: 'absolute',
-                            left: '40px',
-                            top: '-1px',
-                        }}
-                        type="link"
-                        size="small"
-                        icon="close"
-                    />
-                </span>
-            )}
-        </div>
+            <div
+                className={classNames({ tab: true, dragging: isDragging })}
+                onMouseDown={event =>
+                    middleDelete(event.nativeEvent, () => deleteTab(id))
+                }
+            >
+                <Paragraph
+                    className="tab-title"
+                    ellipsis={{ rows: 2, expandable: false }}
+                >
+                    {name}
+                </Paragraph>
+            </div>
+        </Tooltip>
     );
 };
 
@@ -175,6 +144,7 @@ export const SandboxView = observer(() => {
         toggleSelectionModal,
         selectGraphVisible,
         toggleGraphSelectModal,
+        nodeDefinitionOptions,
     } = sandboxStore;
 
     useEffect(() => {
@@ -197,10 +167,10 @@ export const SandboxView = observer(() => {
             result.source.droppableId === nodeSelectDroppableId &&
             result.destination.droppableId === sandboxDroppableId
         ) {
-            const definition = fakeDefinitions[result.source.index];
-            sandboxManager.addNode(
-                definitionToNode(definition, sandboxManager.mousePos)
-            );
+            // const definition = fakeDefinitions[result.source.index];
+            // sandboxManager.addNode(
+            //     definitionToNode(definition, sandboxManager.mousePos)
+            // );
         }
     }
 
@@ -248,7 +218,7 @@ export const SandboxView = observer(() => {
                     }
                     onTabReorder={handleTabReorder}
                     dragEndObservable={dragEndObservable}
-                    onTabAdd={toggleSelectionModal}
+                    onTabAdd={() => toggleSelectionModal()}
                     onTabClick={handleTabClick}
                     tabControls={
                         <GraphControls
@@ -256,8 +226,12 @@ export const SandboxView = observer(() => {
                             openModal={editGraph}
                         />
                     }
-                    tabTemplate={tab => (
-                        <TabTemplate {...tab} deleteTab={deleteTab} />
+                    tabTemplate={(tab, isDragging) => (
+                        <TabTemplate
+                            {...tab}
+                            isDragging={isDragging}
+                            deleteTab={deleteTab}
+                        />
                     )}
                 />
                 <DragDropContext
@@ -275,7 +249,7 @@ export const SandboxView = observer(() => {
                         >
                             <NodeSelect
                                 dragStyle={nodeDragStyle}
-                                definitions={fakeDefinitions}
+                                nodeOptions={nodeDefinitionOptions}
                             />
                         </VerticalCollapsible>
                         <SandboxCanvas

@@ -23,8 +23,12 @@ export class SandboxStore implements IDisposable {
             definitions: IHierarchicalNode<NodeDefinition>;
             definitionList: NodeDefinition[];
             definitionLookup: { [id: string]: NodeDefinition };
+            nodeSelectOptions: NodeSelectOptions;
         };
     } = {};
+
+    @observable
+    public loading: boolean = false;
 
     @observable
     public tabs: TabData[] = [];
@@ -59,6 +63,15 @@ export class SandboxStore implements IDisposable {
     @computed
     public get activeTab(): TabData | undefined {
         return this.tabs.firstOrDefault(x => x.graph.id === this._activeTab);
+    }
+
+    @computed
+    public get nodeDefinitionOptions(): NodeSelectOptions {
+        return (
+            (this._activeTab &&
+                this._cachedDefinitions[this._activeTab].nodeSelectOptions) ||
+            {}
+        );
     }
 
     @computed
@@ -178,8 +191,21 @@ export class SandboxStore implements IDisposable {
                 definitionList,
                 definitions,
                 definitionLookup: definitionList.toDictionary('fullName'),
+                nodeSelectOptions: {
+                    core: definitionList.filter(x =>
+                        x.fullName.toLowerCase().startsWith('core')
+                    ),
+                    macros: definitionList.filter(x =>
+                        x.fullName.toLowerCase().startsWith('macros')
+                    ),
+                    'third party': definitionList.filter(x =>
+                        x.fullName.toLowerCase().startsWith('third party')
+                    ),
+                },
             };
         }
+
+        console.log(this._cachedDefinitions[graphId]);
 
         return this._cachedDefinitions[graphId];
     };
@@ -206,6 +232,8 @@ export class SandboxStore implements IDisposable {
 
     @action
     public load = async (graph: Partial<Graph | Macro>) => {
+        this.loading = true;
+
         const { nodes, links, id } = graph;
         const definitions = await this.loadDefinitions(
             id!,
@@ -214,29 +242,30 @@ export class SandboxStore implements IDisposable {
 
         const uiNodes = (nodes || []).map<INodeUIData>(n => {
             const info = definitions.definitionLookup[n.fullName];
+            const { flowInputs, flowOutputs, valueInputs, valueOutputs } = info;
             return {
                 id: n.id,
                 position: n.position,
                 portData: {
-                    flowInputs: info.flowInputs.map<IPortUIData>(fi => ({
+                    flowInputs: (flowInputs || []).map<IPortUIData>(fi => ({
                         id: fi.key,
                         name: fi.label,
                         io: 'input',
                         type: 'flow',
                     })),
-                    flowOutputs: info.flowOutputs.map<IPortUIData>(fi => ({
+                    flowOutputs: (flowOutputs || []).map<IPortUIData>(fi => ({
                         id: fi.key,
                         name: fi.label,
                         io: 'output',
                         type: 'flow',
                     })),
-                    valueInputs: info.valueInputs.map<IPortUIData>(fi => ({
+                    valueInputs: (valueInputs || []).map<IPortUIData>(fi => ({
                         id: fi.key,
                         name: fi.label,
                         io: 'input',
                         type: 'value',
                     })),
-                    valueOutputs: info.valueOutputs.map<IPortUIData>(fi => ({
+                    valueOutputs: (valueOutputs || []).map<IPortUIData>(fi => ({
                         id: fi.key,
                         name: fi.label,
                         io: 'output',
@@ -261,16 +290,15 @@ export class SandboxStore implements IDisposable {
             };
         });
 
-        console.log(definitions);
-
         this.sandboxManager.load(uiNodes, uiLinks);
+
+        this.loading = false;
     };
 
     @action
     public setActiveTab = (id: string) => {
         this._activeTab = id;
         if (this.activeTab) {
-            const { nodes } = this.activeTab.graph;
             this.load(this.activeTab.graph);
         }
     };
@@ -292,6 +320,7 @@ export class SandboxStore implements IDisposable {
     @action
     public deleteTab = (graphId: string) => {
         const index = this.tabs.findIndex(x => x.graph.id === graphId);
+        this.tabs.removeWhere(x => x.graph.id === graphId);
         if (index >= 0) {
             if (index - 1 >= 0) {
                 const nextTab = this.tabs[index - 1];
@@ -302,7 +331,6 @@ export class SandboxStore implements IDisposable {
             } else {
                 this.sandboxManager.clearView();
             }
-            this.tabs.removeWhere(x => x.graph.id === graphId);
             this.toggleSelectionModal(false);
             this.toggleGraphSelectModal(false);
         }

@@ -9,51 +9,60 @@ import {
 } from 'react-beautiful-dnd';
 import { Node } from '../Node';
 
-import { Icon, Input } from 'antd';
+import { Icon, Input, Typography } from 'antd';
 import { definitionToNode } from '../utils';
+
 import './NodeSelect.less';
+
+const { Title } = Typography;
 
 export const nodeSelectDroppableId = 'nodeSelect';
 
-const NodeList = React.memo<any>(function NodeListHelper({
-    definitions,
-    dragStyle,
-}: {
-    definitions: NodeDefinition[];
-    dragStyle?: (
-        style: DraggingStyle | NotDraggingStyle | undefined,
-        snapshot: DraggableStateSnapshot
-    ) => React.CSSProperties;
-}) {
-    return definitions.map((definition: NodeDefinition, index: number) => (
-        <Draggable key={index} draggableId={`${index}`} index={index}>
-            {(provided, snapshot) => (
-                <div
-                    className={classnames({
-                        'draggable-node': true,
-                        dragging: snapshot.isDragging,
-                    })}
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    style={
-                        (dragStyle &&
-                            dragStyle(
-                                provided.draggableProps.style,
-                                snapshot
-                            )) ||
-                        provided.draggableProps.style
-                    }
-                >
-                    <Node data={definitionToNode(definition)} />
-                </div>
-            )}
-        </Draggable>
-    ));
-});
+const NodeList: React.FC<INodeSelectProps> = ({ nodeOptions, dragStyle }) => {
+    return (
+        <>
+            {Object.keys(nodeOptions).map((key: string, index: number) => {
+                return (
+                    <>
+                        {nodeOptions[key].map((d, dIndex) => (
+                            <Draggable
+                                key={dIndex}
+                                draggableId={`${dIndex}`}
+                                index={dIndex}
+                            >
+                                {(provided, snapshot) => (
+                                    <div
+                                        className={classnames({
+                                            'draggable-node': true,
+                                            dragging: snapshot.isDragging,
+                                        })}
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        style={
+                                            (dragStyle &&
+                                                dragStyle(
+                                                    provided.draggableProps
+                                                        .style,
+                                                    snapshot
+                                                )) ||
+                                            provided.draggableProps.style
+                                        }
+                                    >
+                                        <Node data={definitionToNode(d)} />
+                                    </div>
+                                )}
+                            </Draggable>
+                        ))}
+                    </>
+                );
+            })}
+        </>
+    );
+};
 
 interface INodeSelectProps {
-    definitions: NodeDefinition[];
+    nodeOptions: NodeSelectOptions;
     dragStyle?: (
         style: DraggingStyle | NotDraggingStyle | undefined,
         snapshot: DraggableStateSnapshot
@@ -61,7 +70,7 @@ interface INodeSelectProps {
 }
 
 export const NodeSelect: React.FC<INodeSelectProps> = ({
-    definitions,
+    nodeOptions,
     dragStyle,
 }) => {
     return (
@@ -80,9 +89,10 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                             className="node-select-drop-container"
                         >
                             <NodeList
-                                definitions={definitions}
+                                nodeOptions={nodeOptions}
                                 dragStyle={dragStyle}
                             />
+
                             {provided.placeholder}
                         </div>
                     )}
