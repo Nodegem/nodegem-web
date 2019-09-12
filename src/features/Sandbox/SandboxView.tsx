@@ -1,6 +1,7 @@
 import { Button, Modal, Tooltip, Typography } from 'antd';
 import classNames from 'classnames';
 import { DraggableTabs, ITab } from 'components/DraggableTabs';
+import HorizontalCollapse from 'components/HorizontalCollapse/HorizontalCollapse';
 import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
 import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
 import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
@@ -21,7 +22,6 @@ import PromptGraph from './PromptGraph/PromptGraph';
 import SelectGraph from './PromptGraph/SelectGraph';
 import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
-import { definitionToNode } from './utils';
 
 const { Paragraph } = Typography;
 
@@ -85,8 +85,13 @@ const TabTemplate: React.FC<
 interface IGraphControlProps {
     graph?: Partial<Graph | Macro>;
     openModal: (graph: Partial<Graph | Macro>) => void;
+    toggleLogs: () => void;
 }
-const GraphControls: React.FC<IGraphControlProps> = ({ graph, openModal }) => {
+const GraphControls: React.FC<IGraphControlProps> = ({
+    graph,
+    openModal,
+    toggleLogs,
+}) => {
     return (
         <div className="tab-controls">
             <Button
@@ -94,7 +99,7 @@ const GraphControls: React.FC<IGraphControlProps> = ({ graph, openModal }) => {
                 shape="round"
                 type="primary"
                 icon="code"
-                onClick={() => openModal(graph!)}
+                onClick={() => toggleLogs()}
             >
                 Logs
             </Button>
@@ -145,6 +150,8 @@ export const SandboxView = observer(() => {
         selectGraphVisible,
         toggleGraphSelectModal,
         nodeDefinitionOptions,
+        toggleLogs,
+        logsClosed,
     } = sandboxStore;
 
     useEffect(() => {
@@ -224,6 +231,7 @@ export const SandboxView = observer(() => {
                         <GraphControls
                             graph={activeTab && activeTab.graph}
                             openModal={editGraph}
+                            toggleLogs={toggleLogs}
                         />
                     }
                     tabTemplate={(tab, isDragging) => (
@@ -252,17 +260,31 @@ export const SandboxView = observer(() => {
                                 nodeOptions={nodeDefinitionOptions}
                             />
                         </VerticalCollapsible>
-                        <SandboxCanvas
-                            isActive={sandboxStore.hasActiveTab}
-                            editNode={onNodeEdit}
-                            getDrawLinkRef={fakeLink.getElementRef}
-                            isDrawing={isDrawing}
-                            linkType={fakeLink.type}
-                            links={links}
-                            sandboxManager={sandboxManager}
-                            nodes={nodes}
-                            visibleLinks={linksVisible}
-                        />
+                        <div
+                            style={{
+                                flex: '1 1 auto',
+                                display: 'flex',
+                                flexDirection: 'column',
+                            }}
+                        >
+                            <SandboxCanvas
+                                isActive={sandboxStore.hasActiveTab}
+                                editNode={onNodeEdit}
+                                getDrawLinkRef={fakeLink.getElementRef}
+                                isDrawing={isDrawing}
+                                linkType={fakeLink.type}
+                                links={links}
+                                sandboxManager={sandboxManager}
+                                nodes={nodes}
+                                visibleLinks={linksVisible}
+                            />
+                            <HorizontalCollapse
+                                collapsed={logsClosed}
+                                height="325px"
+                            >
+                                das
+                            </HorizontalCollapse>
+                        </div>
                         <VerticalCollapsible
                             width="450px"
                             minWidth="0"

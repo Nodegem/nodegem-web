@@ -67,11 +67,7 @@ export class SandboxStore implements IDisposable {
 
     @computed
     public get nodeDefinitionOptions(): NodeSelectOptions {
-        return (
-            (this._activeTab &&
-                this._cachedDefinitions[this._activeTab].nodeSelectOptions) ||
-            {}
-        );
+        return {};
     }
 
     @computed
@@ -99,6 +95,9 @@ export class SandboxStore implements IDisposable {
 
     @observable
     public nodeInfoClosed: boolean = true;
+
+    @observable
+    public logsClosed: boolean = true;
 
     @observable
     public linksVisible: boolean = true;
@@ -159,15 +158,18 @@ export class SandboxStore implements IDisposable {
 
     @action
     public toggleNodeInfo = (value?: boolean) => {
-        if (value === undefined) {
-            value = !this.nodeInfoClosed;
-        }
-        this.nodeInfoClosed = value;
+        this.nodeInfoClosed =
+            value === undefined ? !this.nodeInfoClosed : value;
     };
 
     @action
     public toggleNodeSelect = () => {
         this.nodeSelectClosed = !this.nodeSelectClosed;
+    };
+
+    @action
+    public toggleLogs = (value?: boolean) => {
+        this.logsClosed = value === undefined ? !this.logsClosed : value;
     };
 
     @action
