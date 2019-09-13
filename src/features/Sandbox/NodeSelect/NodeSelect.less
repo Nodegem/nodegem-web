@@ -3,6 +3,10 @@
 
 .node-select-container {
     background-color: @nodeSelectBackgroundColor;
+    height: @selectHeight;
+    max-height: @selectHeight;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .node-category {
@@ -16,10 +20,6 @@
 .node-select-drop-container {
     padding: 20px 0;
     width: 100%;
-    height: @selectHeight;
-    max-height: @selectHeight;
-    overflow-y: auto;
-    overflow-x: hidden;
 }
 
 .draggable-node {

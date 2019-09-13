@@ -17,14 +17,17 @@ export type TabData = {
     graph: Partial<Graph | Macro>;
 };
 
+type NodeCache = {
+    definitions: IHierarchicalNode<NodeDefinition>;
+    definitionList: NodeDefinition[];
+    definitionLookup: { [id: string]: NodeDefinition };
+    nodeSelectOptions: NodeSelectOptions;
+};
+
 export class SandboxStore implements IDisposable {
+    @observable
     private _cachedDefinitions: {
-        [graphId: string]: {
-            definitions: IHierarchicalNode<NodeDefinition>;
-            definitionList: NodeDefinition[];
-            definitionLookup: { [id: string]: NodeDefinition };
-            nodeSelectOptions: NodeSelectOptions;
-        };
+        [graphId: string]: NodeCache;
     } = {};
 
     @observable
@@ -66,8 +69,18 @@ export class SandboxStore implements IDisposable {
     }
 
     @computed
-    public get nodeDefinitionOptions(): NodeSelectOptions {
-        return {};
+    public get nodeDefinitionOptions(): NodeCache {
+        console.log(
+            (this._activeTab && this._cachedDefinitions[this._activeTab]) || {}
+        );
+        return (
+            (this._activeTab && this._cachedDefinitions[this._activeTab]) || {
+                nodeSelectOptions: {},
+                definitionList: [],
+                definitionLookup: {},
+                definitions: {} as IHierarchicalNode<NodeDefinition>,
+            }
+        );
     }
 
     @computed
@@ -206,8 +219,6 @@ export class SandboxStore implements IDisposable {
                 },
             };
         }
-
-        console.log(this._cachedDefinitions[graphId]);
 
         return this._cachedDefinitions[graphId];
     };

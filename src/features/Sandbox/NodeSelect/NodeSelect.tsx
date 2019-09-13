@@ -18,45 +18,46 @@ const { Title } = Typography;
 
 export const nodeSelectDroppableId = 'nodeSelect';
 
-const NodeList: React.FC<INodeSelectProps> = ({ nodeOptions, dragStyle }) => {
+interface INodeListProps {
+    nodeDefinitions: NodeDefinition[];
+    dragStyle?: (
+        style: DraggingStyle | NotDraggingStyle | undefined,
+        snapshot: DraggableStateSnapshot
+    ) => React.CSSProperties;
+}
+
+const NodeList: React.FC<INodeListProps> = ({ nodeDefinitions, dragStyle }) => {
     return (
         <>
-            {Object.keys(nodeOptions).map((key: string, index: number) => {
-                return (
-                    <>
-                        {nodeOptions[key].map((d, dIndex) => (
-                            <Draggable
-                                key={dIndex}
-                                draggableId={`${dIndex}`}
-                                index={dIndex}
-                            >
-                                {(provided, snapshot) => (
-                                    <div
-                                        className={classnames({
-                                            'draggable-node': true,
-                                            dragging: snapshot.isDragging,
-                                        })}
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        style={
-                                            (dragStyle &&
-                                                dragStyle(
-                                                    provided.draggableProps
-                                                        .style,
-                                                    snapshot
-                                                )) ||
-                                            provided.draggableProps.style
-                                        }
-                                    >
-                                        <Node data={definitionToNode(d)} />
-                                    </div>
-                                )}
-                            </Draggable>
-                        ))}
-                    </>
-                );
-            })}
+            {nodeDefinitions.map((d, dIndex) => (
+                <Draggable
+                    key={dIndex}
+                    draggableId={`${dIndex}`}
+                    index={dIndex}
+                >
+                    {(provided, snapshot) => (
+                        <div
+                            className={classnames({
+                                'draggable-node': true,
+                                dragging: snapshot.isDragging,
+                            })}
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={
+                                (dragStyle &&
+                                    dragStyle(
+                                        provided.draggableProps.style,
+                                        snapshot
+                                    )) ||
+                                provided.draggableProps.style
+                            }
+                        >
+                            <Node data={definitionToNode(d)} />
+                        </div>
+                    )}
+                </Draggable>
+            ))}
         </>
     );
 };
@@ -76,27 +77,31 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
     return (
         <>
             <div className="node-select-container">
-                <Droppable
-                    isDropDisabled={true}
-                    direction="vertical"
-                    droppableId={nodeSelectDroppableId}
-                    ignoreContainerClipping
-                >
-                    {(provided, snapshot) => (
-                        <div
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}
-                            className="node-select-drop-container"
+                {Object.keys(nodeOptions).map((no, index) => (
+                    <span key={index}>
+                        <Droppable
+                            isDropDisabled={true}
+                            direction="vertical"
+                            droppableId={nodeSelectDroppableId}
+                            ignoreContainerClipping
                         >
-                            <NodeList
-                                nodeOptions={nodeOptions}
-                                dragStyle={dragStyle}
-                            />
+                            {(provided, snapshot) => (
+                                <div
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                    className="node-select-drop-container"
+                                >
+                                    <NodeList
+                                        nodeDefinitions={nodeOptions[no]}
+                                        dragStyle={dragStyle}
+                                    />
 
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
+                    </span>
+                ))}
             </div>
             <div className="filter">
                 <Input
@@ -108,3 +113,25 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
         </>
     );
 };
+
+// <Droppable
+//     isDropDisabled={true}
+//     direction="vertical"
+//     droppableId={nodeSelectDroppableId}
+//     ignoreContainerClipping
+// >
+//     {(provided, snapshot) => (
+//         <div
+//             ref={provided.innerRef}
+//             {...provided.droppableProps}
+//             className="node-select-drop-container"
+//         >
+//             <NodeList
+//                 nodeOptions={nodeOptions}
+//                 dragStyle={dragStyle}
+//             />
+
+//             {provided.placeholder}
+//         </div>
+//     )}
+// </Droppable>;

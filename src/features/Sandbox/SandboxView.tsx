@@ -149,9 +149,9 @@ export const SandboxView = observer(() => {
         toggleSelectionModal,
         selectGraphVisible,
         toggleGraphSelectModal,
-        nodeDefinitionOptions,
         toggleLogs,
         logsClosed,
+        nodeDefinitionOptions,
     } = sandboxStore;
 
     useEffect(() => {
@@ -210,6 +210,8 @@ export const SandboxView = observer(() => {
         toggleGraphSelectModal();
     }
 
+    console.log(sandboxStore.nodeDefinitionOptions);
+
     return (
         <>
             <div className="sandbox-view-container">
@@ -257,7 +259,9 @@ export const SandboxView = observer(() => {
                         >
                             <NodeSelect
                                 dragStyle={nodeDragStyle}
-                                nodeOptions={nodeDefinitionOptions}
+                                nodeOptions={
+                                    nodeDefinitionOptions.nodeSelectOptions
+                                }
                             />
                         </VerticalCollapsible>
                         <div
