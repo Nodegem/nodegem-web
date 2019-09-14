@@ -90,6 +90,8 @@ class NodeController implements IDisposable {
             'dblclick',
             () => this.onDblClick && this.onDblClick(this)
         );
+
+        this.element.style.visibility = 'visible'; // hack for jitter
     };
 
     public addLink = (link: LinkController) => {

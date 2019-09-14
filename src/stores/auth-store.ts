@@ -102,22 +102,4 @@ class AuthStore {
 }
 
 export default new AuthStore();
-
-export type TAuthStore = ReturnType<typeof createAuthStore>;
-
-export function createAuthStore() {
-    return {
-        async logout() {
-            try {
-                await AuthService.logout();
-            } catch (e) {
-                console.warn(e);
-            } finally {
-                rootStore.dispose();
-                history.push('/login');
-            }
-        },
-    };
-}
-
 export { AuthStore };

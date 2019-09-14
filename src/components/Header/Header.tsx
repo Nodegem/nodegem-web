@@ -60,7 +60,7 @@ export const Header: React.FC = observer(() => {
                 >
                     <div style={{ cursor: 'pointer' }}>
                         <span className="username">
-                            {userStore.userData.userName}
+                            {userStore.isLoggedIn && userStore.username}
                             <Icon type="caret-down" />
                         </span>
                         <Avatar size={35} icon="user" />

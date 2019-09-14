@@ -40,6 +40,44 @@ export const flatten = <T>(tree: IHierarchicalNode<T>): T[] => {
     return list;
 };
 
+export const convertToSelectFriendly = <T>(
+    tree: { [key: string]: IHierarchicalNode<T> },
+    maxLevels: number = 1
+): SelectFriendly<T> => {
+    return convertToSelectFriendlyHelper<T>(tree, maxLevels) as SelectFriendly<
+        T
+    >;
+};
+
+const convertToSelectFriendlyHelper = <T>(
+    tree: { [key: string]: IHierarchicalNode<T> },
+    maxLevels: number,
+    currentLevel: number = 0
+): SelectFriendly<T> | T[] => {
+    const returnObject = {};
+    const returnList = [] as T[];
+
+    for (const key of Object.keys(tree)) {
+        const subTree = tree[key].children;
+        if (currentLevel < maxLevels) {
+            returnObject[key] = convertToSelectFriendlyHelper<T>(
+                subTree,
+                maxLevels,
+                currentLevel + 1
+            );
+        } else {
+            let combinedList = [] as T[];
+            const keys = Object.keys(subTree);
+
+            for (const subKey of keys) {
+                combinedList = [...combinedList, ...subTree[subKey].items];
+            }
+            returnObject[key] = [...tree[key].items, ...combinedList];
+        }
+    }
+    return returnList.length > 0 ? returnList : returnObject;
+};
+
 export const getGraphType = (graph: Graph | Macro): GraphType => {
     return isMacro(graph) ? 'macro' : 'graph';
 };

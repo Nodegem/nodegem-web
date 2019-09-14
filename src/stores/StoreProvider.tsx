@@ -4,43 +4,48 @@ import graphModalStore, {
 import macroModalStore, {
     MacroModalStore,
 } from 'components/Modals/MacroModal/macro-modal-store';
-import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
+import editorStore, { EditorStore } from 'features/Editor/editor-store';
 import { useLocalStore } from 'mobx-react-lite';
 import React from 'react';
-import {
-    createAuthStore,
-    createCommonStore,
-    createUserStore,
-    SandboxStore,
-    TAuthStore,
-    TCommonStore,
-    TUserStore,
-} from 'stores';
+import { SandboxStore, UserStore } from 'stores';
+import authStore, { AuthStore } from './auth-store';
+import commonStore, { CommonStore } from './common-store';
+import graphStore, { GraphStore } from './graph-store';
+import macroStore, { MacroStore } from './macro-store';
+import userStore from './user-store';
 
 type TRootStore = {
-    commonStore: TCommonStore;
-    authStore: TAuthStore;
-    userStore: TUserStore;
-    graphStore: GraphModalStore;
-    macroStore: MacroModalStore;
+    commonStore: CommonStore;
+    authStore: AuthStore;
+    userStore: UserStore;
+    graphModalStore: GraphModalStore;
+    macroModalStore: MacroModalStore;
+    macroStore: MacroStore;
+    graphStore: GraphStore;
     sandboxStore: SandboxStore;
+    editorStore: EditorStore;
 };
 
 function createRootStore(): TRootStore {
     return {
-        commonStore: createCommonStore(),
-        authStore: createAuthStore(),
-        userStore: createUserStore(),
-        macroStore: macroModalStore,
-        graphStore: graphModalStore,
+        commonStore,
+        authStore,
+        userStore,
+        macroModalStore,
+        graphModalStore,
+        macroStore,
+        graphStore,
+        editorStore,
         sandboxStore: new SandboxStore(),
     };
 }
 
+export const legacyStore = createRootStore();
+
 const storeContext = React.createContext<TRootStore | null>(null);
 
 export const StoreProvider = ({ children }) => {
-    const store = useLocalStore(createRootStore);
+    const store = useLocalStore(() => legacyStore);
     return (
         <storeContext.Provider value={store}>{children}</storeContext.Provider>
     );

@@ -10,6 +10,7 @@ import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { NodeService } from 'services';
 import { getCenterCoordinates, getGraphType, isMacro } from 'utils';
 import { DrawArgs } from './../features/Sandbox/Link/draw-link-controller';
+import { convertToSelectFriendly } from './../features/Sandbox/utils';
 import { SimpleObservable } from './../utils/simple-observable';
 
 export type DragEndProps = { result: DropResult; provided: ResponderProvided };
@@ -21,7 +22,7 @@ type NodeCache = {
     definitions: IHierarchicalNode<NodeDefinition>;
     definitionList: NodeDefinition[];
     definitionLookup: { [id: string]: NodeDefinition };
-    nodeSelectOptions: NodeSelectOptions;
+    selectFriendly: SelectFriendly<NodeDefinition>;
 };
 
 export class SandboxStore implements IDisposable {
@@ -31,7 +32,10 @@ export class SandboxStore implements IDisposable {
     } = {};
 
     @observable
-    public loading: boolean = false;
+    public loadingGraph: boolean = false;
+
+    @observable
+    public loadingDefinitions: boolean = false;
 
     @observable
     public tabs: TabData[] = [];
@@ -70,15 +74,12 @@ export class SandboxStore implements IDisposable {
 
     @computed
     public get nodeDefinitionOptions(): NodeCache {
-        console.log(
-            (this._activeTab && this._cachedDefinitions[this._activeTab]) || {}
-        );
         return (
             (this._activeTab && this._cachedDefinitions[this._activeTab]) || {
-                nodeSelectOptions: {},
                 definitionList: [],
                 definitionLookup: {},
                 definitions: {} as IHierarchicalNode<NodeDefinition>,
+                selectFriendly: {},
             }
         );
     }
@@ -196,6 +197,7 @@ export class SandboxStore implements IDisposable {
         type: GraphType,
         forceRefresh?: boolean
     ) => {
+        this.loadingDefinitions = true;
         if (forceRefresh || !this._cachedDefinitions[graphId]) {
             const definitions = await NodeService.getAllNodeDefinitions(
                 graphId,
@@ -206,20 +208,10 @@ export class SandboxStore implements IDisposable {
                 definitionList,
                 definitions,
                 definitionLookup: definitionList.toDictionary('fullName'),
-                nodeSelectOptions: {
-                    core: definitionList.filter(x =>
-                        x.fullName.toLowerCase().startsWith('core')
-                    ),
-                    macros: definitionList.filter(x =>
-                        x.fullName.toLowerCase().startsWith('macros')
-                    ),
-                    'third party': definitionList.filter(x =>
-                        x.fullName.toLowerCase().startsWith('third party')
-                    ),
-                },
+                selectFriendly: convertToSelectFriendly(definitions.children),
             };
         }
-
+        this.loadingDefinitions = false;
         return this._cachedDefinitions[graphId];
     };
 
@@ -245,7 +237,7 @@ export class SandboxStore implements IDisposable {
 
     @action
     public load = async (graph: Partial<Graph | Macro>) => {
-        this.loading = true;
+        this.loadingGraph = true;
 
         const { nodes, links, id } = graph;
         const definitions = await this.loadDefinitions(
@@ -305,7 +297,7 @@ export class SandboxStore implements IDisposable {
 
         this.sandboxManager.load(uiNodes, uiLinks);
 
-        this.loading = false;
+        this.loadingGraph = false;
     };
 
     @action

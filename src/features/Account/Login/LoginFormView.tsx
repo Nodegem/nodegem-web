@@ -30,6 +30,7 @@ class LoginForm extends React.Component<ILoginFormProps> {
                 authStore!.setRememberMe(rememberMe, userName);
                 await authStore!.login(values);
             } catch (e) {
+                console.log(e);
                 console.log(e.response);
             }
         });

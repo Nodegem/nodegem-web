@@ -5,13 +5,23 @@ class UserStore implements IDisposableStore {
     @observable public user?: User;
     @observable public token?: TokenData;
 
-    constructor() {
-        this.user = getFromStorage<User>('user')!;
-        this.token = getFromStorage<TokenData>('token')!;
+    @computed
+    public get username(): string {
+        return (this.user && this.user.userName) || '';
     }
 
     @computed get isLoggedIn(): boolean {
         return !!this.user && !!this.token && Object.keys(this.user).length > 0;
+    }
+
+    constructor() {
+        this.init();
+    }
+
+    @action
+    public init() {
+        this.user = getFromStorage<User>('user')!;
+        this.token = getFromStorage<TokenData>('token')!;
     }
 
     @action public setToken(token: TokenData) {
@@ -32,27 +42,4 @@ class UserStore implements IDisposableStore {
 }
 
 export default new UserStore();
-
-export type TUserStore = ReturnType<typeof createUserStore>;
-export function createUserStore() {
-    return {
-        user: getFromStorage<User>('user'),
-        token: getFromStorage<TokenData>('token'),
-        get userData() {
-            return this.user!;
-        },
-        get tokenData() {
-            return this.token!;
-        },
-        get isLoggedIn() {
-            return !!this.user && !!this.token;
-        },
-        logout() {
-            deleteFromStorage('user', 'token');
-            this.user = null;
-            this.token = null;
-        },
-    };
-}
-
 export { UserStore };

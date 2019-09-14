@@ -22,26 +22,9 @@ import PromptGraph from './PromptGraph/PromptGraph';
 import SelectGraph from './PromptGraph/SelectGraph';
 import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
+import { definitionToNode } from './utils';
 
 const { Paragraph } = Typography;
-
-const nodeDragStyle = (
-    style: DraggingStyle | NotDraggingStyle | undefined,
-    snapshot: DraggableStateSnapshot
-): React.CSSProperties => {
-    if (
-        snapshot.draggingOver !== sandboxDroppableId ||
-        !snapshot.isDropAnimating
-    ) {
-        return { ...style };
-    }
-
-    return {
-        ...style,
-        visibility: 'hidden',
-        transitionDuration: '75ms',
-    };
-};
 
 const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
     if (event.button === 1) {
@@ -127,7 +110,7 @@ const GraphControls: React.FC<IGraphControlProps> = ({
 };
 
 export const SandboxView = observer(() => {
-    const { sandboxStore, graphStore, macroStore } = useStore();
+    const { sandboxStore, graphModalStore, macroModalStore } = useStore();
     const {
         tabs,
         dragEndObservable,
@@ -174,12 +157,22 @@ export const SandboxView = observer(() => {
             result.source.droppableId === nodeSelectDroppableId &&
             result.destination.droppableId === sandboxDroppableId
         ) {
-            // const definition = fakeDefinitions[result.source.index];
-            // sandboxManager.addNode(
-            //     definitionToNode(definition, sandboxManager.mousePos)
-            // );
+            const definition =
+                sandboxStore.nodeDefinitionOptions.definitionLookup[
+                    result.draggableId
+                ];
+
+            if (definition) {
+                addNode(definition, sandboxManager.mousePos);
+            }
         }
     }
+
+    const addNode = (definition: NodeDefinition, position?: Vector2) => {
+        sandboxManager.addNode(
+            definitionToNode(definition, position || { x: 0, y: 0 })
+        );
+    };
 
     function handleTabClick(tabId: string, data: TabData) {
         setActiveTab(tabId);
@@ -191,26 +184,24 @@ export const SandboxView = observer(() => {
 
     function editGraph(graph: Partial<Graph | Macro>) {
         if (isMacro(graph)) {
-            macroStore.openModal(graph, true);
+            macroModalStore.openModal(graph, true);
         } else {
-            graphStore.openModal(graph, true);
+            graphModalStore.openModal(graph, true);
         }
     }
 
     function handleGraphCreate(type: GraphType) {
         toggleSelectionModal();
         if (type === 'graph') {
-            graphStore.openModal({ isActive: true });
+            graphModalStore.openModal({ isActive: true });
         } else {
-            macroStore.openModal();
+            macroModalStore.openModal();
         }
     }
     function onGraphSelect() {
         toggleSelectionModal();
         toggleGraphSelectModal();
     }
-
-    console.log(sandboxStore.nodeDefinitionOptions);
 
     return (
         <>
@@ -245,22 +236,22 @@ export const SandboxView = observer(() => {
                     )}
                 />
                 <DragDropContext
-                    onDragEnd={(result, provided) =>
-                        dragEndObservable.execute({ result, provided })
-                    }
+                    onDragEnd={(result, provided) => {
+                        dragEndObservable.execute({ result, provided });
+                    }}
                 >
                     <div className="graph-content">
                         <VerticalCollapsible
-                            width="300px"
+                            width="350px"
                             minWidth="0"
                             onTabClick={toggleNodeSelect}
                             tabContent="Nodes"
                             collapsed={nodeSelectClosed}
                         >
                             <NodeSelect
-                                dragStyle={nodeDragStyle}
+                                addNode={node => addNode(node)}
                                 nodeOptions={
-                                    nodeDefinitionOptions.nodeSelectOptions
+                                    nodeDefinitionOptions.selectFriendly
                                 }
                             />
                         </VerticalCollapsible>
@@ -282,6 +273,7 @@ export const SandboxView = observer(() => {
                                 nodes={nodes}
                                 visibleLinks={linksVisible}
                             />
+
                             <HorizontalCollapse
                                 collapsed={logsClosed}
                                 height="325px"
@@ -302,6 +294,7 @@ export const SandboxView = observer(() => {
                     </div>
                 </DragDropContext>
             </div>
+
             <GraphModalFormController
                 onSave={(graph, edit) =>
                     graph && !edit && sandboxStore.addTab(graph)

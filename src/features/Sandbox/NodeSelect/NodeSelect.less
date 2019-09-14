@@ -1,20 +1,75 @@
-@nodeSelectBackgroundColor: #3d4c5c;
-@selectHeight: calc(100vh - 144px);
+@node-select-background-color: #3d4c5c;
+@max-height: calc(100vh - 94px);
 
 .node-select-container {
-    background-color: @nodeSelectBackgroundColor;
-    height: @selectHeight;
-    max-height: @selectHeight;
+    background-color: @node-select-background-color;
     overflow-y: auto;
     overflow-x: hidden;
+    display: flex;
+    flex: 1 1 auto;
+    height: 100%;
+    max-height: @max-height;
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+
+    .filter {
+        align-items: flex-end;
+    }
+
+    .fill-space {
+        flex: 1;
+    }
+
+    .ant-tabs {
+        width: 100%;
+    }
+
+    .ant-tabs-tab {
+        color: white;
+    }
+
+    .ant-tabs-nav-container {
+        user-select: none;
+        text-align: center;
+    }
+
+    .ant-tabs-content {
+        flex-direction: column;
+        display: flex;
+        height: 100%;
+        max-height: 100%;
+        flex: 1 1 auto;
+        align-items: stretch;
+    }
+
+    .ant-tabs-tabpane-active {
+        overflow: auto;
+    }
+
+    .loader {
+        max-height: 100% !important;
+        width: 100% !important;
+    }
+
+    .definition-header {
+        color: white;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+    }
+
+    .node-category {
+        margin: 20px 0;
+    }
+
+    .definition-item {
+        color: white;
+    }
 }
 
-.node-category {
-    margin-left: 20px;
-    text-transform: uppercase;
-    font-weight: bold !important;
-    margin-bottom: 20px !important;
-    color: white !important;
+.node-definition-container {
+    margin: 0 20px;
+    margin-bottom: 80px !important;
 }
 
 .node-select-drop-container {
@@ -29,7 +84,7 @@
     justify-content: center;
 
     .port {
-        background-color: @nodeSelectBackgroundColor !important;
+        background-color: @node-select-background-color !important;
     }
 
     .node-container {
@@ -38,6 +93,8 @@
 }
 
 .filter {
+    margin-top: 15px;
+    max-height: 50px;
     input {
         padding: 10px;
         background-color: #26303c;

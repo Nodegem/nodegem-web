@@ -58,5 +58,3 @@ interface ILinkInitializeData {
     destinationNodeId: string;
     destinationData: IPortUIData;
 }
-
-type NodeSelectOptions = { [category: string]: NodeDefinition[] };

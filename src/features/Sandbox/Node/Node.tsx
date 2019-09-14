@@ -216,6 +216,9 @@ export const Node: React.FC<INodeProps> = ({
 };
 
 export const SandboxNode: React.FC<INodeProps> = props => {
-    const style: React.CSSProperties = { position: 'absolute' };
+    const style: React.CSSProperties = {
+        position: 'absolute',
+        visibility: 'hidden', // hack for jitter
+    };
     return React.cloneElement(<Node {...props} sandboxMode />, { style });
 };

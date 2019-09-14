@@ -47,9 +47,14 @@ class Moveable implements IDisposable {
         private element: HTMLElement,
         private canvasContainer: CanvasController,
         private onMove?: (pos: Vector2) => void,
-        private initialPosition?: Vector2,
+        initialPosition?: Vector2,
         transformOrigin: Vector2 = { x: 0.5, y: 0.5 }
     ) {
+        this.transformOrigin = transformOrigin;
+        if (initialPosition) {
+            this.position = initialPosition;
+        }
+
         element.addEventListener('mousedown', this.handleMouseDown);
         element.addEventListener('dblclick', e => e.stopPropagation());
         window.addEventListener('mousemove', this.handleMouseMove);
@@ -57,11 +62,6 @@ class Moveable implements IDisposable {
 
         this.sensor = new ResizeSensor(element, () => this.update());
 
-        if (initialPosition) {
-            this.position = initialPosition;
-        }
-
-        this.transformOrigin = transformOrigin;
         this.update();
     }
 
