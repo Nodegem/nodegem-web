@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 
-import { Button, Icon, Input, List, Spin, Tabs, Typography } from 'antd';
+import {
+    Button,
+    Col,
+    Icon,
+    Input,
+    List,
+    Row,
+    Spin,
+    Tabs,
+    Typography,
+} from 'antd';
 
 import './NodeSelect.less';
 
@@ -43,27 +53,35 @@ const DefinitionItem = (
                 <List.Item
                     className="definition-item"
                     style={{
-                        display: 'flex',
-                        flexDirection: 'row',
                         userSelect: 'none',
+                        alignItems: 'center',
                     }}
+                    extra={
+                        <Button
+                            style={{
+                                visibility:
+                                    snapshot.isDragging ||
+                                    snapshot.isDropAnimating
+                                        ? 'hidden'
+                                        : 'visible',
+                            }}
+                            onClick={() => addNode(item)}
+                            icon="plus-square"
+                            type="link"
+                            size="large"
+                        />
+                    }
                 >
-                    <span style={{ flex: 1, alignSelf: 'center' }}>
-                        {item.title}
-                    </span>
-                    <Button
-                        style={{
-                            float: 'right',
-                            visibility:
-                                snapshot.isDragging || snapshot.isDropAnimating
-                                    ? 'hidden'
-                                    : 'visible',
-                        }}
-                        onClick={() => addNode(item)}
-                        icon="plus-square"
-                        type="link"
-                        size="large"
-                    />
+                    <Row>
+                        <Col span={2}>
+                            <Icon type="drag" style={{ fontSize: '20px' }} />
+                        </Col>
+                        <Col span={14} offset={4}>
+                            <span style={{ flex: 1, alignSelf: 'center' }}>
+                                {item.title}
+                            </span>
+                        </Col>
+                    </Row>
                 </List.Item>
             </span>
         )}

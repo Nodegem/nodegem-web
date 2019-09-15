@@ -310,7 +310,7 @@ export const SandboxView = observer(() => {
                 visible={selectionModalVisible}
                 footer={null}
                 onCancel={() => toggleSelectionModal()}
-                width={900}
+                width={700}
                 centered
             >
                 <PromptGraph
@@ -323,7 +323,7 @@ export const SandboxView = observer(() => {
                 maskClosable={sandboxStore.hasTabs}
                 visible={selectGraphVisible}
                 footer={null}
-                width={900}
+                width={850}
                 onCancel={() => toggleGraphSelectModal()}
                 centered
             >

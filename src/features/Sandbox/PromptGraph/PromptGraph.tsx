@@ -24,7 +24,7 @@ const PromptGraph: React.FC<ITypeProps> = ({ onTypeSelect, onSelectGraph }) => {
                 </Col>
             </Row>
             <Divider dashed>OR</Divider>
-            <Row className="type-options" gutter={50}>
+            <Row className="type-options" gutter={24}>
                 <Col>
                     <Button
                         onClick={() => onTypeSelect('graph')}

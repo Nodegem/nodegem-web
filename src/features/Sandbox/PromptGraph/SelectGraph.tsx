@@ -1,4 +1,4 @@
-import { Button, Card } from 'antd';
+import { Button, Card, Empty } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { GraphService, MacroService } from 'services';
 
@@ -40,6 +40,8 @@ const SelectGraph: React.FC<ISelectGraph> = ({ onGraphSelect }) => {
                         </div>
                     </Card.Grid>
                 ))}
+                {!graphs ||
+                    (graphs.empty() && <Empty description="No Graphs" />)}
             </Card>
             <Card title="Macros" loading={isLoading} type="inner">
                 {macros.map((m, i) => (
@@ -49,6 +51,8 @@ const SelectGraph: React.FC<ISelectGraph> = ({ onGraphSelect }) => {
                         </div>
                     </Card.Grid>
                 ))}
+                {!macros ||
+                    (macros.empty() && <Empty description="No Macros" />)}
             </Card>
         </div>
     );
