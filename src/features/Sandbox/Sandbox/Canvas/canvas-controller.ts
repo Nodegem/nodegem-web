@@ -231,14 +231,23 @@ class CanvasController implements IDisposable {
         );
     }
 
-    private onZoom = (delta: number, position: Vector2, type: ZoomType) => {
-        this.performZoom(this.transform.scale * (1 + delta), position, type);
+    public magnify(zoomDelta: number) {
+        const { scale } = this.transform;
+        this.translate(
+            { ...this.transform, scale: scale + zoomDelta },
+            defaultZoomTween
+        );
+    }
+
+    private onZoom = (delta: number, type: ZoomType, position: Vector2) => {
+        console.log(position);
+        this.performZoom(this.transform.scale * (1 + delta), type, position);
     };
 
     private performZoom = (
         zoomDelta: number,
-        position: Vector2 = { x: 0, y: 0 },
-        type: ZoomType
+        type: ZoomType,
+        position: Vector2 = { x: 0, y: 0 }
     ) => {
         const { scale } = this.transform;
         const { min, max } = this.zoomBounds;

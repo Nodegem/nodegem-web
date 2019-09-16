@@ -276,7 +276,7 @@ export const SandboxView = observer(() => {
 
                             <HorizontalCollapse
                                 collapsed={logsClosed}
-                                height="325px"
+                                height="25%"
                             >
                                 das
                             </HorizontalCollapse>
@@ -289,7 +289,12 @@ export const SandboxView = observer(() => {
                             tabContent="Node Info"
                             collapsed={nodeInfoClosed}
                         >
-                            <NodeInfo />
+                            <NodeInfo
+                                selectedNode={
+                                    sandboxManager.selectedNodes &&
+                                    sandboxManager.selectedNodes[0]
+                                }
+                            />
                         </VerticalCollapsible>
                     </div>
                 </DragDropContext>

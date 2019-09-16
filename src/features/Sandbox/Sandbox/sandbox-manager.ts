@@ -17,9 +17,17 @@ class SandboxManager implements IDisposable {
     @observable
     private _links: Map<string, LinkController> = new Map();
 
+    @observable
+    private _selectedNodes: NodeController[] = [];
+
     @computed
     public get links(): LinkController[] {
         return Array.from(this._links.values());
+    }
+
+    @computed
+    public get selectedNodes(): NodeController[] {
+        return this._selectedNodes;
     }
 
     public get mousePos(): Vector2 {
@@ -75,7 +83,7 @@ class SandboxManager implements IDisposable {
             element,
             this.bounds,
             this.zoomBounds,
-            this.onCanvasDown
+            this.handleCanvasDown
         );
         this.selectController = new SelectionController(
             this._canvasController,
@@ -103,7 +111,8 @@ class SandboxManager implements IDisposable {
                 this._canvasController,
                 this.handlePortEvent,
                 this.onNodeMove,
-                this.onNodeDblClick
+                this.handleNodeDblClick,
+                this.handleNodeClick
             )
         );
     };
@@ -118,6 +127,21 @@ class SandboxManager implements IDisposable {
             node.dispose();
             this._nodes.delete(nodeId);
         }
+    };
+
+    @action
+    private handleNodeClick = (event: MouseEvent, node: NodeController) => {
+        if (event.ctrlKey) {
+            this._selectedNodes.push(node);
+        } else {
+            this._selectedNodes = [node];
+        }
+    };
+
+    @action
+    private handleNodeDblClick = (node: NodeController) => {
+        this._selectedNodes = [node];
+        this.onNodeDblClick(node);
     };
 
     @action
@@ -249,6 +273,12 @@ class SandboxManager implements IDisposable {
         this.clearLinks();
     }
 
+    @action
+    private handleCanvasDown = (event: MouseEvent) => {
+        this._selectedNodes = [];
+        this.onCanvasDown(event);
+    };
+
     private handleSelection = (bounds: Bounds) => {
         this.onSelection(bounds);
     };
@@ -276,8 +306,13 @@ class SandboxManager implements IDisposable {
     };
 
     @action
-    public resetView() {
+    public resetView = () => {
         this._canvasController.reset();
+    };
+
+    @action
+    public magnify(zoomAmount: number) {
+        this._canvasController.magnify(zoomAmount);
     }
 
     @action

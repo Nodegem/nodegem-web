@@ -96,9 +96,24 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                 />
             </div>
             <div className="zoom-controls">
-                <Button type="primary" shape="circle" icon="minus" />
-                <Button type="primary" shape="circle" icon="block" />
-                <Button type="primary" shape="circle" icon="plus" />
+                <Button
+                    type="primary"
+                    shape="circle"
+                    icon="minus"
+                    onClick={() => sandboxManager.magnify(-0.15)}
+                />
+                <Button
+                    type="primary"
+                    shape="circle"
+                    icon="block"
+                    onClick={sandboxManager.resetView}
+                />
+                <Button
+                    type="primary"
+                    shape="circle"
+                    icon="plus"
+                    onClick={() => sandboxManager.magnify(0.15)}
+                />
             </div>
         </div>
     );

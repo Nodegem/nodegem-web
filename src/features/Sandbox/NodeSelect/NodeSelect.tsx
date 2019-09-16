@@ -10,6 +10,7 @@ import {
     Row,
     Spin,
     Tabs,
+    Tooltip,
     Typography,
 } from 'antd';
 
@@ -57,19 +58,37 @@ const DefinitionItem = (
                         alignItems: 'center',
                     }}
                     extra={
-                        <Button
-                            style={{
-                                visibility:
-                                    snapshot.isDragging ||
-                                    snapshot.isDropAnimating
-                                        ? 'hidden'
-                                        : 'visible',
-                            }}
-                            onClick={() => addNode(item)}
-                            icon="plus-square"
-                            type="link"
-                            size="large"
-                        />
+                        <span>
+                            <Tooltip title={item.description || 'N/A'}>
+                                <Button
+                                    style={{
+                                        visibility:
+                                            snapshot.isDragging ||
+                                            snapshot.isDropAnimating
+                                                ? 'hidden'
+                                                : 'visible',
+                                    }}
+                                    icon="info-circle"
+                                    type="link"
+                                    size="large"
+                                />
+                            </Tooltip>
+                            <Tooltip title="Add">
+                                <Button
+                                    style={{
+                                        visibility:
+                                            snapshot.isDragging ||
+                                            snapshot.isDropAnimating
+                                                ? 'hidden'
+                                                : 'visible',
+                                    }}
+                                    onClick={() => addNode(item)}
+                                    icon="plus-square"
+                                    type="link"
+                                    size="large"
+                                />
+                            </Tooltip>
+                        </span>
                     }
                 >
                     <Row>

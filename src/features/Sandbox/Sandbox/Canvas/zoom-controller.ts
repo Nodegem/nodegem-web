@@ -2,8 +2,8 @@ import { isInput, isTouchEvent } from 'utils';
 
 export type ZoomEvent = (
     delta: number,
-    position: Vector2,
-    type: ZoomType
+    type: ZoomType,
+    position: Vector2
 ) => void;
 export type ZoomType = 'wheel' | 'touch' | 'dblClick';
 
@@ -38,7 +38,7 @@ class ZoomController implements IDisposable {
         const ox = (rect.left - e.clientX) * delta;
         const oy = (rect.top - e.clientY) * delta;
 
-        this.onZoom(delta, { x: ox, y: oy }, 'wheel');
+        this.onZoom(delta, 'wheel', { x: ox, y: oy });
     };
 
     public touches(e: TouchEvent) {
@@ -67,7 +67,7 @@ class ZoomController implements IDisposable {
             const ox = (rect.left - cx) * delta;
             const oy = (rect.top - cy) * delta;
 
-            this.onZoom(delta, { x: ox, y: oy }, 'touch');
+            this.onZoom(delta, 'touch', { x: ox, y: oy });
         }
         this._distance = distance;
     };
@@ -89,7 +89,7 @@ class ZoomController implements IDisposable {
         const ox = (rect.left - e.clientX) * delta;
         const oy = (rect.top - e.clientY) * delta;
 
-        this.onZoom(delta, { x: ox, y: oy }, 'dblClick');
+        this.onZoom(delta, 'dblClick', { x: ox, y: oy });
     };
 
     public dispose(): void {

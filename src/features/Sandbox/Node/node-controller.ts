@@ -33,6 +33,10 @@ class NodeController implements IDisposable {
         return this._ports;
     }
 
+    public get portLists(): IPortUIData[] {
+        return Array.from(this._ports.values()).map(x => x.port);
+    }
+
     public get hasLoaded(): boolean {
         return this.element && this.portCount === this.ports.size;
     }
@@ -62,7 +66,8 @@ class NodeController implements IDisposable {
         private canvasContainer: CanvasController,
         private portEvent: PortClickEvent,
         private onMove?: (node: NodeController) => void,
-        private onDblClick?: (node: NodeController) => void
+        private onDblClick?: (node: NodeController) => void,
+        private onClick?: (event: MouseEvent, node: NodeController) => void
     ) {}
 
     public getElementRef = (element: HTMLElement) => {
@@ -84,6 +89,11 @@ class NodeController implements IDisposable {
             this.canvasContainer,
             () => this.onMove && this.onMove(this),
             this._nodeData.position
+        );
+
+        this.element.addEventListener(
+            'click',
+            event => this.onClick && this.onClick(event, this)
         );
 
         this.element.addEventListener(

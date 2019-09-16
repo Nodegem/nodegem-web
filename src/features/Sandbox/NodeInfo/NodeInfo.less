@@ -1,0 +1,26 @@
+@node-select-background-color: #3d4c5c;
+@max-height: calc(100vh - 94px);
+
+.node-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    align-items: stretch;
+    height: 100%;
+    max-height: @max-height;
+    background-color: @node-select-background-color;
+    padding: 15px;
+
+    &.empty {
+        align-content: center;
+        justify-content: center;
+    }
+
+    * {
+        color: white !important;
+    }
+
+    .ant-divider {
+        margin: 20px 0;
+    }
+}

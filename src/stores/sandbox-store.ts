@@ -149,7 +149,7 @@ export class SandboxStore implements IDisposable {
 
     @action
     private handleNodeDblClick = (node: NodeController) => {
-        console.log(node);
+        this.toggleNodeInfo(false);
     };
 
     private handleCanvasDown = (event: MouseEvent) => {
@@ -251,6 +251,7 @@ export class SandboxStore implements IDisposable {
             return {
                 id: n.id,
                 position: n.position,
+                description: info.description,
                 portData: {
                     flowInputs: (flowInputs || []).map<IPortUIData>(fi => ({
                         id: fi.key,

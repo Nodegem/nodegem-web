@@ -103,6 +103,7 @@ export const definitionToNode = (
 ): INodeUIData => {
     return {
         id,
+        description: definition.description,
         portData: {
             flowInputs: definition.flowInputs.map<IPortUIData>(x => ({
                 id: x.key,
