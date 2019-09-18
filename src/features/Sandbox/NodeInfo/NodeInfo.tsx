@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { Divider, Empty, Form, Icon, Input } from 'antd';
+import { Button, Divider, Empty, Form, Icon, Input } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
 import classNames from 'classnames';
@@ -17,7 +17,7 @@ const NodeInfo: React.FC<INodeInfoProps> = ({ selectedNode }) => {
         empty: !selectedNode,
     });
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {};
+    const handleUpdate = (value: IPortUIData) => {};
 
     return (
         <div className={containerClass}>
@@ -29,18 +29,15 @@ const NodeInfo: React.FC<INodeInfoProps> = ({ selectedNode }) => {
             ) : (
                 <>
                     <div className="node-info-title">
-                        <Title level={3}>{selectedNode.nodeData.title}</Title>
-                        <Divider />
+                        <p className="header">{selectedNode.nodeData.title}</p>
                     </div>
                     <div className="node-info-description">
-                        <Title level={4}>Description:</Title>
+                        <p className="header underline">Description:</p>
                         <Paragraph>
                             {selectedNode.nodeData.description || 'N/A'}
                         </Paragraph>
-                        <Divider />
                     </div>
                     <div className="node-info-properties">
-                        <Title level={4}>Properties:</Title>
                         <NodeInfoForm nodeInfo={selectedNode} />
                     </div>
                 </>
@@ -49,32 +46,61 @@ const NodeInfo: React.FC<INodeInfoProps> = ({ selectedNode }) => {
     );
 };
 
+interface IPropertyGroupProps {
+    title: string;
+    portList: IPortUIData[];
+}
+
+const PropertyGroup: React.FC<IPropertyGroupProps> = ({ title, portList }) => {
+    console.log(portList);
+    return (
+        <div className="property-group">
+            <p>{title}:</p>
+            {portList.map(p => (
+                <Form.Item key={p.id} label={p.name}>
+                    <Input
+                        placeholder={p.name}
+                        disabled={p.connected}
+                        value={p.data && p.data.value}
+                    />
+                </Form.Item>
+            ))}
+        </div>
+    );
+};
+
 interface INodeInfoForm {
     nodeInfo: NodeController;
 }
 
-class NodeInfoForm extends React.Component<INodeInfoForm> {
-    public handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    };
+const NodeInfoForm: React.FC<INodeInfoForm> = ({ nodeInfo }) => {
+    const [form, setForm] = useState(nodeInfo.portsList.map(x => ({ ...x })));
 
-    public render() {
-        return (
-            <Form onSubmit={this.handleSubmit} className="login-form">
-                <Form.Item label="sdas">
-                    <Input
-                        prefix={
-                            <Icon
-                                type="user"
-                                style={{ color: 'rgba(0,0,0,.25)' }}
-                            />
-                        }
-                        placeholder="Username"
+    const handleSubmit = () => {};
+
+    const valueInputs = form.filter(
+        x => x.io === 'input' && x.type === 'value'
+    );
+
+    return (
+        <Form onSubmit={handleSubmit} className="node-info-form">
+            <div style={{ height: '100%' }}>
+                {valueInputs.length > 0 && (
+                    <PropertyGroup
+                        portList={valueInputs}
+                        title="Editable Fields"
                     />
+                )}
+            </div>
+            <div className="info-submit">
+                <Form.Item style={{ margin: '0' }}>
+                    <Button type="primary" htmlType="submit" block>
+                        Update
+                    </Button>
                 </Form.Item>
-            </Form>
-        );
-    }
-}
+            </div>
+        </Form>
+    );
+};
 
 export default NodeInfo;

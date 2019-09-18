@@ -30,6 +30,16 @@ class SandboxManager implements IDisposable {
         return this._selectedNodes;
     }
 
+    @computed
+    public get firstSelectedNode(): NodeController | undefined {
+        return (
+            (this._selectedNodes &&
+                !this._selectedNodes.empty() &&
+                this.selectedNodes[0]) ||
+            undefined
+        );
+    }
+
     public get mousePos(): Vector2 {
         return this._canvasController.mousePos;
     }

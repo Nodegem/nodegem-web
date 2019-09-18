@@ -7,7 +7,6 @@ export const valueMap: { [key: string]: ValueType } = {
     time: 'Time',
     date: 'Date',
     datetime: 'Date Time',
-    color: 'Color',
     url: 'Url',
     phonenumber: 'Phone Number',
 };

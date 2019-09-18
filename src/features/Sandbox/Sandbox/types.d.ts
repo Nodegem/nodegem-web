@@ -29,6 +29,7 @@ interface IPortUIData {
     io: PortIOType;
     connected?: boolean;
     connecting?: boolean;
+    data?: FieldData;
 }
 
 interface INodeUIData {

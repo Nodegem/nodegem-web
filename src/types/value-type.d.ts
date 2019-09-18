@@ -1,6 +1,5 @@
 type ValueType =
     | 'Any'
-    | 'Color'
     | 'Time'
     | 'Date'
     | 'Date Time'

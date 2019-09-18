@@ -33,7 +33,7 @@ class NodeController implements IDisposable {
         return this._ports;
     }
 
-    public get portLists(): IPortUIData[] {
+    public get portsList(): IPortUIData[] {
         return Array.from(this._ports.values()).map(x => x.port);
     }
 

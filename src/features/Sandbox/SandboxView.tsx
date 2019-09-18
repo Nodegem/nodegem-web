@@ -290,10 +290,7 @@ export const SandboxView = observer(() => {
                             collapsed={nodeInfoClosed}
                         >
                             <NodeInfo
-                                selectedNode={
-                                    sandboxManager.selectedNodes &&
-                                    sandboxManager.selectedNodes[0]
-                                }
+                                selectedNode={sandboxManager.firstSelectedNode}
                             />
                         </VerticalCollapsible>
                     </div>

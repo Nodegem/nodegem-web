@@ -258,24 +258,36 @@ export class SandboxStore implements IDisposable {
                         name: fi.label,
                         io: 'input',
                         type: 'flow',
+                        data:
+                            n.fieldData &&
+                            n.fieldData.firstOrDefault(x => x.key === fi.key),
                     })),
-                    flowOutputs: (flowOutputs || []).map<IPortUIData>(fi => ({
-                        id: fi.key,
-                        name: fi.label,
+                    flowOutputs: (flowOutputs || []).map<IPortUIData>(fo => ({
+                        id: fo.key,
+                        name: fo.label,
                         io: 'output',
                         type: 'flow',
+                        data:
+                            n.fieldData &&
+                            n.fieldData.firstOrDefault(x => x.key === fo.key),
                     })),
-                    valueInputs: (valueInputs || []).map<IPortUIData>(fi => ({
-                        id: fi.key,
-                        name: fi.label,
+                    valueInputs: (valueInputs || []).map<IPortUIData>(vi => ({
+                        id: vi.key,
+                        name: vi.label,
                         io: 'input',
                         type: 'value',
+                        data:
+                            n.fieldData &&
+                            n.fieldData.firstOrDefault(x => x.key === vi.key),
                     })),
-                    valueOutputs: (valueOutputs || []).map<IPortUIData>(fi => ({
-                        id: fi.key,
-                        name: fi.label,
+                    valueOutputs: (valueOutputs || []).map<IPortUIData>(vo => ({
+                        id: vo.key,
+                        name: vo.label,
                         io: 'output',
                         type: 'value',
+                        data:
+                            n.fieldData &&
+                            n.fieldData.firstOrDefault(x => x.key === vo.key),
                     })),
                 },
                 title: info.title,

@@ -16,11 +16,59 @@
         justify-content: center;
     }
 
-    * {
-        color: white !important;
+    .header {
+        font-size: 1.4em;
+    }
+
+    .node-info-title {
+        font-size: 1.5em;
+
+        p {
+            color: white;
+            margin-bottom: 10px;
+        }
+    }
+
+    .node-info-description {
+        * {
+            color: white;
+        }
+    }
+
+    .node-info-properties {
+        flex: 1;
+
+        .node-info-form {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            height: 100%;
+        }
+    }
+
+    .property-group {
+        display: flex;
+        flex-direction: column;
+
+        p {
+            font-weight: bold;
+            color: white;
+        }
+
+        label {
+            color: white;
+        }
     }
 
     .ant-divider {
         margin: 20px 0;
+    }
+
+    > *:not(:last-child) {
+        border-bottom: 1px solid white;
+    }
+
+    > *:not(:first-child) {
+        margin-top: 10px;
     }
 }

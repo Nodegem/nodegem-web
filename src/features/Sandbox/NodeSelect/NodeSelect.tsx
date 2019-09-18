@@ -181,7 +181,6 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                                         )
                                     )}
                                 </div>
-                                1
                             </TabPane>
                         ))}
                     </Tabs>
