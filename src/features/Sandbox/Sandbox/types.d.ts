@@ -30,6 +30,8 @@ interface IPortUIData {
     connected?: boolean;
     connecting?: boolean;
     data?: FieldData;
+    valueType?: ValueType;
+    defaultValue?: any;
 }
 
 interface INodeUIData {

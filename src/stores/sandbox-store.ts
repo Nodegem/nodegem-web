@@ -276,6 +276,8 @@ export class SandboxStore implements IDisposable {
                         name: vi.label,
                         io: 'input',
                         type: 'value',
+                        valueType: vi.valueType,
+                        defaultValue: vi.defaultValue,
                         data:
                             n.fieldData &&
                             n.fieldData.firstOrDefault(x => x.key === vi.key),

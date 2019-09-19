@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-import { Button, Divider, Empty, Form, Icon, Input } from 'antd';
+import { Button, Empty, Form, Input, InputNumber, Select, Switch } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
-import Title from 'antd/lib/typography/Title';
 import classNames from 'classnames';
 import NodeController from '../Node/node-controller';
 import './NodeInfo.less';
+
+const { Option } = Select;
 
 interface INodeInfoProps {
     selectedNode?: NodeController;
@@ -51,18 +52,65 @@ interface IPropertyGroupProps {
     portList: IPortUIData[];
 }
 
+const selectBefore = (value: string) => (
+    <Select
+        defaultValue={
+            value.toLowerCase().includes('https') ? 'Https://' : 'Http://'
+        }
+        style={{ width: 90 }}
+    >
+        <Option value="Http://">Http://</Option>
+        <Option value="Https://">Https://</Option>
+    </Select>
+);
+
 const PropertyGroup: React.FC<IPropertyGroupProps> = ({ title, portList }) => {
-    console.log(portList);
+    const renderInput = (port: IPortUIData) => {
+        const { data, defaultValue, connected, name } = port;
+        const value = data && data.value;
+        switch (port.valueType) {
+            case 'Boolean':
+                return (
+                    <Switch
+                        defaultChecked={defaultValue}
+                        checked={value}
+                        disabled={connected}
+                    />
+                );
+            case 'Number':
+                return (
+                    <InputNumber
+                        defaultValue={defaultValue}
+                        value={value}
+                        disabled={connected}
+                    />
+                );
+            case 'Url':
+                return (
+                    <Input
+                        addonBefore={selectBefore(value)}
+                        defaultValue={defaultValue}
+                        value={value}
+                        disabled={connected}
+                    />
+                );
+            default:
+                return (
+                    <Input
+                        placeholder={name}
+                        disabled={connected}
+                        value={value}
+                    />
+                );
+        }
+    };
+
     return (
         <div className="property-group">
             <p>{title}:</p>
             {portList.map(p => (
                 <Form.Item key={p.id} label={p.name}>
-                    <Input
-                        placeholder={p.name}
-                        disabled={p.connected}
-                        value={p.data && p.data.value}
-                    />
+                    {renderInput(p)}
                 </Form.Item>
             ))}
         </div>
@@ -76,14 +124,20 @@ interface INodeInfoForm {
 const NodeInfoForm: React.FC<INodeInfoForm> = ({ nodeInfo }) => {
     const [form, setForm] = useState(nodeInfo.portsList.map(x => ({ ...x })));
 
-    const handleSubmit = () => {};
+    const handleSubmit = () => {
+        console.log(form);
+    };
+
+    useEffect(() => {
+        setForm(nodeInfo.portsList.map(x => ({ ...x })));
+    }, [nodeInfo]);
 
     const valueInputs = form.filter(
         x => x.io === 'input' && x.type === 'value'
     );
 
     return (
-        <Form onSubmit={handleSubmit} className="node-info-form">
+        <Form className="node-info-form">
             <div style={{ height: '100%' }}>
                 {valueInputs.length > 0 && (
                     <PropertyGroup
@@ -94,7 +148,7 @@ const NodeInfoForm: React.FC<INodeInfoForm> = ({ nodeInfo }) => {
             </div>
             <div className="info-submit">
                 <Form.Item style={{ margin: '0' }}>
-                    <Button type="primary" htmlType="submit" block>
+                    <Button type="primary" onClick={handleSubmit} block>
                         Update
                     </Button>
                 </Form.Item>

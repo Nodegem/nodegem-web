@@ -48,13 +48,7 @@ export class GenericComponent extends Component {
         (valueInputs || []).forEach(x => {
             const input = new Input(x.key, x.label, sockets.value, false);
             input.addControl(
-                new GenericControl(
-                    editor,
-                    x.key,
-                    x.label,
-                    x.defaultValue,
-                    x.valueType
-                )
+                new GenericControl(editor, x.key, x.label, x.defaultValue, 0)
             );
             inputs.push(input);
         });
