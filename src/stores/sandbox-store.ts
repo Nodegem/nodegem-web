@@ -258,18 +258,20 @@ export class SandboxStore implements IDisposable {
                         name: fi.label,
                         io: 'input',
                         type: 'flow',
-                        data:
-                            n.fieldData &&
-                            n.fieldData.firstOrDefault(x => x.key === fi.key),
+                        data: (n.fieldData &&
+                            n.fieldData.firstOrDefault(
+                                x => x.key === fi.key
+                            )) || { key: fi.key, value: null },
                     })),
                     flowOutputs: (flowOutputs || []).map<IPortUIData>(fo => ({
                         id: fo.key,
                         name: fo.label,
                         io: 'output',
                         type: 'flow',
-                        data:
-                            n.fieldData &&
-                            n.fieldData.firstOrDefault(x => x.key === fo.key),
+                        data: (n.fieldData &&
+                            n.fieldData.firstOrDefault(
+                                x => x.key === fo.key
+                            )) || { key: fo.key, value: null },
                     })),
                     valueInputs: (valueInputs || []).map<IPortUIData>(vi => ({
                         id: vi.key,
@@ -278,18 +280,22 @@ export class SandboxStore implements IDisposable {
                         type: 'value',
                         valueType: vi.valueType,
                         defaultValue: vi.defaultValue,
-                        data:
-                            n.fieldData &&
-                            n.fieldData.firstOrDefault(x => x.key === vi.key),
+                        indefinite: vi.indefinite,
+                        data: (n.fieldData &&
+                            n.fieldData.firstOrDefault(
+                                x => x.key === vi.key
+                            )) || { key: vi.key, value: vi.defaultValue },
                     })),
                     valueOutputs: (valueOutputs || []).map<IPortUIData>(vo => ({
                         id: vo.key,
                         name: vo.label,
                         io: 'output',
                         type: 'value',
-                        data:
-                            n.fieldData &&
-                            n.fieldData.firstOrDefault(x => x.key === vo.key),
+                        valueType: vo.valueType,
+                        data: (n.fieldData &&
+                            n.fieldData.firstOrDefault(
+                                x => x.key === vo.key
+                            )) || { key: vo.key, value: null },
                     })),
                 },
                 title: info.title,

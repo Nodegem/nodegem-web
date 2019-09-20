@@ -32,6 +32,7 @@ interface IPortUIData {
     data?: FieldData;
     valueType?: ValueType;
     defaultValue?: any;
+    indefinite?: boolean;
 }
 
 interface INodeUIData {

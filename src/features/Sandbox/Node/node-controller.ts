@@ -136,6 +136,15 @@ class NodeController implements IDisposable {
         }
     };
 
+    public updatePortValues = (fields: IPortUIData[]) => {
+        fields.forEach(f => {
+            const existingField = this._ports.get(f.id);
+            if (existingField) {
+                this._ports.set(f.id, { ...existingField, port: f });
+            }
+        });
+    };
+
     public dispose(): void {
         if (this.moveable) {
             this.moveable.dispose();

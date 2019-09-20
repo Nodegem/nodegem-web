@@ -7,6 +7,7 @@ declare global {
         firstOrDefault(predicate?: (item: T) => boolean): T | undefined;
         lastOrDefault(): T | null;
         copy(): T[];
+        replace(predicate: (item: T) => boolean, newVal: T): T[];
         toDictionary(indexKey: keyof T): { [key: string]: T };
     }
 
@@ -59,6 +60,18 @@ Array.prototype.toDictionary = function<T>(indexKey: keyof T) {
         normalizedObject[key] = this[i];
     }
     return normalizedObject as { [key: string]: T };
+};
+
+Array.prototype.replace = function<T>(
+    predicate: (item: T) => boolean,
+    newVal: T
+): T[] {
+    const copy = [...this];
+    const index = copy.findIndex(predicate);
+    if (index !== -1) {
+        copy[index] = newVal;
+    }
+    return copy;
 };
 
 String.prototype.upperCaseFirst = function jsUcfirst(): string {

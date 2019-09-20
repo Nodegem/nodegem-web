@@ -291,6 +291,9 @@ export const SandboxView = observer(() => {
                         >
                             <NodeInfo
                                 selectedNode={sandboxManager.firstSelectedNode}
+                                onNodeValueChange={(n, f) =>
+                                    n.updatePortValues(f)
+                                }
                             />
                         </VerticalCollapsible>
                     </div>

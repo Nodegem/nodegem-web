@@ -55,33 +55,33 @@ class ReteControlView extends React.Component<
         const { value } = this.state;
 
         switch (valueType) {
-            case 'Boolean':
-                return (
-                    <Switch onChange={this.handleValueChange} checked={value} />
-                );
+            // case 'Boolean':
+            //     return (
+            //         <Switch onChange={this.handleValueChange} checked={value} />
+            //     );
 
-            case 'Number':
-                return (
-                    <NumericInput
-                        onChange={this.handleValueChange}
-                        onBlur={this.handleBlur}
-                        size="small"
-                        placeholder={name}
-                        value={value}
-                    />
-                );
+            // case 'Number':
+            //     return (
+            //         <NumericInput
+            //             onChange={this.handleValueChange}
+            //             onBlur={this.handleBlur}
+            //             size="small"
+            //             placeholder={name}
+            //             value={value}
+            //         />
+            //     );
 
-            case 'Text Area':
-                return (
-                    <TextAreaModal
-                        onChange={this.handleValueChange}
-                        value={value}
-                        label={name}
-                        title={name}
-                    />
-                );
+            // case 'Text Area':
+            //     return (
+            //         <TextAreaModal
+            //             onChange={this.handleValueChange}
+            //             value={value}
+            //             label={name}
+            //             title={name}
+            //         />
+            //     );
 
-            case 'Text':
+            // case 'Text':
             default:
                 return (
                     <Input

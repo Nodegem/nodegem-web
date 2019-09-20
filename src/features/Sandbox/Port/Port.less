@@ -1,4 +1,5 @@
 @import '../sandbox-variables.less';
+@import '../../../styles/vars.less';
 
 .port {
     cursor: pointer;
@@ -31,5 +32,17 @@
             border: 1px solid @connectionColor;
             background-color: @connectionColor;
         }
+    }
+}
+
+.add-port {
+    font-size: 1.3em;
+    color: @primary-color;
+    left: -30px;
+    top: 20px;
+    cursor: pointer;
+
+    &.right {
+        left: 30px;
     }
 }

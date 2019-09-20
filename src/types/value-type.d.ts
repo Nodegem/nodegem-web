@@ -1,4 +1,4 @@
-type ValueType =
+type ValueTypePretty =
     | 'Any'
     | 'Time'
     | 'Date'
@@ -9,3 +9,15 @@ type ValueType =
     | 'Url'
     | 'Phone Number'
     | 'Number';
+
+type ValueType =
+    | 'any'
+    | 'time'
+    | 'date'
+    | 'datetime'
+    | 'boolean'
+    | 'text'
+    | 'textarea'
+    | 'url'
+    | 'phonenumber'
+    | 'number';

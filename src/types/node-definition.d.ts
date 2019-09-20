@@ -22,6 +22,9 @@ interface FlowOutputDefinition extends FieldDefinition {}
 interface ValueInputDefinition extends FieldDefinition {
     defaultValue: any;
     valueType: ValueType;
+    indefinite: boolean;
 }
 
-interface ValueOutputDefinition extends FieldDefinition {}
+interface ValueOutputDefinition extends FieldDefinition {
+    valueType: ValueType;
+}

@@ -12,6 +12,7 @@ interface INodeProps {
     getRef?: (instance: HTMLDivElement) => void;
     getPortRef?: (port: IPortUIData, element: HTMLElement) => void;
     removePortRef?: (id: string) => void;
+    onPortAdd?: (port: IPortUIData) => void;
     onPortEvent?: (
         event: PortEvent,
         element: HTMLElement,
@@ -87,6 +88,7 @@ export const Node: React.FC<INodeProps> = ({
     data,
     editNode = () => {},
     removeNode = () => {},
+    onPortAdd = () => {},
     getPortRef,
     removePortRef,
     sandboxMode,
@@ -160,7 +162,7 @@ export const Node: React.FC<INodeProps> = ({
         >
             <div ref={container} className="node-container" {...rest}>
                 <div className="flow flow-inputs">
-                    {flowInputs.map(fi => (
+                    {flowInputs.map((fi, i) => (
                         <Port
                             getPortRef={getPortRef}
                             removePortRef={removePortRef}
@@ -168,12 +170,14 @@ export const Node: React.FC<INodeProps> = ({
                             data={fi}
                             onPortEvent={onPortEvent}
                             sandboxMode={sandboxMode}
+                            onAddPort={onPortAdd}
+                            lastPort={i === flowInputs.length - 1}
                         />
                     ))}
                 </div>
                 <div className="inner">
                     <div className="value value-inputs">
-                        {valueInputs.map(vi => (
+                        {valueInputs.map((vi, i) => (
                             <Port
                                 getPortRef={getPortRef}
                                 removePortRef={removePortRef}
@@ -181,12 +185,14 @@ export const Node: React.FC<INodeProps> = ({
                                 data={vi}
                                 onPortEvent={onPortEvent}
                                 sandboxMode={sandboxMode}
+                                onAddPort={onPortAdd}
+                                lastPort={i === valueInputs.length - 1}
                             />
                         ))}
                     </div>
                     <span className="title">{title}</span>
                     <div className="value value-outputs">
-                        {valueOutputs.map(vo => (
+                        {valueOutputs.map((vo, i) => (
                             <Port
                                 getPortRef={getPortRef}
                                 removePortRef={removePortRef}
@@ -194,12 +200,14 @@ export const Node: React.FC<INodeProps> = ({
                                 data={vo}
                                 onPortEvent={onPortEvent}
                                 sandboxMode={sandboxMode}
+                                lastPort={i === valueOutputs.length - 1}
+                                onAddPort={onPortAdd}
                             />
                         ))}
                     </div>
                 </div>
                 <div className="flow flow-outputs">
-                    {flowOutputs.map(fo => (
+                    {flowOutputs.map((fo, i) => (
                         <Port
                             getPortRef={getPortRef}
                             removePortRef={removePortRef}
@@ -207,6 +215,8 @@ export const Node: React.FC<INodeProps> = ({
                             data={fo}
                             onPortEvent={onPortEvent}
                             sandboxMode={sandboxMode}
+                            onAddPort={onPortAdd}
+                            lastPort={i === flowOutputs.length - 1}
                         />
                     ))}
                 </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-import { Tooltip } from 'antd';
+import { Button, Icon, Tooltip } from 'antd';
 import { TooltipPlacement } from 'antd/lib/tooltip';
 import classNames from 'classnames';
 import './Port.less';
@@ -8,6 +8,7 @@ import './Port.less';
 interface ISocketProps {
     data: IPortUIData;
     sandboxMode?: boolean;
+    lastPort: boolean;
     getPortRef?: (port: IPortUIData, element: HTMLElement) => void;
     removePortRef?: (id: string) => void;
     onPortEvent?: (
@@ -15,6 +16,7 @@ interface ISocketProps {
         element: HTMLElement,
         data: IPortUIData
     ) => void;
+    onAddPort?: (port: IPortUIData) => void;
 }
 
 export const Socket: React.FC<ISocketProps> = ({
@@ -23,6 +25,8 @@ export const Socket: React.FC<ISocketProps> = ({
     getPortRef,
     removePortRef,
     sandboxMode,
+    onAddPort,
+    lastPort,
 }: ISocketProps) => {
     const portRef = useRef<HTMLSpanElement>(null);
     const portClick = (event: MouseEvent | TouchEvent) => {
@@ -42,6 +46,7 @@ export const Socket: React.FC<ISocketProps> = ({
         if (!sandboxMode) {
             return;
         }
+
         getPortRef!(data, portRef.current!);
         portRef.current!.addEventListener('mousedown', portClick);
         portRef.current!.addEventListener('mouseup', portClick);
@@ -69,16 +74,32 @@ export const Socket: React.FC<ISocketProps> = ({
             : 'top';
 
     return (
-        <Tooltip title={data.name} placement={placement}>
-            <span
-                ref={portRef}
-                className={classNames({
-                    port: true,
-                    'sandbox-mode': sandboxMode,
-                    connecting: data.connecting,
-                    connected: data.connected,
-                })}
-            />
-        </Tooltip>
+        <>
+            <Tooltip title={data.name} placement={placement}>
+                <span
+                    ref={portRef}
+                    className={classNames({
+                        port: true,
+                        'sandbox-mode': sandboxMode,
+                        connecting: data.connecting,
+                        connected: data.connected,
+                    })}
+                />
+            </Tooltip>
+            {data.indefinite && lastPort && (
+                <Tooltip title={`Add ${data.name}`}>
+                    <span
+                        onClick={() => onAddPort && onAddPort(data)}
+                        className={classNames({
+                            'add-port': true,
+                            [placement]: true,
+                        })}
+                        style={{ position: 'absolute' }}
+                    >
+                        <Icon type="plus-circle" />
+                    </span>
+                </Tooltip>
+            )}
+        </>
     );
 };
