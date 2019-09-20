@@ -111,6 +111,7 @@ export const definitionToNode = (
                 io: 'input',
                 name: x.label,
                 type: 'flow',
+                data: { key: x.key, value: null },
             })),
             flowOutputs: definition.flowOutputs.map<IPortUIData>(x => ({
                 id: x.key,
@@ -118,6 +119,7 @@ export const definitionToNode = (
                 io: 'output',
                 name: x.label,
                 type: 'flow',
+                data: { key: x.key, value: null },
             })),
             valueInputs: definition.valueInputs.map<IPortUIData>(x => ({
                 id: x.key,
@@ -125,6 +127,10 @@ export const definitionToNode = (
                 io: 'input',
                 name: x.label,
                 type: 'value',
+                defaultValue: x.defaultValue,
+                valueType: x.valueType,
+                indefinite: x.indefinite,
+                data: { key: x.key, value: null },
             })),
             valueOutputs: definition.valueOutputs.map<IPortUIData>(x => ({
                 id: x.key,
@@ -132,6 +138,8 @@ export const definitionToNode = (
                 io: 'output',
                 name: x.label,
                 type: 'value',
+                valueType: x.valueType,
+                data: { key: x.key, value: null },
             })),
         },
         position,
