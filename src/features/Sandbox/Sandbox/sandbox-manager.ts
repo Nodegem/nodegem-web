@@ -122,12 +122,18 @@ class SandboxManager implements IDisposable {
                 this.handlePortEvent,
                 this.onNodeMove,
                 this.handleNodeDblClick,
-                this.handleNodeClick
+                this.handleNodeClick,
+                this.handlePortAdd
             )
         );
     };
 
     public getNode = (nodeId: string) => this._nodes.get(nodeId);
+
+    @action
+    public handlePortAdd = (node: NodeController, port: IPortUIData) => {
+        console.log(node, port);
+    };
 
     @action
     public removeNode = (nodeId: string) => {

@@ -67,7 +67,8 @@ class NodeController implements IDisposable {
         private portEvent: PortClickEvent,
         private onMove?: (node: NodeController) => void,
         private onDblClick?: (node: NodeController) => void,
-        private onClick?: (event: MouseEvent, node: NodeController) => void
+        private onClick?: (event: MouseEvent, node: NodeController) => void,
+        private onPortAdd?: (node: NodeController, port: IPortUIData) => void
     ) {}
 
     public getElementRef = (element: HTMLElement) => {
@@ -122,6 +123,14 @@ class NodeController implements IDisposable {
         data: IPortUIData
     ) => {
         this.portEvent(event, element, data, this);
+    };
+
+    public addPort = (port: IPortUIData) => {
+        console.log(port, this._ports);
+
+        if (this.onPortAdd) {
+            this.onPortAdd(this, port);
+        }
     };
 
     public getPortRef = (port: IPortUIData, element: HTMLElement) => {

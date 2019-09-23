@@ -87,7 +87,7 @@ export const Socket: React.FC<ISocketProps> = ({
                 />
             </Tooltip>
             {data.indefinite && lastPort && (
-                <Tooltip title={`Add ${data.name}`}>
+                <Tooltip title={`Add to ${data.name.removeAfter('[')}`}>
                     <span
                         onClick={() => onAddPort && onAddPort(data)}
                         className={classNames({

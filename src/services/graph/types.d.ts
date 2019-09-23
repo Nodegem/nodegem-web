@@ -58,7 +58,7 @@ interface NodeData {
 
 interface FieldData {
     key: string;
-    value: any;
+    value: any | any[];
 }
 
 interface CreateGraph {

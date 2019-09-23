@@ -14,6 +14,7 @@ declare global {
     // tslint:disable-next-line: interface-name
     interface String {
         upperCaseFirst(): string;
+        removeAfter(char: string): string;
     }
 }
 
@@ -76,6 +77,11 @@ Array.prototype.replace = function<T>(
 
 String.prototype.upperCaseFirst = function jsUcfirst(): string {
     return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+String.prototype.removeAfter = function removeAfter(char: string): string {
+    const index = this.indexOf(char);
+    return index > -1 ? this.slice(0, index) : this.slice();
 };
 
 export {};

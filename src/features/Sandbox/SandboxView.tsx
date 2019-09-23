@@ -1,4 +1,4 @@
-import { Button, Modal, Tooltip, Typography } from 'antd';
+import { Button, Checkbox, Icon, Modal, Tooltip, Typography } from 'antd';
 import classNames from 'classnames';
 import { DraggableTabs, ITab } from 'components/DraggableTabs';
 import HorizontalCollapse from 'components/HorizontalCollapse/HorizontalCollapse';
@@ -7,13 +7,8 @@ import MacroModalFormController from 'components/Modals/MacroModal/MacroModalFor
 import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
 import _ from 'lodash';
 import { observer } from 'mobx-react-lite';
-import React, { useEffect, useState } from 'react';
-import {
-    DragDropContext,
-    DraggableStateSnapshot,
-    DraggingStyle,
-    NotDraggingStyle,
-} from 'react-beautiful-dnd';
+import React, { useEffect } from 'react';
+import { DragDropContext } from 'react-beautiful-dnd';
 import { DragEndProps, TabData, useStore } from 'stores';
 import { isMacro } from 'utils';
 import NodeInfo from './NodeInfo/NodeInfo';
@@ -40,6 +35,7 @@ const TabTemplate: React.FC<
     return (
         <Tooltip
             placement="bottom"
+            mouseEnterDelay={0.25}
             title={
                 <Button
                     type="danger"
@@ -77,6 +73,19 @@ const GraphControls: React.FC<IGraphControlProps> = ({
 }) => {
     return (
         <div className="tab-controls">
+            <Button
+                disabled={!graph}
+                shape="round"
+                type="primary"
+                icon="play-circle"
+                onClick={() => toggleLogs()}
+                loading={false}
+            >
+                Run
+            </Button>
+            {/* <Tooltip title="Debug">
+                <Checkbox disabled={!graph} checked={true} />
+            </Tooltip> */}
             <Button
                 disabled={!graph}
                 shape="round"
@@ -242,7 +251,7 @@ export const SandboxView = observer(() => {
                 >
                     <div className="graph-content">
                         <VerticalCollapsible
-                            width="350px"
+                            width="325px"
                             minWidth="0"
                             onTabClick={toggleNodeSelect}
                             tabContent="Nodes"
@@ -282,7 +291,7 @@ export const SandboxView = observer(() => {
                             </HorizontalCollapse>
                         </div>
                         <VerticalCollapsible
-                            width="450px"
+                            width="350px"
                             minWidth="0"
                             onTabClick={() => toggleNodeInfo()}
                             tabDirection="left"
