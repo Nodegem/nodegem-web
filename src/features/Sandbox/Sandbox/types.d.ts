@@ -29,7 +29,7 @@ interface IPortUIData {
     io: PortIOType;
     connected?: boolean;
     connecting?: boolean;
-    data?: FieldData;
+    value?: any;
     valueType?: ValueType;
     defaultValue?: any;
     indefinite?: boolean;

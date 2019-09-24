@@ -25,6 +25,15 @@ type NodeCache = {
     selectFriendly: SelectFriendly<NodeDefinition>;
 };
 
+const tryGetValue = (node: NodeData, key: string, defaultValue?: any) => {
+    if (node.fieldData) {
+        const fd = node.fieldData.firstOrDefault(x => x.key === key);
+        return (fd && fd.value) || defaultValue;
+    }
+
+    return defaultValue;
+};
+
 export class SandboxStore implements IDisposable {
     @observable
     private _cachedDefinitions: {
@@ -258,20 +267,14 @@ export class SandboxStore implements IDisposable {
                         name: fi.label,
                         io: 'input',
                         type: 'flow',
-                        data: (n.fieldData &&
-                            n.fieldData.firstOrDefault(
-                                x => x.key === fi.key
-                            )) || { key: fi.key, value: null },
+                        value: tryGetValue(n, fi.key),
                     })),
                     flowOutputs: (flowOutputs || []).map<IPortUIData>(fo => ({
                         id: fo.key,
                         name: fo.label,
                         io: 'output',
                         type: 'flow',
-                        data: (n.fieldData &&
-                            n.fieldData.firstOrDefault(
-                                x => x.key === fo.key
-                            )) || { key: fo.key, value: null },
+                        data: tryGetValue(n, fo.key),
                     })),
                     valueInputs: (valueInputs || []).map<IPortUIData>(vi => ({
                         id: vi.key,
@@ -281,10 +284,7 @@ export class SandboxStore implements IDisposable {
                         valueType: vi.valueType,
                         defaultValue: vi.defaultValue,
                         indefinite: vi.indefinite,
-                        data: (n.fieldData &&
-                            n.fieldData.firstOrDefault(
-                                x => x.key === vi.key
-                            )) || { key: vi.key, value: vi.defaultValue },
+                        data: tryGetValue(n, vi.key, vi.defaultValue),
                     })),
                     valueOutputs: (valueOutputs || []).map<IPortUIData>(vo => ({
                         id: vo.key,
@@ -292,10 +292,7 @@ export class SandboxStore implements IDisposable {
                         io: 'output',
                         type: 'value',
                         valueType: vo.valueType,
-                        data: (n.fieldData &&
-                            n.fieldData.firstOrDefault(
-                                x => x.key === vo.key
-                            )) || { key: vo.key, value: null },
+                        value: tryGetValue(n, vo.key),
                     })),
                 },
                 title: info.title,

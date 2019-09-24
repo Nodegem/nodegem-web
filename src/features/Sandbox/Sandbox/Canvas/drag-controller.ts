@@ -42,7 +42,7 @@ class DragController implements IDisposable {
             return;
         }
 
-        event.stopPropagation();
+        // event.stopPropagation();
         this.onCanvasDown(event as MouseEvent);
         this.mouseStart = this.getCoords(event);
     };
@@ -52,7 +52,7 @@ class DragController implements IDisposable {
             return;
         }
         event.preventDefault();
-        event.stopPropagation();
+        // event.stopPropagation();
 
         const { x, y } = this.getCoords(event);
         const delta = { x: x - this.mouseStart.x, y: y - this.mouseStart.y };

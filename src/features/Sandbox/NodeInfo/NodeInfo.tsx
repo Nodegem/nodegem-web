@@ -103,11 +103,10 @@ const PropertyGroup: React.FC<IPropertyGroupProps> = ({
     onFieldChange,
 }) => {
     const renderInput = (port: IPortUIData) => {
-        const { data, defaultValue, connected, name } = port;
-        const value = data && data.value;
+        const { value, defaultValue, connected, name } = port;
 
         const handleChange = v => {
-            port.data!.value = v;
+            port.value = v;
             onFieldChange(port);
         };
 
@@ -237,7 +236,7 @@ const NodeInfoForm: React.FC<INodeInfoForm> = ({ valueInputs, onUpdate }) => {
     const handleValueChange = (port: IPortUIData) => {
         const p = form.firstOrDefault(x => x.id === port.id);
         if (p) {
-            const newForm = form.map(x => ({ ...x, data: toJS(x.data) }));
+            const newForm = form.map(x => ({ ...x, value: toJS(x.value) }));
             setIsDirty(!_.isEqual(newForm, valueInputs));
             setForm(newForm);
         }

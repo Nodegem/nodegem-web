@@ -126,12 +126,12 @@ class NodeController implements IDisposable {
     };
 
     public addPort = (port: IPortUIData) => {
-        console.log(port, this._ports);
-
         if (this.onPortAdd) {
             this.onPortAdd(this, port);
         }
     };
+
+    public removePort = (port: IPortUIData) => {};
 
     public getPortRef = (port: IPortUIData, element: HTMLElement) => {
         if (!this._ports.has(port.id)) {

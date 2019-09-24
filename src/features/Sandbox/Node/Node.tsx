@@ -151,28 +151,6 @@ export const Node: React.FC<INodeProps> = ({
 
     const closeToolbar = () => setVisible(false);
 
-    const flattenedValueInputs = valueInputs.flatMap<IPortUIData>(x => {
-        if (x.indefinite) {
-            x.data = x.data || { key: x.name, value: [] };
-            if (x.data) {
-                x.data.value = !Array.isArray(x.data.value)
-                    ? [x.data.value]
-                    : x.data.value;
-                return x.data.value.map((v, vIndex) => {
-                    const newId = `${x.id}[${vIndex}]`;
-                    return {
-                        ...x,
-                        name: `${x.name}[${vIndex}]`,
-                        id: newId,
-                        data: { key: newId, value: v },
-                    } as IPortUIData;
-                });
-            }
-        } else {
-            return x;
-        }
-    });
-
     return (
         <Toolbar
             forceClose={closeToolbar}
@@ -199,7 +177,7 @@ export const Node: React.FC<INodeProps> = ({
                 </div>
                 <div className="inner">
                     <div className="value value-inputs">
-                        {flattenedValueInputs.map((vi, i) => (
+                        {valueInputs.map((vi, i) => (
                             <Port
                                 getPortRef={getPortRef}
                                 removePortRef={removePortRef}

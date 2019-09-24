@@ -1,18 +1,7 @@
 import React, { useState } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 
-import {
-    Button,
-    Col,
-    Icon,
-    Input,
-    List,
-    Row,
-    Spin,
-    Tabs,
-    Tooltip,
-    Typography,
-} from 'antd';
+import { Button, Col, Icon, Input, List, Row, Tabs, Tooltip } from 'antd';
 
 import './NodeSelect.less';
 
@@ -93,7 +82,7 @@ const DefinitionItem = (
                 >
                     <Row>
                         <Col span={2}>
-                            <Icon type="drag" style={{ fontSize: '20px' }} />
+                            <Icon type="drag" style={{ fontSize: '1.3em' }} />
                         </Col>
                         <Col span={14} offset={4}>
                             <span style={{ flex: 1, alignSelf: 'center' }}>
