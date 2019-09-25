@@ -1,3 +1,5 @@
+@import './styles/vars.less';
+
 body {
     margin: 0;
     padding: 0;
@@ -17,4 +19,9 @@ body {
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
     background-color: #0000009f;
+}
+
+* {
+    scrollbar-color: @primary-color transparent;
+    scrollbar-width: thin;
 }

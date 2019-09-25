@@ -122,18 +122,12 @@ class SandboxManager implements IDisposable {
                 this.handlePortEvent,
                 this.onNodeMove,
                 this.handleNodeDblClick,
-                this.handleNodeClick,
-                this.handlePortAdd
+                this.handleNodeClick
             )
         );
     };
 
     public getNode = (nodeId: string) => this._nodes.get(nodeId);
-
-    @action
-    public handlePortAdd = (node: NodeController, port: IPortUIData) => {
-        console.log(node, port);
-    };
 
     @action
     public removeNode = (nodeId: string) => {
@@ -310,7 +304,7 @@ class SandboxManager implements IDisposable {
 
     private handleMouseDown = (event: MouseEvent) => {
         if (event.ctrlKey) {
-            this._canvasController.disableDrag();
+            this._canvasController.toggleDragging(false);
             this.selectController.startSelect(this._canvasController.mousePos);
         }
     };
@@ -318,6 +312,7 @@ class SandboxManager implements IDisposable {
     private handleMouseUp = (event: MouseEvent) => {
         if (this.selectController.selecting) {
             this.selectController.stopSelect(this._canvasController.mousePos);
+            this._canvasController.toggleDragging(true);
         }
     };
 

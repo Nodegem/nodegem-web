@@ -146,3 +146,12 @@ export const definitionToNode = (
         title: definition.title,
     };
 };
+
+export const convertPortName = (port: IPortUIData) => {
+    if (port.indefinite) {
+        const count = port.id.split('|')[1];
+        return `${port.name}[${count}]`;
+    }
+
+    return port.name;
+};

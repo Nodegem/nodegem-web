@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { Button, Icon, Tooltip } from 'antd';
 import { TooltipPlacement } from 'antd/lib/tooltip';
 import classNames from 'classnames';
+import { convertPortName } from '../utils';
 import './Port.less';
 
 interface ISocketProps {
@@ -75,7 +76,7 @@ export const Socket: React.FC<ISocketProps> = ({
 
     return (
         <>
-            <Tooltip title={data.name} placement={placement}>
+            <Tooltip title={convertPortName(data)} placement={placement}>
                 <span
                     ref={portRef}
                     className={classNames({

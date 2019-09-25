@@ -9,6 +9,7 @@ declare global {
         copy(): T[];
         replace(predicate: (item: T) => boolean, newVal: T): T[];
         toDictionary(indexKey: keyof T): { [key: string]: T };
+        count(predicate?: (item: T) => boolean): number;
     }
 
     // tslint:disable-next-line: interface-name
@@ -73,6 +74,10 @@ Array.prototype.replace = function<T>(
         copy[index] = newVal;
     }
     return copy;
+};
+
+Array.prototype.count = function<T>(predicate?: (item: T) => boolean): number {
+    return predicate ? this.filter(predicate).length : this.length;
 };
 
 String.prototype.upperCaseFirst = function jsUcfirst(): string {

@@ -99,6 +99,7 @@ export const Node: React.FC<INodeProps> = ({
     const { flowInputs, flowOutputs, valueInputs, valueOutputs } = portData;
     const container = useRef<HTMLDivElement>(null);
     const [visibleToolbar, setVisible] = useState(false);
+    const [portCount, setPortCount] = useState(0); // Just a hack to forceUpdate
 
     useEffect(() => {
         if (getRef) {
@@ -147,9 +148,14 @@ export const Node: React.FC<INodeProps> = ({
                 preventDefault
             );
         };
-    }, [container, visibleToolbar]);
+    }, [container, visibleToolbar, portCount]);
 
     const closeToolbar = () => setVisible(false);
+
+    const handlePortAdd = (port: IPortUIData) => {
+        onPortAdd(port);
+        setPortCount(portCount + 1);
+    };
 
     return (
         <Toolbar
@@ -185,7 +191,7 @@ export const Node: React.FC<INodeProps> = ({
                                 data={vi}
                                 onPortEvent={onPortEvent}
                                 sandboxMode={sandboxMode}
-                                onAddPort={onPortAdd}
+                                onAddPort={handlePortAdd}
                                 lastPort={i === valueInputs.length - 1}
                             />
                         ))}

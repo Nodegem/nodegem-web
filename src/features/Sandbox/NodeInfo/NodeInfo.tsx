@@ -20,6 +20,7 @@ import _ from 'lodash';
 import { toJS } from 'mobx';
 import moment from 'moment';
 import NodeController from '../Node/node-controller';
+import { convertPortName } from '../utils';
 import './NodeInfo.less';
 
 const { Option } = Select;
@@ -199,14 +200,13 @@ const PropertyGroup: React.FC<IPropertyGroupProps> = ({
     };
 
     return (
-        <div className="property-group">
-            <p>{title}:</p>
+        <>
             {portList.map(p => (
-                <Form.Item key={p.id} label={p.name}>
+                <Form.Item key={p.id} label={convertPortName(p)}>
                     {renderInput(p)}
                 </Form.Item>
             ))}
-        </div>
+        </>
     );
 };
 
@@ -248,7 +248,8 @@ const NodeInfoForm: React.FC<INodeInfoForm> = ({ valueInputs, onUpdate }) => {
 
     return (
         <Form className="node-info-form">
-            <div style={{ height: '100%' }}>
+            <p>Editable Fields:</p>
+            <div className="properties">
                 {form.length > 0 && (
                     <PropertyGroup
                         portList={form}

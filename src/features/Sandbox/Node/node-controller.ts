@@ -11,15 +11,11 @@ type PortClickEvent = (
 
 class NodeController implements IDisposable {
     public get id(): string {
-        return this._nodeData.id;
+        return this.nodeData.id;
     }
 
     public get position(): Vector2 {
         return this.moveable.position;
-    }
-
-    public get nodeData(): INodeUIData {
-        return this._nodeData;
     }
 
     public get links(): LinkController[] {
@@ -62,13 +58,12 @@ class NodeController implements IDisposable {
     private element: HTMLElement;
 
     constructor(
-        private _nodeData: INodeUIData,
+        public nodeData: INodeUIData,
         private canvasContainer: CanvasController,
         private portEvent: PortClickEvent,
         private onMove?: (node: NodeController) => void,
         private onDblClick?: (node: NodeController) => void,
-        private onClick?: (event: MouseEvent, node: NodeController) => void,
-        private onPortAdd?: (node: NodeController, port: IPortUIData) => void
+        private onClick?: (event: MouseEvent, node: NodeController) => void
     ) {}
 
     public getElementRef = (element: HTMLElement) => {
@@ -89,7 +84,7 @@ class NodeController implements IDisposable {
             element,
             this.canvasContainer,
             () => this.onMove && this.onMove(this),
-            this._nodeData.position
+            this.nodeData.position
         );
 
         this.element.addEventListener(
@@ -126,8 +121,19 @@ class NodeController implements IDisposable {
     };
 
     public addPort = (port: IPortUIData) => {
-        if (this.onPortAdd) {
-            this.onPortAdd(this, port);
+        const split = port.id.split('|');
+        if (split.length > 1) {
+            const [name, _] = split;
+            const count = this.portsList.count(x => x.id.startsWith(name));
+            if (port.io === 'input' && port.type === 'value') {
+                this.nodeData.portData.valueInputs.push({
+                    ...port,
+                    id: `${name}|${count}`,
+                    value: port.defaultValue,
+                    connected: false,
+                    connecting: false,
+                });
+            }
         }
     };
 

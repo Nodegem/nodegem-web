@@ -9,6 +9,7 @@
         ]
     },
     "rules": {
+        "radix": false,
         "object-literal-sort-keys": false,
         "no-submodule-imports": false,
         "no-implicit-dependencies": false,

@@ -32,9 +32,9 @@ class CanvasController implements IDisposable {
         return this._mousePos;
     }
 
-    private disableDragging = false;
+    private canDrag = true;
     public get isDraggingDisabled(): boolean {
-        return this.disableDragging;
+        return !this.canDrag;
     }
 
     public get scale(): number {
@@ -212,12 +212,8 @@ class CanvasController implements IDisposable {
         }
     }
 
-    public disableDrag() {
-        this.disableDragging = true;
-    }
-
-    public enableDrag() {
-        this.disableDragging = false;
+    public toggleDragging(value?: boolean) {
+        this.canDrag = value === undefined ? !this.canDrag : value;
     }
 
     public reset() {
@@ -240,7 +236,6 @@ class CanvasController implements IDisposable {
     }
 
     private onZoom = (delta: number, type: ZoomType, position: Vector2) => {
-        console.log(position);
         this.performZoom(this.transform.scale * (1 + delta), type, position);
     };
 
