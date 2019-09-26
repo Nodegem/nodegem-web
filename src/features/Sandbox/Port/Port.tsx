@@ -18,6 +18,8 @@ interface ISocketProps {
         data: IPortUIData
     ) => void;
     onAddPort?: (port: IPortUIData) => void;
+    onRemovePort?: (port: IPortUIData) => void;
+    hidePortActions?: boolean;
 }
 
 export const Socket: React.FC<ISocketProps> = ({
@@ -28,6 +30,8 @@ export const Socket: React.FC<ISocketProps> = ({
     sandboxMode,
     onAddPort,
     lastPort,
+    onRemovePort,
+    hidePortActions = false,
 }: ISocketProps) => {
     const portRef = useRef<HTMLSpanElement>(null);
     const portClick = (event: MouseEvent | TouchEvent) => {
@@ -75,7 +79,36 @@ export const Socket: React.FC<ISocketProps> = ({
             : 'top';
 
     return (
-        <>
+        <div
+            className={classNames({
+                'port-container': true,
+                indefinite: data.indefinite,
+                [placement]: data.indefinite,
+            })}
+            style={{
+                display: 'flex',
+                flexDirection: placement === 'right' ? 'row-reverse' : 'row',
+            }}
+        >
+            {!hidePortActions &&
+                data.indefinite &&
+                (lastPort ? (
+                    <Tooltip title={`Add to ${data.name}`}>
+                        <span
+                            onClick={() => onAddPort && onAddPort(data)}
+                            className="port-action add-port"
+                        >
+                            <Icon type="plus-circle" />
+                        </span>
+                    </Tooltip>
+                ) : (
+                    <span
+                        onClick={() => onRemovePort && onRemovePort(data)}
+                        className="port-action remove-port"
+                    >
+                        <Icon type="minus-circle" />
+                    </span>
+                ))}
             <Tooltip title={convertPortName(data)} placement={placement}>
                 <span
                     ref={portRef}
@@ -87,20 +120,6 @@ export const Socket: React.FC<ISocketProps> = ({
                     })}
                 />
             </Tooltip>
-            {data.indefinite && lastPort && (
-                <Tooltip title={`Add to ${data.name}`}>
-                    <span
-                        onClick={() => onAddPort && onAddPort(data)}
-                        className={classNames({
-                            'add-port': true,
-                            [placement]: true,
-                        })}
-                        style={{ position: 'absolute' }}
-                    >
-                        <Icon type="plus-circle" />
-                    </span>
-                </Tooltip>
-            )}
-        </>
+        </div>
     );
 };

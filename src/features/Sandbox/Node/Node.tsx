@@ -13,11 +13,13 @@ interface INodeProps {
     getPortRef?: (port: IPortUIData, element: HTMLElement) => void;
     removePortRef?: (id: string) => void;
     onPortAdd?: (port: IPortUIData) => void;
+    onPortRemove?: (port: IPortUIData) => void;
     onPortEvent?: (
         event: PortEvent,
         element: HTMLElement,
         data: IPortUIData
     ) => void;
+    hidePortActions?: boolean;
 }
 
 const ToolbarContents: React.FC<IToolbarProps> = ({
@@ -89,10 +91,12 @@ export const Node: React.FC<INodeProps> = ({
     editNode = () => {},
     removeNode = () => {},
     onPortAdd = () => {},
+    onPortRemove = () => {},
     getPortRef,
     removePortRef,
     sandboxMode,
     onPortEvent,
+    hidePortActions,
     ...rest
 }: INodeProps) => {
     const { portData, title } = data;
@@ -157,6 +161,11 @@ export const Node: React.FC<INodeProps> = ({
         setPortCount(portCount + 1);
     };
 
+    const handlePortRemove = (port: IPortUIData) => {
+        onPortRemove(port);
+        setPortCount(portCount - 1);
+    };
+
     return (
         <Toolbar
             forceClose={closeToolbar}
@@ -178,6 +187,7 @@ export const Node: React.FC<INodeProps> = ({
                             sandboxMode={sandboxMode}
                             onAddPort={onPortAdd}
                             lastPort={i === flowInputs.length - 1}
+                            hidePortActions={hidePortActions}
                         />
                     ))}
                 </div>
@@ -192,7 +202,9 @@ export const Node: React.FC<INodeProps> = ({
                                 onPortEvent={onPortEvent}
                                 sandboxMode={sandboxMode}
                                 onAddPort={handlePortAdd}
+                                onRemovePort={handlePortRemove}
                                 lastPort={i === valueInputs.length - 1}
+                                hidePortActions={hidePortActions}
                             />
                         ))}
                     </div>
@@ -208,6 +220,7 @@ export const Node: React.FC<INodeProps> = ({
                                 sandboxMode={sandboxMode}
                                 lastPort={i === valueOutputs.length - 1}
                                 onAddPort={onPortAdd}
+                                hidePortActions={hidePortActions}
                             />
                         ))}
                     </div>
@@ -223,6 +236,7 @@ export const Node: React.FC<INodeProps> = ({
                             sandboxMode={sandboxMode}
                             onAddPort={onPortAdd}
                             lastPort={i === flowOutputs.length - 1}
+                            hidePortActions={hidePortActions}
                         />
                     ))}
                 </div>
