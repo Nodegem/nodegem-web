@@ -2,6 +2,7 @@ import { action, computed, observable } from 'mobx';
 import { sleep, waitWhile } from 'utils';
 import LinkController from '../Link/link-controller';
 import NodeController from '../Node/node-controller';
+import { PortActionEvent } from './../Node/node-controller';
 import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
 import SelectionController from './Canvas/selection-controller';
 
@@ -122,12 +123,20 @@ class SandboxManager implements IDisposable {
                 this.handlePortEvent,
                 this.onNodeMove,
                 this.handleNodeDblClick,
-                this.handleNodeClick
+                this.handleNodeClick,
+                this.handlePortActionEvent
             )
         );
     };
 
     public getNode = (nodeId: string) => this._nodes.get(nodeId);
+
+    @action
+    private handlePortActionEvent = (
+        portAction: 'add' | 'remove',
+        node: NodeController,
+        port?: IPortUIData
+    ) => {};
 
     @action
     public removeNode = (nodeId: string) => {

@@ -1,3 +1,4 @@
+import { uuid } from 'lodash-uuid';
 import Moveable from '../interactive/moveable';
 import LinkController from '../Link/link-controller';
 import CanvasController from '../Sandbox/Canvas/canvas-controller';
@@ -7,6 +8,12 @@ type PortClickEvent = (
     element: HTMLElement,
     data: IPortUIData,
     node: NodeController
+) => void;
+
+export type PortActionEvent = (
+    action: 'add' | 'remove',
+    node: NodeController,
+    port?: IPortUIData
 ) => void;
 
 class NodeController implements IDisposable {
@@ -63,7 +70,8 @@ class NodeController implements IDisposable {
         private portEvent: PortClickEvent,
         private onMove?: (node: NodeController) => void,
         private onDblClick?: (node: NodeController) => void,
-        private onClick?: (event: MouseEvent, node: NodeController) => void
+        private onClick?: (event: MouseEvent, node: NodeController) => void,
+        private onPortAction?: PortActionEvent
     ) {}
 
     public getElementRef = (element: HTMLElement) => {
@@ -121,18 +129,19 @@ class NodeController implements IDisposable {
     };
 
     public addPort = (port: IPortUIData) => {
-        const split = port.id.split('|');
-        if (split.length > 1) {
-            const [name, _] = split;
-            const count = this.portsList.count(x => x.id.startsWith(name));
-            if (port.io === 'input' && port.type === 'value') {
-                this.nodeData.portData.valueInputs.push({
-                    ...port,
-                    id: `${name}|${count}`,
-                    value: port.defaultValue,
-                    connected: false,
-                    connecting: false,
-                });
+        if (port.io === 'input' && port.type === 'value') {
+            const fullId = `${port.name}|${uuid().replace(/-/g, '')}`;
+            const newPort = {
+                ...port,
+                id: fullId,
+                value: port.defaultValue,
+                connected: false,
+                connecting: false,
+            };
+            this.nodeData.portData.valueInputs.push(newPort);
+
+            if (this.onPortAction) {
+                this.onPortAction('add', this, newPort);
             }
         }
     };
@@ -151,6 +160,10 @@ class NodeController implements IDisposable {
                 if (port.type === 'value') {
                     valueInputs.removeWhere(x => x.id === port.id);
                 }
+            }
+
+            if (this.onPortAction) {
+                this.onPortAction('remove', this);
             }
         }
     };

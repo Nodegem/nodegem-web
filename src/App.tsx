@@ -13,7 +13,6 @@ import { PublicRoute } from './components/PublicRoute/AuthorizedRoute';
 import LoginView from './features/Account/Login/LoginFormView';
 import RegisterView from './features/Account/Register/RegisterFormView';
 import DashboardView from './features/Dashboard/DashboardView';
-import EditorView from './features/Editor/EditorView';
 import NotFoundView from './features/NotFound/NotFound';
 import ProfileView from './features/Profile/ProfileView';
 import { UserStore } from './stores/user-store';
@@ -48,10 +47,6 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
                         <AuthorizedRoute
                             path="/testingGround"
                             component={TestingGroundView}
-                        />
-                        <AuthorizedRoute
-                            path="/editor/:type/:graphId"
-                            component={EditorView}
                         />
                         <AuthorizedRoute
                             path="/sandbox"

@@ -20,7 +20,6 @@ import _ from 'lodash';
 import { toJS } from 'mobx';
 import moment from 'moment';
 import NodeController from '../Node/node-controller';
-import { convertPortName } from '../utils';
 import './NodeInfo.less';
 
 const { Option } = Select;
@@ -202,7 +201,7 @@ const PropertyGroup: React.FC<IPropertyGroupProps> = ({
     return (
         <>
             {portList.map(p => (
-                <Form.Item key={p.id} label={convertPortName(p)}>
+                <Form.Item key={p.id} label={p.name}>
                     {renderInput(p)}
                 </Form.Item>
             ))}

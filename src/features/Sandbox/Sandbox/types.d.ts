@@ -38,6 +38,7 @@ interface IPortUIData {
 interface INodeUIData {
     id: string;
     title: string;
+    fullName: string;
     description: string;
     portData: {
         flowInputs: IPortUIData[];

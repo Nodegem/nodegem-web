@@ -1,6 +1,5 @@
 import graphModalStore from 'components/Modals/GraphModal/graph-modal-store';
 import macroModalStore from 'components/Modals/MacroModal/macro-modal-store';
-import editorStore from 'features/Editor/editor-store';
 import { action } from 'mobx';
 import authStore from './auth-store';
 import commonStore from './common-store';
@@ -13,7 +12,6 @@ class RootStore implements IDisposableStore {
         graphStore.dispose();
         macroStore.dispose();
         userStore.dispose();
-        editorStore.dispose();
     }
 }
 
@@ -24,7 +22,6 @@ export {
     userStore,
     commonStore,
     authStore,
-    editorStore,
     graphStore,
     macroStore,
     graphModalStore,

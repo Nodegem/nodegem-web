@@ -4,7 +4,6 @@ import graphModalStore, {
 import macroModalStore, {
     MacroModalStore,
 } from 'components/Modals/MacroModal/macro-modal-store';
-import editorStore, { EditorStore } from 'features/Editor/editor-store';
 import { useLocalStore } from 'mobx-react-lite';
 import React from 'react';
 import { SandboxStore, UserStore } from 'stores';
@@ -23,7 +22,6 @@ type TRootStore = {
     macroStore: MacroStore;
     graphStore: GraphStore;
     sandboxStore: SandboxStore;
-    editorStore: EditorStore;
 };
 
 function createRootStore(): TRootStore {
@@ -35,7 +33,6 @@ function createRootStore(): TRootStore {
         graphModalStore,
         macroStore,
         graphStore,
-        editorStore,
         sandboxStore: new SandboxStore(),
     };
 }

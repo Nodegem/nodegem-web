@@ -6,7 +6,6 @@ import { GraphModalStore } from 'components/Modals/GraphModal/graph-modal-store'
 import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
 import { MacroModalStore } from 'components/Modals/MacroModal/macro-modal-store';
 import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
-import { EditorStore } from 'features/Editor/editor-store';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -17,7 +16,6 @@ import { isMacro } from 'utils';
 import DashboardCard from './DashboardCard';
 
 interface IDashboardProps {
-    editorStore?: EditorStore;
     graphStore?: GraphStore;
     graphModalStore?: GraphModalStore;
     macroStore?: MacroStore;
@@ -76,10 +74,6 @@ class DashboardView extends React.Component<
         } else {
             this.props.history.push(`editor/graph/${item.id}`);
         }
-    };
-
-    public onPlay = (item: Graph | Macro, type: GraphType) => {
-        this.props.editorStore!.runGraph(item);
     };
 
     public render() {
@@ -146,7 +140,6 @@ class DashboardView extends React.Component<
                                                 onDelete={this.onDelete}
                                                 onEdit={this.onEdit}
                                                 onBuild={this.onBuild}
-                                                onPlay={this.onPlay}
                                             />
                                         </List.Item>
                                     )}

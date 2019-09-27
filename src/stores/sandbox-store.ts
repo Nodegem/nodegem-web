@@ -1,4 +1,6 @@
 import { message } from 'antd';
+import GraphHub from 'features/Sandbox/hubs/graph-hub';
+import TerminalHub from 'features/Sandbox/hubs/terminal-hub';
 import DrawLinkController from 'features/Sandbox/Link/draw-link-controller';
 import FakeLinkController from 'features/Sandbox/Link/fake-link-controller';
 import LinkController from 'features/Sandbox/Link/link-controller';
@@ -7,15 +9,16 @@ import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
 import { flatten, getPort, isValidConnection } from 'features/Sandbox/utils';
 import { action, computed, observable } from 'mobx';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
-import { NodeService } from 'services';
+import { GraphService, MacroService, NodeService } from 'services';
 import { getCenterCoordinates, getGraphType, isMacro } from 'utils';
 import { DrawArgs } from './../features/Sandbox/Link/draw-link-controller';
 import { convertToSelectFriendly } from './../features/Sandbox/utils';
 import { SimpleObservable } from './../utils/simple-observable';
+import userStore from './user-store';
 
 export type DragEndProps = { result: DropResult; provided: ResponderProvided };
 export type TabData = {
-    graph: Partial<Graph | Macro>;
+    graph: Graph | Macro;
 };
 
 type NodeCache = {
@@ -125,6 +128,9 @@ export class SandboxStore implements IDisposable {
     @observable
     public linksVisible: boolean = true;
 
+    public terminalHub: TerminalHub;
+    public graphHub: GraphHub;
+
     constructor() {
         this._drawLinkController = new DrawLinkController(
             this.handleDrawStart,
@@ -143,6 +149,15 @@ export class SandboxStore implements IDisposable {
 
         window.addEventListener('keyup', this.handleKeyPress);
     }
+
+    @action
+    public initialize = () => {
+        this.terminalHub = new TerminalHub();
+        this.graphHub = new GraphHub();
+
+        this.terminalHub.attemptConnect();
+        this.graphHub.attemptConnect();
+    };
 
     @action
     private handleKeyPress = (event: KeyboardEvent) => {
@@ -225,6 +240,28 @@ export class SandboxStore implements IDisposable {
     };
 
     @action
+    public saveGraph = () => {
+        const graph = this.getGraphData();
+        if (isMacro(graph)) {
+            MacroService.update(graph);
+        } else {
+            GraphService.update(graph);
+        }
+    };
+
+    @action
+    public runGraph = () => {
+        const graph = this.getGraphData();
+        if (this.graphHub.isConnected) {
+            if (isMacro(graph)) {
+                // this.graphHub.runMacro(graph);
+            } else {
+                this.graphHub.runGraph(graph);
+            }
+        }
+    };
+
+    @action
     public onNodeEdit = (node: INodeUIData) => {
         this.toggleNodeInfo(false);
     };
@@ -259,6 +296,7 @@ export class SandboxStore implements IDisposable {
             const { flowInputs, flowOutputs, valueInputs, valueOutputs } = info;
             return {
                 id: n.id,
+                fullName: n.fullName,
                 position: n.position,
                 description: info.description,
                 portData: {
@@ -338,6 +376,13 @@ export class SandboxStore implements IDisposable {
     public addTab = (graph: Graph | Macro) => {
         this.tabs.push({ graph });
         this.setActiveTab(graph.id);
+    };
+
+    @action
+    public editTab = (graph: Graph | Macro) => {
+        if (this.activeTab) {
+            this.activeTab.graph = graph;
+        }
     };
 
     @action
@@ -479,5 +524,35 @@ export class SandboxStore implements IDisposable {
         this.fakeLink.stop();
         this.isDrawing = false;
         this.modifiedLink = undefined;
+    };
+
+    private getGraphData = (): Graph | Macro => {
+        const { nodes, links, activeTab } = this;
+        const linkData = links.map<LinkData>(l => ({
+            sourceNode: l.sourceNodeId,
+            sourceKey: l.sourcePortId,
+            destinationNode: l.destinationNodeId,
+            destinationKey: l.destinationPortId,
+        }));
+
+        const nodeData = nodes.map<NodeData>(n => ({
+            id: n.id,
+            position: n.position,
+            fullName: n.nodeData.fullName,
+            fieldData: n.nodeData.portData.valueInputs.map<FieldData>(f => ({
+                key: f.id,
+                value: f.value,
+            })),
+        }));
+
+        const { graph } = activeTab!;
+        const { user } = userStore;
+
+        return {
+            ...graph,
+            userId: user!.id,
+            nodes: nodeData,
+            links: linkData,
+        };
     };
 }

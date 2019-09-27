@@ -65,11 +65,15 @@ interface IGraphControlProps {
     graph?: Partial<Graph | Macro>;
     openModal: (graph: Partial<Graph | Macro>) => void;
     toggleLogs: () => void;
+    runGraph: () => void;
+    saveGraph: () => void;
 }
 const GraphControls: React.FC<IGraphControlProps> = ({
     graph,
     openModal,
     toggleLogs,
+    runGraph,
+    saveGraph,
 }) => {
     return (
         <div className="tab-controls">
@@ -78,14 +82,11 @@ const GraphControls: React.FC<IGraphControlProps> = ({
                 shape="round"
                 type="primary"
                 icon="play-circle"
-                onClick={() => toggleLogs()}
+                onClick={() => runGraph()}
                 loading={false}
             >
                 Run
             </Button>
-            {/* <Tooltip title="Debug">
-                <Checkbox disabled={!graph} checked={true} />
-            </Tooltip> */}
             <Button
                 disabled={!graph}
                 shape="round"
@@ -110,7 +111,7 @@ const GraphControls: React.FC<IGraphControlProps> = ({
                 type="primary"
                 icon="save"
                 loading={false}
-                onClick={() => {}}
+                onClick={() => saveGraph()}
             >
                 Save
             </Button>
@@ -144,12 +145,16 @@ export const SandboxView = observer(() => {
         toggleLogs,
         logsClosed,
         nodeDefinitionOptions,
+        saveGraph,
+        runGraph,
     } = sandboxStore;
 
     useEffect(() => {
         if (!sandboxStore.hasTabs) {
             toggleSelectionModal(true);
         }
+
+        sandboxStore.initialize();
 
         dragEndObservable.subscribe(onDragEnd);
         return () => {
@@ -207,10 +212,21 @@ export const SandboxView = observer(() => {
             macroModalStore.openModal();
         }
     }
+
     function onGraphSelect() {
         toggleSelectionModal();
         toggleGraphSelectModal();
     }
+
+    const onGraphEdit = (graph?: Graph | Macro, edit?: boolean) => {
+        if (graph) {
+            if (!edit) {
+                sandboxStore.addTab(graph);
+            } else {
+                sandboxStore.editTab(graph);
+            }
+        }
+    };
 
     return (
         <>
@@ -234,6 +250,8 @@ export const SandboxView = observer(() => {
                             graph={activeTab && activeTab.graph}
                             openModal={editGraph}
                             toggleLogs={toggleLogs}
+                            saveGraph={saveGraph}
+                            runGraph={runGraph}
                         />
                     }
                     tabTemplate={(tab, isDragging) => (
@@ -309,16 +327,8 @@ export const SandboxView = observer(() => {
                 </DragDropContext>
             </div>
 
-            <GraphModalFormController
-                onSave={(graph, edit) =>
-                    graph && !edit && sandboxStore.addTab(graph)
-                }
-            />
-            <MacroModalFormController
-                onSave={(macro, edit) =>
-                    macro && !edit && sandboxStore.addTab(macro)
-                }
-            />
+            <GraphModalFormController onSave={onGraphEdit} />
+            <MacroModalFormController onSave={onGraphEdit} />
             <Modal
                 maskClosable={sandboxStore.hasTabs}
                 visible={selectionModalVisible}
