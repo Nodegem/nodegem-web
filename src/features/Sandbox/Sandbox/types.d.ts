@@ -47,6 +47,7 @@ interface INodeUIData {
         valueOutputs: IPortUIData[];
     };
     position?: Vector2;
+    permanent?: boolean;
 }
 
 interface ILinkUIData {

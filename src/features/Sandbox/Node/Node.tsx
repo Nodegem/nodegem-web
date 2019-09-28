@@ -38,11 +38,13 @@ const ToolbarContents: React.FC<IToolbarProps> = ({
                 type="primary"
                 icon="edit"
             />
-            <Button
-                onClick={() => remove(nodeData.id)}
-                type="danger"
-                icon="delete"
-            />
+            {!nodeData.permanent && (
+                <Button
+                    onClick={() => remove(nodeData.id)}
+                    type="danger"
+                    icon="delete"
+                />
+            )}
         </span>
     );
 };

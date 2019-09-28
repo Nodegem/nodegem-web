@@ -4,6 +4,7 @@ interface NodeDefinition {
     description: string;
     macroId?: string;
     macroFieldId?: string;
+    ignoreDisplay?: boolean;
     flowInputs: Array<FlowInputDefinition>;
     flowOutputs: Array<FlowOutputDefinition>;
     valueInputs: Array<ValueInputDefinition>;

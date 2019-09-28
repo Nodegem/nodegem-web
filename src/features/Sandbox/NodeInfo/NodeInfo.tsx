@@ -77,7 +77,6 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
 };
 
 interface IPropertyGroupProps {
-    title: string;
     portList: IPortUIData[];
     onFieldChange: (port: IPortUIData) => void;
 }
@@ -98,7 +97,6 @@ const selectBefore = (value: string, isDisabled: boolean | undefined) => (
 );
 
 const PropertyGroup: React.FC<IPropertyGroupProps> = ({
-    title,
     portList,
     onFieldChange,
 }) => {
@@ -252,7 +250,6 @@ const NodeInfoForm: React.FC<INodeInfoForm> = ({ valueInputs, onUpdate }) => {
                 {form.length > 0 && (
                     <PropertyGroup
                         portList={form}
-                        title="Editable Fields"
                         onFieldChange={handleValueChange}
                     />
                 )}

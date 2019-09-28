@@ -312,18 +312,47 @@ export class SandboxStore implements IDisposable {
                         name: fo.label,
                         io: 'output',
                         type: 'flow',
-                        data: tryGetValue(n, fo.key),
+                        value: tryGetValue(n, fo.key),
                     })),
-                    valueInputs: (valueInputs || []).map<IPortUIData>(vi => ({
-                        id: vi.key,
-                        name: vi.label,
-                        io: 'input',
-                        type: 'value',
-                        valueType: vi.valueType,
-                        defaultValue: vi.defaultValue,
-                        indefinite: vi.indefinite,
-                        data: tryGetValue(n, vi.key, vi.defaultValue),
-                    })),
+                    valueInputs: (valueInputs || []).flatMap<IPortUIData>(
+                        vi => {
+                            if (vi.indefinite && n.fieldData) {
+                                return n.fieldData
+                                    .filter(x => x.key.includes('|'))
+                                    .map(fd => ({
+                                        id: fd.key,
+                                        name: vi.label,
+                                        io: 'input',
+                                        type: 'value',
+                                        valueType: vi.valueType,
+                                        defaultValue: vi.defaultValue,
+                                        indefinite: vi.indefinite,
+                                        value: tryGetValue(
+                                            n,
+                                            fd.key,
+                                            vi.defaultValue
+                                        ),
+                                    }));
+                            }
+
+                            return [
+                                {
+                                    id: vi.key,
+                                    name: vi.label,
+                                    io: 'input',
+                                    type: 'value',
+                                    valueType: vi.valueType,
+                                    defaultValue: vi.defaultValue,
+                                    indefinite: vi.indefinite,
+                                    value: tryGetValue(
+                                        n,
+                                        vi.key,
+                                        vi.defaultValue
+                                    ),
+                                },
+                            ];
+                        }
+                    ),
                     valueOutputs: (valueOutputs || []).map<IPortUIData>(vo => ({
                         id: vo.key,
                         name: vo.label,
@@ -334,6 +363,7 @@ export class SandboxStore implements IDisposable {
                     })),
                 },
                 title: info.title,
+                permanent: n.permanent,
             };
         });
 

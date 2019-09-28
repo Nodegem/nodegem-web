@@ -130,7 +130,10 @@ class NodeController implements IDisposable {
 
     public addPort = (port: IPortUIData) => {
         if (port.io === 'input' && port.type === 'value') {
-            const fullId = `${port.name}|${uuid().replace(/-/g, '')}`;
+            const fullId = `${port.name.toLowerCase()}|${uuid().replace(
+                /-/g,
+                ''
+            )}`;
             const newPort = {
                 ...port,
                 id: fullId,
@@ -184,7 +187,7 @@ class NodeController implements IDisposable {
         fields.forEach(f => {
             const existingField = this._ports.get(f.id);
             if (existingField) {
-                this._ports.set(f.id, { ...existingField, port: f });
+                existingField.port.value = f.value;
             }
         });
     };

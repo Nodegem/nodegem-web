@@ -86,6 +86,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                             removeNode={sandboxManager.removeNode}
                             onPortAdd={n.addPort}
                             onPortRemove={n.removePort}
+                            hidePortActions={isDrawing}
                         />
                     ))}
                 </div>

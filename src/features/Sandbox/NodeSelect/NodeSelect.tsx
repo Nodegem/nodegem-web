@@ -15,7 +15,6 @@ function getStyle(style, snapshot) {
     }
     return {
         ...style,
-        // cannot be 0, but make it super tiny
         transitionDuration: `0.001s`,
     };
 }
@@ -122,8 +121,11 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                         {Object.keys(nodeOptions).map((k, index) => (
                             <TabPane tab={k} key={index.toString()}>
                                 <div className="node-definition-container">
-                                    {Object.keys(nodeOptions[k]).map(
-                                        (itemListKey, subIndex) => (
+                                    {Object.keys(nodeOptions[k])
+                                        .filter(optionKey =>
+                                            nodeOptions[k][optionKey].any()
+                                        )
+                                        .map((itemListKey, subIndex) => (
                                             <Droppable
                                                 isDropDisabled={true}
                                                 direction="vertical"
@@ -133,7 +135,7 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                                                 ignoreContainerClipping
                                                 key={subIndex}
                                             >
-                                                {(provided, snapshot) => (
+                                                {provided => (
                                                     <div
                                                         className="node-category"
                                                         ref={provided.innerRef}
@@ -167,8 +169,7 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                                                     </div>
                                                 )}
                                             </Droppable>
-                                        )
-                                    )}
+                                        ))}
                                 </div>
                             </TabPane>
                         ))}

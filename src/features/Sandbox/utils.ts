@@ -40,39 +40,45 @@ export const flatten = <T>(tree: IHierarchicalNode<T>): T[] => {
     return list;
 };
 
-export const convertToSelectFriendly = <T>(
-    tree: { [key: string]: IHierarchicalNode<T> },
+export const convertToSelectFriendly = (
+    tree: { [key: string]: IHierarchicalNode<NodeDefinition> },
     maxLevels: number = 1
-): SelectFriendly<T> => {
-    return convertToSelectFriendlyHelper<T>(tree, maxLevels) as SelectFriendly<
-        T
+): SelectFriendly<NodeDefinition> => {
+    return convertToSelectFriendlyHelper(tree, maxLevels) as SelectFriendly<
+        NodeDefinition
     >;
 };
 
-const convertToSelectFriendlyHelper = <T>(
-    tree: { [key: string]: IHierarchicalNode<T> },
+const convertToSelectFriendlyHelper = (
+    tree: { [key: string]: IHierarchicalNode<NodeDefinition> },
     maxLevels: number,
     currentLevel: number = 0
-): SelectFriendly<T> | T[] => {
+): SelectFriendly<NodeDefinition> | NodeDefinition[] => {
     const returnObject = {};
-    const returnList = [] as T[];
+    const returnList = [] as NodeDefinition[];
 
     for (const key of Object.keys(tree)) {
         const subTree = tree[key].children;
         if (currentLevel < maxLevels) {
-            returnObject[key] = convertToSelectFriendlyHelper<T>(
+            returnObject[key] = convertToSelectFriendlyHelper(
                 subTree,
                 maxLevels,
                 currentLevel + 1
             );
         } else {
-            let combinedList = [] as T[];
+            let combinedList = [] as NodeDefinition[];
             const keys = Object.keys(subTree);
 
             for (const subKey of keys) {
-                combinedList = [...combinedList, ...subTree[subKey].items];
+                combinedList = [
+                    ...combinedList,
+                    ...subTree[subKey].items.filter(x => !x.ignoreDisplay),
+                ];
             }
-            returnObject[key] = [...tree[key].items, ...combinedList];
+            returnObject[key] = [
+                ...tree[key].items.filter(x => !x.ignoreDisplay),
+                ...combinedList,
+            ];
         }
     }
     return returnList.length > 0 ? returnList : returnObject;

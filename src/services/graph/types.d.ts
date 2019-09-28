@@ -52,6 +52,7 @@ interface NodeData {
     fullName: string;
     position: { x: number; y: number };
     fieldData?: Array<FieldData>;
+    permanent?: boolean;
     macroId?: string;
     macroFieldId?: string;
 }

@@ -6,6 +6,7 @@ import './Flex.less';
 interface IFlexProps extends React.HTMLAttributes<HTMLDivElement> {
     flex?: number;
     height?: number;
+    gap?: number;
     flexGrow?: boolean;
     flexShrink?: boolean;
     direction?: FlexDirectionProperty;
@@ -14,6 +15,7 @@ interface IFlexProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const Flex: React.FC<IFlexProps> = ({
     flex,
+    gap = 0,
     flexGrow = true,
     flexShrink = true,
     direction = 'row',
@@ -37,7 +39,11 @@ export const Flex: React.FC<IFlexProps> = ({
                 ...style,
             }}
         >
-            {children}
+            {React.Children.map(children, child =>
+                React.cloneElement(child as React.ReactElement<any>, {
+                    marginBottom: `${gap}px`,
+                })
+            )}
         </div>
     );
 };
