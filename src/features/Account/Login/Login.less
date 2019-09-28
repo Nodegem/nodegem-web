@@ -1,12 +1,18 @@
 .login-form-container {
+    display: flex;
+    flex: 1 1 auto;
+
+    align-items: center;
+    justify-content: center;
 
     transition: width 175ms ease;
 
-    margin: auto;
-    width: 600px;
+    .login-card-container {
+        width: 650px;
 
-    @media screen and (max-width: 768px) {
-        width: 100%;
+        @media screen and (max-width: 768px) {
+            width: 100%;
+        }
     }
 
     .login-form-forgot {
@@ -16,15 +22,4 @@
     .login-form-button {
         width: 100%;
     }
-
-    .lock-icon {
-        transition: opacity 200ms ease-in;
-        opacity: .25;
-        cursor: pointer;
-
-        &:hover {
-            opacity: 1;
-        }
-    }
-
 }

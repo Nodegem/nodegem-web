@@ -22,13 +22,7 @@ interface IDashboardProps {
     macroModalStore?: MacroModalStore;
 }
 
-@inject(
-    'editorStore',
-    'macroStore',
-    'graphStore',
-    'macroModalStore',
-    'graphModalStore'
-)
+@inject('macroStore', 'graphStore', 'macroModalStore', 'graphModalStore')
 @(withRouter as any)
 @observer
 class DashboardView extends React.Component<
