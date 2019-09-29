@@ -20,6 +20,57 @@
         opacity: 0.8;
         pointer-events: none;
     }
+
+    .loading-spinner {
+        display: flex;
+        z-index: 99;
+        position: absolute;
+        flex: 1 1 100%;
+        width: 100%;
+        height: 100%;
+        flex-direction: column;
+
+        > * {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            justify-content: center;
+            align-items: center;
+
+            .ant-spin-text {
+                position: absolute;
+                font-size: 1vw;
+            }
+        }
+    }
+
+    .canvas {
+        .links {
+            opacity: 1;
+            transition: opacity 100ms ease-in;
+            will-change: opacity;
+        }
+
+        .nodes {
+            * {
+                opacity: 1;
+                transition: opacity 100ms ease-in;
+                will-change: opacity;
+            }
+        }
+
+        &.loading {
+            .links {
+                opacity: 0;
+            }
+
+            .nodes {
+                * {
+                    opacity: 0;
+                }
+            }
+        }
+    }
 }
 
 .view-background {

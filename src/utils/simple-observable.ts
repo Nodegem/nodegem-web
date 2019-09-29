@@ -1,4 +1,4 @@
-export type SimpleObservableAction<T> = (T) => void;
+export type SimpleObservableAction<T = void> = (value: T) => void;
 export class SimpleObservable<T = void> {
     private actions: Array<SimpleObservableAction<T>> = [];
 

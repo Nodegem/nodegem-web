@@ -1,3 +1,4 @@
+import ResizeObserver from '@juggle/resize-observer';
 import Between from 'between.js';
 import { clamp } from 'utils';
 import DragController from './drag-controller';
@@ -66,6 +67,8 @@ class CanvasController implements IDisposable {
     private zoom: ZoomController;
     private transformOrigin: Vector2;
 
+    private resizeObserver: ResizeObserver;
+
     private get offset(): Vector2 {
         const { width, height } = this.elementDimensions;
         const { x, y } = this.transformOrigin;
@@ -100,6 +103,12 @@ class CanvasController implements IDisposable {
         this.parentElement = this.canvas.parentElement!;
         this.parentElement.addEventListener('mousedown', this.onMouseDown);
         this.parentElement.addEventListener('mousemove', this.onMouseMove);
+        this.parentElement.addEventListener('resize', () =>
+            console.log('resize')
+        );
+
+        this.resizeObserver = new ResizeObserver(() => this.resize());
+        this.resizeObserver.observe(this.parentElement);
         window.addEventListener('resize', ev => this.resize(ev));
 
         this.backgroundElement = document.createElement('div');
@@ -280,6 +289,8 @@ class CanvasController implements IDisposable {
 
         this.drag.dispose();
         this.zoom.dispose();
+        this.resizeObserver.unobserve(this.parentElement);
+        this.resizeObserver.disconnect();
     }
 }
 

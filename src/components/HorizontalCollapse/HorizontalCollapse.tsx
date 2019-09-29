@@ -16,7 +16,9 @@ interface IHorizontalCollapseProps {
     children: React.ReactNode;
 }
 
-const HorizontalCollapse: React.FC<IHorizontalCollapseProps> = ({
+const HorizontalCollapse: React.FC<
+    IHorizontalCollapseProps & React.HTMLAttributes<HTMLDivElement>
+> = ({
     height,
     minHeight,
     tabHeight,
@@ -25,6 +27,8 @@ const HorizontalCollapse: React.FC<IHorizontalCollapseProps> = ({
     onTabClick,
     tabContent,
     children,
+    className,
+    ...rest
 }) => {
     const collapseClass = classNames({
         content: true,
@@ -32,6 +36,7 @@ const HorizontalCollapse: React.FC<IHorizontalCollapseProps> = ({
     });
 
     const containerClass = classNames({
+        [className as string]: true,
         'horizontal-collapse-container': true,
         'tab-reverse': tabDirection === 'bottom',
     });
@@ -40,6 +45,7 @@ const HorizontalCollapse: React.FC<IHorizontalCollapseProps> = ({
 
     return (
         <div
+            {...rest}
             className={containerClass}
             style={{ minHeight, height }}
             onTransitionEnd={() => {}}

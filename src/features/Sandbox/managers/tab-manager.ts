@@ -71,6 +71,8 @@ export class TabManager implements IDisposable {
             } else if (this.tabs.length > 0) {
                 const nextTab = this.tabs[index];
                 this.setActiveTab(nextTab.graph.id!);
+            } else {
+                this._activeTab = '';
             }
             this.onTabDeleted(!this.tabs.any());
         }

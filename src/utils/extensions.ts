@@ -18,6 +18,11 @@ declare global {
         upperCaseFirst(): string;
         removeAfter(char: string): string;
     }
+
+    // tslint:disable-next-line: interface-name
+    interface Boolean {
+        toggle(value?: boolean): boolean;
+    }
 }
 
 Array.prototype.removeItem = function<T>(item: T): T[] {
@@ -92,6 +97,10 @@ String.prototype.upperCaseFirst = function jsUcfirst(): string {
 String.prototype.removeAfter = function removeAfter(char: string): string {
     const index = this.indexOf(char);
     return index > -1 ? this.slice(0, index) : this.slice();
+};
+
+Boolean.prototype.toggle = function toggle(value?: boolean): boolean {
+    return value === undefined ? !this : value;
 };
 
 export {};

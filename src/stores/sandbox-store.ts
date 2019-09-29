@@ -1,18 +1,15 @@
 import { message } from 'antd';
 import GraphHub from 'features/Sandbox/hubs/graph-hub';
 import TerminalHub from 'features/Sandbox/hubs/terminal-hub';
-import DrawLinkController from 'features/Sandbox/Link/draw-link-controller';
-import FakeLinkController from 'features/Sandbox/Link/fake-link-controller';
-import LinkController from 'features/Sandbox/Link/link-controller';
-import { TabManager } from 'features/Sandbox/managers';
+import { LogManager, TabManager } from 'features/Sandbox/managers';
+import { DrawLinkManager } from 'features/Sandbox/managers/draw-link-manager';
 import NodeController from 'features/Sandbox/Node/node-controller';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
-import { flatten, getPort, isValidConnection } from 'features/Sandbox/utils';
-import { action, computed, observable, runInAction } from 'mobx';
+import { flatten, getPort } from 'features/Sandbox/utils';
+import { action, observable, runInAction } from 'mobx';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { GraphService, MacroService, NodeService } from 'services';
-import { getCenterCoordinates, getGraphType, isMacro } from 'utils';
-import { DrawArgs } from './../features/Sandbox/Link/draw-link-controller';
+import { getGraphType, isMacro } from 'utils';
 import { convertToSelectFriendly } from './../features/Sandbox/utils';
 import { SimpleObservable } from './../utils/simple-observable';
 import userStore from './user-store';
@@ -35,6 +32,24 @@ const tryGetValue = (node: NodeData, key: string, defaultValue?: any) => {
     return defaultValue;
 };
 
+type SandboxState = {
+    loadingDefinitions: boolean;
+    loadingGraph: boolean;
+    linksVisible: boolean;
+    savingGraph: boolean;
+};
+
+type ViewState = {
+    logs: boolean;
+    nodeInfo: boolean;
+    nodeSelect: boolean;
+};
+
+type ModalState = {
+    selectionModal: boolean;
+    selectGraph: boolean;
+};
+
 export class SandboxStore implements IDisposable {
     private _cachedDefinitions: {
         [graphId: string]: NodeCache;
@@ -43,26 +58,9 @@ export class SandboxStore implements IDisposable {
     @observable
     public nodeDefinitionCache: NodeCache;
 
-    @observable
-    public loadingGraph: boolean = false;
-
-    @observable
-    public loadingDefinitions: boolean = false;
-
     public dragEndObservable: SimpleObservable<
         DragEndProps
     > = new SimpleObservable();
-
-    private _drawLinkController: DrawLinkController;
-
-    public modifiedLink?: {
-        link: LinkController;
-        startElement: HTMLElement;
-    };
-    public fakeLink: FakeLinkController;
-
-    @observable
-    public isDrawing: boolean = false;
 
     @observable
     public sandboxManager: SandboxManager;
@@ -71,33 +69,51 @@ export class SandboxStore implements IDisposable {
     public tabManager: TabManager;
 
     @observable
-    public selectionModalVisible: boolean = false;
+    public drawLinkManager: DrawLinkManager;
 
     @observable
-    public selectGraphVisible: boolean = false;
+    public logManager: LogManager;
 
     @observable
-    public nodeSelectClosed: boolean = false;
+    public modalStates: ModalState = {
+        selectionModal: false,
+        selectGraph: false,
+    };
 
     @observable
-    public nodeInfoClosed: boolean = true;
+    public viewStates: ViewState = {
+        logs: false,
+        nodeInfo: false,
+        nodeSelect: true,
+    };
 
     @observable
-    public logsClosed: boolean = true;
+    public sandboxState: SandboxState = {
+        loadingDefinitions: false,
+        loadingGraph: false,
+        linksVisible: true,
+        savingGraph: false,
+    };
 
     @observable
-    public linksVisible: boolean = true;
-
-    public terminalHub: TerminalHub;
-    public graphHub: GraphHub;
+    public hubStates: {
+        terminal: {
+            hub: TerminalHub;
+            connected?: boolean;
+            connecting?: boolean;
+        };
+        graph: {
+            hub: GraphHub;
+            connected?: boolean;
+            connecting?: boolean;
+            running?: boolean;
+        };
+    } = {
+        terminal: { hub: new TerminalHub() },
+        graph: { hub: new GraphHub() },
+    };
 
     constructor() {
-        this._drawLinkController = new DrawLinkController(
-            this.handleDrawStart,
-            () => this.fakeLink.update(this.sandboxManager.mousePos),
-            this.handleDrawEnd
-        );
-
         this.tabManager = new TabManager(
             tab => this.load(tab.graph),
             empty => {
@@ -105,95 +121,146 @@ export class SandboxStore implements IDisposable {
                     this.sandboxManager.clearView();
                 }
 
-                this.toggleSelectionModal(false);
-                this.toggleGraphSelectModal(false);
+                this.toggleModalState('selectionModal', false);
+                this.toggleModalState('selectGraph', false);
             }
         );
 
         this.sandboxManager = new SandboxManager(
-            this.onSelection,
             this.onPortEvent,
             this.handleCanvasDown,
             this.handleNodeDblClick
         );
 
-        this.fakeLink = new FakeLinkController();
+        this.logManager = new LogManager(this.tabManager);
+
+        this.drawLinkManager = new DrawLinkManager(
+            this.sandboxManager,
+            this.notify
+        );
 
         window.addEventListener('keyup', this.handleKeyPress);
     }
 
-    @action
-    public initialize = () => {
-        this.terminalHub = new TerminalHub();
-        this.graphHub = new GraphHub();
+    public initializeHubs = () => {
+        const { terminal, graph } = this.hubStates;
 
-        this.terminalHub.attemptConnect();
-        this.graphHub.attemptConnect();
+        terminal.hub.onConnecting.subscribe(
+            action(() => {
+                this.hubStates.terminal = {
+                    ...this.hubStates.terminal,
+                    connected: false,
+                    connecting: true,
+                };
+            })
+        );
+
+        terminal.hub.onConnected.subscribe(
+            action(() => {
+                this.hubStates.terminal = {
+                    ...this.hubStates.terminal,
+                    connecting: false,
+                    connected: true,
+                };
+            })
+        );
+
+        terminal.hub.onLog(data => {
+            action(() => {
+                const { activeTab } = this.tabManager;
+                if (activeTab) {
+                    this.logManager.addLog(activeTab.graph.id, {
+                        ...data,
+                        unread: !this.viewStates.logs,
+                    });
+                }
+            });
+        });
+
+        terminal.hub.onDisconnected.subscribe(
+            action(() => {
+                this.notify('Lost terminal connection', 'error');
+                this.hubStates.terminal = {
+                    ...this.hubStates.terminal,
+                    connected: false,
+                    connecting: false,
+                };
+            })
+        );
+
+        graph.hub.onConnecting.subscribe(
+            action(() => {
+                this.hubStates.graph = {
+                    ...this.hubStates.graph,
+                    connected: false,
+                    connecting: true,
+                };
+            })
+        );
+
+        graph.hub.onConnected.subscribe(
+            action(() => {
+                this.hubStates.graph = {
+                    ...this.hubStates.graph,
+                    connecting: false,
+                    connected: true,
+                };
+            })
+        );
+
+        graph.hub.onDisconnected.subscribe(
+            action(() => {
+                this.notify('Lost graph connection', 'error');
+
+                this.hubStates.graph = {
+                    ...this.hubStates.graph,
+                    connected: false,
+                    connecting: false,
+                };
+            })
+        );
+
+        terminal.hub.attemptConnect();
+        graph.hub.attemptConnect();
     };
 
-    @action
     private handleKeyPress = (event: KeyboardEvent) => {
         switch (event.keyCode) {
             case 32:
                 this.sandboxManager.resetView();
                 break;
             case 27:
-                this._drawLinkController.stopDrawing();
+                this.drawLinkManager.stopDrawing();
                 break;
         }
     };
 
-    @action
     private handleNodeDblClick = (node: NodeController) => {
-        this.toggleNodeInfo(false);
+        this.toggleViewState('nodeInfo');
     };
 
     private handleCanvasDown = (event: MouseEvent) => {
-        if (this._drawLinkController.isDrawing) {
-            this._drawLinkController.stopDrawing();
-        }
+        this.drawLinkManager.stopDrawing();
     };
 
-    @action
-    public toggleSelectionModal = (value?: boolean) => {
-        this.selectionModalVisible =
-            value === undefined ? !this.selectionModalVisible : value;
+    public toggleSandboxState = (key: keyof SandboxState, value?: boolean) => {
+        this.sandboxState[key] = this.sandboxState[key].toggle(value);
     };
 
-    @action
-    public toggleGraphSelectModal = (value?: boolean) => {
-        this.selectGraphVisible =
-            value === undefined ? !this.selectGraphVisible : value;
+    public toggleViewState = (key: keyof ViewState, value?: boolean) => {
+        this.viewStates[key] = this.viewStates[key].toggle(value);
     };
 
-    @action
-    public toggleNodeInfo = (value?: boolean) => {
-        this.nodeInfoClosed =
-            value === undefined ? !this.nodeInfoClosed : value;
+    public toggleModalState = (key: keyof ModalState, value?: boolean) => {
+        this.modalStates[key] = this.modalStates[key].toggle(value);
     };
 
-    @action
-    public toggleNodeSelect = () => {
-        this.nodeSelectClosed = !this.nodeSelectClosed;
-    };
-
-    @action
-    public toggleLogs = (value?: boolean) => {
-        this.logsClosed = value === undefined ? !this.logsClosed : value;
-    };
-
-    @action
-    public toggleLinkVisibility = () => {
-        this.linksVisible = !this.linksVisible;
-    };
-
-    @action
     public loadDefinitions = async (
         graphId: string,
         type: GraphType,
         forceRefresh?: boolean
     ) => {
-        this.loadingDefinitions = true;
+        this.sandboxState.loadingDefinitions = true;
         if (forceRefresh || !this._cachedDefinitions[graphId]) {
             const definitions = await NodeService.getAllNodeDefinitions(
                 graphId,
@@ -208,55 +275,69 @@ export class SandboxStore implements IDisposable {
             };
         }
 
-        runInAction(() => (this.loadingDefinitions = false));
+        runInAction(
+            () =>
+                (this.sandboxState = {
+                    ...this.sandboxState,
+                    loadingDefinitions: false,
+                })
+        );
         return this._cachedDefinitions[graphId];
     };
 
-    @action
-    public saveGraph = () => {
-        const graph = this.getGraphData();
-        if (isMacro(graph)) {
-            MacroService.update(graph);
-        } else {
-            GraphService.update(graph);
+    public saveGraph = async () => {
+        this.sandboxState = {
+            ...this.sandboxState,
+            savingGraph: true,
+        };
+
+        try {
+            const graph = this.getGraphData();
+            if (isMacro(graph)) {
+                await MacroService.update(graph);
+            } else {
+                await GraphService.update(graph);
+            }
+            this.notify('Graph saved successfully', 'success');
+        } catch (e) {
+            this.notify('Unable to save graph', 'error');
         }
+
+        runInAction(() => {
+            this.sandboxState = {
+                ...this.sandboxState,
+                savingGraph: false,
+            };
+        });
     };
 
-    @action
     public runGraph = () => {
+        const { hub } = this.hubStates.graph;
         const graph = this.getGraphData();
-        if (this.graphHub.isConnected) {
+        if (hub.isConnected) {
             if (isMacro(graph)) {
                 // this.graphHub.runMacro(graph);
             } else {
-                this.graphHub.runGraph(graph);
+                hub.runGraph(graph);
             }
         }
     };
 
-    @action
     public onNodeEdit = (node: INodeUIData) => {
-        this.toggleNodeInfo(false);
+        this.toggleViewState('nodeInfo');
     };
 
-    @action
     public onPortEvent = (
         event: PortEvent,
         element: HTMLDivElement,
         data: IPortUIData,
         node: NodeController
     ) => {
-        this._drawLinkController.toggleDraw(event, element, data, node);
+        this.drawLinkManager.toggleDraw(event, element, data, node);
     };
 
-    @action
-    public onSelection = (bounds: Bounds) => {
-        console.log(bounds);
-    };
-
-    @action
     public load = async (graph: Partial<Graph | Macro>) => {
-        this.loadingGraph = true;
+        this.sandboxState.loadingGraph = true;
 
         const { nodes, links, id } = graph;
         const definitions = await this.loadDefinitions(
@@ -357,129 +438,49 @@ export class SandboxStore implements IDisposable {
         runInAction(() => {
             this.sandboxManager.load(uiNodes, uiLinks);
             this.nodeDefinitionCache = definitions;
-            this.loadingGraph = false;
+            this.sandboxState.loadingGraph = false;
+            this.initializeHubs();
         });
     };
 
+    public disconnectHubs = () => {
+        const { graph, terminal } = this.hubStates;
+        graph.hub.disconnect();
+        terminal.hub.disconnect();
+    };
+
     public dispose(): void {
-        this.fakeLink.dispose();
-        this._drawLinkController.dispose();
+        const { graph, terminal } = this.hubStates;
+        graph.hub.dispose();
+        terminal.hub.dispose();
         this.dragEndObservable.clear();
         this.sandboxManager.dispose();
         this.tabManager.dispose();
+        this.drawLinkManager.dispose();
         window.removeEventListener('keypress', this.handleKeyPress);
-        this.toggleSelectionModal(false);
-        this.toggleGraphSelectModal(false);
+        this.toggleModalState('selectionModal', false);
+        this.toggleModalState('selectGraph', false);
     }
 
-    private onGraphError = (
+    private notify = (
         msg: string,
-        type: 'warning' | 'error' = 'warning'
+        type: 'success' | 'info' | 'warning' | 'error' = 'warning',
+        duration: number = 3
     ) => {
-        if (type === 'warning') {
-            message.warning(msg, 2);
-        } else {
-            message.error(msg, 2);
+        switch (type) {
+            case 'warning':
+                message.warning(msg, duration);
+                break;
+            case 'error':
+                message.error(msg, duration);
+                break;
+            case 'info':
+                message.info(msg, duration);
+                break;
+            case 'success':
+                message.success(msg, duration);
+                break;
         }
-    };
-
-    private handleDrawStart = (source: DrawArgs) => {
-        let startElement = source.element;
-        if (
-            source.data.connected &&
-            !(source.data.io === 'output' && source.data.type === 'value')
-        ) {
-            const link = this.sandboxManager.getLinkByNode(
-                source.node.id,
-                source.data.id
-            );
-
-            if (link) {
-                startElement = link.getOppositePortElement(source.element);
-                this.sandboxManager.removeLink(link.id);
-                link.toggleConnectingOppositePort(source.element);
-
-                this.modifiedLink = {
-                    link,
-                    startElement,
-                };
-            }
-        } else {
-            source.data.connecting = true;
-        }
-
-        const start = this.sandboxManager.convertCoordinates(
-            getCenterCoordinates(startElement)
-        );
-
-        this.isDrawing = true;
-        this.fakeLink.begin(start, source.data.type);
-        this.fakeLink.update(this.sandboxManager.mousePos);
-    };
-
-    private handleDrawEnd = (s: DrawArgs, d: DrawArgs) => {
-        if (s && d) {
-            if (this.modifiedLink) {
-                const { link, startElement } = this.modifiedLink;
-                const start = {
-                    element: startElement,
-                    data: link.getSourceData(startElement),
-                    node: this.sandboxManager.getNode(
-                        link.getSourceNodeId(startElement)
-                    )!,
-                };
-                const destination =
-                    s === d
-                        ? {
-                              element: link.getOppositePortElement(
-                                  startElement
-                              ),
-                              data: link.getOppositeData(startElement),
-                              node: this.sandboxManager.getNode(
-                                  link.getOppositeNodeId(startElement)
-                              )!,
-                          }
-                        : d;
-
-                if (
-                    isValidConnection(
-                        { nodeId: start.node.id, port: start.data },
-                        {
-                            nodeId: destination.node.id,
-                            port: destination.data,
-                        }
-                    )
-                ) {
-                    this.sandboxManager.addLink(start, destination);
-                } else {
-                    this.onGraphError('Not a valid connection');
-                    link.dispose();
-                }
-            } else {
-                if (
-                    isValidConnection(
-                        { nodeId: s.node.id, port: s.data },
-                        { nodeId: d.node.id, port: d.data }
-                    )
-                ) {
-                    this.sandboxManager.addLink(s, d);
-                } else {
-                    this.onGraphError('Not a valid connection');
-                }
-            }
-            s.data.connecting = false;
-            d.data.connecting = false;
-        } else if (s) {
-            s.data.connecting = false;
-            if (this.modifiedLink) {
-                const { link } = this.modifiedLink;
-                link.dispose();
-            }
-        }
-
-        this.fakeLink.stop();
-        this.isDrawing = false;
-        this.modifiedLink = undefined;
     };
 
     private getGraphData = (): Graph | Macro => {

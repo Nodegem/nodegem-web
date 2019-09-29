@@ -1,4 +1,4 @@
-import { Button, Icon, Input } from 'antd';
+import { Button, Icon, Input, Spin } from 'antd';
 import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
@@ -11,8 +11,11 @@ import './SandboxCanvas.less';
 
 export const sandboxDroppableId = 'sandboxId';
 
+const antIcon = <Icon type="loading" style={{ fontSize: '9vw' }} spin />;
+
 export interface ISandboxProps {
     sandboxManager: SandboxManager;
+    loading: boolean;
     isActive?: boolean;
     editNode: (data: INodeUIData) => void;
     getDrawLinkRef: (element: SVGPathElement) => void;
@@ -26,6 +29,7 @@ export interface ISandboxProps {
 
 export const SandboxCanvas: React.FC<ISandboxProps> = ({
     sandboxManager,
+    loading,
     editNode,
     isActive,
     getDrawLinkRef,
@@ -41,10 +45,20 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
     useEffect(() => {
         const canvasElement = canvasRef.current!;
         sandboxManager.setProperties(canvasElement, size);
-    }, [sandboxManager]);
+    }, [sandboxManager, loading]);
 
     return (
-        <div className={classNames({ sandbox: true, disabled: !isActive })}>
+        <div
+            className={classNames({
+                sandbox: true,
+                disabled: loading || !isActive,
+            })}
+        >
+            {loading && (
+                <div className="loading-spinner">
+                    <Spin indicator={antIcon} tip="Loading..." />
+                </div>
+            )}
             <Droppable droppableId={sandboxDroppableId}>
                 {(provided, snapshot) => (
                     <div
@@ -57,7 +71,10 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                     </div>
                 )}
             </Droppable>
-            <div className="canvas" ref={canvasRef}>
+            <div
+                className={classNames({ canvas: true, loading })}
+                ref={canvasRef}
+            >
                 <div className="links" style={{ position: 'absolute' }}>
                     {links.map(l => (
                         <Link

@@ -19,10 +19,19 @@ class SelectionController implements IDisposable {
         this.selectElement = document.createElement('div');
         this.selectElement.style.position = 'absolute';
         this.selectElement.style.display = 'none';
-        this.selectElement.style.zIndex = '999';
         this.selectElement.classList.add('select-container');
         window.addEventListener('mousemove', this.onSelecting);
         this.canvasContainer.canvas.appendChild(this.selectElement);
+
+        this.selectElement.addEventListener('transitionend', event => {
+            const target = event.target as HTMLElement;
+            if (target && !target.classList.contains(selectingClass)) {
+                this.selectElement.style.display = 'none';
+                this.selectElement.style.width = '0px';
+                this.selectElement.style.height = '0px';
+                this.start = null;
+            }
+        });
     }
 
     public startSelect(pos: Vector2) {
@@ -64,7 +73,6 @@ class SelectionController implements IDisposable {
     };
 
     public stopSelect(pos: Vector2) {
-        this.selectElement.style.display = 'none';
         if (!this.selecting) {
             return;
         }
@@ -93,9 +101,6 @@ class SelectionController implements IDisposable {
         });
 
         this.start = null;
-
-        this.selectElement.style.width = '0';
-        this.selectElement.style.height = '0';
     }
 
     public dispose(): void {

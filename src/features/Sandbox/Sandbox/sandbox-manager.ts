@@ -65,7 +65,6 @@ class SandboxManager implements IDisposable {
     private zoomBounds?: ZoomBounds;
 
     constructor(
-        private onSelection: (bounds: Bounds) => void,
         private onPortEvent: (
             event: PortEvent,
             element: HTMLElement,
@@ -280,26 +279,21 @@ class SandboxManager implements IDisposable {
         }
     }
 
-    @action
     public onNodeMove = (node: NodeController) => {
         node.updateLinks();
     };
 
-    @action
     public clearView() {
         this.clearNodes();
         this.clearLinks();
     }
 
-    @action
     private handleCanvasDown = (event: MouseEvent) => {
         this._selectedNodes = [];
         this.onCanvasDown(event);
     };
 
-    private handleSelection = (bounds: Bounds) => {
-        this.onSelection(bounds);
-    };
+    private handleSelection = (bounds: Bounds) => {};
 
     private handlePortEvent = (
         event: PortEvent,

@@ -9,6 +9,7 @@ abstract class BaseHub {
     }
 
     public onConnected: SimpleObservable;
+    public onConnecting: SimpleObservable;
     public onDisconnected: SimpleObservable;
     public onException: SimpleObservable<(reason: any) => void>;
     private connection: signalR.HubConnection;
@@ -22,6 +23,7 @@ abstract class BaseHub {
     ) {
         this.onConnected = new SimpleObservable();
         this.onDisconnected = new SimpleObservable();
+        this.onConnecting = new SimpleObservable();
         this.onException = new SimpleObservable<(reason: any) => void>();
 
         const baseUrl = getBaseApiUrl();
@@ -34,7 +36,7 @@ abstract class BaseHub {
 
         this.connection.onclose(async () => {
             this.connected = false;
-            this.onDisconnected.execute(undefined);
+            this.onDisconnected.execute();
 
             if (this.forceClosed) {
                 return;
@@ -51,7 +53,7 @@ abstract class BaseHub {
         }
 
         await exponentialBackoff(
-            async () => this.start(),
+            () => this.start(),
             () => {
                 console.log('Given up at this point');
             }
@@ -68,6 +70,7 @@ abstract class BaseHub {
     }
 
     public dispose() {
+        this.onConnecting.clear();
         this.onDisconnected.clear();
         this.onConnected.clear();
         this.onException.clear();
@@ -100,10 +103,12 @@ abstract class BaseHub {
             return true;
         }
 
+        this.onConnecting.execute();
+
         try {
             await this.connection.start();
             this.connected = true;
-            this.onConnected.execute(undefined);
+            this.onConnected.execute();
         } catch (err) {
             this.connected = false;
             console.warn(err);

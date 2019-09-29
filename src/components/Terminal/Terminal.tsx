@@ -6,16 +6,17 @@ import classNames from 'classnames';
 import 'xterm/css/xterm.css';
 
 export interface IXtermProps extends React.DOMAttributes<{}> {
+    getRef: (xterm: XTerm) => void;
     onChange?: (e) => void;
     onInput?: (e) => void;
     onFocusChange?: Function;
-    addons?: string[];
     onScroll?: (e) => void;
     onContextMenu?: (e) => void;
     options?: any;
     path?: string;
     value?: string;
 }
+
 export interface IXtermState {
     isFocused: boolean;
 }
@@ -23,12 +24,14 @@ export interface IXtermState {
 export default class XTerm extends React.Component<IXtermProps, IXtermState> {
     public xterm: Terminal;
     public container: React.RefObject<HTMLDivElement>;
+    public fitAddon: FitAddon;
     constructor(props: IXtermProps, context?: any) {
         super(props, context);
         this.state = {
             isFocused: false,
         };
 
+        this.fitAddon = new FitAddon();
         this.container = React.createRef();
     }
 
@@ -48,7 +51,9 @@ export default class XTerm extends React.Component<IXtermProps, IXtermState> {
             this.xterm.write(this.props.value);
         }
 
-        this.xterm.loadAddon(new FitAddon());
+        this.xterm.loadAddon(this.fitAddon);
+
+        this.props.getRef(this);
     }
 
     public componentWillUnmount() {
@@ -108,6 +113,12 @@ export default class XTerm extends React.Component<IXtermProps, IXtermState> {
             this.xterm.resize(Math.round(cols), Math.round(rows));
         }
     }
+
+    public fit = () => {
+        if (this.fitAddon) {
+            this.fitAddon.fit();
+        }
+    };
 
     public setOption(key: string, value: boolean) {
         if (this.xterm) {
