@@ -260,7 +260,11 @@ export class SandboxStore implements IDisposable {
         type: GraphType,
         forceRefresh?: boolean
     ) => {
-        this.sandboxState.loadingDefinitions = true;
+        this.sandboxState = {
+            ...this.sandboxState,
+            loadingDefinitions: true,
+        };
+
         if (forceRefresh || !this._cachedDefinitions[graphId]) {
             const definitions = await NodeService.getAllNodeDefinitions(
                 graphId,
@@ -458,6 +462,8 @@ export class SandboxStore implements IDisposable {
         this.tabManager.dispose();
         this.drawLinkManager.dispose();
         window.removeEventListener('keypress', this.handleKeyPress);
+
+        this.toggleViewState('nodeInfo', false);
         this.toggleModalState('selectionModal', false);
         this.toggleModalState('selectGraph', false);
     }
