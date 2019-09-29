@@ -3,6 +3,7 @@ import GraphHub from 'features/Sandbox/hubs/graph-hub';
 import TerminalHub from 'features/Sandbox/hubs/terminal-hub';
 import { LogManager, TabManager } from 'features/Sandbox/managers';
 import { DrawLinkManager } from 'features/Sandbox/managers/draw-link-manager';
+import { SearchManager } from 'features/Sandbox/managers/search-manager';
 import NodeController from 'features/Sandbox/Node/node-controller';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
 import { flatten, getPort } from 'features/Sandbox/utils';
@@ -75,6 +76,9 @@ export class SandboxStore implements IDisposable {
     public logManager: LogManager;
 
     @observable
+    public searchManager: SearchManager;
+
+    @observable
     public modalStates: ModalState = {
         selectionModal: false,
         selectGraph: false,
@@ -139,89 +143,105 @@ export class SandboxStore implements IDisposable {
             this.notify
         );
 
+        this.searchManager = new SearchManager(
+            () => this.sandboxManager.nodes,
+            () =>
+                (this.nodeDefinitionCache &&
+                    this.nodeDefinitionCache.selectFriendly) ||
+                {}
+        );
+
         window.addEventListener('keyup', this.handleKeyPress);
     }
 
     public initializeHubs = () => {
         const { terminal, graph } = this.hubStates;
 
-        terminal.hub.onConnecting.subscribe(
-            action(() => {
-                this.hubStates.terminal = {
-                    ...this.hubStates.terminal,
-                    connected: false,
-                    connecting: true,
-                };
-            })
-        );
+        if (!terminal.connected) {
+            terminal.hub.dispose();
+            terminal.hub.onConnecting.subscribe(() =>
+                runInAction(() => {
+                    this.hubStates.terminal = {
+                        ...this.hubStates.terminal,
+                        connected: false,
+                        connecting: true,
+                    };
+                })
+            );
 
-        terminal.hub.onConnected.subscribe(
-            action(() => {
-                this.hubStates.terminal = {
-                    ...this.hubStates.terminal,
-                    connecting: false,
-                    connected: true,
-                };
-            })
-        );
+            terminal.hub.onConnected.subscribe(() =>
+                runInAction(() => {
+                    this.hubStates.terminal = {
+                        ...this.hubStates.terminal,
+                        connecting: false,
+                        connected: true,
+                    };
+                })
+            );
 
-        terminal.hub.onLog(data => {
-            action(() => {
-                const { activeTab } = this.tabManager;
-                if (activeTab) {
-                    this.logManager.addLog(activeTab.graph.id, {
-                        ...data,
-                        unread: !this.viewStates.logs,
-                    });
-                }
-            });
-        });
+            terminal.hub.log.subscribe(data =>
+                runInAction(() => {
+                    if (this.tabManager.activeTab) {
+                        this.logManager.addLog(
+                            this.tabManager.activeTab.graph.id,
+                            {
+                                ...data,
+                                unread: !this.viewStates.logs,
+                            }
+                        );
+                    }
+                })
+            );
 
-        terminal.hub.onDisconnected.subscribe(
-            action(() => {
-                this.notify('Lost terminal connection', 'error');
-                this.hubStates.terminal = {
-                    ...this.hubStates.terminal,
-                    connected: false,
-                    connecting: false,
-                };
-            })
-        );
+            terminal.hub.onDisconnected.subscribe(() =>
+                runInAction(() => {
+                    this.notify('Lost terminal connection', 'error');
+                    this.hubStates.terminal = {
+                        ...this.hubStates.terminal,
+                        connected: false,
+                        connecting: false,
+                    };
+                })
+            );
 
-        graph.hub.onConnecting.subscribe(
-            action(() => {
-                this.hubStates.graph = {
-                    ...this.hubStates.graph,
-                    connected: false,
-                    connecting: true,
-                };
-            })
-        );
+            terminal.hub.attemptConnect();
+        }
 
-        graph.hub.onConnected.subscribe(
-            action(() => {
-                this.hubStates.graph = {
-                    ...this.hubStates.graph,
-                    connecting: false,
-                    connected: true,
-                };
-            })
-        );
+        if (!graph.connected) {
+            graph.hub.dispose();
+            graph.hub.onConnecting.subscribe(() =>
+                runInAction(() => {
+                    this.hubStates.graph = {
+                        ...this.hubStates.graph,
+                        connected: false,
+                        connecting: true,
+                    };
+                })
+            );
 
-        graph.hub.onDisconnected.subscribe(
-            action(() => {
-                this.notify('Lost graph connection', 'error');
+            graph.hub.onConnected.subscribe(() =>
+                runInAction(() => {
+                    this.hubStates.graph = {
+                        ...this.hubStates.graph,
+                        connecting: false,
+                        connected: true,
+                    };
+                })
+            );
 
-                this.hubStates.graph = {
-                    ...this.hubStates.graph,
-                    connected: false,
-                    connecting: false,
-                };
-            })
-        );
+            graph.hub.onDisconnected.subscribe(() =>
+                runInAction(() => {
+                    this.notify('Lost graph connection', 'error');
 
-        terminal.hub.attemptConnect();
-        graph.hub.attemptConnect();
+                    this.hubStates.graph = {
+                        ...this.hubStates.graph,
+                        connected: false,
+                        connecting: false,
+                    };
+                })
+            );
+            graph.hub.attemptConnect();
+        }
     };
 
     private handleKeyPress = (event: KeyboardEvent) => {
@@ -248,7 +268,12 @@ export class SandboxStore implements IDisposable {
     };
 
     public toggleViewState = (key: keyof ViewState, value?: boolean) => {
-        this.viewStates[key] = this.viewStates[key].toggle(value);
+        const newValue = this.viewStates[key].toggle(value);
+        if (key === 'logs' && newValue) {
+            this.logManager.markAllAsRead();
+        }
+
+        this.viewStates[key] = newValue;
     };
 
     public toggleModalState = (key: keyof ModalState, value?: boolean) => {

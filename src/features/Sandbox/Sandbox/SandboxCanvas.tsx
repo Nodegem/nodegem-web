@@ -14,6 +14,7 @@ export const sandboxDroppableId = 'sandboxId';
 
 export interface ISandboxProps {
     sandboxManager: SandboxManager;
+    onFilter: (text: string) => void;
     loading: boolean;
     isActive?: boolean;
     editNode: (data: INodeUIData) => void;
@@ -29,6 +30,7 @@ export interface ISandboxProps {
 export const SandboxCanvas: React.FC<ISandboxProps> = ({
     sandboxManager,
     loading,
+    onFilter,
     editNode,
     isActive,
     getDrawLinkRef,
@@ -106,6 +108,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
             <div className="search">
                 <Input
                     prefix={<Icon type="search" />}
+                    onChange={event => onFilter(event.target!.value)}
                     allowClear
                     placeholder="Search Nodes"
                 />

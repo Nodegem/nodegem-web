@@ -72,6 +72,7 @@ const TabTemplate: React.FC<
 
 interface IGraphControlProps {
     graph?: Partial<Graph | Macro>;
+    unreadLogs: number;
     openModal: (graph: Partial<Graph | Macro>) => void;
     toggleLogs: () => void;
     runGraph: () => void;
@@ -86,6 +87,7 @@ interface IGraphControlProps {
 }
 const GraphControls: React.FC<IGraphControlProps> = ({
     graph,
+    unreadLogs,
     openModal,
     toggleLogs,
     runGraph,
@@ -106,7 +108,7 @@ const GraphControls: React.FC<IGraphControlProps> = ({
             >
                 Run
             </Button>
-            <Badge count={5}>
+            <Badge count={unreadLogs}>
                 <Button
                     disabled={!graph || !terminalState.connected}
                     shape="round"
@@ -242,6 +244,7 @@ export const SandboxView = observer(() => {
                     onTabClick={handleTabClick}
                     tabControls={
                         <GraphControls
+                            unreadLogs={sandboxStore.logManager.unreadLogCount}
                             graph={
                                 tabManager.activeTab &&
                                 tabManager.activeTab.graph
@@ -284,6 +287,11 @@ export const SandboxView = observer(() => {
                             collapsed={!sandboxStore.viewStates.nodeSelect}
                         >
                             <NodeSelect
+                                onFilter={text =>
+                                    sandboxStore.searchManager.setNodeOptionSearchtext(
+                                        text
+                                    )
+                                }
                                 addNode={node => addNode(node)}
                                 loading={
                                     sandboxStore.sandboxState.loadingDefinitions
@@ -304,6 +312,11 @@ export const SandboxView = observer(() => {
                         >
                             <SandboxCanvas
                                 loading={sandboxStore.sandboxState.loadingGraph}
+                                onFilter={text =>
+                                    sandboxStore.searchManager.setNodeSearchText(
+                                        text
+                                    )
+                                }
                                 isActive={tabManager.hasActiveTab}
                                 editNode={sandboxStore.onNodeEdit}
                                 getDrawLinkRef={
@@ -326,6 +339,7 @@ export const SandboxView = observer(() => {
                             >
                                 <XTerm
                                     getRef={sandboxStore.logManager.setXterm}
+                                    value="sdasdadasdd"
                                 />
                             </HorizontalCollapse>
                         </div>

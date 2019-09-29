@@ -12,12 +12,12 @@ class GraphHub extends BaseHub {
         this.bridgeInfo = new SimpleObservable<IBridgeInfo>();
         this.lostBridge = new SimpleObservable<void>();
 
-        this.on('BridgeInfo', this.bridgeInfo.execute);
-        this.on('LostBridge', this.lostBridge.execute);
+        this.on('BridgeAsync', this.bridgeInfo.execute);
+        this.on('LostBridgeAsync', this.lostBridge.execute);
     }
 
-    public isBridgeConnected = async () => {
-        await this.invoke('IsBridgeEstablished');
+    public getAllBridges = async () => {
+        await this.invoke('GetAllBridgesAsync');
     };
 
     public onBridgeInfo = (listener: (data: IBridgeInfo) => void) => {

@@ -41,7 +41,7 @@ export const Flex: React.FC<IFlexProps> = ({
         >
             {React.Children.map(children, child =>
                 React.cloneElement(child as React.ReactElement<any>, {
-                    marginBottom: `${gap}px`,
+                    'margin-bottom': `${gap}px`,
                 })
             )}
         </div>

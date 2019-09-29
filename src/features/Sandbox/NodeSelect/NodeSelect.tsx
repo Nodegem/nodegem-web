@@ -99,12 +99,14 @@ const DefinitionItem = (
 interface INodeSelectProps {
     nodeOptions?: SelectFriendly<NodeDefinition>;
     loading: boolean;
+    onFilter: (text: string) => void;
     addNode: (definition: NodeDefinition) => void;
 }
 
 export const NodeSelect: React.FC<INodeSelectProps> = ({
     nodeOptions,
     addNode,
+    onFilter,
     loading,
 }) => {
     const [tabIndex, setTabIndex] = useState('0');
@@ -202,6 +204,9 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                         {nodeOptions && (
                             <div className="filter">
                                 <Input
+                                    onChange={event =>
+                                        onFilter(event.target.value)
+                                    }
                                     prefix={<Icon type="search" />}
                                     allowClear
                                     placeholder="Filter Nodes"

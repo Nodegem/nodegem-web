@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal } from 'xterm';
+import { ITerminalOptions, Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 
 import classNames from 'classnames';
@@ -12,7 +12,7 @@ export interface IXtermProps extends React.DOMAttributes<{}> {
     onFocusChange?: Function;
     onScroll?: (e) => void;
     onContextMenu?: (e) => void;
-    options?: any;
+    options?: ITerminalOptions;
     path?: string;
     value?: string;
 }
@@ -52,7 +52,7 @@ export default class XTerm extends React.Component<IXtermProps, IXtermState> {
         }
 
         this.xterm.loadAddon(this.fitAddon);
-
+        this.fit();
         this.props.getRef(this);
     }
 
