@@ -96,7 +96,7 @@ const DefinitionItem = (
 );
 
 interface INodeSelectProps {
-    nodeOptions: SelectFriendly<NodeDefinition>;
+    nodeOptions?: SelectFriendly<NodeDefinition>;
     addNode: (definition: NodeDefinition) => void;
 }
 
@@ -112,11 +112,10 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
         }
     };
 
-    const empty = Object.keys(nodeOptions).empty();
     return (
         <>
             <div className="node-select-container">
-                {!empty && (
+                {nodeOptions && (
                     <Tabs activeKey={tabIndex} onChange={handleTabClick}>
                         {Object.keys(nodeOptions).map((k, index) => (
                             <TabPane tab={k} key={index.toString()}>

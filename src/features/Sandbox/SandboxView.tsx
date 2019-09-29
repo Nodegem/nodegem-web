@@ -9,7 +9,7 @@ import _ from 'lodash';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { DragEndProps, TabData, useStore } from 'stores';
+import { DragEndProps, useStore } from 'stores';
 import { isMacro } from 'utils';
 import NodeInfo from './NodeInfo/NodeInfo';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
@@ -121,49 +121,23 @@ const GraphControls: React.FC<IGraphControlProps> = ({
 
 export const SandboxView = observer(() => {
     const { sandboxStore, graphModalStore, macroModalStore } = useStore();
-    const {
-        tabs,
-        dragEndObservable,
-        setActiveTab,
-        activeTab,
-        toggleNodeSelect,
-        nodeSelectClosed,
-        nodes,
-        toggleNodeInfo,
-        nodeInfoClosed,
-        fakeLink,
-        links,
-        sandboxManager,
-        linksVisible,
-        isDrawing,
-        onNodeEdit,
-        deleteTab,
-        selectionModalVisible,
-        toggleSelectionModal,
-        selectGraphVisible,
-        toggleGraphSelectModal,
-        toggleLogs,
-        logsClosed,
-        nodeDefinitionOptions,
-        saveGraph,
-        runGraph,
-    } = sandboxStore;
+    const { tabManager, fakeLink, sandboxManager } = sandboxStore;
 
     useEffect(() => {
-        if (!sandboxStore.hasTabs) {
-            toggleSelectionModal(true);
+        if (!tabManager.hasTabs) {
+            sandboxStore.toggleSelectionModal(true);
         }
 
         sandboxStore.initialize();
 
-        dragEndObservable.subscribe(onDragEnd);
+        sandboxStore.dragEndObservable.subscribe(onDragEnd);
         return () => {
             sandboxStore.dispose();
         };
     }, [sandboxStore]);
 
     function onDragEnd({ result }: DragEndProps) {
-        if (!sandboxStore.hasActiveTab || !result.destination) {
+        if (!tabManager.hasActiveTab || !result.destination) {
             return;
         }
 
@@ -172,7 +146,7 @@ export const SandboxView = observer(() => {
             result.destination.droppableId === sandboxDroppableId
         ) {
             const definition =
-                sandboxStore.nodeDefinitionOptions.definitionLookup[
+                sandboxStore.nodeDefinitionCache.definitionLookup[
                     result.draggableId
                 ];
 
@@ -189,11 +163,11 @@ export const SandboxView = observer(() => {
     };
 
     function handleTabClick(tabId: string, data: TabData) {
-        setActiveTab(tabId);
+        tabManager.setActiveTab(tabId);
     }
 
     function handleTabReorder(orderedTabs: any[]) {
-        sandboxStore.setTabs(orderedTabs.map(x => x.data));
+        tabManager.setTabs(orderedTabs.map(x => x.data));
     }
 
     function editGraph(graph: Partial<Graph | Macro>) {
@@ -205,7 +179,7 @@ export const SandboxView = observer(() => {
     }
 
     function handleGraphCreate(type: GraphType) {
-        toggleSelectionModal();
+        sandboxStore.toggleSelectionModal();
         if (type === 'graph') {
             graphModalStore.openModal({ isActive: true });
         } else {
@@ -214,16 +188,16 @@ export const SandboxView = observer(() => {
     }
 
     function onGraphSelect() {
-        toggleSelectionModal();
-        toggleGraphSelectModal();
+        sandboxStore.toggleSelectionModal();
+        sandboxStore.toggleGraphSelectModal();
     }
 
     const onGraphEdit = (graph?: Graph | Macro, edit?: boolean) => {
         if (graph) {
             if (!edit) {
-                sandboxStore.addTab(graph);
+                tabManager.addTab(graph);
             } else {
-                sandboxStore.editTab(graph);
+                tabManager.editTab(graph);
             }
         }
     };
@@ -232,53 +206,60 @@ export const SandboxView = observer(() => {
         <>
             <div className="sandbox-view-container">
                 <DraggableTabs
-                    tabs={tabs.map(t => ({
+                    tabs={tabManager.tabs.map(t => ({
                         id: t.graph.id!,
                         name: t.graph.name!,
                         data: t,
                     }))}
                     activeTab={
-                        sandboxStore.activeTab &&
-                        sandboxStore.activeTab.graph.id
+                        tabManager.activeTab && tabManager.activeTab.graph.id
                     }
                     onTabReorder={handleTabReorder}
-                    dragEndObservable={dragEndObservable}
-                    onTabAdd={() => toggleSelectionModal()}
+                    dragEndObservable={sandboxStore.dragEndObservable}
+                    onTabAdd={() => sandboxStore.toggleSelectionModal()}
                     onTabClick={handleTabClick}
                     tabControls={
                         <GraphControls
-                            graph={activeTab && activeTab.graph}
+                            graph={
+                                tabManager.activeTab &&
+                                tabManager.activeTab.graph
+                            }
                             openModal={editGraph}
-                            toggleLogs={toggleLogs}
-                            saveGraph={saveGraph}
-                            runGraph={runGraph}
+                            toggleLogs={sandboxStore.toggleLogs}
+                            saveGraph={sandboxStore.saveGraph}
+                            runGraph={sandboxStore.runGraph}
                         />
                     }
                     tabTemplate={(tab, isDragging) => (
                         <TabTemplate
                             {...tab}
                             isDragging={isDragging}
-                            deleteTab={deleteTab}
+                            deleteTab={tabManager.deleteTab}
                         />
                     )}
                 />
                 <DragDropContext
                     onDragEnd={(result, provided) => {
-                        dragEndObservable.execute({ result, provided });
+                        sandboxStore.dragEndObservable.execute({
+                            result,
+                            provided,
+                        });
                     }}
                 >
                     <div className="graph-content">
                         <VerticalCollapsible
                             width="325px"
                             minWidth="0"
-                            onTabClick={toggleNodeSelect}
+                            onTabClick={sandboxStore.toggleNodeSelect}
                             tabContent="Nodes"
-                            collapsed={nodeSelectClosed}
+                            collapsed={sandboxStore.nodeSelectClosed}
                         >
                             <NodeSelect
                                 addNode={node => addNode(node)}
                                 nodeOptions={
-                                    nodeDefinitionOptions.selectFriendly
+                                    sandboxStore.nodeDefinitionCache &&
+                                    sandboxStore.nodeDefinitionCache
+                                        .selectFriendly
                                 }
                             />
                         </VerticalCollapsible>
@@ -290,19 +271,19 @@ export const SandboxView = observer(() => {
                             }}
                         >
                             <SandboxCanvas
-                                isActive={sandboxStore.hasActiveTab}
-                                editNode={onNodeEdit}
+                                isActive={tabManager.hasActiveTab}
+                                editNode={sandboxStore.onNodeEdit}
                                 getDrawLinkRef={fakeLink.getElementRef}
-                                isDrawing={isDrawing}
+                                isDrawing={sandboxStore.isDrawing}
                                 linkType={fakeLink.type}
-                                links={links}
+                                links={sandboxManager.links}
                                 sandboxManager={sandboxManager}
-                                nodes={nodes}
-                                visibleLinks={linksVisible}
+                                nodes={sandboxManager.nodes}
+                                visibleLinks={sandboxStore.linksVisible}
                             />
 
                             <HorizontalCollapse
-                                collapsed={logsClosed}
+                                collapsed={sandboxStore.logsClosed}
                                 height="25%"
                             >
                                 das
@@ -311,10 +292,10 @@ export const SandboxView = observer(() => {
                         <VerticalCollapsible
                             width="350px"
                             minWidth="0"
-                            onTabClick={() => toggleNodeInfo()}
+                            onTabClick={() => sandboxStore.toggleNodeInfo()}
                             tabDirection="left"
                             tabContent="Node Info"
-                            collapsed={nodeInfoClosed}
+                            collapsed={sandboxStore.nodeInfoClosed}
                         >
                             <NodeInfo
                                 selectedNode={sandboxManager.firstSelectedNode}
@@ -330,10 +311,10 @@ export const SandboxView = observer(() => {
             <GraphModalFormController onSave={onGraphEdit} />
             <MacroModalFormController onSave={onGraphEdit} />
             <Modal
-                maskClosable={sandboxStore.hasTabs}
-                visible={selectionModalVisible}
+                maskClosable={tabManager.hasTabs}
+                visible={sandboxStore.selectionModalVisible}
                 footer={null}
-                onCancel={() => toggleSelectionModal()}
+                onCancel={() => sandboxStore.toggleSelectionModal()}
                 width={700}
                 centered
             >
@@ -344,17 +325,17 @@ export const SandboxView = observer(() => {
             </Modal>
             <Modal
                 title="Select Graph or Macro"
-                maskClosable={sandboxStore.hasTabs}
-                visible={selectGraphVisible}
+                maskClosable={tabManager.hasTabs}
+                visible={sandboxStore.selectGraphVisible}
                 footer={null}
                 width={850}
-                onCancel={() => toggleGraphSelectModal()}
+                onCancel={() => sandboxStore.toggleGraphSelectModal()}
                 centered
             >
                 <SelectGraph
                     onGraphSelect={g => {
-                        toggleGraphSelectModal();
-                        sandboxStore.addTab(g);
+                        sandboxStore.toggleGraphSelectModal();
+                        tabManager.addTab(g);
                     }}
                 />
             </Modal>

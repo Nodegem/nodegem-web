@@ -4,10 +4,11 @@ import TerminalHub from 'features/Sandbox/hubs/terminal-hub';
 import DrawLinkController from 'features/Sandbox/Link/draw-link-controller';
 import FakeLinkController from 'features/Sandbox/Link/fake-link-controller';
 import LinkController from 'features/Sandbox/Link/link-controller';
+import { TabManager } from 'features/Sandbox/managers';
 import NodeController from 'features/Sandbox/Node/node-controller';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
 import { flatten, getPort, isValidConnection } from 'features/Sandbox/utils';
-import { action, computed, observable } from 'mobx';
+import { action, computed, observable, runInAction } from 'mobx';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { GraphService, MacroService, NodeService } from 'services';
 import { getCenterCoordinates, getGraphType, isMacro } from 'utils';
@@ -17,9 +18,6 @@ import { SimpleObservable } from './../utils/simple-observable';
 import userStore from './user-store';
 
 export type DragEndProps = { result: DropResult; provided: ResponderProvided };
-export type TabData = {
-    graph: Graph | Macro;
-};
 
 type NodeCache = {
     definitions: IHierarchicalNode<NodeDefinition>;
@@ -38,19 +36,18 @@ const tryGetValue = (node: NodeData, key: string, defaultValue?: any) => {
 };
 
 export class SandboxStore implements IDisposable {
-    @observable
     private _cachedDefinitions: {
         [graphId: string]: NodeCache;
     } = {};
+
+    @observable
+    public nodeDefinitionCache: NodeCache;
 
     @observable
     public loadingGraph: boolean = false;
 
     @observable
     public loadingDefinitions: boolean = false;
-
-    @observable
-    public tabs: TabData[] = [];
 
     public dragEndObservable: SimpleObservable<
         DragEndProps
@@ -71,50 +68,13 @@ export class SandboxStore implements IDisposable {
     public sandboxManager: SandboxManager;
 
     @observable
-    private _activeTab: string;
+    public tabManager: TabManager;
 
     @observable
     public selectionModalVisible: boolean = false;
 
     @observable
     public selectGraphVisible: boolean = false;
-
-    @computed
-    public get activeTab(): TabData | undefined {
-        return this.tabs.firstOrDefault(x => x.graph.id === this._activeTab);
-    }
-
-    @computed
-    public get nodeDefinitionOptions(): NodeCache {
-        return (
-            (this._activeTab && this._cachedDefinitions[this._activeTab]) || {
-                definitionList: [],
-                definitionLookup: {},
-                definitions: {} as IHierarchicalNode<NodeDefinition>,
-                selectFriendly: {},
-            }
-        );
-    }
-
-    @computed
-    public get hasTabs(): boolean {
-        return !this.tabs.empty();
-    }
-
-    @computed
-    public get hasActiveTab(): boolean {
-        return !!this._activeTab;
-    }
-
-    @computed
-    public get nodes(): NodeController[] {
-        return this.sandboxManager.nodes;
-    }
-
-    @computed
-    public get links(): LinkController[] {
-        return this.sandboxManager.links;
-    }
 
     @observable
     public nodeSelectClosed: boolean = false;
@@ -136,6 +96,18 @@ export class SandboxStore implements IDisposable {
             this.handleDrawStart,
             () => this.fakeLink.update(this.sandboxManager.mousePos),
             this.handleDrawEnd
+        );
+
+        this.tabManager = new TabManager(
+            tab => this.load(tab.graph),
+            empty => {
+                if (empty) {
+                    this.sandboxManager.clearView();
+                }
+
+                this.toggleSelectionModal(false);
+                this.toggleGraphSelectModal(false);
+            }
         );
 
         this.sandboxManager = new SandboxManager(
@@ -235,7 +207,8 @@ export class SandboxStore implements IDisposable {
                 selectFriendly: convertToSelectFriendly(definitions.children),
             };
         }
-        this.loadingDefinitions = false;
+
+        runInAction(() => (this.loadingDefinitions = false));
         return this._cachedDefinitions[graphId];
     };
 
@@ -381,57 +354,11 @@ export class SandboxStore implements IDisposable {
             };
         });
 
-        this.sandboxManager.load(uiNodes, uiLinks);
-
-        this.loadingGraph = false;
-    };
-
-    @action
-    public setActiveTab = (id: string) => {
-        this._activeTab = id;
-        if (this.activeTab) {
-            this.load(this.activeTab.graph);
-        }
-    };
-
-    @action
-    public setTabs = (tabs: TabData[], setActiveTab = false) => {
-        this.tabs = tabs;
-        if (setActiveTab && !tabs.empty()) {
-            this.setActiveTab(tabs.firstOrDefault()!.graph.id!);
-        }
-    };
-
-    @action
-    public addTab = (graph: Graph | Macro) => {
-        this.tabs.push({ graph });
-        this.setActiveTab(graph.id);
-    };
-
-    @action
-    public editTab = (graph: Graph | Macro) => {
-        if (this.activeTab) {
-            this.activeTab.graph = graph;
-        }
-    };
-
-    @action
-    public deleteTab = (graphId: string) => {
-        const index = this.tabs.findIndex(x => x.graph.id === graphId);
-        this.tabs.removeWhere(x => x.graph.id === graphId);
-        if (index >= 0) {
-            if (index - 1 >= 0) {
-                const nextTab = this.tabs[index - 1];
-                this.setActiveTab(nextTab.graph.id!);
-            } else if (this.tabs.length > 0) {
-                const nextTab = this.tabs[index + 1];
-                this.setActiveTab(nextTab.graph.id!);
-            } else {
-                this.sandboxManager.clearView();
-            }
-            this.toggleSelectionModal(false);
-            this.toggleGraphSelectModal(false);
-        }
+        runInAction(() => {
+            this.sandboxManager.load(uiNodes, uiLinks);
+            this.nodeDefinitionCache = definitions;
+            this.loadingGraph = false;
+        });
     };
 
     public dispose(): void {
@@ -439,11 +366,10 @@ export class SandboxStore implements IDisposable {
         this._drawLinkController.dispose();
         this.dragEndObservable.clear();
         this.sandboxManager.dispose();
+        this.tabManager.dispose();
         window.removeEventListener('keypress', this.handleKeyPress);
-        this.tabs = [];
         this.toggleSelectionModal(false);
         this.toggleGraphSelectModal(false);
-        this._activeTab = '';
     }
 
     private onGraphError = (
@@ -557,7 +483,8 @@ export class SandboxStore implements IDisposable {
     };
 
     private getGraphData = (): Graph | Macro => {
-        const { nodes, links, activeTab } = this;
+        const { nodes, links } = this.sandboxManager;
+        const { activeTab } = this.tabManager;
         const linkData = links.map<LinkData>(l => ({
             sourceNode: l.sourceNodeId,
             sourceKey: l.sourcePortId,

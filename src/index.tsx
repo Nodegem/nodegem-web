@@ -11,9 +11,7 @@ import App from './App';
 import * as servicerWorker from './serviceWorker';
 import history from './utils/history';
 
-import { ElementQueries } from 'css-element-queries';
 import { legacyStore } from './stores';
-ElementQueries.listen();
 
 ReactDOM.render(
     <Provider {...legacyStore}>

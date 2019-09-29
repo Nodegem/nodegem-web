@@ -1,8 +1,7 @@
 import { action, computed, observable } from 'mobx';
-import { sleep, waitWhile } from 'utils';
+import { waitWhile } from 'utils';
 import LinkController from '../Link/link-controller';
 import NodeController from '../Node/node-controller';
-import { PortActionEvent } from './../Node/node-controller';
 import CanvasController, { ZoomBounds } from './Canvas/canvas-controller';
 import SelectionController from './Canvas/selection-controller';
 

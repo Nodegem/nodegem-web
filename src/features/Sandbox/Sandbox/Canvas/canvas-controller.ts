@@ -1,5 +1,4 @@
 import Between from 'between.js';
-import { ResizeSensor } from 'css-element-queries';
 import { clamp } from 'utils';
 import DragController from './drag-controller';
 import ZoomController, { ZoomType } from './zoom-controller';
@@ -76,8 +75,6 @@ class CanvasController implements IDisposable {
         };
     }
 
-    private sensor: ResizeSensor;
-
     constructor(
         public canvas: HTMLDivElement,
         private dimensions: Dimensions,
@@ -121,7 +118,6 @@ class CanvasController implements IDisposable {
             0.1,
             this.onZoom
         );
-        this.sensor = new ResizeSensor(this.parentElement, () => this.resize());
 
         this.resize();
         this.update();
@@ -284,7 +280,6 @@ class CanvasController implements IDisposable {
 
         this.drag.dispose();
         this.zoom.dispose();
-        this.sensor.detach();
     }
 }
 

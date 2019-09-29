@@ -7,7 +7,6 @@
         "antd": "^3.22.2",
         "between.js": "^0.1.2-fix.2",
         "classnames": "^2.2.6",
-        "css-element-queries": "^1.2.1",
         "fuse.js": "^3.3.0",
         "libphonenumber-js": "^1.7.24",
         "localforage": "^1.7.2",
