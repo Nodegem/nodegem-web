@@ -1,5 +1,6 @@
 import { Button, Icon, Input, Spin } from 'antd';
 import classNames from 'classnames';
+import { Loader } from 'components';
 import React, { useEffect, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { Link } from '../Link/Link';
@@ -10,8 +11,6 @@ import SandboxManager from './sandbox-manager';
 import './SandboxCanvas.less';
 
 export const sandboxDroppableId = 'sandboxId';
-
-const antIcon = <Icon type="loading" style={{ fontSize: '9vw' }} spin />;
 
 export interface ISandboxProps {
     sandboxManager: SandboxManager;
@@ -54,11 +53,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                 disabled: loading || !isActive,
             })}
         >
-            {loading && (
-                <div className="loading-spinner">
-                    <Spin indicator={antIcon} tip="Loading..." />
-                </div>
-            )}
+            {loading && <Loader size={9} />}
             <Droppable droppableId={sandboxDroppableId}>
                 {(provided, snapshot) => (
                     <div

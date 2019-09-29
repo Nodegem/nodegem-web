@@ -285,6 +285,9 @@ export const SandboxView = observer(() => {
                         >
                             <NodeSelect
                                 addNode={node => addNode(node)}
+                                loading={
+                                    sandboxStore.sandboxState.loadingDefinitions
+                                }
                                 nodeOptions={
                                     sandboxStore.nodeDefinitionCache &&
                                     sandboxStore.nodeDefinitionCache

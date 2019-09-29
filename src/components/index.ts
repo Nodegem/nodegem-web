@@ -4,6 +4,7 @@ export * from './DraggableTabs';
 export * from './Flex';
 export * from './Header';
 export * from './HorizontalCollapse';
+export * from './Loader';
 export * from './Modals';
 export * from './PasswordInput';
 export * from './PhoneInput';

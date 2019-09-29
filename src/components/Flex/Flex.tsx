@@ -18,8 +18,8 @@ export const Flex: React.FC<IFlexProps> = ({
     gap = 0,
     flexGrow = true,
     flexShrink = true,
-    direction = 'row',
-    wrap = 'initial',
+    direction,
+    wrap,
     children,
     style,
     ...rest
@@ -66,6 +66,12 @@ export const FlexRowMax: React.FC<IFlexProps> = ({ children, ...rest }) => (
 
 export const FlexColumnMax: React.FC<IFlexProps> = ({ children, ...rest }) => (
     <Flex {...rest} direction="column" style={{ height: '100%' }}>
+        {children}
+    </Flex>
+);
+
+export const FlexFill: React.FC<IFlexProps> = ({ children, ...rest }) => (
+    <Flex {...rest} flexGrow flexShrink>
         {children}
     </Flex>
 );
