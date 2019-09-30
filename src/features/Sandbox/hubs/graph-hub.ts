@@ -3,43 +3,48 @@ import { SimpleObservable } from 'utils';
 
 const graphHubPath = process.env.REACT_APP_GRAPH_HUB as string;
 class GraphHub extends BaseHub {
-    private bridgeInfo: SimpleObservable<IBridgeInfo>;
-    private lostBridge: SimpleObservable<void>;
+    public bridgeInfo: SimpleObservable<IBridgeInfo[]>;
+    public lostBridge: SimpleObservable<void>;
+    public executionError: SimpleObservable<IExecutionError>;
 
     constructor() {
         super(graphHubPath);
 
-        this.bridgeInfo = new SimpleObservable<IBridgeInfo>();
-        this.lostBridge = new SimpleObservable<void>();
+        this.bridgeInfo = new SimpleObservable();
+        this.lostBridge = new SimpleObservable();
+        this.executionError = new SimpleObservable();
 
         this.on('BridgeAsync', this.bridgeInfo.execute);
         this.on('LostBridgeAsync', this.lostBridge.execute);
+        this.on('ExecutionErrorAsync', this.executionError.execute);
     }
 
-    public getAllBridges = async () => {
-        await this.invoke('GetAllBridgesAsync');
+    public requestBridges = async () => {
+        await this.invoke('RequestBridgesAsync');
     };
 
-    public onBridgeInfo = (listener: (data: IBridgeInfo) => void) => {
-        this.bridgeInfo.subscribe(listener);
+    public runGraph = async (data: Graph, connectionId: string) => {
+        await this.invoke('RunGraphAsync', data, connectionId);
     };
 
-    public onBridgeLost = (listener: () => void) => {
-        this.lostBridge.subscribe(listener);
-    };
-
-    public runGraph = async (data: Graph) => {
-        await this.invoke('RunGraphAsync', data);
-    };
-
-    public runMacro = async (data: Macro, flowInputFieldKey: string) => {
-        await this.invoke('RunMacroAsync', data, flowInputFieldKey);
+    public runMacro = async (
+        data: Macro,
+        connectionId: string,
+        flowInputFieldKey: string
+    ) => {
+        await this.invoke(
+            'RunMacroAsync',
+            data,
+            connectionId,
+            flowInputFieldKey
+        );
     };
 
     public dispose() {
         super.dispose();
         this.lostBridge.clear();
         this.bridgeInfo.clear();
+        this.executionError.clear();
     }
 }
 

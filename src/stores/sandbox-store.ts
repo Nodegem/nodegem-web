@@ -111,6 +111,7 @@ export class SandboxStore implements IDisposable {
             connected?: boolean;
             connecting?: boolean;
             running?: boolean;
+            bridges?: IBridgeInfo[];
         };
     } = {
         terminal: { hub: new TerminalHub() },
@@ -219,15 +220,35 @@ export class SandboxStore implements IDisposable {
                 })
             );
 
+            graph.hub.executionError.subscribe(value => {
+                console.log(value);
+            });
+
             graph.hub.onConnected.subscribe(() =>
+                runInAction(() => {
+                    this.hubStates.graph.hub.requestBridges();
+                })
+            );
+
+            graph.hub.bridgeInfo.subscribe(bridges => {
                 runInAction(() => {
                     this.hubStates.graph = {
                         ...this.hubStates.graph,
+                        bridges,
                         connecting: false,
-                        connected: true,
+                        connected: bridges.any(),
                     };
-                })
-            );
+
+                    if (bridges.any()) {
+                        this.notify(
+                            `Established connection to ${bridges.length} bridge(s)`,
+                            'success'
+                        );
+                    } else {
+                        this.notify(`Couldn't find any bridges`, 'warning');
+                    }
+                });
+            });
 
             graph.hub.onDisconnected.subscribe(() =>
                 runInAction(() => {
@@ -341,13 +362,15 @@ export class SandboxStore implements IDisposable {
     };
 
     public runGraph = () => {
-        const { hub } = this.hubStates.graph;
-        const graph = this.getGraphData();
-        if (hub.isConnected) {
+        const { hub, bridges } = this.hubStates.graph;
+        if (hub.isConnected && bridges && bridges.any()) {
+            const connectionId = bridges.firstOrDefault()!.connectionId;
+            const graph = this.getGraphData();
+
             if (isMacro(graph)) {
                 // this.graphHub.runMacro(graph);
             } else {
-                hub.runGraph(graph);
+                hub.runGraph(graph, connectionId);
             }
         }
     };
@@ -464,11 +487,12 @@ export class SandboxStore implements IDisposable {
             };
         });
 
+        await this.sandboxManager.load(uiNodes, uiLinks);
+
         runInAction(() => {
-            this.sandboxManager.load(uiNodes, uiLinks);
             this.nodeDefinitionCache = definitions;
-            this.sandboxState.loadingGraph = false;
             this.initializeHubs();
+            this.sandboxState.loadingGraph = false;
         });
     };
 

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import classNames from 'classnames';
 import { FlexDirectionProperty, FlexWrapProperty } from 'csstype';
 import './Flex.less';
 
@@ -22,6 +23,7 @@ export const Flex: React.FC<IFlexProps> = ({
     wrap,
     children,
     style,
+    className,
     ...rest
 }) => {
     const flexGrowValue = flexGrow ? 1 : 0;
@@ -29,27 +31,33 @@ export const Flex: React.FC<IFlexProps> = ({
     return (
         <div
             {...rest}
-            style={{
-                display: 'flex',
-                flexBasis: flex ? `${flex}%` : 'auto',
-                flexGrow: flexGrowValue,
-                flexShrink: flexShrinkValue,
-                flexDirection: direction,
-                flexWrap: wrap,
-                ...style,
-            }}
+            className={classNames({
+                [className as any]: true,
+                'flex-container': true,
+                [`flex-${direction}`]: true,
+            })}
+            style={
+                {
+                    '--flex-gap': `${gap}px`,
+                    display: 'flex',
+                    flexBasis: flex ? `${flex}%` : 'auto',
+                    flexGrow: flexGrowValue,
+                    flexShrink: flexShrinkValue,
+                    flexDirection: direction,
+                    flexWrap: wrap,
+                    ...style,
+                } as any
+            }
         >
-            {React.Children.map(children, child =>
-                React.cloneElement(child as React.ReactElement<any>, {
-                    'margin-bottom': `${gap}px`,
-                })
-            )}
+            {children}
         </div>
     );
 };
 
 export const FlexRow: React.FC<IFlexProps> = ({ children, ...rest }) => (
-    <Flex {...rest}>{children}</Flex>
+    <Flex {...rest} direction="row">
+        {children}
+    </Flex>
 );
 
 export const FlexColumn: React.FC<IFlexProps> = ({ children, ...rest }) => (

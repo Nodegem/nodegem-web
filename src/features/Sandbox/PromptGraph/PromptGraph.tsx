@@ -1,6 +1,7 @@
-import { Button, Col, Divider, Icon, Row } from 'antd';
+import { Button, Divider } from 'antd';
 import React from 'react';
 
+import { Flex, FlexRow } from 'components';
 import './PromptGraph.less';
 
 interface ITypeProps {
@@ -11,41 +12,35 @@ interface ITypeProps {
 const PromptGraph: React.FC<ITypeProps> = ({ onTypeSelect, onSelectGraph }) => {
     return (
         <>
-            <Row className="type-options">
-                <Col>
-                    <Button
-                        type="dashed"
-                        size="large"
-                        icon="select"
-                        onClick={onSelectGraph}
-                    >
-                        Select Existing
-                    </Button>
-                </Col>
-            </Row>
+            <FlexRow className="type-options">
+                <Button
+                    type="dashed"
+                    size="large"
+                    icon="select"
+                    onClick={onSelectGraph}
+                >
+                    Select Existing
+                </Button>
+            </FlexRow>
             <Divider dashed>OR</Divider>
-            <Row className="type-options" gutter={24}>
-                <Col>
-                    <Button
-                        onClick={() => onTypeSelect('graph')}
-                        type="dashed"
-                        size="large"
-                        icon="plus"
-                    >
-                        New Graph
-                    </Button>
-                </Col>
-                <Col>
-                    <Button
-                        onClick={() => onTypeSelect('macro')}
-                        type="dashed"
-                        size="large"
-                        icon="plus"
-                    >
-                        New Macro
-                    </Button>
-                </Col>
-            </Row>
+            <FlexRow className="type-options" gap={15} wrap="wrap">
+                <Button
+                    onClick={() => onTypeSelect('graph')}
+                    type="dashed"
+                    size="large"
+                    icon="plus"
+                >
+                    New Graph
+                </Button>
+                <Button
+                    onClick={() => onTypeSelect('macro')}
+                    type="dashed"
+                    size="large"
+                    icon="plus"
+                >
+                    New Macro
+                </Button>
+            </FlexRow>
         </>
     );
 };

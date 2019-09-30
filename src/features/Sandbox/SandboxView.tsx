@@ -308,7 +308,7 @@ export const SandboxView = observer(() => {
                                 flex: '1 1 0%',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                minWidth: 0
+                                minWidth: 0,
                             }}
                         >
                             <SandboxCanvas
@@ -340,7 +340,6 @@ export const SandboxView = observer(() => {
                             >
                                 <XTerm
                                     getRef={sandboxStore.logManager.setXterm}
-                                    value="sdasdadasdd"
                                 />
                             </HorizontalCollapse>
                         </div>
@@ -368,14 +367,13 @@ export const SandboxView = observer(() => {
             <GraphModalFormController onSave={onGraphEdit} />
             <MacroModalFormController onSave={onGraphEdit} />
             <Modal
+                className="sandbox-modal prompt-graph-modal"
                 maskClosable={tabManager.hasTabs}
                 visible={sandboxStore.modalStates.selectionModal}
                 footer={null}
                 onCancel={() =>
                     sandboxStore.toggleModalState('selectionModal', false)
                 }
-                width="50%"
-                style={{ maxWidth: '850px' }}
                 centered
             >
                 <PromptGraph
@@ -384,12 +382,11 @@ export const SandboxView = observer(() => {
                 />
             </Modal>
             <Modal
+                className="sandbox-modal select-graph-modal"
                 title="Select Graph or Macro"
                 maskClosable={tabManager.hasTabs}
                 visible={sandboxStore.modalStates.selectGraph}
                 footer={null}
-                width="50%"
-                style={{ maxWidth: '850px' }}
                 onCancel={() =>
                     sandboxStore.toggleModalState('selectGraph', false)
                 }
