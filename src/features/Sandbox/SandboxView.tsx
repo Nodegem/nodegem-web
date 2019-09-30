@@ -305,9 +305,10 @@ export const SandboxView = observer(() => {
                         </VerticalCollapsible>
                         <div
                             style={{
-                                flex: '1 1 auto',
+                                flex: '1 1 0%',
                                 display: 'flex',
                                 flexDirection: 'column',
+                                minWidth: 0
                             }}
                         >
                             <SandboxCanvas
