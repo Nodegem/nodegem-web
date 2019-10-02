@@ -32,7 +32,7 @@ export const Flex: React.FC<IFlexProps> = ({
         <div
             {...rest}
             className={classNames({
-                [className as any]: true,
+                [className as any]: !!className,
                 'flex-container': true,
                 [`flex-${direction}`]: true,
             })}

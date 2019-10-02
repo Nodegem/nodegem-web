@@ -88,7 +88,7 @@ export class SandboxStore implements IDisposable {
     public viewStates: ViewState = {
         logs: false,
         nodeInfo: false,
-        nodeSelect: true,
+        nodeSelect: false,
     };
 
     @observable
@@ -118,16 +118,24 @@ export class SandboxStore implements IDisposable {
         graph: { hub: new GraphHub() },
     };
 
+    private sandboxActive = false;
+
     constructor() {
         this.tabManager = new TabManager(
             tab => this.load(tab.graph),
             empty => {
-                if (empty) {
-                    this.sandboxManager.clearView();
-                }
+                runInAction(() => {
+                    if (empty) {
+                        this.nodeDefinitionCache = {} as any;
+                        this.toggleViewState('nodeInfo', false);
+                        this.toggleViewState('nodeSelect', false);
+                        this.toggleViewState('logs', false);
+                        this.sandboxManager.clearView();
+                    }
 
-                this.toggleModalState('selectionModal', false);
-                this.toggleModalState('selectGraph', false);
+                    this.toggleModalState('selectionModal', false);
+                    this.toggleModalState('selectGraph', false);
+                });
             }
         );
 
@@ -152,8 +160,12 @@ export class SandboxStore implements IDisposable {
                 {}
         );
 
-        window.addEventListener('keyup', this.handleKeyPress);
+        document.addEventListener('keydown', this.handleKeyPress);
     }
+
+    public setSandboxActive = (active: boolean) => {
+        this.sandboxActive = active;
+    };
 
     public initializeHubs = () => {
         const { terminal, graph } = this.hubStates;
@@ -266,13 +278,35 @@ export class SandboxStore implements IDisposable {
     };
 
     private handleKeyPress = (event: KeyboardEvent) => {
-        switch (event.keyCode) {
-            case 32:
-                this.sandboxManager.resetView();
-                break;
-            case 27:
-                this.drawLinkManager.stopDrawing();
-                break;
+        if (!this.sandboxActive) {
+            return;
+        }
+
+        if (event.ctrlKey || event.metaKey) {
+            switch (event.keyCode) {
+                case 83:
+                    event.preventDefault();
+                    this.saveGraph();
+                    break;
+            }
+        } else {
+            switch (event.keyCode) {
+                case 32:
+                    this.sandboxManager.resetView();
+                    break;
+                case 27:
+                    if (
+                        (!this.tabManager.activeTab &&
+                            this.modalStates.selectGraph) ||
+                        this.modalStates.selectionModal
+                    ) {
+                        event.stopImmediatePropagation();
+                        event.preventDefault();
+                    }
+
+                    this.drawLinkManager.stopDrawing();
+                    break;
+            }
         }
     };
 
@@ -336,6 +370,10 @@ export class SandboxStore implements IDisposable {
     };
 
     public saveGraph = async () => {
+        if (!this.tabManager.hasActiveTab) {
+            return;
+        }
+
         this.sandboxState = {
             ...this.sandboxState,
             savingGraph: true,
@@ -493,6 +531,12 @@ export class SandboxStore implements IDisposable {
             this.nodeDefinitionCache = definitions;
             this.initializeHubs();
             this.sandboxState.loadingGraph = false;
+
+            if (!this.viewStates.nodeSelect) {
+                setTimeout(() => {
+                    this.toggleViewState('nodeSelect', true);
+                }, 350);
+            }
         });
     };
 
@@ -501,21 +545,6 @@ export class SandboxStore implements IDisposable {
         graph.hub.disconnect();
         terminal.hub.disconnect();
     };
-
-    public dispose(): void {
-        const { graph, terminal } = this.hubStates;
-        graph.hub.dispose();
-        terminal.hub.dispose();
-        this.dragEndObservable.clear();
-        this.sandboxManager.dispose();
-        this.tabManager.dispose();
-        this.drawLinkManager.dispose();
-        window.removeEventListener('keypress', this.handleKeyPress);
-
-        this.toggleViewState('nodeInfo', false);
-        this.toggleModalState('selectionModal', false);
-        this.toggleModalState('selectGraph', false);
-    }
 
     private notify = (
         msg: string,
@@ -568,4 +597,20 @@ export class SandboxStore implements IDisposable {
             links: linkData,
         };
     };
+
+    public dispose(): void {
+        const { graph, terminal } = this.hubStates;
+        graph.hub.dispose();
+        terminal.hub.dispose();
+        this.dragEndObservable.clear();
+        this.sandboxManager.dispose();
+        this.tabManager.dispose();
+        this.drawLinkManager.dispose();
+        this._cachedDefinitions = {};
+        this.nodeDefinitionCache = {} as any;
+
+        this.toggleViewState('nodeInfo', false);
+        this.toggleModalState('selectionModal', true);
+        this.toggleModalState('selectGraph', false);
+    }
 }

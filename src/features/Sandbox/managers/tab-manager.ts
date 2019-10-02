@@ -65,6 +65,7 @@ export class TabManager implements IDisposable {
         const index = this.tabs.findIndex(x => x.graph.id === graphId);
         this.tabs.removeWhere(x => x.graph.id === graphId);
         if (index >= 0) {
+            let isEmpty = false;
             if (index - 1 >= 0) {
                 const nextTab = this.tabs[index - 1];
                 this.setActiveTab(nextTab.graph.id!);
@@ -72,14 +73,20 @@ export class TabManager implements IDisposable {
                 const nextTab = this.tabs[index];
                 this.setActiveTab(nextTab.graph.id!);
             } else {
-                this._activeTab = '';
+                isEmpty = true;
+                this.clearTabs();
             }
-            this.onTabDeleted(!this.tabs.any());
+            this.onTabDeleted(isEmpty);
         }
     };
 
-    public dispose(): void {
+    @action
+    public clearTabs = () => {
         this.tabs = [];
         this._activeTab = '';
+    };
+
+    public dispose(): void {
+        this.clearTabs();
     }
 }

@@ -1,5 +1,5 @@
-@activeTabColor: #00d6da;
-@tabColor: #cfcfcf;
+@import '../../styles/vars.less';
+@import './sandbox-variables.less';
 
 .sandbox-view-container {
     height: 100%;
@@ -34,29 +34,27 @@
 
 .tabs-container {
     .tab-list {
-        margin: 0 30px;
-        height: 42px;
-    }
-
-    .tab-controls {
-        margin: 0 10px;
-
-        > * {
-            margin-right: 5px;
-        }
+        min-height: 45px;
+        padding: 0 25px;
+        align-items: flex-end;
     }
 
     .active {
         .tab {
             background-color: @activeTabColor !important;
+            border-bottom: 3px solid red;
+
+            &:hover {
+                background-color: darken(@activeTabColor, 5%) !important;
+            }
         }
     }
 
     .tab {
-        height: 42px;
+        transition: height 150ms ease, background-color 200ms ease;
+        height: 35px;
+        min-width: 120px;
         width: 120px;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
         display: flex;
         margin-right: 15px;
         justify-content: center;
@@ -64,16 +62,29 @@
         background-color: @tabColor;
         text-align: center;
 
-        .tab-title {
-            max-width: 90px;
-            margin: 0;
-            color: white;
+        &:hover {
+            height: 45px;
+            background-color: darken(@tabColor, 8%) !important;
         }
 
-        .tab-delete {
-            button {
-                border: none;
+        &.tab-add {
+            background-color: transparent !important;
+            border: 1px solid @tabColor;
+            border-bottom: 0;
+            border-style: dashed;
+            cursor: pointer;
+            color: @primary-color;
+
+            &:hover {
+                background-color: transparent !important;
             }
+        }
+
+        .tab-title {
+            max-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: white;
         }
     }
 }

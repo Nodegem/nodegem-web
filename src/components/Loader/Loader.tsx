@@ -11,14 +11,9 @@ const antIcon = (size: number) => (
 interface ILoaderProps {
     size?: number;
     textSize?: number;
-    text?: string;
 }
 
-export const Loader: React.FC<ILoaderProps> = ({
-    size = 5,
-    textSize = 1,
-    text = 'Loading...',
-}) => (
+export const Loader: React.FC<ILoaderProps> = ({ size = 5, textSize = 1 }) => (
     <Flex
         className="loading-spinner"
         style={{ '--loading-text-size': `${textSize}vw` } as any}
@@ -26,6 +21,6 @@ export const Loader: React.FC<ILoaderProps> = ({
         flexGrow
         flexShrink
     >
-        <Spin indicator={antIcon(size)} tip={text} />
+        <Spin indicator={antIcon(size)} />
     </Flex>
 );

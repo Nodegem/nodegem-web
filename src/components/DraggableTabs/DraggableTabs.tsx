@@ -8,8 +8,10 @@ import {
     NotDraggingStyle,
 } from 'react-beautiful-dnd';
 
-import { Button, Col, Row, Tooltip } from 'antd';
+import { Button, Col, Icon, Row, Tooltip } from 'antd';
 import classnames from 'classnames';
+import { FlexRow } from 'components';
+import { FlexFill } from 'components/Flex';
 import { DragEndProps } from 'stores';
 import { reorder, SimpleObservable } from 'utils';
 import './DraggableTabs.less';
@@ -161,44 +163,46 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
                 dragEndObservable.execute({ result, provided })
             }
         >
-            <Row className="tabs-container">
-                <Col span={16}>
-                    <Droppable droppableId={tabListId} direction="horizontal">
-                        {(provided, snapshot) => (
-                            <div
-                                ref={provided.innerRef}
-                                {...provided.droppableProps}
-                                className={classnames({
-                                    'tab-list': true,
-                                    'dragging-over': snapshot.isDraggingOver,
-                                })}
-                            >
-                                <DraggableTabList
-                                    tabs={tabs.map((x: ITab) => ({
-                                        id: x.id,
-                                        name: x.name,
-                                        data: x.data,
-                                        isActive: activeTab === x.id,
-                                        onClick,
-                                        tabTemplate,
-                                    }))}
-                                />
-                                {provided.placeholder}
-                                <Tooltip title="New" placement="right">
-                                    <Button
-                                        type="dashed"
-                                        size="default"
-                                        ghost
-                                        icon="plus"
-                                        onClick={onTabAdd}
+            <FlexRow className="tabs-container" flex={100} flexGrow={false}>
+                <Droppable droppableId={tabListId} direction="horizontal">
+                    {(provided, snapshot) => (
+                        <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className={classnames({
+                                'tab-list': true,
+                                'dragging-over': snapshot.isDraggingOver,
+                            })}
+                        >
+                            <DraggableTabList
+                                tabs={tabs.map((x: ITab) => ({
+                                    id: x.id,
+                                    name: x.name,
+                                    data: x.data,
+                                    isActive: activeTab === x.id,
+                                    onClick,
+                                    tabTemplate,
+                                }))}
+                            />
+                            {provided.placeholder}
+                            <Tooltip title="Open" placement="right">
+                                <div
+                                    onClick={onTabAdd}
+                                    className={classnames({
+                                        tab: true,
+                                        'tab-add': true,
+                                    })}
+                                >
+                                    <Icon
+                                        type="plus"
+                                        style={{ fontSize: '1.5em' }}
                                     />
-                                </Tooltip>
-                            </div>
-                        )}
-                    </Droppable>
-                </Col>
-                {tabControls && <Col span={8}>{tabControls}</Col>}
-            </Row>
+                                </div>
+                            </Tooltip>
+                        </div>
+                    )}
+                </Droppable>
+            </FlexRow>
         </DragDropContext>
     );
 };
