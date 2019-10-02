@@ -278,8 +278,8 @@ export const SandboxView = observer(() => {
                 >
                     <div className="graph-content">
                         <VerticalCollapsible
-                            width="325px"
-                            minWidth="0"
+                            width="15%"
+                            contentMinWidth="325px"
                             onTabClick={() =>
                                 sandboxStore.toggleViewState('nodeSelect')
                             }
@@ -349,8 +349,8 @@ export const SandboxView = observer(() => {
                             </HorizontalCollapse>
                         </div>
                         <VerticalCollapsible
-                            width="350px"
-                            minWidth="0"
+                            width="18%"
+                            contentMinWidth="325px"
                             onTabClick={() =>
                                 sandboxStore.toggleViewState('nodeInfo')
                             }

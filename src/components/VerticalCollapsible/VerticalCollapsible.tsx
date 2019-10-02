@@ -8,6 +8,7 @@ type TTabDirection = 'left' | 'right';
 interface IVerticalCollapsibleProps {
     width?: string | number;
     minWidth?: string | number;
+    contentMinWidth?: string | number;
     tabWidth?: string | number;
     tabDirection?: TTabDirection;
     collapsed: boolean;
@@ -18,8 +19,9 @@ interface IVerticalCollapsibleProps {
 
 export const VerticalCollapsible: React.FC<IVerticalCollapsibleProps> = ({
     width = '15%',
-    minWidth = '18em',
+    minWidth = 0,
     tabWidth = '25px',
+    contentMinWidth,
     tabDirection = 'right',
     collapsed,
     tabContent,
@@ -46,7 +48,12 @@ export const VerticalCollapsible: React.FC<IVerticalCollapsibleProps> = ({
                 className="vertical-tab"
                 onClick={onTabClick}
             >
-                <span className="tab-text">{tabContent}</span>
+                <span
+                    className="tab-text"
+                    style={{ minWidth: contentMinWidth }}
+                >
+                    {tabContent}
+                </span>
             </div>
         </div>
     );
