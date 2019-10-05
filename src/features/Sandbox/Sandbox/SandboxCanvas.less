@@ -79,10 +79,11 @@
 
 @searchFontColor: lighten(black, 15%);
 
-.search {
+.bottom-left-footer {
     bottom: 0px;
     position: absolute;
     margin: 15px 20px;
+    display: inline-flex;
 
     .ant-input-affix-wrapper {
         > * {
@@ -102,15 +103,17 @@
     }
 }
 
-.zoom-controls {
-    bottom: 0px;
-    right: 0px;
-    position: absolute;
-    margin: 15px 20px;
-
+.footer {
     button {
         margin-left: 10px;
         border-color: @control-bg-color;
         background-color: @control-bg-color;
     }
+}
+
+.bottom-right-footer {
+    bottom: 0px;
+    right: 0px;
+    position: absolute;
+    margin: 15px 20px;
 }

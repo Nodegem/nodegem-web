@@ -7,22 +7,23 @@
     &.horizontal {
         flex-direction: row;
         min-height: 100%;
+        transition: width @animationSpeed ease-in-out,
+            min-width @animationSpeed ease-in-out;
+        will-change: min-width, width;
     }
 
     &.vertical {
         width: 100%;
         max-width: 100%;
         flex-direction: column;
+        transition: height @animationSpeed ease-in-out,
+            min-height @animationSpeed ease-in-out;
+        will-change: min-height, height;
     }
 
     align-items: stretch;
     max-height: inherit;
     height: inherit;
-    transition: width @animationSpeed ease-in-out,
-        min-width @animationSpeed ease-in-out,
-        height @animationSpeed ease-in-out,
-        min-height @animationSpeed ease-in-out;
-    will-change: min-width, width, height, min-height;
     overflow: hidden;
 
     &.horizontal {

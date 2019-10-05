@@ -94,3 +94,13 @@ export const reorder = <T>(
 
     return result;
 };
+
+export const isJSON = (str: string) => {
+    try {
+        const obj = JSON.parse(str);
+        if (obj && typeof obj === 'object' && obj !== null) {
+            return true;
+        }
+    } catch (err) {}
+    return false;
+};

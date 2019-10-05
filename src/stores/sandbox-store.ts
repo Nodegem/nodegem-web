@@ -8,6 +8,7 @@ import NodeController from 'features/Sandbox/Node/node-controller';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
 import { flatten, getPort } from 'features/Sandbox/utils';
 import { computed, observable, runInAction } from 'mobx';
+import moment from 'moment';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { GraphService, MacroService, NodeService } from 'services';
 import { getGraphType, isMacro } from 'utils';
@@ -38,6 +39,7 @@ type SandboxState = {
     loadingGraph: boolean;
     linksVisible: boolean;
     savingGraph: boolean;
+    isEditingSettings: boolean;
     loadingBridges: boolean;
     currentBridge?: IBridgeInfo;
 };
@@ -100,6 +102,7 @@ export class SandboxStore implements IDisposable {
         linksVisible: true,
         savingGraph: false,
         loadingBridges: false,
+        isEditingSettings: false,
     };
 
     @observable
@@ -180,6 +183,9 @@ export class SandboxStore implements IDisposable {
                     this.toggleModalState('selectionModal', false);
                     this.toggleModalState('selectGraph', false);
                 });
+            },
+            msg => {
+                this.notify(msg, 'error');
             }
         );
 
@@ -243,6 +249,7 @@ export class SandboxStore implements IDisposable {
                             this.tabManager.activeTab.graph.id,
                             {
                                 ...data,
+                                timestamp: moment.now(),
                                 unread: !this.viewStates.logs,
                             }
                         );
@@ -278,7 +285,6 @@ export class SandboxStore implements IDisposable {
 
             graph.hub.onGraphCompleted.subscribe(value => {
                 runInAction(() => {
-                    console.log('test');
                     if (value) {
                         console.error(value);
                     }
@@ -306,14 +312,10 @@ export class SandboxStore implements IDisposable {
             graph.hub.bridgeInfo.subscribe(bridges => {
                 runInAction(() => {
                     this.sandboxState.loadingBridges = false;
-                    this.hubStates.graph = {
-                        ...this.hubStates.graph,
-                        bridges,
-                        connecting: false,
-                        connected: bridges.any(),
-                    };
 
                     if (bridges.any()) {
+                        this.hubStates.graph.bridges = bridges;
+
                         if (!this.sandboxState.currentBridge) {
                             this.sandboxState.currentBridge = bridges.firstOrDefault();
                         }
@@ -373,10 +375,6 @@ export class SandboxStore implements IDisposable {
                     event.preventDefault();
                     break;
                 case 32:
-                    this.logManager.addLog('test', {
-                        message: 'test',
-                        type: 'warn',
-                    });
                     this.sandboxManager.resetView();
                     break;
                 case 27:
@@ -411,12 +409,7 @@ export class SandboxStore implements IDisposable {
     };
 
     public toggleViewState = (key: keyof ViewState, value?: boolean) => {
-        const newValue = this.viewStates[key].toggle(value);
-        if (key === 'logs' && newValue) {
-            this.logManager.markAllAsRead();
-        }
-
-        this.viewStates[key] = newValue;
+        this.viewStates[key] = this.viewStates[key].toggle(value);
     };
 
     public toggleModalState = (key: keyof ModalState, value?: boolean) => {

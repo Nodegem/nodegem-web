@@ -10,6 +10,7 @@ import React, { useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { DragEndProps, useStore } from 'stores';
 import { isMacro } from 'utils';
+import { LogView } from './LogView';
 import NodeInfo from './NodeInfo/NodeInfo';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
 import PromptGraph from './PromptGraph/PromptGraph';
@@ -62,12 +63,14 @@ interface IGraphControlProps {
 
 interface IBridgeMenuProps {
     bridges?: IBridgeInfo[];
+    currentBridge?: IBridgeInfo;
     onSelect: (bridge: IBridgeInfo) => void;
     refresh: () => void;
 }
 
 const BridgeMenu: React.FC<IBridgeMenuProps> = ({
     bridges,
+    currentBridge,
     onSelect,
     refresh,
 }) => (
@@ -77,6 +80,10 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
                 <Menu.Item
                     key={b.deviceIdentifier}
                     onMouseDown={() => onSelect(b)}
+                    disabled={
+                        currentBridge &&
+                        b.deviceIdentifier === currentBridge.deviceIdentifier
+                    }
                 >
                     {b.deviceName}
                 </Menu.Item>
@@ -141,6 +148,7 @@ export const SandboxView = observer(() => {
     }
 
     function editGraph(graph: Partial<Graph | Macro>) {
+        sandboxStore.toggleSandboxState('isEditingSettings', true);
         if (isMacro(graph)) {
             macroModalStore.openModal(graph, true);
         } else {
@@ -170,7 +178,17 @@ export const SandboxView = observer(() => {
                 sandboxStore.tabManager.editTab(graph);
             }
         }
+        console.log(sandboxStore.sandboxState);
+        sandboxStore.toggleSandboxState('isEditingSettings', false);
     };
+
+    function onGraphEditModalCancel() {
+        if (!sandboxStore.sandboxState.isEditingSettings) {
+            sandboxStore.toggleModalState('selectionModal', true);
+        } else {
+            sandboxStore.toggleSandboxState('isEditingSettings', false);
+        }
+    }
 
     return (
         <>
@@ -211,22 +229,19 @@ export const SandboxView = observer(() => {
                         </FlexRow>
                         <FlexFillGreedy />
                         <FlexRow gap={5}>
-                            <Badge
-                                count={sandboxStore.logManager.unreadLogCount}
+                            <Button
+                                type="primary"
+                                shape="round"
+                                icon="caret-right"
+                                disabled={!sandboxStore.canRun}
+                                onMouseDown={() => sandboxStore.runGraph()}
+                                loading={
+                                    sandboxStore.isLoading ||
+                                    sandboxStore.hubStates.graph.running
+                                }
                             >
-                                <Button
-                                    disabled={!sandboxStore.areLogsEnabled}
-                                    shape="round"
-                                    type="primary"
-                                    icon="code"
-                                    loading={sandboxStore.areLogsConnecting}
-                                    onClick={() =>
-                                        sandboxStore.toggleViewState('logs')
-                                    }
-                                >
-                                    Logs
-                                </Button>
-                            </Badge>
+                                Run
+                            </Button>
                             <Dropdown
                                 disabled={!sandboxStore.canSelectBridge}
                                 trigger={['click']}
@@ -235,6 +250,10 @@ export const SandboxView = observer(() => {
                                         onSelect={sandboxStore.onBridgeSelect}
                                         bridges={
                                             sandboxStore.hubStates.graph.bridges
+                                        }
+                                        currentBridge={
+                                            sandboxStore.sandboxState
+                                                .currentBridge
                                         }
                                         refresh={sandboxStore.refreshBridges}
                                     />
@@ -254,19 +273,6 @@ export const SandboxView = observer(() => {
                                     <Icon type="down" />
                                 </Button>
                             </Dropdown>
-                            <Button
-                                type="primary"
-                                shape="round"
-                                icon="caret-right"
-                                disabled={!sandboxStore.canRun}
-                                onMouseDown={() => sandboxStore.runGraph()}
-                                loading={
-                                    sandboxStore.isLoading ||
-                                    sandboxStore.hubStates.graph.running
-                                }
-                            >
-                                Run
-                            </Button>
                         </FlexRow>
                     </FlexRow>
                     <div className="graph-content">
@@ -365,16 +371,18 @@ export const SandboxView = observer(() => {
                                 visibleLinks={
                                     sandboxStore.sandboxState.linksVisible
                                 }
+                                toggleConsole={() => {
+                                    sandboxStore.logManager.markAllAsRead();
+                                    sandboxStore.toggleViewState('logs');
+                                }}
+                                canToggleConsole={!sandboxStore.areLogsEnabled}
+                                isConsoleLoading={
+                                    sandboxStore.areLogsConnecting
+                                }
+                                unreadLogCount={
+                                    sandboxStore.logManager.unreadLogCount
+                                }
                             />
-
-                            <CustomCollapsible
-                                className="log-section"
-                                collapsed={!sandboxStore.viewStates.logs}
-                                size="25vh"
-                                direction="top"
-                            >
-                                Test
-                            </CustomCollapsible>
                         </div>
                         <CustomCollapsible
                             size="18vw"
@@ -402,15 +410,11 @@ export const SandboxView = observer(() => {
 
             <GraphModalFormController
                 onSave={onGraphEdit}
-                onGoBack={() => {
-                    sandboxStore.toggleModalState('selectionModal', true);
-                }}
+                onGoBack={onGraphEditModalCancel}
             />
             <MacroModalFormController
                 onSave={onGraphEdit}
-                onGoBack={() => {
-                    sandboxStore.toggleModalState('selectionModal', true);
-                }}
+                onGoBack={onGraphEditModalCancel}
             />
             <Modal
                 className="sandbox-modal prompt-graph-modal"
@@ -458,6 +462,21 @@ export const SandboxView = observer(() => {
                         sandboxStore.toggleModalState('selectGraph', false);
                         sandboxStore.tabManager.addTab(g);
                     }}
+                />
+            </Modal>
+            <Modal
+                className="sandbox-modal log-view-modal"
+                title="Console"
+                maskClosable
+                visible={sandboxStore.viewStates.logs}
+                style={{ minHeight: '80vh', maxHeight: '80vh' }}
+                footer={null}
+                onCancel={() => sandboxStore.toggleViewState('logs', false)}
+                centered
+            >
+                <LogView
+                    logs={sandboxStore.logManager.activeTabLogs}
+                    clearLogs={sandboxStore.logManager.clearLogs}
                 />
             </Modal>
         </>

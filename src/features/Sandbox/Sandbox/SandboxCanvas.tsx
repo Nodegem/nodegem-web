@@ -1,4 +1,4 @@
-import { Button, Icon, Input, Spin } from 'antd';
+import { Badge, Button, Icon, Input, Spin } from 'antd';
 import classNames from 'classnames';
 import { Loader } from 'components';
 import React, { useEffect, useRef } from 'react';
@@ -15,6 +15,10 @@ export const sandboxDroppableId = 'sandboxId';
 export interface ISandboxProps {
     sandboxManager: SandboxManager;
     onFilter: (text: string) => void;
+    toggleConsole: () => void;
+    canToggleConsole?: boolean;
+    isConsoleLoading?: boolean;
+    unreadLogCount: number;
     loading: boolean;
     isActive?: boolean;
     editNode: (data: INodeUIData) => void;
@@ -33,6 +37,10 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
     onFilter,
     editNode,
     isActive,
+    toggleConsole,
+    canToggleConsole,
+    isConsoleLoading,
+    unreadLogCount,
     getDrawLinkRef,
     isDrawing,
     linkType,
@@ -105,15 +113,25 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                     ))}
                 </div>
             </div>
-            <div className="search">
+            <div className="footer bottom-left-footer">
                 <Input
                     prefix={<Icon type="search" />}
                     onChange={event => onFilter(event.target!.value)}
                     allowClear
                     placeholder="Search Nodes"
                 />
+                <Badge count={unreadLogCount}>
+                    <Button
+                        disabled={canToggleConsole}
+                        shape="circle"
+                        type="primary"
+                        icon="code"
+                        loading={isConsoleLoading}
+                        onClick={() => toggleConsole()}
+                    />
+                </Badge>
             </div>
-            <div className="zoom-controls">
+            <div className="footer bottom-right-footer">
                 <Button
                     type="primary"
                     shape="circle"

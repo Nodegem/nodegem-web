@@ -126,7 +126,6 @@ export class DrawLinkManager implements IDisposable {
                 ) {
                     this.sandboxManager.addLink(start, destination);
                 } else {
-                    console.log('test');
                     this.onLinkError('Not a valid connection');
                     link.dispose();
                 }
@@ -139,7 +138,6 @@ export class DrawLinkManager implements IDisposable {
                 ) {
                     this.sandboxManager.addLink(s, d);
                 } else {
-                    console.log('test 2');
                     this.onLinkError('Not a valid connection');
                 }
             }

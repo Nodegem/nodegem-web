@@ -10,7 +10,8 @@ export class LogManager {
         return this.activeTabLogs.count(x => !!x.unread);
     }
 
-    private get activeTabLogs(): LogData[] {
+    @computed
+    public get activeTabLogs(): LogData[] {
         if (this.tabManager.activeTab) {
             const { graph } = this.tabManager.activeTab;
             return this.logs[graph.id] ? this.logs[graph.id] : [];
@@ -38,5 +39,15 @@ export class LogManager {
             // console.log(terminal, this.xterm);
             // terminal.writeln('test');
         });
+    };
+
+    public clearLogs = () => {
+        if (this.tabManager.activeTab) {
+            const { graph } = this.tabManager.activeTab;
+            const graphLogs = this.logs[graph.id];
+            if (graphLogs) {
+                this.logs[graph.id] = [];
+            }
+        }
     };
 }

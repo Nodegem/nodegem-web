@@ -29,7 +29,8 @@ export class TabManager implements IDisposable {
 
     constructor(
         private onTabActivated: (tab: TabData) => void,
-        private onTabDeleted: (isEmpty: boolean) => void
+        private onTabDeleted: (isEmpty: boolean) => void,
+        private onException: (message: string) => void
     ) {}
 
     @action
@@ -54,6 +55,12 @@ export class TabManager implements IDisposable {
 
     @action
     public addTab = (graph: Graph | Macro) => {
+        if (this.tabs.any(x => x.graph.id === graph.id)) {
+            this.onException('Graph already opened');
+            this.setActiveTab(graph.id);
+            return;
+        }
+
         this.tabs.push({ graph });
         this.setActiveTab(graph.id);
     };
