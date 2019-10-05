@@ -1,6 +1,6 @@
 import { Badge, Button, Dropdown, Icon, Modal, Tooltip } from 'antd';
 import classNames from 'classnames';
-import { CustomCollapsible, FlexRow, XTerm } from 'components';
+import { CustomCollapsible, FlexRow } from 'components';
 import { DraggableTabs, ITab } from 'components/DraggableTabs';
 import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
 import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
@@ -354,9 +354,7 @@ export const SandboxView = observer(() => {
                                 size="25vh"
                                 direction="top"
                             >
-                                <XTerm
-                                    getRef={sandboxStore.logManager.setXterm}
-                                />
+                                Test
                             </CustomCollapsible>
                         </div>
                         <CustomCollapsible

@@ -10,5 +10,4 @@ export * from './PhoneInput';
 export * from './PortFields';
 export * from './PublicRoute';
 export * from './RecurringOptionsControl';
-export * from './Terminal';
 export * from './CustomCollapsible';

@@ -1,10 +1,7 @@
-import { XTerm } from 'components';
 import { computed, observable } from 'mobx';
 import { TabManager } from './tab-manager';
 
 export class LogManager {
-    private xterm: XTerm;
-
     @observable
     public logs: { [id: string]: LogData[] } = {};
 
@@ -24,17 +21,11 @@ export class LogManager {
 
     constructor(private tabManager: TabManager) {}
 
-    public setXterm = (xterm: XTerm) => {
-        this.xterm = xterm;
-    };
-
     public markAllAsRead = () => {
         this.activeTabLogs.forEach(l => (l.unread = false));
     };
 
     public addLog = (id: string, log: LogData | LogData[]) => {
-        this.xterm.focus();
-
         if (!this.logs[id]) {
             this.logs[id] = [];
         }
@@ -43,9 +34,9 @@ export class LogManager {
 
         this.logs[id].push(...logs);
         logs.forEach(l => {
-            const terminal = this.xterm.getTerminal();
-            console.log(terminal, this.xterm);
-            terminal.writeln('test');
+            // const terminal = this.xterm.getTerminal();
+            // console.log(terminal, this.xterm);
+            // terminal.writeln('test');
         });
     };
 }
