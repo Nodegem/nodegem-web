@@ -18,8 +18,6 @@ export const Loader: React.FC<ILoaderProps> = ({ size = 5, textSize = 1 }) => (
         className="loading-spinner"
         style={{ '--loading-text-size': `${textSize}vw` } as any}
         flex={100}
-        flexGrow
-        flexShrink
     >
         <Spin indicator={antIcon(size)} />
     </Flex>

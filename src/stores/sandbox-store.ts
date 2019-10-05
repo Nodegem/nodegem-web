@@ -291,14 +291,33 @@ export class SandboxStore implements IDisposable {
             }
         } else {
             switch (event.keyCode) {
+                case 90:
+                    this.toggleViewState('nodeSelect');
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                    break;
+                case 88:
+                    this.toggleViewState('nodeInfo');
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                    break;
+                case 67:
+                    this.toggleViewState('logs');
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                    break;
                 case 32:
+                    this.logManager.addLog('test', {
+                        message: 'test',
+                        type: 'warn',
+                    });
                     this.sandboxManager.resetView();
                     break;
                 case 27:
                     if (
-                        (!this.tabManager.activeTab &&
-                            this.modalStates.selectGraph) ||
-                        this.modalStates.selectionModal
+                        !this.tabManager.activeTab &&
+                        (this.modalStates.selectionModal ||
+                            this.modalStates.selectGraph)
                     ) {
                         event.stopImmediatePropagation();
                         event.preventDefault();

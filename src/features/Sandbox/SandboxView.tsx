@@ -1,19 +1,9 @@
-import {
-    Badge,
-    Button,
-    Checkbox,
-    Icon,
-    Modal,
-    Tooltip,
-    Typography,
-} from 'antd';
+import { Badge, Button, Dropdown, Icon, Modal, Tooltip } from 'antd';
 import classNames from 'classnames';
-import { XTerm } from 'components';
+import { CustomCollapsible, FlexRow, XTerm } from 'components';
 import { DraggableTabs, ITab } from 'components/DraggableTabs';
-import HorizontalCollapse from 'components/HorizontalCollapse/HorizontalCollapse';
 import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
 import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
-import { VerticalCollapsible } from 'components/VerticalCollapsible/VerticalCollapsible';
 import _ from 'lodash';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect } from 'react';
@@ -226,48 +216,6 @@ export const SandboxView = observer(() => {
     return (
         <>
             <div className="sandbox-view-container">
-                <DraggableTabs
-                    tabs={sandboxStore.tabManager.tabs.map(t => ({
-                        id: t.graph.id!,
-                        name: t.graph.name!,
-                        data: t,
-                    }))}
-                    activeTab={
-                        sandboxStore.tabManager.activeTab &&
-                        sandboxStore.tabManager.activeTab.graph.id
-                    }
-                    onTabReorder={handleTabReorder}
-                    dragEndObservable={sandboxStore.dragEndObservable}
-                    onTabAdd={() =>
-                        sandboxStore.toggleModalState('selectionModal')
-                    }
-                    onTabClick={handleTabClick}
-                    tabControls={
-                        <GraphControls
-                            unreadLogs={sandboxStore.logManager.unreadLogCount}
-                            graph={
-                                sandboxStore.tabManager.activeTab &&
-                                sandboxStore.tabManager.activeTab.graph
-                            }
-                            openModal={editGraph}
-                            toggleLogs={() =>
-                                sandboxStore.toggleViewState('logs')
-                            }
-                            saveGraph={sandboxStore.saveGraph}
-                            runGraph={sandboxStore.runGraph}
-                            graphState={sandboxStore.hubStates.graph}
-                            terminalState={sandboxStore.hubStates.terminal}
-                            saving={sandboxStore.sandboxState.savingGraph}
-                        />
-                    }
-                    tabTemplate={(tab, isDragging) => (
-                        <TabTemplate
-                            {...tab}
-                            isDragging={isDragging}
-                            deleteTab={sandboxStore.tabManager.deleteTab}
-                        />
-                    )}
-                />
                 <DragDropContext
                     onDragEnd={(result, provided) => {
                         sandboxStore.dragEndObservable.execute({
@@ -276,10 +224,36 @@ export const SandboxView = observer(() => {
                         });
                     }}
                 >
+                    <FlexRow
+                        className="sandbox-header"
+                        flex="0 1 auto"
+                        justifyContent="end"
+                    >
+                        <Dropdown overlay={null}>
+                            <Button
+                                type="primary"
+                                size="large"
+                                shape="round"
+                                icon="caret-right"
+                            >
+                                Run
+                            </Button>
+                        </Dropdown>
+                        <Dropdown overlay={null}>
+                            <Button
+                                type="primary"
+                                size="large"
+                                shape="round"
+                                icon="deployment-unit"
+                            >
+                                Bridge(s)
+                                <Icon type="down" />
+                            </Button>
+                        </Dropdown>
+                    </FlexRow>
                     <div className="graph-content">
-                        <VerticalCollapsible
-                            width="15%"
-                            contentMinWidth="325px"
+                        <CustomCollapsible
+                            size="15vw"
                             onTabClick={() =>
                                 sandboxStore.toggleViewState('nodeSelect')
                             }
@@ -302,7 +276,7 @@ export const SandboxView = observer(() => {
                                         .selectFriendly
                                 }
                             />
-                        </VerticalCollapsible>
+                        </CustomCollapsible>
                         <div
                             style={{
                                 flex: '1 1 0%',
@@ -311,6 +285,42 @@ export const SandboxView = observer(() => {
                                 minWidth: 0,
                             }}
                         >
+                            <FlexRow className="graph-tabs" flex="0 1 auto">
+                                <DraggableTabs
+                                    tabs={sandboxStore.tabManager.tabs.map(
+                                        t => ({
+                                            id: t.graph.id!,
+                                            name: t.graph.name!,
+                                            data: t,
+                                        })
+                                    )}
+                                    activeTab={
+                                        sandboxStore.tabManager.activeTab &&
+                                        sandboxStore.tabManager.activeTab.graph
+                                            .id
+                                    }
+                                    onTabReorder={handleTabReorder}
+                                    dragEndObservable={
+                                        sandboxStore.dragEndObservable
+                                    }
+                                    onTabAdd={() =>
+                                        sandboxStore.toggleModalState(
+                                            'selectionModal'
+                                        )
+                                    }
+                                    onTabClick={handleTabClick}
+                                    tabTemplate={(tab, isDragging) => (
+                                        <TabTemplate
+                                            {...tab}
+                                            isDragging={isDragging}
+                                            deleteTab={
+                                                sandboxStore.tabManager
+                                                    .deleteTab
+                                            }
+                                        />
+                                    )}
+                                />
+                            </FlexRow>
                             <SandboxCanvas
                                 loading={sandboxStore.sandboxState.loadingGraph}
                                 onFilter={text =>
@@ -338,23 +348,23 @@ export const SandboxView = observer(() => {
                                 }
                             />
 
-                            <HorizontalCollapse
+                            <CustomCollapsible
                                 className="log-section"
                                 collapsed={!sandboxStore.viewStates.logs}
-                                height="25%"
+                                size="25vh"
+                                direction="top"
                             >
                                 <XTerm
                                     getRef={sandboxStore.logManager.setXterm}
                                 />
-                            </HorizontalCollapse>
+                            </CustomCollapsible>
                         </div>
-                        <VerticalCollapsible
-                            width="18%"
-                            contentMinWidth="325px"
+                        <CustomCollapsible
+                            size="18vw"
                             onTabClick={() =>
                                 sandboxStore.toggleViewState('nodeInfo')
                             }
-                            tabDirection="left"
+                            direction="left"
                             tabContent="Node Info"
                             collapsed={!sandboxStore.viewStates.nodeInfo}
                         >
@@ -367,7 +377,7 @@ export const SandboxView = observer(() => {
                                     n.updatePortValues(f)
                                 }
                             />
-                        </VerticalCollapsible>
+                        </CustomCollapsible>
                     </div>
                 </DragDropContext>
             </div>

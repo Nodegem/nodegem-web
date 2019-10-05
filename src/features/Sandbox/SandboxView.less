@@ -17,12 +17,24 @@
         }
     }
 
-    .log-section {
-        background-color: black;
+    .sandbox-header {
+        padding: 5px 0;
+        background-color: @background;
+
+        .header-action {
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            i {
+                margin-right: 10px;
+            }
+        }
     }
 }
 
 .graph-content {
+    background-color: @background;
+    will-change: width;
     display: flex;
     flex: 1 1 100%;
     flex-direction: row;
@@ -33,11 +45,10 @@
 }
 
 .tabs-container {
-    max-height: 45px;
-    min-height: 45px;
+    max-height: 40px;
+    min-height: 40px;
 
     .tab-list {
-        padding: 0 25px;
         align-items: flex-end;
     }
 
@@ -54,7 +65,7 @@
 
     .tab {
         transition: height 150ms ease, background-color 200ms ease;
-        height: 35px;
+        height: 40px;
         min-width: 120px;
         width: 120px;
         display: flex;
@@ -65,15 +76,11 @@
         text-align: center;
 
         &:hover {
-            height: 45px;
             background-color: darken(@tabColor, 8%) !important;
         }
 
         &.tab-add {
             background-color: transparent !important;
-            border: 1px solid @tabColor;
-            border-bottom: 0;
-            border-style: dashed;
             cursor: pointer;
             color: @primary-color;
 

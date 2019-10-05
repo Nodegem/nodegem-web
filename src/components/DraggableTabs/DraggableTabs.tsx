@@ -102,7 +102,6 @@ export interface ITab {
 interface IDraggableTabProps {
     tabs: ITab[];
     activeTab?: string;
-    tabControls?: JSX.Element;
     tabTemplate: (tab: ITab, isDragging: boolean) => JSX.Element;
     dragEndObservable: SimpleObservable<DragEndProps>;
     onTabReorder: (tabs: ITab[]) => void;
@@ -117,7 +116,6 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
     onTabClick,
     onTabReorder,
     tabs,
-    tabControls,
     tabTemplate,
 }) => {
     useEffect(() => {
@@ -163,7 +161,7 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
                 dragEndObservable.execute({ result, provided })
             }
         >
-            <FlexRow className="tabs-container" flex={100} flexGrow={false}>
+            <FlexRow className="tabs-container" flex={100}>
                 <Droppable droppableId={tabListId} direction="horizontal">
                     {(provided, snapshot) => (
                         <div
@@ -185,20 +183,22 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
                                 }))}
                             />
                             {provided.placeholder}
-                            <Tooltip title="Open" placement="right">
-                                <div
-                                    onClick={onTabAdd}
-                                    className={classnames({
-                                        tab: true,
-                                        'tab-add': true,
-                                    })}
-                                >
-                                    <Icon
-                                        type="plus"
-                                        style={{ fontSize: '1.5em' }}
-                                    />
-                                </div>
-                            </Tooltip>
+                            <div
+                                onMouseDown={onTabAdd}
+                                className={classnames({
+                                    tab: true,
+                                    'tab-add': true,
+                                })}
+                            >
+                                <Icon
+                                    type="plus"
+                                    style={{
+                                        fontSize: '1.5em',
+                                        marginRight: '15px',
+                                    }}
+                                />
+                                New Tab
+                            </div>
                         </div>
                     )}
                 </Droppable>

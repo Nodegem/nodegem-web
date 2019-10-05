@@ -33,6 +33,8 @@ export class LogManager {
     };
 
     public addLog = (id: string, log: LogData | LogData[]) => {
+        this.xterm.focus();
+
         if (!this.logs[id]) {
             this.logs[id] = [];
         }

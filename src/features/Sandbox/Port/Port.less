@@ -57,8 +57,16 @@
     width: 0;
     overflow: visible;
     position: relative;
+    transition: opacity 100ms ease-in-out;
+    will-change: opacity;
+    opacity: 1;
 
     &.remove-port {
         color: red;
+    }
+
+    &.hidden {
+        opacity: 0 !important;
+        pointer-events: none;
     }
 }

@@ -89,13 +89,16 @@ export const Socket: React.FC<ISocketProps> = ({
                 flexDirection: placement === 'right' ? 'row-reverse' : 'row',
             }}
         >
-            {!hidePortActions &&
-                data.indefinite &&
+            {data.indefinite &&
                 (lastPort ? (
                     <Tooltip title={`Add to ${data.name}`}>
                         <span
                             onClick={() => onAddPort && onAddPort(data)}
-                            className="port-action add-port"
+                            className={classNames({
+                                'port-action': true,
+                                'add-port': true,
+                                hidden: hidePortActions,
+                            })}
                         >
                             <Icon type="plus-circle" />
                         </span>
@@ -103,7 +106,11 @@ export const Socket: React.FC<ISocketProps> = ({
                 ) : (
                     <span
                         onClick={() => onRemovePort && onRemovePort(data)}
-                        className="port-action remove-port"
+                        className={classNames({
+                            'port-action': true,
+                            'remove-port': true,
+                            hidden: hidePortActions,
+                        })}
                     >
                         <Icon type="minus-circle" />
                     </span>

@@ -1,0 +1,83 @@
+@animationSpeed: var(--transition-speed, 350ms);
+@fadeOutSpeed: calc(@animationSpeed / 1.5);
+
+.collapse-container {
+    display: flex;
+
+    &.horizontal {
+        flex-direction: row;
+    }
+
+    &.vertical {
+        width: 100%;
+        max-width: 100%;
+        flex-direction: column;
+    }
+
+    align-items: stretch;
+    min-height: 100%;
+    max-height: inherit;
+    height: inherit;
+    transition: width @animationSpeed ease-in-out,
+        height @animationSpeed ease-in-out;
+    will-change: width, height;
+    overflow: hidden;
+
+    &.horizontal {
+        &.tab-reverse {
+            flex-direction: row-reverse;
+        }
+    }
+
+    &.vertical {
+        &.tab-reverse {
+            flex-direction: row-reverse;
+        }
+    }
+
+    .content {
+        width: 100%;
+        height: inherit;
+        max-height: inherit;
+        position: relative;
+        transition: opacity @fadeOutSpeed ease-in;
+        will-change: opacity;
+        z-index: 9999;
+
+        > * {
+            position: absolute;
+            z-index: 9999;
+        }
+
+        &.closing {
+            opacity: 0;
+        }
+
+        &.opening {
+            opacity: 1;
+        }
+
+        &.collapsed {
+            opacity: 0;
+        }
+    }
+
+    &.horizontal {
+        .content {
+            > * {
+                width: var(--content-size, 15vw);
+            }
+        }
+    }
+
+    &.vertical {
+        .content {
+            height: 100%;
+
+            > * {
+                width: 100%;
+                height: var(--content-size, 15vw);
+            }
+        }
+    }
+}

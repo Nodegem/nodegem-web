@@ -4,30 +4,30 @@ import classNames from 'classnames';
 import { FlexDirectionProperty, FlexWrapProperty } from 'csstype';
 import './Flex.less';
 
+type AlignmentOptions = 'start' | 'center' | 'end';
+
 interface IFlexProps extends React.HTMLAttributes<HTMLDivElement> {
-    flex?: number;
+    flex?: number | string;
     height?: number;
     gap?: number;
-    flexGrow?: boolean;
-    flexShrink?: boolean;
     direction?: FlexDirectionProperty;
     wrap?: FlexWrapProperty;
+    justifyContent?: AlignmentOptions;
+    alignContent?: AlignmentOptions;
 }
 
 export const Flex: React.FC<IFlexProps> = ({
-    flex,
+    flex = '1 1 auto',
     gap = 0,
-    flexGrow = true,
-    flexShrink = true,
     direction,
     wrap,
+    alignContent,
+    justifyContent,
     children,
     style,
     className,
     ...rest
 }) => {
-    const flexGrowValue = flexGrow ? 1 : 0;
-    const flexShrinkValue = flexShrink ? 1 : 0;
     return (
         <div
             {...rest}
@@ -40,11 +40,21 @@ export const Flex: React.FC<IFlexProps> = ({
                 {
                     '--flex-gap': `${gap}px`,
                     display: 'flex',
-                    flexBasis: flex ? `${flex}%` : 'auto',
-                    flexGrow: flexGrowValue,
-                    flexShrink: flexShrinkValue,
+                    flex: typeof flex === 'number' ? `1 1 ${flex}%` : flex,
                     flexDirection: direction,
                     flexWrap: wrap,
+                    alignItems:
+                        alignContent === 'start'
+                            ? 'flex-start'
+                            : alignContent === 'end'
+                            ? 'flex-end'
+                            : alignContent,
+                    justifyContent:
+                        justifyContent === 'start'
+                            ? 'flex-start'
+                            : justifyContent === 'end'
+                            ? 'flex-end'
+                            : justifyContent,
                     ...style,
                 } as any
             }
@@ -79,7 +89,5 @@ export const FlexColumnMax: React.FC<IFlexProps> = ({ children, ...rest }) => (
 );
 
 export const FlexFill: React.FC<IFlexProps> = ({ children, ...rest }) => (
-    <Flex {...rest} flexGrow flexShrink>
-        {children}
-    </Flex>
+    <Flex {...rest}>{children}</Flex>
 );

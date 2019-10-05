@@ -103,9 +103,6 @@ class CanvasController implements IDisposable {
         this.parentElement = this.canvas.parentElement!;
         this.parentElement.addEventListener('mousedown', this.onMouseDown);
         this.parentElement.addEventListener('mousemove', this.onMouseMove);
-        this.parentElement.addEventListener('resize', () =>
-            console.log('resize')
-        );
 
         this.resizeObserver = new ResizeObserver(() => this.resize());
         this.resizeObserver.observe(this.parentElement);
@@ -128,7 +125,8 @@ class CanvasController implements IDisposable {
             this.onZoom
         );
 
-        this.resize();
+        this.updateBackground();
+        // this.resize();
         this.update();
     }
 
@@ -158,7 +156,7 @@ class CanvasController implements IDisposable {
             x: -offset.x + x,
             y: offset.y + y,
         };
-        this.canvas.style.transform = `translate(${newTransform.x}px, ${newTransform.y}px) scale(${scale})`;
+        this.canvas.style.transform = `translate3d(${newTransform.x}px, ${newTransform.y}px, 0px) scale3d(${scale}, ${scale}, ${scale})`;
     }
 
     private onTranslate = (delta: Vector2, e: MouseEvent) => {
@@ -269,16 +267,18 @@ class CanvasController implements IDisposable {
         }
     };
 
-    private resize = (event?: UIEvent) => {
+    private updateBackground = () => {
         const { x, y } = this.offset;
-
         this.backgroundElement.style.left = `${this.bounds.left - x}px`;
         this.backgroundElement.style.top = `${this.bounds.top - y}px`;
         this.backgroundElement.style.width = `${this.bounds.width * 2 +
             x * 2}px`;
         this.backgroundElement.style.height = `${this.bounds.height * 2 +
             y * 2}px`;
-        this.translate(this.transform, event && defaultTween);
+    };
+
+    private resize = (event?: UIEvent) => {
+        this.update();
     };
 
     public dispose(): void {

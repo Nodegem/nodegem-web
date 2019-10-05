@@ -5,6 +5,8 @@ import { FitAddon } from 'xterm-addon-fit';
 import classNames from 'classnames';
 import 'xterm/css/xterm.css';
 
+import './Terminal.less';
+
 export interface IXtermProps extends React.DOMAttributes<{}> {
     getRef: (xterm: XTerm) => void;
     onChange?: (e) => void;
@@ -28,7 +30,7 @@ export default class XTerm extends React.Component<IXtermProps, IXtermState> {
     constructor(props: IXtermProps, context?: any) {
         super(props, context);
         this.state = {
-            isFocused: false,
+            isFocused: true,
         };
 
         this.fitAddon = new FitAddon();
@@ -52,7 +54,7 @@ export default class XTerm extends React.Component<IXtermProps, IXtermState> {
         }
 
         this.xterm.loadAddon(this.fitAddon);
-        this.fit();
+        this.fitAddon.fit();
         this.props.getRef(this);
     }
 
