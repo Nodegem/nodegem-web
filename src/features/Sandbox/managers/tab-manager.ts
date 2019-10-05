@@ -10,6 +10,11 @@ export class TabManager implements IDisposable {
     }
 
     @computed
+    public get activeGraph(): Graph | Macro | undefined {
+        return this.activeTab && this.activeTab.graph;
+    }
+
+    @computed
     public get hasTabs(): boolean {
         return !this.tabs.empty();
     }

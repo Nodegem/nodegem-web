@@ -1,6 +1,6 @@
 import './macro-modal-form.less';
 
-import { Collapse, Divider, Form, Input, notification } from 'antd';
+import { Button, Collapse, Divider, Form, Input, notification } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
@@ -233,6 +233,7 @@ const MacroForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
 @observer
 class MacroModalFormController extends React.Component<{
     macroModalStore?: MacroModalStore;
+    onGoBack?: () => void;
     onSave?: (macro: Macro | undefined, edit: boolean) => void;
 }> {
     private formRef: Form;
@@ -266,6 +267,9 @@ class MacroModalFormController extends React.Component<{
         const { form } = this.formRef.props;
 
         form!.resetFields();
+        if (this.props.onGoBack) {
+            this.props.onGoBack();
+        }
         this.props.macroModalStore!.closeModal();
     };
 
@@ -326,7 +330,7 @@ class MacroModalFormController extends React.Component<{
     };
 
     public render() {
-        const { macroModalStore } = this.props;
+        const { macroModalStore, onGoBack } = this.props;
         const {
             saving,
             editMode,
@@ -353,6 +357,7 @@ class MacroModalFormController extends React.Component<{
 
         return (
             <MacroForm
+                className="macro-modal-form"
                 wrappedComponentRef={this.saveFormRef}
                 title={modalTitle}
                 okText={okButton}

@@ -5,18 +5,18 @@ const graphHubPath = process.env.REACT_APP_GRAPH_HUB as string;
 class GraphHub extends BaseHub {
     public bridgeInfo: SimpleObservable<IBridgeInfo[]>;
     public lostBridge: SimpleObservable<void>;
-    public executionError: SimpleObservable<IExecutionError>;
+    public onGraphCompleted: SimpleObservable<IExecutionError>;
 
     constructor() {
         super(graphHubPath);
 
         this.bridgeInfo = new SimpleObservable();
         this.lostBridge = new SimpleObservable();
-        this.executionError = new SimpleObservable();
+        this.onGraphCompleted = new SimpleObservable();
 
         this.on('BridgeAsync', this.bridgeInfo.execute);
         this.on('LostBridgeAsync', this.lostBridge.execute);
-        this.on('ExecutionErrorAsync', this.executionError.execute);
+        this.on('GraphCompletedAsync', this.onGraphCompleted.execute);
     }
 
     public requestBridges = async () => {
@@ -44,7 +44,7 @@ class GraphHub extends BaseHub {
         super.dispose();
         this.lostBridge.clear();
         this.bridgeInfo.clear();
-        this.executionError.clear();
+        this.onGraphCompleted.clear();
     }
 }
 

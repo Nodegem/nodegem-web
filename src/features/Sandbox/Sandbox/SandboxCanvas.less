@@ -14,8 +14,11 @@
     transition: opacity 250ms ease-in;
 
     &.disabled {
-        opacity: 0.8;
-        pointer-events: none;
+        opacity: 0.5;
+        cursor: not-allowed;
+        > * {
+            pointer-events: none;
+        }
     }
 
     .loading-spinner {
