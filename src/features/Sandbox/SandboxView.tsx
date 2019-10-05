@@ -1,6 +1,6 @@
-import { Badge, Button, Dropdown, Icon, Modal, Tooltip } from 'antd';
+import { Badge, Button, Dropdown, Icon, Menu, Modal, Tooltip } from 'antd';
 import classNames from 'classnames';
-import { CustomCollapsible, FlexRow, XTerm } from 'components';
+import { CustomCollapsible, FlexFillGreedy, FlexRow, XTerm } from 'components';
 import { DraggableTabs, ITab } from 'components/DraggableTabs';
 import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
 import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
@@ -30,27 +30,17 @@ const TabTemplate: React.FC<
     ITab & { deleteTab: (tabId: string) => void; isDragging: boolean }
 > = ({ name, id, isDragging, deleteTab }) => {
     return (
-        <Tooltip
-            placement="bottom"
-            mouseEnterDelay={0.25}
-            title={
-                <Button
-                    size="small"
-                    type="danger"
-                    icon="delete"
-                    onMouseDown={() => deleteTab(id)}
-                />
+        <div
+            className={classNames({ tab: true, dragging: isDragging })}
+            onMouseDown={event =>
+                middleDelete(event.nativeEvent, () => deleteTab(id))
             }
         >
-            <div
-                className={classNames({ tab: true, dragging: isDragging })}
-                onMouseDown={event =>
-                    middleDelete(event.nativeEvent, () => deleteTab(id))
-                }
-            >
-                <span className="tab-title">{name}</span>
-            </div>
-        </Tooltip>
+            <span className="tab-title">{name}</span>
+            <span className="tab-close" onMouseDown={() => deleteTab(id)}>
+                <Icon type="close" />
+            </span>
+        </div>
     );
 };
 
@@ -69,67 +59,36 @@ interface IGraphControlProps {
     };
     terminalState: { connecting?: boolean; connected?: boolean };
 }
-const GraphControls: React.FC<IGraphControlProps> = ({
-    graph,
-    unreadLogs,
-    openModal,
-    toggleLogs,
-    runGraph,
-    saveGraph,
-    saving,
-    graphState,
-    terminalState,
-}) => {
-    return (
-        <div className="tab-controls">
-            <Button
-                disabled={!graph || !graphState.connected}
-                shape="round"
-                type="primary"
-                icon="play-circle"
-                size="large"
-                onClick={() => runGraph()}
-                loading={graphState.connecting || graphState.running}
-            >
-                Run
-            </Button>
-            <Tooltip title="Console">
-                <Badge count={unreadLogs}>
-                    <Button
-                        disabled={!graph || !terminalState.connected}
-                        shape="circle"
-                        type="primary"
-                        icon="code"
-                        size="large"
-                        loading={terminalState.connecting}
-                        onClick={() => toggleLogs()}
-                    />
-                </Badge>
-            </Tooltip>
-            <Tooltip title="Settings">
-                <Button
-                    disabled={!graph}
-                    shape="circle"
-                    type="primary"
-                    icon="setting"
-                    size="large"
-                    onClick={() => openModal(graph!)}
-                />
-            </Tooltip>
-            <Tooltip title="Save">
-                <Button
-                    disabled={!graph}
-                    shape="circle"
-                    type="primary"
-                    icon="save"
-                    size="large"
-                    loading={saving}
-                    onClick={() => saveGraph()}
-                />
-            </Tooltip>
-        </div>
-    );
-};
+
+interface IBridgeMenuProps {
+    bridges?: IBridgeInfo[];
+    onSelect: (bridge: IBridgeInfo) => void;
+    refresh: () => void;
+}
+
+const BridgeMenu: React.FC<IBridgeMenuProps> = ({
+    bridges,
+    onSelect,
+    refresh,
+}) => (
+    <Menu>
+        {bridges &&
+            bridges.map(b => (
+                <Menu.Item
+                    key={b.deviceIdentifier}
+                    onMouseDown={() => onSelect(b)}
+                >
+                    {b.deviceName}
+                </Menu.Item>
+            ))}
+        {!bridges && <Menu.Item disabled>No Bridges</Menu.Item>}
+        <Menu.Divider />
+        <Menu.Item onMouseDown={() => refresh()}>
+            <Icon type="sync" />
+            Refresh Bridges
+        </Menu.Item>
+    </Menu>
+);
 
 export const SandboxView = observer(() => {
     const { sandboxStore, graphModalStore, macroModalStore } = useStore();
@@ -224,36 +183,96 @@ export const SandboxView = observer(() => {
                         });
                     }}
                 >
-                    <FlexRow
-                        className="sandbox-header"
-                        flex="0 1 auto"
-                        justifyContent="end"
-                    >
-                        <Dropdown overlay={null}>
+                    <FlexRow className="sandbox-header" flex="0 1 auto">
+                        <FlexRow gap={5}>
+                            <Button
+                                disabled={!sandboxStore.tabManager.hasActiveTab}
+                                shape="round"
+                                type="primary"
+                                icon="save"
+                                loading={sandboxStore.sandboxState.savingGraph}
+                                onClick={() => sandboxStore.saveGraph()}
+                            >
+                                Save
+                            </Button>
+                            <Button
+                                disabled={!sandboxStore.tabManager.hasActiveTab}
+                                shape="round"
+                                type="primary"
+                                icon="setting"
+                                onClick={() =>
+                                    editGraph(
+                                        sandboxStore.tabManager.activeGraph!
+                                    )
+                                }
+                            >
+                                Edit Graph
+                            </Button>
+                        </FlexRow>
+                        <FlexFillGreedy />
+                        <FlexRow gap={5}>
+                            <Badge
+                                count={sandboxStore.logManager.unreadLogCount}
+                            >
+                                <Button
+                                    disabled={!sandboxStore.areLogsEnabled}
+                                    shape="round"
+                                    type="primary"
+                                    icon="code"
+                                    loading={sandboxStore.areLogsConnecting}
+                                    onClick={() =>
+                                        sandboxStore.toggleViewState('logs')
+                                    }
+                                >
+                                    Logs
+                                </Button>
+                            </Badge>
+                            <Dropdown
+                                disabled={!sandboxStore.canSelectBridge}
+                                trigger={['click']}
+                                overlay={
+                                    <BridgeMenu
+                                        onSelect={sandboxStore.onBridgeSelect}
+                                        bridges={
+                                            sandboxStore.hubStates.graph.bridges
+                                        }
+                                        refresh={sandboxStore.refreshBridges}
+                                    />
+                                }
+                            >
+                                <Button
+                                    type="primary"
+                                    shape="round"
+                                    icon="deployment-unit"
+                                    disabled={!sandboxStore.canSelectBridge}
+                                    loading={sandboxStore.isLoading}
+                                >
+                                    {!sandboxStore.sandboxState.currentBridge
+                                        ? 'Bridge(s)'
+                                        : sandboxStore.sandboxState
+                                              .currentBridge.deviceName}
+                                    <Icon type="down" />
+                                </Button>
+                            </Dropdown>
                             <Button
                                 type="primary"
-                                size="large"
                                 shape="round"
                                 icon="caret-right"
+                                disabled={!sandboxStore.canRun}
+                                onMouseDown={() => sandboxStore.runGraph()}
+                                loading={
+                                    sandboxStore.isLoading ||
+                                    sandboxStore.hubStates.graph.running
+                                }
                             >
                                 Run
                             </Button>
-                        </Dropdown>
-                        <Dropdown overlay={null}>
-                            <Button
-                                type="primary"
-                                size="large"
-                                shape="round"
-                                icon="deployment-unit"
-                            >
-                                Bridge(s)
-                                <Icon type="down" />
-                            </Button>
-                        </Dropdown>
+                        </FlexRow>
                     </FlexRow>
                     <div className="graph-content">
                         <CustomCollapsible
                             size="15vw"
+                            minSize="325px"
                             onTabClick={() =>
                                 sandboxStore.toggleViewState('nodeSelect')
                             }
@@ -361,6 +380,7 @@ export const SandboxView = observer(() => {
                         </div>
                         <CustomCollapsible
                             size="18vw"
+                            minSize="325px"
                             onTabClick={() =>
                                 sandboxStore.toggleViewState('nodeInfo')
                             }
@@ -382,8 +402,18 @@ export const SandboxView = observer(() => {
                 </DragDropContext>
             </div>
 
-            <GraphModalFormController onSave={onGraphEdit} />
-            <MacroModalFormController onSave={onGraphEdit} />
+            <GraphModalFormController
+                onSave={onGraphEdit}
+                onGoBack={() => {
+                    sandboxStore.toggleModalState('selectionModal', true);
+                }}
+            />
+            <MacroModalFormController
+                onSave={onGraphEdit}
+                onGoBack={() => {
+                    sandboxStore.toggleModalState('selectionModal', true);
+                }}
+            />
             <Modal
                 className="sandbox-modal prompt-graph-modal"
                 maskClosable={sandboxStore.tabManager.hasTabs}
@@ -405,7 +435,20 @@ export const SandboxView = observer(() => {
                 title="Select Graph or Macro"
                 maskClosable={sandboxStore.tabManager.hasTabs}
                 visible={sandboxStore.modalStates.selectGraph}
-                footer={null}
+                footer={
+                    <Button
+                        onMouseDown={() => {
+                            sandboxStore.toggleModalState('selectGraph', false);
+                            sandboxStore.toggleModalState(
+                                'selectionModal',
+                                true
+                            );
+                        }}
+                        icon="left"
+                    >
+                        Go Back
+                    </Button>
+                }
                 onCancel={() =>
                     sandboxStore.toggleModalState('selectGraph', false)
                 }

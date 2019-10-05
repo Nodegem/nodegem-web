@@ -7,6 +7,7 @@ type TDirection = 'left' | 'right' | 'top' | 'bottom';
 
 interface IVerticalCollapsibleProps {
     size?: string | number;
+    minSize?: string | number;
     tabSize?: string | number;
     direction?: TDirection;
     collapsed: boolean;
@@ -19,6 +20,7 @@ interface IVerticalCollapsibleProps {
 
 export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
     size = '15vw',
+    minSize,
     tabSize = 0,
     direction = 'right',
     collapsed,
@@ -67,11 +69,12 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
             className={containerClass}
             style={
                 {
-                    minHeight: tabSize,
+                    minHeight: collapsed ? tabSize : minSize,
                     height: size,
                     '--transition-speed':
                         transitionSpeed && `${transitionSpeed}ms`,
                     '--content-size': actualSize,
+                    '--content-min-size': minSize,
                 } as any
             }
             onTransitionEnd={() => setCollapsing(false)}
@@ -83,11 +86,12 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
             className={containerClass}
             style={
                 {
-                    minWidth: tabSize,
+                    minWidth: collapsed ? tabSize : minSize,
                     width: size,
                     '--transition-speed':
                         transitionSpeed && `${transitionSpeed}ms`,
                     '--content-size': actualSize,
+                    '--content-min-size': minSize,
                 } as any
             }
             onTransitionEnd={() => setCollapsing(false)}

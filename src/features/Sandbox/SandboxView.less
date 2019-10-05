@@ -10,16 +10,14 @@
     overflow: hidden;
     max-height: 100%;
 
-    .tab-controls {
-        .ant-badge-count {
-            right: 5px;
-            top: 5px;
-        }
-    }
-
     .sandbox-header {
         padding: 5px 0;
         background-color: @background;
+
+        .ant-badge-count {
+            right: 5px;
+            top: 7px;
+        }
 
         .header-action {
             color: white;
@@ -69,7 +67,6 @@
         min-width: 120px;
         width: 120px;
         display: flex;
-        margin-right: 15px;
         justify-content: center;
         align-items: center;
         background-color: @tabColor;
@@ -89,11 +86,17 @@
             }
         }
 
+        .tab-close {
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
         .tab-title {
             max-width: 90px;
             overflow: hidden;
             text-overflow: ellipsis;
             color: white;
+            margin-right: 5px;
         }
     }
 }
@@ -129,5 +132,11 @@
     width: 850px !important;
     @media screen and (max-width: 858px) {
         width: 100% !important;
+    }
+}
+
+.select-graph-modal {
+    .ant-modal-footer {
+        text-align: left !important;
     }
 }

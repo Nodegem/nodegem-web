@@ -1,5 +1,5 @@
 .flex-container {
-    > * {
-        margin: var(--flex-gap, 0);
+    > *:not(:last-child) {
+        margin-right: var(--flex-gap, 0);
     }
 }

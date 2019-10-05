@@ -34,7 +34,7 @@ export const Flex: React.FC<IFlexProps> = ({
             className={classNames({
                 [className as any]: !!className,
                 'flex-container': true,
-                [`flex-${direction}`]: true,
+                [`flex-${direction}`]: !!direction,
             })}
             style={
                 {
@@ -90,4 +90,10 @@ export const FlexColumnMax: React.FC<IFlexProps> = ({ children, ...rest }) => (
 
 export const FlexFill: React.FC<IFlexProps> = ({ children, ...rest }) => (
     <Flex {...rest}>{children}</Flex>
+);
+
+export const FlexFillGreedy: React.FC<IFlexProps> = ({ children, ...rest }) => (
+    <Flex flex="1 1 100%" {...rest}>
+        {children}
+    </Flex>
 );

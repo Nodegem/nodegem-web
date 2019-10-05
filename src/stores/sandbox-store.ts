@@ -7,7 +7,7 @@ import { SearchManager } from 'features/Sandbox/managers/search-manager';
 import NodeController from 'features/Sandbox/Node/node-controller';
 import SandboxManager from 'features/Sandbox/Sandbox/sandbox-manager';
 import { flatten, getPort } from 'features/Sandbox/utils';
-import { action, observable, runInAction } from 'mobx';
+import { computed, observable, runInAction } from 'mobx';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { GraphService, MacroService, NodeService } from 'services';
 import { getGraphType, isMacro } from 'utils';
@@ -38,6 +38,8 @@ type SandboxState = {
     loadingGraph: boolean;
     linksVisible: boolean;
     savingGraph: boolean;
+    loadingBridges: boolean;
+    currentBridge?: IBridgeInfo;
 };
 
 type ViewState = {
@@ -97,6 +99,7 @@ export class SandboxStore implements IDisposable {
         loadingGraph: false,
         linksVisible: true,
         savingGraph: false,
+        loadingBridges: false,
     };
 
     @observable
@@ -118,7 +121,48 @@ export class SandboxStore implements IDisposable {
         graph: { hub: new GraphHub() },
     };
 
+    @computed
+    public get canRun(): boolean {
+        const {
+            loadingGraph,
+            loadingBridges,
+            currentBridge,
+        } = this.sandboxState;
+        const { connected } = this.hubStates.graph;
+        return (
+            !loadingGraph && !loadingBridges && !!connected && !!currentBridge
+        );
+    }
+
+    @computed
+    public get isLoading(): boolean {
+        const { loadingGraph, loadingBridges } = this.sandboxState;
+        const { connecting } = this.hubStates.graph;
+        return connecting || loadingGraph || loadingBridges;
+    }
+
+    @computed
+    public get canSelectBridge(): boolean {
+        const { loadingGraph, loadingBridges } = this.sandboxState;
+        const { connected } = this.hubStates.graph;
+        return !!connected && !loadingGraph && !loadingBridges;
+    }
+
+    @computed
+    public get areLogsConnecting(): boolean {
+        const { connecting } = this.hubStates.terminal;
+        return !!connecting;
+    }
+
+    @computed
+    public get areLogsEnabled(): boolean {
+        const { hasActiveTab } = this.tabManager;
+        const { connected } = this.hubStates.terminal;
+        return !!connected && hasActiveTab;
+    }
+
     private sandboxActive = false;
+    private runTimeout: NodeJS.Timeout;
 
     constructor() {
         this.tabManager = new TabManager(
@@ -232,18 +276,36 @@ export class SandboxStore implements IDisposable {
                 })
             );
 
-            graph.hub.executionError.subscribe(value => {
-                console.log(value);
+            graph.hub.onGraphCompleted.subscribe(value => {
+                runInAction(() => {
+                    console.log('test');
+                    if (value) {
+                        console.error(value);
+                    }
+
+                    if (this.runTimeout) {
+                        clearTimeout(this.runTimeout);
+                    }
+
+                    this.hubStates.graph.running = false;
+                });
             });
 
             graph.hub.onConnected.subscribe(() =>
                 runInAction(() => {
-                    this.hubStates.graph.hub.requestBridges();
+                    this.hubStates.graph = {
+                        ...this.hubStates.graph,
+                        connecting: false,
+                        connected: true,
+                    };
+
+                    this.refreshBridges();
                 })
             );
 
             graph.hub.bridgeInfo.subscribe(bridges => {
                 runInAction(() => {
+                    this.sandboxState.loadingBridges = false;
                     this.hubStates.graph = {
                         ...this.hubStates.graph,
                         bridges,
@@ -252,6 +314,10 @@ export class SandboxStore implements IDisposable {
                     };
 
                     if (bridges.any()) {
+                        if (!this.sandboxState.currentBridge) {
+                            this.sandboxState.currentBridge = bridges.firstOrDefault();
+                        }
+
                         this.notify(
                             `Established connection to ${bridges.length} bridge(s)`,
                             'success'
@@ -337,7 +403,10 @@ export class SandboxStore implements IDisposable {
         this.drawLinkManager.stopDrawing();
     };
 
-    public toggleSandboxState = (key: keyof SandboxState, value?: boolean) => {
+    public toggleSandboxState = (
+        key: keyof Omit<SandboxState, 'currentBridge'>,
+        value?: boolean
+    ) => {
         this.sandboxState[key] = this.sandboxState[key].toggle(value);
     };
 
@@ -352,6 +421,15 @@ export class SandboxStore implements IDisposable {
 
     public toggleModalState = (key: keyof ModalState, value?: boolean) => {
         this.modalStates[key] = this.modalStates[key].toggle(value);
+    };
+
+    public onBridgeSelect = (bridge: IBridgeInfo) => {
+        this.sandboxState.currentBridge = bridge;
+    };
+
+    public refreshBridges = () => {
+        this.sandboxState.loadingBridges = true;
+        this.hubStates.graph.hub.requestBridges();
     };
 
     public loadDefinitions = async (
@@ -419,16 +497,25 @@ export class SandboxStore implements IDisposable {
     };
 
     public runGraph = () => {
-        const { hub, bridges } = this.hubStates.graph;
-        if (hub.isConnected && bridges && bridges.any()) {
-            const connectionId = bridges.firstOrDefault()!.connectionId;
+        const { hub } = this.hubStates.graph;
+        const { currentBridge } = this.sandboxState;
+        if (hub.isConnected && currentBridge) {
+            const connectionId = currentBridge.connectionId;
             const graph = this.getGraphData();
+
+            this.hubStates.graph.running = true;
 
             if (isMacro(graph)) {
                 // this.graphHub.runMacro(graph);
             } else {
                 hub.runGraph(graph, connectionId);
             }
+
+            this.runTimeout = setTimeout(() => {
+                runInAction(() => {
+                    this.hubStates.graph.running = false;
+                });
+            }, 30000);
         }
     };
 

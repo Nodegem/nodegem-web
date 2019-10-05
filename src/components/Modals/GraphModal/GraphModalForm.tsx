@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Radio, Switch } from 'antd';
+import { Button, Form, Input, Modal, Radio, Switch } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
@@ -135,6 +135,7 @@ const Header: React.FC<IHeaderProps> = ({ text, active, toggleActive }) => {
 @observer
 class GraphModalFormController extends React.Component<{
     graphModalStore?: GraphModalStore;
+    onGoBack?: () => void;
     onSave?: (graph: Graph | undefined, edit: boolean) => void;
 }> {
     private formRef: Form;
@@ -164,6 +165,11 @@ class GraphModalFormController extends React.Component<{
         const { form } = this.formRef.props;
 
         form!.resetFields();
+
+        if (this.props.onGoBack) {
+            this.props.onGoBack();
+        }
+
         this.props.graphModalStore!.closeModal();
     };
 
@@ -181,7 +187,7 @@ class GraphModalFormController extends React.Component<{
     };
 
     public render() {
-        const { graphModalStore } = this.props;
+        const { graphModalStore, onGoBack } = this.props;
         const {
             isActive,
             saving,
@@ -205,6 +211,7 @@ class GraphModalFormController extends React.Component<{
 
         return (
             <GraphForm
+                className="macro-modal-form"
                 wrappedComponentRef={this.saveFormRef}
                 title={
                     <Header

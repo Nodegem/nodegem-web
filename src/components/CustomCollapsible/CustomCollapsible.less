@@ -6,6 +6,7 @@
 
     &.horizontal {
         flex-direction: row;
+        min-height: 100%;
     }
 
     &.vertical {
@@ -15,12 +16,13 @@
     }
 
     align-items: stretch;
-    min-height: 100%;
     max-height: inherit;
     height: inherit;
     transition: width @animationSpeed ease-in-out,
-        height @animationSpeed ease-in-out;
-    will-change: width, height;
+        min-width @animationSpeed ease-in-out,
+        height @animationSpeed ease-in-out,
+        min-height @animationSpeed ease-in-out;
+    will-change: min-width, width, height, min-height;
     overflow: hidden;
 
     &.horizontal {
@@ -42,11 +44,11 @@
         position: relative;
         transition: opacity @fadeOutSpeed ease-in;
         will-change: opacity;
-        z-index: 9999;
+        z-index: 500;
 
         > * {
             position: absolute;
-            z-index: 9999;
+            z-index: 500;
         }
 
         &.closing {
@@ -66,6 +68,7 @@
         .content {
             > * {
                 width: var(--content-size, 15vw);
+                min-width: var(--content-min-size, 0);
             }
         }
     }
@@ -77,6 +80,7 @@
             > * {
                 width: 100%;
                 height: var(--content-size, 15vw);
+                min-height: var(--content-min-size, 0);
             }
         }
     }
