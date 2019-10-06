@@ -30,6 +30,9 @@ abstract class BaseHub {
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseUrl}/${hub}`, {
                 accessTokenFactory: () => userStore.token!.accessToken!,
+                transport:
+                    signalR.HttpTransportType.LongPolling |
+                    signalR.HttpTransportType.WebSockets,
             })
             .configureLogging(logLevel)
             .build();

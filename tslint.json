@@ -9,6 +9,7 @@
         ]
     },
     "rules": {
+        "no-bitwise": false,
         "no-this-assignment": false,
         "radix": false,
         "object-literal-sort-keys": false,

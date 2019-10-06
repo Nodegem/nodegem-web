@@ -286,6 +286,10 @@ export class SandboxStore implements IDisposable {
             graph.hub.onGraphCompleted.subscribe(value => {
                 runInAction(() => {
                     if (value) {
+                        this.notify(
+                            'An exception occurred while executing graph',
+                            'error'
+                        );
                         console.error(value);
                     }
 
@@ -507,6 +511,7 @@ export class SandboxStore implements IDisposable {
             this.runTimeout = setTimeout(() => {
                 runInAction(() => {
                     this.hubStates.graph.running = false;
+                    this.notify('Timeout exception', 'error');
                 });
             }, 30000);
         }
@@ -542,6 +547,8 @@ export class SandboxStore implements IDisposable {
                 fullName: n.fullName,
                 position: n.position,
                 description: info.description,
+                macroFieldId: info.macroFieldId,
+                macroId: info.macroId,
                 portData: {
                     flowInputs: (flowInputs || []).map<IPortUIData>(fi => ({
                         id: fi.key,
@@ -684,6 +691,8 @@ export class SandboxStore implements IDisposable {
                 key: f.id,
                 value: f.value,
             })),
+            macroFieldId: n.nodeData.macroFieldId,
+            macroId: n.nodeData.macroId,
         }));
 
         const { graph } = activeTab!;

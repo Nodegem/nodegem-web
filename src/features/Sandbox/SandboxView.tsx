@@ -119,7 +119,7 @@ export const SandboxView = observer(() => {
         }
 
         if (
-            result.source.droppableId === nodeSelectDroppableId &&
+            result.source.droppableId.startsWith(nodeSelectDroppableId) &&
             result.destination.droppableId === sandboxDroppableId
         ) {
             const definition =
@@ -173,12 +173,12 @@ export const SandboxView = observer(() => {
     const onGraphEdit = (graph?: Graph | Macro, edit?: boolean) => {
         if (graph) {
             if (!edit) {
+                console.log(graph);
                 sandboxStore.tabManager.addTab(graph);
             } else {
                 sandboxStore.tabManager.editTab(graph);
             }
         }
-        console.log(sandboxStore.sandboxState);
         sandboxStore.toggleSandboxState('isEditingSettings', false);
     };
 

@@ -48,6 +48,8 @@ interface INodeUIData {
     };
     position?: Vector2;
     permanent?: boolean;
+    macroFieldId?: string;
+    macroId?: string;
 }
 
 interface ILinkUIData {

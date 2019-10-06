@@ -145,9 +145,7 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                                                                 true
                                                             }
                                                             direction="vertical"
-                                                            droppableId={
-                                                                nodeSelectDroppableId
-                                                            }
+                                                            droppableId={`${nodeSelectDroppableId}-${subIndex}`}
                                                             ignoreContainerClipping
                                                             key={subIndex}
                                                         >

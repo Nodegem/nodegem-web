@@ -107,12 +107,13 @@ export const definitionToNode = (
     position: Vector2 = { x: 0, y: 0 },
     id: string = uuid()
 ): INodeUIData => {
+    const { flowInputs, flowOutputs, valueInputs, valueOutputs } = definition;
     return {
         id,
         fullName: definition.fullName,
         description: definition.description,
         portData: {
-            flowInputs: definition.flowInputs.map<IPortUIData>(x => ({
+            flowInputs: (flowInputs || []).map<IPortUIData>(x => ({
                 id: x.key,
                 connected: false,
                 io: 'input',
@@ -120,7 +121,7 @@ export const definitionToNode = (
                 type: 'flow',
                 value: null,
             })),
-            flowOutputs: definition.flowOutputs.map<IPortUIData>(x => ({
+            flowOutputs: (flowOutputs || []).map<IPortUIData>(x => ({
                 id: x.key,
                 connected: false,
                 io: 'output',
@@ -128,7 +129,7 @@ export const definitionToNode = (
                 type: 'flow',
                 value: null,
             })),
-            valueInputs: definition.valueInputs.map<IPortUIData>(x => ({
+            valueInputs: (valueInputs || []).map<IPortUIData>(x => ({
                 id: x.key,
                 connected: false,
                 io: 'input',
@@ -139,7 +140,7 @@ export const definitionToNode = (
                 indefinite: x.indefinite,
                 value: x.defaultValue,
             })),
-            valueOutputs: definition.valueOutputs.map<IPortUIData>(x => ({
+            valueOutputs: (valueOutputs || []).map<IPortUIData>(x => ({
                 id: x.key,
                 connected: false,
                 io: 'output',
@@ -151,5 +152,7 @@ export const definitionToNode = (
         },
         position,
         title: definition.title,
+        macroFieldId: definition.macroFieldId,
+        macroId: definition.macroId,
     };
 };
