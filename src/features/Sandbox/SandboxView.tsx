@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { Prompt } from 'react-router';
 import { DragEndProps, useStore } from 'stores';
 import { isMacro } from 'utils';
 import { LogView } from './LogView';
@@ -204,7 +205,10 @@ export const SandboxView = observer(() => {
                     <FlexRow className="sandbox-header" flex="0 1 auto">
                         <FlexRow gap={5}>
                             <Button
-                                disabled={!sandboxStore.tabManager.hasActiveTab}
+                                disabled={
+                                    !sandboxStore.tabManager.hasActiveTab ||
+                                    !sandboxStore.sandboxManager.isDirty
+                                }
                                 shape="round"
                                 type="primary"
                                 icon="save"
@@ -479,6 +483,7 @@ export const SandboxView = observer(() => {
                     clearLogs={sandboxStore.logManager.clearLogs}
                 />
             </Modal>
+            <Prompt when={sandboxStore.sandboxManager.isDirty} message="You have some unsaved changes. Are you sure you want to leave?" />
         </>
     );
 });

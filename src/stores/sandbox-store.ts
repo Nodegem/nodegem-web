@@ -82,6 +82,10 @@ export class SandboxStore implements IDisposable {
     @observable
     public searchManager: SearchManager;
 
+    // Revisit this later
+    // @observable
+    // public stateManager: StateManager;
+
     @observable
     public modalStates: ModalState = {
         selectionModal: false,
@@ -232,6 +236,26 @@ export class SandboxStore implements IDisposable {
                 })
             );
 
+            terminal.hub.onReconnecting.subscribe(() => {
+                runInAction(() => {
+                    this.hubStates.terminal = {
+                        ...this.hubStates.terminal,
+                        connecting: true,
+                        connected: false,
+                    };
+                });
+            });
+
+            terminal.hub.onReconnected.subscribe(() => {
+                runInAction(() => {
+                    this.hubStates.terminal = {
+                        ...this.hubStates.terminal,
+                        connecting: false,
+                        connected: true,
+                    };
+                });
+            });
+
             terminal.hub.onConnected.subscribe(() =>
                 runInAction(() => {
                     this.hubStates.terminal = {
@@ -268,7 +292,7 @@ export class SandboxStore implements IDisposable {
                 })
             );
 
-            terminal.hub.attemptConnect();
+            terminal.hub.start();
         }
 
         if (!graph.connected) {
@@ -313,11 +337,38 @@ export class SandboxStore implements IDisposable {
                 })
             );
 
+            graph.hub.onReconnecting.subscribe(() => {
+                runInAction(() => {
+                    this.hubStates.graph = {
+                        ...this.hubStates.graph,
+                        connecting: true,
+                        connected: false,
+                    };
+                });
+
+                this.notify(
+                    'Lost connection. Attempting reconnect...',
+                    'warning'
+                );
+            });
+
+            graph.hub.onReconnected.subscribe(() => {
+                runInAction(() => {
+                    this.hubStates.graph = {
+                        ...this.hubStates.graph,
+                        connecting: false,
+                        connected: true,
+                    };
+                });
+
+                this.notify('Successfully reconnected!', 'success');
+            });
+
             graph.hub.bridgeInfo.subscribe(bridges => {
                 runInAction(() => {
                     this.sandboxState.loadingBridges = false;
 
-                    if (bridges.any()) {
+                    if (bridges && bridges.any()) {
                         this.hubStates.graph.bridges = bridges;
 
                         if (!this.sandboxState.currentBridge) {
@@ -345,7 +396,7 @@ export class SandboxStore implements IDisposable {
                     };
                 })
             );
-            graph.hub.attemptConnect();
+            graph.hub.start();
         }
     };
 
@@ -484,6 +535,8 @@ export class SandboxStore implements IDisposable {
         } catch (e) {
             this.notify('Unable to save graph', 'error');
         }
+
+        this.sandboxManager.resetIsDirty();
 
         runInAction(() => {
             this.sandboxState = {
@@ -707,18 +760,32 @@ export class SandboxStore implements IDisposable {
     };
 
     public dispose(): void {
-        const { graph, terminal } = this.hubStates;
-        graph.hub.dispose();
-        terminal.hub.dispose();
         this.dragEndObservable.clear();
         this.sandboxManager.dispose();
         this.tabManager.dispose();
         this.drawLinkManager.dispose();
+        this.logManager.dispose();
         this._cachedDefinitions = {};
         this.nodeDefinitionCache = {} as any;
 
         this.toggleViewState('nodeInfo', false);
         this.toggleModalState('selectionModal', true);
         this.toggleModalState('selectGraph', false);
+
+        const { graph, terminal } = this.hubStates;
+        graph.hub.dispose();
+        terminal.hub.dispose();
+
+        this.hubStates.graph = {
+            ...this.hubStates.graph,
+            connected: false,
+            connecting: false,
+        };
+
+        this.hubStates.terminal = {
+            ...this.hubStates.terminal,
+            connected: false,
+            connecting: false,
+        };
     }
 }

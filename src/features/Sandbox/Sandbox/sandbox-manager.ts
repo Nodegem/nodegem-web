@@ -40,6 +40,11 @@ class SandboxManager implements IDisposable {
         );
     }
 
+    @computed
+    public get isDirty(): boolean {
+        return this._isDirty;
+    }
+
     public get mousePos(): Vector2 {
         return this._canvasController.mousePos;
     }
@@ -59,10 +64,15 @@ class SandboxManager implements IDisposable {
         return this._canvasController;
     }
 
+    @observable
+    private _isDirty = false;
+
     private selectController: SelectionController;
     private _canvasController: CanvasController;
     private bounds: Dimensions;
     private zoomBounds?: ZoomBounds;
+
+    private hasLoadedGraph = false;
 
     constructor(
         private onPortEvent: (
@@ -125,6 +135,7 @@ class SandboxManager implements IDisposable {
                 this.handlePortActionEvent
             )
         );
+        this.checkIfDirty();
     };
 
     public getNode = (nodeId: string) => this._nodes.get(nodeId);
@@ -143,6 +154,7 @@ class SandboxManager implements IDisposable {
             node.links.forEach(x => this.removeLink(x.id));
             node.dispose();
             this._nodes.delete(nodeId);
+            this.checkIfDirty();
         }
     };
 
@@ -200,6 +212,8 @@ class SandboxManager implements IDisposable {
         if (destinationNode) {
             destinationNode.addLink(linkController);
         }
+
+        this.checkIfDirty();
     };
 
     public getLinkByNode = (nodeId: string, portId: string) => {
@@ -230,6 +244,7 @@ class SandboxManager implements IDisposable {
             }
             link.dispose();
             this._links.delete(linkId);
+            this.checkIfDirty();
         }
     };
 
@@ -277,15 +292,20 @@ class SandboxManager implements IDisposable {
                 }
             );
         }
+
+        this.hasLoadedGraph = true;
     }
 
     public onNodeMove = (node: NodeController) => {
         node.updateLinks();
+        this.checkIfDirty();
     };
 
     public clearView() {
         this.clearNodes();
         this.clearLinks();
+        this._isDirty = false;
+        this.hasLoadedGraph = false;
     }
 
     private handleCanvasDown = (event: MouseEvent) => {
@@ -318,25 +338,31 @@ class SandboxManager implements IDisposable {
         }
     };
 
-    @action
     public resetView = () => {
         this._canvasController.reset();
     };
 
-    @action
     public magnify(zoomAmount: number) {
         this._canvasController.magnify(zoomAmount);
     }
 
-    @action
     public clearNodes() {
         this._nodes.forEach(n => n.dispose());
         this._nodes.clear();
     }
 
+    private checkIfDirty() {
+        if (this.hasLoadedGraph) {
+            this._isDirty = true;
+        }
+    }
+
+    public resetIsDirty() {
+        this._isDirty = false;
+    }
+
     public dispose(): void {
-        this.clearNodes();
-        this.clearLinks();
+        this.clearView();
         this._canvasController.dispose();
         this.selectController.dispose();
         this._canvasElement.parentElement!.removeEventListener(

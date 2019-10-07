@@ -4,6 +4,7 @@ import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { Button, Col, Icon, Input, List, Row, Tabs, Tooltip } from 'antd';
 
 import { FlexFill, Loader } from 'components';
+import _ from 'lodash';
 import './NodeSelect.less';
 
 const { TabPane } = Tabs;
@@ -145,7 +146,7 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                                                                 true
                                                             }
                                                             direction="vertical"
-                                                            droppableId={`${nodeSelectDroppableId}-${subIndex}`}
+                                                            droppableId={`${nodeSelectDroppableId}-${_.uniqueId()}-${subIndex}`}
                                                             ignoreContainerClipping
                                                             key={subIndex}
                                                         >

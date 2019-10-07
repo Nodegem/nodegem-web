@@ -18,6 +18,8 @@ type PortEvent = 'up' | 'down';
 type PortType = 'value' | 'flow';
 type PortIOType = 'input' | 'output';
 
+type GraphState = Graph | Macro;
+
 interface IDisposable {
     dispose(): void;
 }

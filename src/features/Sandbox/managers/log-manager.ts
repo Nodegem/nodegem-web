@@ -1,7 +1,7 @@
 import { computed, observable } from 'mobx';
 import { TabManager } from './tab-manager';
 
-export class LogManager {
+export class LogManager implements IDisposable {
     @observable
     public logs: { [id: string]: LogData[] } = {};
 
@@ -50,4 +50,8 @@ export class LogManager {
             }
         }
     };
+
+    public dispose(): void {
+        this.logs = {};
+    }
 }
