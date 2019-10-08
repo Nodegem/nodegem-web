@@ -35,9 +35,7 @@ abstract class BaseHub {
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseUrl}/${hub}`, {
                 accessTokenFactory: () => userStore.token!.accessToken!,
-                transport:
-                    signalR.HttpTransportType.LongPolling |
-                    signalR.HttpTransportType.WebSockets,
+                transport: signalR.HttpTransportType.WebSockets,
             })
             .configureLogging(logLevel)
             .withAutomaticReconnect(retries)
@@ -80,20 +78,17 @@ abstract class BaseHub {
         this.disconnect();
     }
 
-    protected async on(method: string, callback: any) {
+    protected on(method: string, callback: any) {
         try {
-            await this.connection.on(method, callback);
+            this.connection.on(method, callback);
         } catch (e) {
             console.warn(e);
         }
     }
 
     protected async invoke(method: string, ...params: any[]): Promise<void> {
-        if (!this.isConnected) {
-            await this.start();
-        }
-
         try {
+            console.log(method);
             return await this.connection.invoke(method, ...params);
         } catch (e) {
             console.error(e);

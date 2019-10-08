@@ -1,4 +1,4 @@
-import { Badge, Button, Dropdown, Icon, Menu, Modal, Tooltip } from 'antd';
+import { Button, Dropdown, Icon, Menu, Modal } from 'antd';
 import classNames from 'classnames';
 import { CustomCollapsible, FlexFillGreedy, FlexRow } from 'components';
 import { DraggableTabs, ITab } from 'components/DraggableTabs';
@@ -9,7 +9,7 @@ import { observer } from 'mobx-react-lite';
 import React, { useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { Prompt } from 'react-router';
-import { DragEndProps, useStore } from 'stores';
+import { DragEndProps, SandboxStore, useStore } from 'stores';
 import { isMacro } from 'utils';
 import { LogView } from './LogView';
 import NodeInfo from './NodeInfo/NodeInfo';
@@ -45,22 +45,6 @@ const TabTemplate: React.FC<
         </div>
     );
 };
-
-interface IGraphControlProps {
-    graph?: Partial<Graph | Macro>;
-    unreadLogs: number;
-    openModal: (graph: Partial<Graph | Macro>) => void;
-    toggleLogs: () => void;
-    runGraph: () => void;
-    saveGraph: () => void;
-    saving?: boolean;
-    graphState: {
-        connecting?: boolean;
-        connected?: boolean;
-        running?: boolean;
-    };
-    terminalState: { connecting?: boolean; connected?: boolean };
-}
 
 interface IBridgeMenuProps {
     bridges?: IBridgeInfo[];
@@ -98,6 +82,115 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
     </Menu>
 );
 
+interface ISandboxHeaderProps {
+    canSave: boolean;
+    isSaving: boolean;
+    canEdit: boolean;
+    sandboxStore: SandboxStore;
+    canRun: boolean;
+    isRunning: boolean;
+    canSelectBridge: boolean;
+    isBridgeLoading: boolean;
+    editGraph: (graph: Graph | Macro | undefined) => void;
+}
+
+const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
+    canSave,
+    isSaving,
+    canEdit,
+    canRun,
+    isRunning,
+    canSelectBridge,
+    isBridgeLoading,
+    sandboxStore,
+    editGraph,
+}) => (
+    <FlexRow className="sandbox-header" flex="0 1 auto">
+        <FlexRow gap={5}>
+            <Button
+                disabled={!canSave}
+                shape="round"
+                type="primary"
+                icon="save"
+                loading={isSaving}
+                onClick={() => sandboxStore.saveGraph()}
+            >
+                Save
+            </Button>
+            <Button
+                disabled={!canEdit}
+                shape="round"
+                type="primary"
+                icon="setting"
+                onClick={() => editGraph(sandboxStore.tabManager.activeGraph!)}
+            >
+                Edit Graph
+            </Button>
+        </FlexRow>
+        <FlexFillGreedy />
+        <FlexRow gap={5}>
+            <Button
+                type="primary"
+                shape="round"
+                icon="caret-right"
+                disabled={!canRun}
+                onMouseDown={() => sandboxStore.runGraph()}
+                loading={isRunning}
+            >
+                Run
+            </Button>
+            <Dropdown
+                disabled={!canSelectBridge}
+                trigger={['click']}
+                overlay={
+                    <BridgeMenu
+                        onSelect={sandboxStore.onBridgeSelect}
+                        bridges={sandboxStore.hubStates.graph.bridges}
+                        currentBridge={sandboxStore.sandboxState.currentBridge}
+                        refresh={sandboxStore.refreshBridges}
+                    />
+                }
+            >
+                <Button
+                    type="primary"
+                    shape="round"
+                    icon="deployment-unit"
+                    loading={isBridgeLoading}
+                >
+                    {!sandboxStore.sandboxState.currentBridge
+                        ? 'Bridge(s)'
+                        : sandboxStore.sandboxState.currentBridge.deviceName}
+                    <Icon type="down" />
+                </Button>
+            </Dropdown>
+        </FlexRow>
+    </FlexRow>
+);
+
+const dragContextOnDragEnd = (
+    { result }: DragEndProps,
+    sandboxStore: SandboxStore,
+    addNode: (definition: NodeDefinition, position?: Vector2) => void
+) => {
+    if (!sandboxStore.tabManager.hasActiveTab || !result.destination) {
+        return;
+    }
+
+    if (
+        result.source.droppableId.startsWith(nodeSelectDroppableId) &&
+        result.destination.droppableId === sandboxDroppableId
+    ) {
+        const definition =
+            sandboxStore.nodeDefinitionCache.definitionLookup[
+                result.draggableId
+            ];
+
+        if (definition) {
+            addNode(definition, sandboxStore.sandboxManager.mousePos);
+        }
+    }
+};
+
 export const SandboxView = observer(() => {
     const { sandboxStore, graphModalStore, macroModalStore } = useStore();
 
@@ -106,33 +199,15 @@ export const SandboxView = observer(() => {
             sandboxStore.toggleModalState('selectionModal', true);
         }
 
-        sandboxStore.dragEndObservable.subscribe(onDragEnd);
+        sandboxStore.dragEndObservable.subscribe(result =>
+            dragContextOnDragEnd(result, sandboxStore, addNode)
+        );
         sandboxStore.setSandboxActive(true);
         return () => {
             sandboxStore.dispose();
             sandboxStore.setSandboxActive(false);
         };
     }, [sandboxStore]);
-
-    function onDragEnd({ result }: DragEndProps) {
-        if (!sandboxStore.tabManager.hasActiveTab || !result.destination) {
-            return;
-        }
-
-        if (
-            result.source.droppableId.startsWith(nodeSelectDroppableId) &&
-            result.destination.droppableId === sandboxDroppableId
-        ) {
-            const definition =
-                sandboxStore.nodeDefinitionCache.definitionLookup[
-                    result.draggableId
-                ];
-
-            if (definition) {
-                addNode(definition, sandboxStore.sandboxManager.mousePos);
-            }
-        }
-    }
 
     const addNode = (definition: NodeDefinition, position?: Vector2) => {
         sandboxStore.sandboxManager.addNode(
@@ -148,7 +223,7 @@ export const SandboxView = observer(() => {
         sandboxStore.tabManager.setTabs(orderedTabs.map(x => x.data));
     }
 
-    function editGraph(graph: Partial<Graph | Macro>) {
+    function editGraph(graph: Graph | Macro) {
         sandboxStore.toggleSandboxState('isEditingSettings', true);
         if (isMacro(graph)) {
             macroModalStore.openModal(graph, true);
@@ -174,7 +249,6 @@ export const SandboxView = observer(() => {
     const onGraphEdit = (graph?: Graph | Macro, edit?: boolean) => {
         if (graph) {
             if (!edit) {
-                console.log(graph);
                 sandboxStore.tabManager.addTab(graph);
             } else {
                 sandboxStore.tabManager.editTab(graph);
@@ -202,83 +276,23 @@ export const SandboxView = observer(() => {
                         });
                     }}
                 >
-                    <FlexRow className="sandbox-header" flex="0 1 auto">
-                        <FlexRow gap={5}>
-                            <Button
-                                disabled={
-                                    !sandboxStore.tabManager.hasActiveTab ||
-                                    !sandboxStore.sandboxManager.isDirty
-                                }
-                                shape="round"
-                                type="primary"
-                                icon="save"
-                                loading={sandboxStore.sandboxState.savingGraph}
-                                onClick={() => sandboxStore.saveGraph()}
-                            >
-                                Save
-                            </Button>
-                            <Button
-                                disabled={!sandboxStore.tabManager.hasActiveTab}
-                                shape="round"
-                                type="primary"
-                                icon="setting"
-                                onClick={() =>
-                                    editGraph(
-                                        sandboxStore.tabManager.activeGraph!
-                                    )
-                                }
-                            >
-                                Edit Graph
-                            </Button>
-                        </FlexRow>
-                        <FlexFillGreedy />
-                        <FlexRow gap={5}>
-                            <Button
-                                type="primary"
-                                shape="round"
-                                icon="caret-right"
-                                disabled={!sandboxStore.canRun}
-                                onMouseDown={() => sandboxStore.runGraph()}
-                                loading={
-                                    sandboxStore.isLoading ||
-                                    sandboxStore.hubStates.graph.running
-                                }
-                            >
-                                Run
-                            </Button>
-                            <Dropdown
-                                disabled={!sandboxStore.canSelectBridge}
-                                trigger={['click']}
-                                overlay={
-                                    <BridgeMenu
-                                        onSelect={sandboxStore.onBridgeSelect}
-                                        bridges={
-                                            sandboxStore.hubStates.graph.bridges
-                                        }
-                                        currentBridge={
-                                            sandboxStore.sandboxState
-                                                .currentBridge
-                                        }
-                                        refresh={sandboxStore.refreshBridges}
-                                    />
-                                }
-                            >
-                                <Button
-                                    type="primary"
-                                    shape="round"
-                                    icon="deployment-unit"
-                                    disabled={!sandboxStore.canSelectBridge}
-                                    loading={sandboxStore.isLoading}
-                                >
-                                    {!sandboxStore.sandboxState.currentBridge
-                                        ? 'Bridge(s)'
-                                        : sandboxStore.sandboxState
-                                              .currentBridge.deviceName}
-                                    <Icon type="down" />
-                                </Button>
-                            </Dropdown>
-                        </FlexRow>
-                    </FlexRow>
+                    <SandboxHeader
+                        canSave={
+                            sandboxStore.tabManager.hasActiveTab ||
+                            sandboxStore.sandboxManager.isDirty
+                        }
+                        isSaving={sandboxStore.sandboxState.savingGraph}
+                        canEdit={sandboxStore.tabManager.hasActiveTab}
+                        canRun={sandboxStore.canRun}
+                        isRunning={
+                            sandboxStore.isLoading ||
+                            !!sandboxStore.hubStates.graph.running
+                        }
+                        canSelectBridge={sandboxStore.canSelectBridge}
+                        isBridgeLoading={sandboxStore.isLoading}
+                        editGraph={editGraph}
+                        sandboxStore={sandboxStore}
+                    />
                     <div className="graph-content">
                         <CustomCollapsible
                             size="15vw"
@@ -483,7 +497,10 @@ export const SandboxView = observer(() => {
                     clearLogs={sandboxStore.logManager.clearLogs}
                 />
             </Modal>
-            <Prompt when={sandboxStore.sandboxManager.isDirty} message="You have some unsaved changes. Are you sure you want to leave?" />
+            <Prompt
+                when={sandboxStore.sandboxManager.isDirty}
+                message="You have some unsaved changes. Are you sure you want to leave?"
+            />
         </>
     );
 });

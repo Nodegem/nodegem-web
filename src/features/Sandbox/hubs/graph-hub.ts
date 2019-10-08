@@ -27,6 +27,14 @@ class GraphHub extends BaseHub {
         await this.invoke('RunGraphAsync', data, connectionId);
     };
 
+    public clientConnect = async () => {
+        await this.invoke('ClientConnectAsync');
+    };
+
+    public clientDisconnect = async () => {
+        await this.invoke('ClientDisconnectAsync');
+    };
+
     public runMacro = async (
         data: Macro,
         connectionId: string,
@@ -41,10 +49,10 @@ class GraphHub extends BaseHub {
     };
 
     public dispose() {
-        super.dispose();
         this.lostBridge.clear();
         this.bridgeInfo.clear();
         this.onGraphCompleted.clear();
+        super.dispose();
     }
 }
 

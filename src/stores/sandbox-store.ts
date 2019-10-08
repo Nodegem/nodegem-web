@@ -333,6 +333,8 @@ export class SandboxStore implements IDisposable {
                         connected: true,
                     };
 
+                    this.hubStates.graph.hub.clientConnect();
+
                     this.refreshBridges();
                 })
             );
@@ -360,6 +362,8 @@ export class SandboxStore implements IDisposable {
                         connected: true,
                     };
                 });
+
+                this.hubStates.graph.hub.clientConnect();
 
                 this.notify('Successfully reconnected!', 'success');
             });
@@ -769,10 +773,16 @@ export class SandboxStore implements IDisposable {
         this.nodeDefinitionCache = {} as any;
 
         this.toggleViewState('nodeInfo', false);
+        this.toggleViewState('nodeSelect', false);
         this.toggleModalState('selectionModal', true);
         this.toggleModalState('selectGraph', false);
 
         const { graph, terminal } = this.hubStates;
+
+        if (graph.hub.isConnected) {
+            graph.hub.clientDisconnect();
+        }
+
         graph.hub.dispose();
         terminal.hub.dispose();
 

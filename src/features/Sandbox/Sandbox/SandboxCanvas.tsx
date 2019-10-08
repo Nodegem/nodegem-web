@@ -120,7 +120,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                     allowClear
                     placeholder="Search Nodes"
                 />
-                <Badge count={unreadLogCount}>
+                <Badge count={unreadLogCount} dot>
                     <Button
                         disabled={canToggleConsole}
                         shape="circle"
