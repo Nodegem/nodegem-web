@@ -1,36 +1,28 @@
-import 'src/utils/extensions';
+import 'utils/extensions';
 import './Dashboard.less';
 
 import { Button, Card, List, Spin, Tooltip } from 'antd';
+import { GraphModalStore } from 'components/Modals/GraphModal/graph-modal-store';
+import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
+import { MacroModalStore } from 'components/Modals/MacroModal/macro-modal-store';
+import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { GraphModalStore } from 'src/components/Modals/GraphModal/graph-modal-store';
-import GraphModalFormController from 'src/components/Modals/GraphModal/GraphModalForm';
-import { MacroModalStore } from 'src/components/Modals/MacroModal/macro-modal-store';
-import MacroModalFormController from 'src/components/Modals/MacroModal/MacroModalForm';
-import { EditorStore } from 'src/features/Editor/editor-store';
-import { GraphStore } from 'src/stores/graph-store';
-import { MacroStore } from 'src/stores/macro-store';
+import { GraphStore } from 'stores/graph-store';
+import { MacroStore } from 'stores/macro-store';
 
-import { isMacro } from '@utils';
+import { isMacro } from 'utils';
 import DashboardCard from './DashboardCard';
 
 interface IDashboardProps {
-    editorStore?: EditorStore;
     graphStore?: GraphStore;
     graphModalStore?: GraphModalStore;
     macroStore?: MacroStore;
     macroModalStore?: MacroModalStore;
 }
 
-@inject(
-    'editorStore',
-    'macroStore',
-    'graphStore',
-    'macroModalStore',
-    'graphModalStore'
-)
+@inject('macroStore', 'graphStore', 'macroModalStore', 'graphModalStore')
 @(withRouter as any)
 @observer
 class DashboardView extends React.Component<
@@ -76,10 +68,6 @@ class DashboardView extends React.Component<
         } else {
             this.props.history.push(`editor/graph/${item.id}`);
         }
-    };
-
-    public onPlay = (item: Graph | Macro, type: GraphType) => {
-        this.props.editorStore!.runGraph(item);
     };
 
     public render() {
@@ -146,7 +134,6 @@ class DashboardView extends React.Component<
                                                 onDelete={this.onDelete}
                                                 onEdit={this.onEdit}
                                                 onBuild={this.onBuild}
-                                                onPlay={this.onPlay}
                                             />
                                         </List.Item>
                                     )}

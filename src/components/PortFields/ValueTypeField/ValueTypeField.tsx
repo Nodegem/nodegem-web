@@ -1,6 +1,6 @@
 import { Button, Col, Input, Row, Tooltip } from 'antd';
 import * as React from 'react';
-import { valueMap } from 'src/utils/value-type-mapper';
+import { valueMap } from 'utils/value-type-mapper';
 import { IPortProps } from '../PortProps';
 import { ValueTypeDropDown } from './ValueTypeDropDown';
 

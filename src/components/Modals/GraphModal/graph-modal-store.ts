@@ -1,26 +1,28 @@
 import { action, observable } from 'mobx';
-import { graphStore } from 'src/stores';
+import { graphStore } from 'stores';
 
 import { uuid } from 'lodash-uuid';
-import { ignore } from 'mobx-sync';
+
 import ModalFormStore from '../modal-form-store';
 
 class GraphModalStore extends ModalFormStore {
-    @ignore
     @observable
     public constants: Array<Partial<ConstantData>> = [];
 
-    @ignore
     @observable
     public recurringOptions: Partial<RecurringOptions> = {};
 
+    @observable
+    public isActive: boolean = true;
+
     @action public async saveGraph(values: any) {
         this.saving = true;
-        let graph;
+        let graph: Graph | undefined;
 
         const newData = {
             ...values,
             ...this.createConstantsObject(values),
+            isActive: this.isActive,
         };
 
         if (values.type !== 'recurring') {
@@ -33,7 +35,6 @@ class GraphModalStore extends ModalFormStore {
                 ...newData,
             });
         } else {
-            console.log(newData);
             graph = await graphStore!.createGraph(newData);
         }
 
@@ -68,7 +69,13 @@ class GraphModalStore extends ModalFormStore {
         this.modalData = {};
     }
 
+    @action
+    public toggleActive = () => {
+        this.isActive = !this.isActive;
+    };
+
     public onDataLoad(data: Graph) {
+        this.isActive = data.isActive || true;
         this.constants = [...(data.constants || [])];
         this.recurringOptions = { ...data.recurringOptions };
     }

@@ -52,13 +52,14 @@ interface NodeData {
     fullName: string;
     position: { x: number; y: number };
     fieldData?: Array<FieldData>;
+    permanent?: boolean;
     macroId?: string;
     macroFieldId?: string;
 }
 
 interface FieldData {
     key: string;
-    value: any;
+    value: any | any[];
 }
 
 interface CreateGraph {

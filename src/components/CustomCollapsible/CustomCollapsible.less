@@ -1,0 +1,88 @@
+@animationSpeed: var(--transition-speed, 350ms);
+@fadeOutSpeed: calc(@animationSpeed / 1.5);
+
+.collapse-container {
+    display: flex;
+
+    &.horizontal {
+        flex-direction: row;
+        min-height: 100%;
+        transition: width @animationSpeed ease-in-out,
+            min-width @animationSpeed ease-in-out;
+        will-change: min-width, width;
+    }
+
+    &.vertical {
+        width: 100%;
+        max-width: 100%;
+        flex-direction: column;
+        transition: height @animationSpeed ease-in-out,
+            min-height @animationSpeed ease-in-out;
+        will-change: min-height, height;
+    }
+
+    align-items: stretch;
+    max-height: inherit;
+    height: inherit;
+    overflow: hidden;
+
+    &.horizontal {
+        &.tab-reverse {
+            flex-direction: row-reverse;
+        }
+    }
+
+    &.vertical {
+        &.tab-reverse {
+            flex-direction: row-reverse;
+        }
+    }
+
+    .content {
+        width: 100%;
+        height: inherit;
+        max-height: inherit;
+        position: relative;
+        transition: opacity @fadeOutSpeed ease-in;
+        will-change: opacity;
+        z-index: 500;
+
+        > * {
+            position: absolute;
+            z-index: 500;
+        }
+
+        &.closing {
+            opacity: 0;
+        }
+
+        &.opening {
+            opacity: 1;
+        }
+
+        &.collapsed {
+            opacity: 0;
+        }
+    }
+
+    &.horizontal {
+        .content {
+            > * {
+                width: var(--content-size, 15vw);
+                min-width: var(--content-min-size, 0);
+            }
+        }
+    }
+
+    &.vertical {
+        .content {
+            height: 100%;
+
+            > * {
+                width: 100%;
+                height: var(--content-size, 15vw);
+                min-height: var(--content-min-size, 0);
+            }
+        }
+    }
+}

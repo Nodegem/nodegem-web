@@ -18,3 +18,14 @@ interface IBridgeInfo {
     connectionId: string;
     userId: string;
 }
+
+interface IExecutionError {
+    graphName: string;
+    graphId: string;
+    message: string;
+    bridge: IBridgeInfo;
+}
+
+interface IDisposableStore {
+    dispose: () => void;
+}

@@ -3,11 +3,11 @@ import './Register.less';
 import { Button, Card, Form, Icon, Input, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import FormItem from 'antd/lib/form/FormItem';
+import PasswordInput from 'components/PasswordInput/PasswordInput';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import PasswordInput from 'src/components/PasswordInput/PasswordInput';
-import { AuthStore } from 'src/stores/auth-store';
+import { AuthStore } from 'stores/auth-store';
 
 enum RegisterErrorCode {
     DuplicateUserName = 'DuplicateUserName',

@@ -1,6 +1,6 @@
 import './macro-modal-form.less';
 
-import { Collapse, Divider, Form, Input, notification } from 'antd';
+import { Button, Collapse, Divider, Form, Input, notification } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
@@ -8,8 +8,8 @@ import * as React from 'react';
 import { FormComponentProps } from 'antd/lib/form';
 import { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
 import Modal, { ModalProps } from 'antd/lib/modal';
-import FlowField from 'src/components/PortFields/FlowField/FlowField';
-import ValueTypeField from 'src/components/PortFields/ValueTypeField/ValueTypeField';
+import FlowField from 'components/PortFields/FlowField/FlowField';
+import ValueTypeField from 'components/PortFields/ValueTypeField/ValueTypeField';
 import AddItem from './AddItem';
 import { MacroModalStore } from './macro-modal-store';
 
@@ -233,7 +233,8 @@ const MacroForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
 @observer
 class MacroModalFormController extends React.Component<{
     macroModalStore?: MacroModalStore;
-    onSave?: (macro: Macro | undefined) => void;
+    onGoBack?: () => void;
+    onSave?: (macro: Macro | undefined, edit: boolean) => void;
 }> {
     private formRef: Form;
 
@@ -254,7 +255,7 @@ class MacroModalFormController extends React.Component<{
             const macro = await macroModalStore!.saveMacro(values);
 
             if (this.props.onSave) {
-                this.props.onSave(macro);
+                this.props.onSave(macro, macroModalStore!.editMode);
             }
 
             form!.resetFields();
@@ -266,6 +267,9 @@ class MacroModalFormController extends React.Component<{
         const { form } = this.formRef.props;
 
         form!.resetFields();
+        if (this.props.onGoBack) {
+            this.props.onGoBack();
+        }
         this.props.macroModalStore!.closeModal();
     };
 
@@ -326,7 +330,7 @@ class MacroModalFormController extends React.Component<{
     };
 
     public render() {
-        const { macroModalStore } = this.props;
+        const { macroModalStore, onGoBack } = this.props;
         const {
             saving,
             editMode,
@@ -353,6 +357,7 @@ class MacroModalFormController extends React.Component<{
 
         return (
             <MacroForm
+                className="macro-modal-form"
                 wrappedComponentRef={this.saveFormRef}
                 title={modalTitle}
                 okText={okButton}
@@ -374,6 +379,8 @@ class MacroModalFormController extends React.Component<{
                 valueOutputs={valueOutputs}
                 flowInputs={flowInputs}
                 flowOutputs={flowOutputs}
+                closable={false}
+                centered
             />
         );
     }

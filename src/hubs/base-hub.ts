@@ -1,20 +1,24 @@
-import * as signalR from '@aspnet/signalr';
-import { userStore } from 'src/stores';
-import { exponentialBackoff, getBaseApiUrl } from 'src/utils';
+import * as signalR from '@microsoft/signalr';
+import { userStore } from 'stores';
+import { getBaseApiUrl } from 'utils';
 import { SimpleObservable } from '../utils/simple-observable';
+
+const retries = [0, 1000, 2000, 5000, 10000, 20000, 30000, 60000];
 
 abstract class BaseHub {
     get isConnected(): boolean {
-        return this.connected;
+        return this.connection.state === signalR.HubConnectionState.Connected;
     }
 
     public onConnected: SimpleObservable;
+    public onConnecting: SimpleObservable;
+    public onReconnecting: SimpleObservable;
+    public onReconnected: SimpleObservable;
     public onDisconnected: SimpleObservable;
     public onException: SimpleObservable<(reason: any) => void>;
     private connection: signalR.HubConnection;
 
-    private connected: boolean = false;
-    private forceClosed: boolean = false;
+    private forceClosed = false;
 
     constructor(
         hub: string,
@@ -22,45 +26,42 @@ abstract class BaseHub {
     ) {
         this.onConnected = new SimpleObservable();
         this.onDisconnected = new SimpleObservable();
+        this.onConnecting = new SimpleObservable();
+        this.onReconnected = new SimpleObservable();
+        this.onReconnecting = new SimpleObservable();
         this.onException = new SimpleObservable<(reason: any) => void>();
 
         const baseUrl = getBaseApiUrl();
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseUrl}/${hub}`, {
                 accessTokenFactory: () => userStore.token!.accessToken!,
+                transport: signalR.HttpTransportType.WebSockets,
             })
             .configureLogging(logLevel)
+            .withAutomaticReconnect(retries)
             .build();
 
-        this.connection.onclose(async () => {
-            this.connected = false;
-            this.onDisconnected.execute(undefined);
+        this.connection.onreconnected(() => {
+            this.onReconnected.execute();
+        });
 
+        this.connection.onreconnecting(() => {
+            this.onReconnecting.execute();
+        });
+
+        this.connection.onclose(async () => {
             if (this.forceClosed) {
                 return;
             }
-            await this.attemptConnect();
+
+            this.onDisconnected.execute();
+            await this.start();
         });
     }
 
-    public async attemptConnect() {
-        this.forceClosed = false;
-
-        if (this.isConnected) {
-            return;
-        }
-
-        await exponentialBackoff(
-            async () => this.start(),
-            () => {
-                console.log('Given up at this point');
-            }
-        );
-    }
-
     public async disconnect() {
-        this.forceClosed = true;
         try {
+            this.forceClosed = true;
             await this.connection.stop();
         } catch (err) {
             this.onException.execute(err);
@@ -68,49 +69,41 @@ abstract class BaseHub {
     }
 
     public dispose() {
+        this.onConnecting.clear();
         this.onDisconnected.clear();
         this.onConnected.clear();
         this.onException.clear();
+        this.onReconnected.clear();
+        this.onReconnected.clear();
         this.disconnect();
     }
 
-    protected async on(method: string, callback: any) {
+    protected on(method: string, callback: any) {
         try {
-            await this.connection.on(method, callback);
+            this.connection.on(method, callback);
         } catch (e) {
             console.warn(e);
         }
     }
 
-    protected async invoke<T = void>(
-        method: string,
-        ...params: any[]
-    ): Promise<T | null> {
+    protected async invoke(method: string, ...params: any[]): Promise<void> {
         try {
-            return await this.connection.invoke<T>(method, ...params);
+            return await this.connection.invoke(method, ...params);
         } catch (e) {
             console.error(e);
         }
-
-        return null;
     }
 
-    private async start(): Promise<boolean> {
-        if (this.forceClosed) {
-            return true;
-        }
-
+    public async start() {
         try {
+            this.forceClosed = false;
             await this.connection.start();
-            this.connected = true;
-            this.onConnected.execute(undefined);
+            this.onConnected.execute();
         } catch (err) {
-            this.connected = false;
             console.warn(err);
             this.onException.execute(err);
+            setTimeout(() => this.start(), 5000);
         }
-
-        return this.connected;
     }
 }
 

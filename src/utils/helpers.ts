@@ -1,3 +1,4 @@
+import { timeout } from 'q';
 import { isMacro } from './typeguards';
 
 export const isInput = (target: Element): boolean => {
@@ -36,7 +37,9 @@ export function getCookie(name): string | undefined {
     return undefined;
 }
 
-export function getGraphType(graph: Graph | Macro): GraphType {
+export function getGraphType(
+    graph: Graph | Macro | (Partial<Graph | Macro>)
+): GraphType {
     return isMacro(graph) ? 'macro' : 'graph';
 }
 
@@ -61,3 +64,43 @@ export async function exponentialBackoff<T>(
         }
     }
 }
+
+export function getCenterCoordinates(element: HTMLElement): Vector2 {
+    const { x, y, width, height } = element.getBoundingClientRect() as DOMRect;
+    return {
+        x: x + width / 2,
+        y: y + height / 2,
+    };
+}
+
+export const waitWhile = async (predicate: () => boolean) => {
+    while (!predicate()) {
+        await sleep(1);
+    }
+};
+
+export function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export const reorder = <T>(
+    list: T[],
+    startIndex: number,
+    endIndex: number
+): T[] => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+};
+
+export const isJSON = (str: string) => {
+    try {
+        const obj = JSON.parse(str);
+        if (obj && typeof obj === 'object' && obj !== null) {
+            return true;
+        }
+    } catch (err) {}
+    return false;
+};

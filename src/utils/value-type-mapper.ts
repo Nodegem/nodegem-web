@@ -1,4 +1,4 @@
-export const valueMap: { [key: string]: ValueType } = {
+export const valueMap: { [key in ValueType]: ValueTypePretty } = {
     any: 'Any',
     text: 'Text',
     textarea: 'Text Area',
@@ -7,11 +7,6 @@ export const valueMap: { [key: string]: ValueType } = {
     time: 'Time',
     date: 'Date',
     datetime: 'Date Time',
-    color: 'Color',
     url: 'Url',
     phonenumber: 'Phone Number',
-};
-
-export const mapToValueType = (value: number): ValueType => {
-    return valueMap[value];
 };

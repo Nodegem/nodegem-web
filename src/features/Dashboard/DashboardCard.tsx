@@ -7,7 +7,6 @@ interface IDashboardCardProps {
     onDelete: (item: Graph, type: GraphType) => void;
     onEdit: (item: Graph, type: GraphType) => void;
     onBuild: (item: Graph, type: GraphType) => void;
-    onPlay: (item: Graph, type: GraphType) => void;
 }
 
 class DashboardCard extends React.Component<IDashboardCardProps> {
@@ -26,11 +25,6 @@ class DashboardCard extends React.Component<IDashboardCardProps> {
         onBuild(item, type);
     };
 
-    public onPlay = () => {
-        const { item, onPlay, type } = this.props;
-        onPlay(item, type);
-    };
-
     public render() {
         const { item } = this.props;
 
@@ -40,15 +34,6 @@ class DashboardCard extends React.Component<IDashboardCardProps> {
             <Card
                 title={item.name}
                 actions={[
-                    <Tooltip title="Run">
-                        <div onClick={this.onPlay}>
-                            <Icon
-                                type="play-circle"
-                                theme="filled"
-                                style={iconStyle}
-                            />
-                        </div>
-                    </Tooltip>,
                     <Tooltip title="Edit">
                         <div onClick={this.onBuild}>
                             <Icon

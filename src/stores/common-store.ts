@@ -1,37 +1,32 @@
 import { SiderTheme } from 'antd/lib/layout/Sider';
 import { action, computed, observable } from 'mobx';
-import { ignore } from 'mobx-sync';
+import { getFromStorage, saveToStorage } from 'utils';
 
 class CommonStore {
-    @observable public collapsed: boolean = true;
     @observable public theme: SiderTheme = 'dark';
+    public headerHeight: number = 52;
 
-    @ignore
-    @computed
-    public get collapseWidth(): number | undefined {
-        return this.broken ? 0 : undefined;
+    constructor() {
+        this.init();
     }
 
-    @ignore
-    @computed
-    public get siderWidth(): number {
-        return this.broken ? 120 : 200;
+    @action
+    public init() {
+        this.theme = getFromStorage<SiderTheme>('theme')!;
+
+        if (!this.theme) {
+            this.changeTheme('dark');
+        }
     }
 
-    @ignore
-    @observable
-    public broken: boolean;
-
-    @action public changeTheme() {
-        this.theme = this.theme === 'dark' ? 'light' : 'dark';
-    }
-
-    @action public toggleCollapsed(toggle: boolean) {
-        this.collapsed = toggle;
-    }
-
-    @action public setBreakpoint(broken: boolean) {
-        this.broken = broken;
+    @action public changeTheme(theme?: SiderTheme) {
+        this.theme =
+            theme === undefined
+                ? this.theme === 'dark'
+                    ? 'light'
+                    : 'dark'
+                : 'dark';
+        saveToStorage('theme', this.theme);
     }
 }
 

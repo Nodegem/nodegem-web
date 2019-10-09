@@ -1,10 +1,9 @@
 import { notification } from 'antd';
 import { action, observable } from 'mobx';
-import { AuthService } from 'src/services';
-import history from 'src/utils/history';
+import { AuthService } from 'services';
+import history from 'utils/history';
 
-import { ignore } from 'mobx-sync';
-import { rootStore } from './';
+import { saveToStorage } from 'utils';
 import userStore from './user-store';
 
 interface IRegisterErrorResponse {
@@ -16,7 +15,6 @@ class AuthStore {
     @observable public rememberMe: boolean = false;
     @observable public savedUsername: string = '';
 
-    @ignore
     @observable
     public loading: boolean = false;
 
@@ -79,6 +77,10 @@ class AuthStore {
 
         if (rememberMe) {
             this.savedUsername = savedUsername;
+            saveToStorage('rememberInfo', {
+                rememberMe: this.rememberMe,
+                username: this.savedUsername,
+            });
         }
     }
 
@@ -86,18 +88,19 @@ class AuthStore {
         this.loading = loading;
     }
 
-    @action public async logout() {
+    @action public async logout(makeCall = true) {
         try {
-            await AuthService.logout();
+            if (makeCall) {
+                await AuthService.logout();
+            }
         } catch (e) {
             console.warn(e);
         } finally {
-            rootStore.dispose();
+            userStore.dispose();
             history.push('/login');
         }
     }
 }
 
 export default new AuthStore();
-
 export { AuthStore };

@@ -4,6 +4,7 @@ interface NodeDefinition {
     description: string;
     macroId?: string;
     macroFieldId?: string;
+    ignoreDisplay?: boolean;
     flowInputs: Array<FlowInputDefinition>;
     flowOutputs: Array<FlowOutputDefinition>;
     valueInputs: Array<ValueInputDefinition>;
@@ -21,7 +22,10 @@ interface FlowOutputDefinition extends FieldDefinition {}
 
 interface ValueInputDefinition extends FieldDefinition {
     defaultValue: any;
-    valueType: number;
+    valueType: ValueType;
+    indefinite: boolean;
 }
 
-interface ValueOutputDefinition extends FieldDefinition {}
+interface ValueOutputDefinition extends FieldDefinition {
+    valueType: ValueType;
+}

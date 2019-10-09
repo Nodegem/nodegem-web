@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Radio } from 'antd';
+import { Button, Form, Input, Modal, Radio, Switch } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import TextArea from 'antd/lib/input/TextArea';
 import { inject, observer } from 'mobx-react';
@@ -6,9 +6,11 @@ import * as React from 'react';
 
 import { FormComponentProps } from 'antd/lib/form';
 import { ModalProps } from 'antd/lib/modal';
-import ConstantsControl from 'src/components/ConstantsControl/ConstantsControl';
-import RecurringOptionsControl from 'src/components/RecurringOptionsControl/RecurringOptionsControl';
+import ConstantsControl from 'components/ConstantsControl/ConstantsControl';
+import RecurringOptionsControl from 'components/RecurringOptionsControl/RecurringOptionsControl';
 import { GraphModalStore } from './graph-modal-store';
+
+import './GraphModalForm.less';
 
 interface IFormDataProps {
     constants: Partial<ConstantData>[];
@@ -108,11 +110,33 @@ const GraphForm = Form.create<IFormDataProps & ModalProps & FormComponentProps>(
     }
 );
 
+interface IHeaderProps {
+    text: string;
+    active: boolean;
+    toggleActive: () => void;
+}
+
+const Header: React.FC<IHeaderProps> = ({ text, active, toggleActive }) => {
+    return (
+        <div className="graph-modal-header">
+            <span>{text}</span>
+            <Switch
+                className="active-toggle"
+                checked={active}
+                checkedChildren="Active"
+                unCheckedChildren="Inactive"
+                onChange={toggleActive}
+            />
+        </div>
+    );
+};
+
 @inject('graphModalStore')
 @observer
 class GraphModalFormController extends React.Component<{
     graphModalStore?: GraphModalStore;
-    onSave?: (graph: Graph | undefined) => void;
+    onGoBack?: () => void;
+    onSave?: (graph: Graph | undefined, edit: boolean) => void;
 }> {
     private formRef: Form;
 
@@ -124,11 +148,12 @@ class GraphModalFormController extends React.Component<{
             if (err) {
                 return;
             }
-
-            const graph = await graphModalStore!.saveGraph(values);
+            const graph = await graphModalStore!.saveGraph({
+                ...values,
+            });
 
             if (this.props.onSave) {
-                this.props.onSave(graph);
+                this.props.onSave(graph, graphModalStore!.editMode);
             }
 
             form!.resetFields();
@@ -140,6 +165,11 @@ class GraphModalFormController extends React.Component<{
         const { form } = this.formRef.props;
 
         form!.resetFields();
+
+        if (this.props.onGoBack) {
+            this.props.onGoBack();
+        }
+
         this.props.graphModalStore!.closeModal();
     };
 
@@ -157,14 +187,16 @@ class GraphModalFormController extends React.Component<{
     };
 
     public render() {
-        const { graphModalStore } = this.props;
+        const { graphModalStore, onGoBack } = this.props;
         const {
+            isActive,
             saving,
             editMode,
             modalData,
             isVisible,
             constants,
             recurringOptions,
+            toggleActive,
         } = graphModalStore!;
 
         const modalTitle = editMode ? 'Edit Graph Settings' : 'Add Graph';
@@ -179,8 +211,15 @@ class GraphModalFormController extends React.Component<{
 
         return (
             <GraphForm
+                className="macro-modal-form"
                 wrappedComponentRef={this.saveFormRef}
-                title={modalTitle}
+                title={
+                    <Header
+                        active={isActive}
+                        toggleActive={toggleActive}
+                        text={modalTitle}
+                    />
+                }
                 visible={isVisible}
                 okText={okButton}
                 onOk={this.handleSubmit}
@@ -192,6 +231,8 @@ class GraphModalFormController extends React.Component<{
                 recurringOptions={recurringOptions}
                 onConstantAdd={this.onConstantAdd}
                 onConstantDelete={this.onConstantDelete}
+                closable={false}
+                centered
             />
         );
     }

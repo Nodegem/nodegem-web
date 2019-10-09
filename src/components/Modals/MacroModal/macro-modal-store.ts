@@ -1,36 +1,29 @@
 import { action, observable } from 'mobx';
-import { macroStore } from 'src/stores';
+import { macroStore } from 'stores';
 
 import { uuid } from 'lodash-uuid';
-import { ignore } from 'mobx-sync';
+
 import ModalFormStore from '../modal-form-store';
 
 class MacroModalStore extends ModalFormStore {
-    @ignore
     @observable
     public parentKey: string | string[] | undefined;
 
-    @ignore
     @observable
     public inputKey: string | string[] | undefined;
 
-    @ignore
     @observable
     public outputKey: string | string[] | undefined;
 
-    @ignore
     @observable
     public flowInputs: Array<Partial<FlowInputFieldDto>> = [];
 
-    @ignore
     @observable
     public valueInputs: Array<Partial<ValueInputFieldDto>> = [];
 
-    @ignore
     @observable
     public flowOutputs: Array<Partial<FlowOutputFieldDto>> = [];
 
-    @ignore
     @observable
     public valueOutputs: Array<Partial<ValueOutputFieldDto>> = [];
 
