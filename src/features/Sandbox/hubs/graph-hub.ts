@@ -3,8 +3,9 @@ import { SimpleObservable } from 'utils';
 
 const graphHubPath = process.env.REACT_APP_GRAPH_HUB as string;
 class GraphHub extends BaseHub {
+    public bridgeEstablished: SimpleObservable<IBridgeInfo>;
     public bridgeInfo: SimpleObservable<IBridgeInfo[]>;
-    public lostBridge: SimpleObservable<void>;
+    public lostBridge: SimpleObservable<string>;
     public onGraphCompleted: SimpleObservable<IExecutionError>;
 
     constructor() {
@@ -13,8 +14,10 @@ class GraphHub extends BaseHub {
         this.bridgeInfo = new SimpleObservable();
         this.lostBridge = new SimpleObservable();
         this.onGraphCompleted = new SimpleObservable();
+        this.bridgeEstablished = new SimpleObservable();
 
-        this.on('BridgeAsync', this.bridgeInfo.execute);
+        this.on('BridgeEstablishedAsync', this.bridgeEstablished.execute);
+        this.on('RequestedBridgesAsync', this.bridgeInfo.execute);
         this.on('LostBridgeAsync', this.lostBridge.execute);
         this.on('GraphCompletedAsync', this.onGraphCompleted.execute);
     }
@@ -52,6 +55,7 @@ class GraphHub extends BaseHub {
         this.lostBridge.clear();
         this.bridgeInfo.clear();
         this.onGraphCompleted.clear();
+        this.bridgeEstablished.clear();
         super.dispose();
     }
 }

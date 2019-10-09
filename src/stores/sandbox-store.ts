@@ -384,8 +384,42 @@ export class SandboxStore implements IDisposable {
                             'success'
                         );
                     } else {
-                        this.notify(`Couldn't find any bridges`, 'warning');
+                        this.notify('No bridges found', 'warning');
                     }
+                });
+            });
+
+            graph.hub.lostBridge.subscribe(x => {
+                runInAction(() => {
+                    const { bridges } = this.hubStates.graph;
+                    const { currentBridge } = this.sandboxState;
+                    if (bridges && bridges.any(b => b.connectionId === x)) {
+                        this.hubStates.graph.bridges = bridges.filter(
+                            b => b.connectionId !== x
+                        );
+
+                        if (currentBridge && currentBridge.connectionId === x) {
+                            this.sandboxState.currentBridge = undefined;
+                        }
+
+                        this.notify('Connection to bridge was lost', 'warning');
+                    }
+                });
+            });
+
+            graph.hub.bridgeEstablished.subscribe(x => {
+                runInAction(() => {
+                    if (this.hubStates.graph.bridges) {
+                        this.hubStates.graph.bridges.push(x);
+                    } else {
+                        this.hubStates.graph.bridges = [x];
+                    }
+
+                    if (!this.sandboxState.currentBridge) {
+                        this.sandboxState.currentBridge = x;
+                    }
+
+                    this.notify('A new bridge was found!', 'success');
                 });
             });
 
