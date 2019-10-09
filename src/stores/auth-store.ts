@@ -4,7 +4,6 @@ import { AuthService } from 'services';
 import history from 'utils/history';
 
 import { saveToStorage } from 'utils';
-import { rootStore } from './';
 import userStore from './user-store';
 
 interface IRegisterErrorResponse {
@@ -89,13 +88,15 @@ class AuthStore {
         this.loading = loading;
     }
 
-    @action public async logout() {
+    @action public async logout(makeCall = true) {
         try {
-            await AuthService.logout();
+            if (makeCall) {
+                await AuthService.logout();
+            }
         } catch (e) {
             console.warn(e);
         } finally {
-            rootStore.dispose();
+            userStore.dispose();
             history.push('/login');
         }
     }

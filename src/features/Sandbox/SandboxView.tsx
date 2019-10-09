@@ -277,10 +277,7 @@ export const SandboxView = observer(() => {
                     }}
                 >
                     <SandboxHeader
-                        canSave={
-                            sandboxStore.tabManager.hasActiveTab ||
-                            sandboxStore.sandboxManager.isDirty
-                        }
+                        canSave={sandboxStore.tabManager.hasActiveTab}
                         isSaving={sandboxStore.sandboxState.savingGraph}
                         canEdit={sandboxStore.tabManager.hasActiveTab}
                         canRun={sandboxStore.canRun}
@@ -497,10 +494,10 @@ export const SandboxView = observer(() => {
                     clearLogs={sandboxStore.logManager.clearLogs}
                 />
             </Modal>
-            <Prompt
+            {/* <Prompt
                 when={sandboxStore.sandboxManager.isDirty}
                 message="You have some unsaved changes. Are you sure you want to leave?"
-            />
+            /> */}
         </>
     );
 });

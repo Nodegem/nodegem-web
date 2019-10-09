@@ -40,6 +40,45 @@
     justify-content: space-between;
     align-items: stretch;
     min-height: 0;
+
+    .links {
+        path {
+            stroke: @primary-color1;
+        }
+    }
+
+    .port-action {
+        &.remove-port {
+            color: @primary-color5;
+        }
+
+        &.add-port {
+            color: @primary-color1;
+        }
+    }
+
+    .port {
+        &:hover::after {
+            background-color: @primary-color1;
+        }
+
+        &.connected::after,
+        &.connecting::after {
+            background-color: @primary-color1;
+        }
+    }
+
+    .node-select-container {
+        background-color: @primary-color7;
+
+        .filter {
+            background-color: @primary-color6;
+        }
+    }
+
+    .node-info {
+        background-color: @primary-color7;
+    }
 }
 
 .tabs-container {
@@ -52,16 +91,17 @@
 
     .active {
         .tab {
-            background-color: @activeTabColor !important;
-            border-bottom: 3px solid red;
+            background-color: @active-tab-color;
+            border-bottom: 3px solid @primary-color3;
 
             &:hover {
-                background-color: darken(@activeTabColor, 5%) !important;
+                background-color: @active-tab-color;
             }
         }
     }
 
     .tab {
+        cursor: pointer;
         transition: height 150ms ease, background-color 200ms ease;
         height: 40px;
         min-width: 120px;
@@ -69,27 +109,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color: @tabColor;
+        background-color: @primary-color1;
         text-align: center;
-
-        &:hover {
-            background-color: darken(@tabColor, 8%) !important;
-        }
-
-        &.tab-add {
-            background-color: transparent !important;
-            cursor: pointer;
-            color: @primary-color;
-
-            &:hover {
-                background-color: transparent !important;
-            }
-        }
-
-        .tab-close {
-            cursor: pointer;
-            font-size: 0.8em;
-        }
 
         .tab-title {
             min-width: 90px;
@@ -98,6 +119,32 @@
             text-overflow: ellipsis;
             color: white;
             margin-right: 5px;
+        }
+
+        .tab-close {
+            opacity: 0;
+            transition: opacity 150ms ease-in;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: black;
+        }
+
+        &:hover {
+            background-color: @active-tab-color;
+
+            .tab-close {
+                opacity: 1;
+            }
+        }
+
+        &.tab-add {
+            background-color: transparent !important;
+            cursor: pointer;
+            color: @primary-color1;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.05) !important;
+            }
         }
     }
 }

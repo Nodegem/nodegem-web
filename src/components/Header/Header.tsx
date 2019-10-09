@@ -4,7 +4,11 @@ import React from 'react';
 import { useStore } from 'stores/StoreProvider';
 
 import { SiderTheme } from 'antd/lib/layout/Sider';
+import { FlexFillGreedy, FlexRow } from 'components/Flex';
 import { Link } from 'react-router-dom';
+
+import logoPath from '../../logo.svg';
+
 import './Header.less';
 
 const AntHeader = Layout.Header;
@@ -47,26 +51,32 @@ export const Header: React.FC = observer(() => {
             className="app-header"
             style={{ height: headerHeight, lineHeight: headerHeight }}
         >
-            <Menu
-                theme={commonStore.theme}
-                mode="horizontal"
-                style={{ lineHeight: commonStore.headerHeight }}
-            />
-            <div className="app-avatar">
-                <Dropdown
-                    placement="bottomRight"
-                    overlay={menu(commonStore.theme, authStore.logout)}
-                    trigger={['click']}
-                >
-                    <div style={{ cursor: 'pointer' }}>
-                        <span className="username">
-                            {userStore.isLoggedIn && userStore.username}
-                            <Icon type="caret-down" />
-                        </span>
-                        <Avatar size={35} icon="user" />
+            <FlexRow>
+                <FlexRow className="header-logo">
+                    <Link to="/">
+                        <img src={logoPath} />
+                    </Link>
+                </FlexRow>
+                <FlexFillGreedy />
+                <FlexRow>
+                    <div className="app-avatar">
+                        <Dropdown
+                            className="avatar-menu"
+                            placement="bottomRight"
+                            overlay={menu(commonStore.theme, authStore.logout)}
+                            trigger={['click']}
+                        >
+                            <div>
+                                <span className="username">
+                                    {userStore.isLoggedIn && userStore.username}
+                                    <Icon type="caret-down" />
+                                </span>
+                                <Avatar size={35} icon="user" />
+                            </div>
+                        </Dropdown>
                     </div>
-                </Dropdown>
-            </div>
+                </FlexRow>
+            </FlexRow>
         </AntHeader>
     );
 });

@@ -88,7 +88,6 @@ abstract class BaseHub {
 
     protected async invoke(method: string, ...params: any[]): Promise<void> {
         try {
-            console.log(method);
             return await this.connection.invoke(method, ...params);
         } catch (e) {
             console.error(e);

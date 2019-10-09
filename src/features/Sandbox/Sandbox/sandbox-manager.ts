@@ -40,11 +40,6 @@ class SandboxManager implements IDisposable {
         );
     }
 
-    @computed
-    public get isDirty(): boolean {
-        return this._isDirty;
-    }
-
     public get mousePos(): Vector2 {
         return this._canvasController.mousePos;
     }
@@ -63,9 +58,6 @@ class SandboxManager implements IDisposable {
     public get canvasController(): CanvasController {
         return this._canvasController;
     }
-
-    @observable
-    private _isDirty = false;
 
     private selectController: SelectionController;
     private _canvasController: CanvasController;
@@ -135,7 +127,6 @@ class SandboxManager implements IDisposable {
                 this.handlePortActionEvent
             )
         );
-        this.checkIfDirty();
     };
 
     public getNode = (nodeId: string) => this._nodes.get(nodeId);
@@ -154,7 +145,6 @@ class SandboxManager implements IDisposable {
             node.links.forEach(x => this.removeLink(x.id));
             node.dispose();
             this._nodes.delete(nodeId);
-            this.checkIfDirty();
         }
     };
 
@@ -212,8 +202,6 @@ class SandboxManager implements IDisposable {
         if (destinationNode) {
             destinationNode.addLink(linkController);
         }
-
-        this.checkIfDirty();
     };
 
     public getLinkByNode = (nodeId: string, portId: string) => {
@@ -244,7 +232,6 @@ class SandboxManager implements IDisposable {
             }
             link.dispose();
             this._links.delete(linkId);
-            this.checkIfDirty();
         }
     };
 
@@ -298,13 +285,11 @@ class SandboxManager implements IDisposable {
 
     public onNodeMove = (node: NodeController) => {
         node.updateLinks();
-        this.checkIfDirty();
     };
 
     public clearView() {
         this.clearNodes();
         this.clearLinks();
-        this._isDirty = false;
         this.hasLoadedGraph = false;
     }
 
@@ -349,16 +334,6 @@ class SandboxManager implements IDisposable {
     public clearNodes() {
         this._nodes.forEach(n => n.dispose());
         this._nodes.clear();
-    }
-
-    private checkIfDirty() {
-        if (this.hasLoadedGraph) {
-            this._isDirty = true;
-        }
-    }
-
-    public resetIsDirty() {
-        this._isDirty = false;
     }
 
     public dispose(): void {

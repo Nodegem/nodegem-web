@@ -540,8 +540,6 @@ export class SandboxStore implements IDisposable {
             this.notify('Unable to save graph', 'error');
         }
 
-        this.sandboxManager.resetIsDirty();
-
         runInAction(() => {
             this.sandboxState = {
                 ...this.sandboxState,

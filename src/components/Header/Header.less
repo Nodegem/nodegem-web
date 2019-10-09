@@ -1,12 +1,31 @@
+@import '../../styles/vars.less';
+
 .app-header {
+    display: flex;
+    flex-direction: row;
+    flex: 1 1 @header-height;
     padding: 0 10px;
     background-color: transparent;
 
+    .header-logo {
+        img {
+            width: @header-height;
+        }
+    }
+
+    .avatar-menu {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        cursor: pointer;
+    }
+
     .username {
+        display: flex;
+        align-items: center;
         user-select: none;
-        font-size: 12px;
+        font-size: 1em;
         margin-right: 8px;
-        // color: #5e5e5e;
 
         i {
             padding-left: 8px;
@@ -18,8 +37,4 @@
     a > i {
         margin-right: 8px;
     }
-}
-
-.app-avatar {
-    float: right;
 }
