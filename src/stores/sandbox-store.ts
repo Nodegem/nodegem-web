@@ -410,7 +410,10 @@ export class SandboxStore implements IDisposable {
             graph.hub.bridgeEstablished.subscribe(x => {
                 runInAction(() => {
                     if (this.hubStates.graph.bridges) {
-                        this.hubStates.graph.bridges.push(x);
+                        this.hubStates.graph.bridges.addOrUpdate(
+                            x,
+                            b => b.deviceIdentifier === x.deviceIdentifier
+                        );
                     } else {
                         this.hubStates.graph.bridges = [x];
                     }

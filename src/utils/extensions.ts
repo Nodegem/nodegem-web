@@ -11,6 +11,7 @@ declare global {
         toDictionary(indexKey: keyof T): { [key: string]: T };
         count(predicate?: (item: T) => boolean): number;
         any(predicate?: (item: T) => boolean): boolean;
+        addOrUpdate(value: T, predicate: (value: T) => boolean): void;
     }
 
     // tslint:disable-next-line: interface-name
@@ -88,6 +89,18 @@ Array.prototype.count = function<T>(predicate?: (item: T) => boolean): number {
 
 Array.prototype.any = function<T>(predicate?: (item: T) => boolean): boolean {
     return predicate ? this.some(predicate) : this.length > 0;
+};
+
+Array.prototype.addOrUpdate = function<T>(
+    value: T,
+    predicate: (value: T) => boolean
+) {
+    if (!this.any(predicate)) {
+        this.push(value);
+    } else {
+        const index = this.findIndex(predicate);
+        this[index] = value;
+    }
 };
 
 String.prototype.upperCaseFirst = function jsUcfirst(): string {
