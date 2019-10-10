@@ -409,6 +409,15 @@ export class SandboxStore implements IDisposable {
 
             graph.hub.bridgeEstablished.subscribe(x => {
                 runInAction(() => {
+                    if (
+                        this.hubStates.graph.bridges &&
+                        !this.hubStates.graph.bridges.any(
+                            b => b.deviceIdentifier === x.deviceIdentifier
+                        )
+                    ) {
+                        this.notify('A new bridge was found!', 'success');
+                    }
+
                     if (this.hubStates.graph.bridges) {
                         this.hubStates.graph.bridges.addOrUpdate(
                             x,
@@ -421,8 +430,6 @@ export class SandboxStore implements IDisposable {
                     if (!this.sandboxState.currentBridge) {
                         this.sandboxState.currentBridge = x;
                     }
-
-                    this.notify('A new bridge was found!', 'success');
                 });
             });
 
