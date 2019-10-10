@@ -411,8 +411,8 @@ export class SandboxStore implements IDisposable {
                 runInAction(() => {
                     if (
                         this.hubStates.graph.bridges &&
-                        !this.hubStates.graph.bridges.any(
-                            b => b.deviceIdentifier === x.deviceIdentifier
+                        this.hubStates.graph.bridges.every(
+                            b => b.deviceIdentifier !== x.deviceIdentifier
                         )
                     ) {
                         this.notify('A new bridge was found!', 'success');
