@@ -427,7 +427,11 @@ export class SandboxStore implements IDisposable {
                         this.hubStates.graph.bridges = [x];
                     }
 
-                    if (!this.sandboxState.currentBridge) {
+                    if (
+                        !this.sandboxState.currentBridge ||
+                        this.sandboxState.currentBridge.deviceIdentifier ===
+                            x.deviceIdentifier
+                    ) {
                         this.sandboxState.currentBridge = x;
                     }
                 });
