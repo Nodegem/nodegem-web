@@ -73,8 +73,8 @@ class DrawLinkController implements IDisposable {
     };
 
     private canvasDownEvent = (event: MouseEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
+        // event.preventDefault();
+        // event.stopPropagation();
         this.stopDrawing();
     };
 
@@ -83,8 +83,8 @@ class DrawLinkController implements IDisposable {
             return;
         }
 
-        event.stopPropagation();
-        event.preventDefault();
+        // event.stopPropagation();
+        // event.preventDefault();
 
         this.onDrawing();
     };

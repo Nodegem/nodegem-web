@@ -4,9 +4,10 @@ import graphModalStore, {
 import macroModalStore, {
     MacroModalStore,
 } from 'components/Modals/MacroModal/macro-modal-store';
+import { SandboxStore } from 'features/Sandbox/managers/sandbox-store';
 import { useLocalStore } from 'mobx-react-lite';
 import React from 'react';
-import { SandboxStore, UserStore } from 'stores';
+import { UserStore } from 'stores';
 import authStore, { AuthStore } from './auth-store';
 import commonStore, { CommonStore } from './common-store';
 import graphStore, { GraphStore } from './graph-store';

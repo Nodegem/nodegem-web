@@ -8,17 +8,16 @@ import _ from 'lodash';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { Prompt } from 'react-router';
-import { DragEndProps, SandboxStore, useStore } from 'stores';
+import { useStore } from 'stores';
 import { isMacro } from 'utils';
 import { LogView } from './LogView';
+import { DragEndProps, SandboxStore } from './managers/sandbox-store';
 import NodeInfo from './NodeInfo/NodeInfo';
 import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
 import PromptGraph from './PromptGraph/PromptGraph';
 import SelectGraph from './PromptGraph/SelectGraph';
 import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
 import './SandboxView.less';
-import { definitionToNode } from './utils';
 
 const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
     if (event.button === 1) {
@@ -59,12 +58,12 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
     onSelect,
     refresh,
 }) => (
-    <Menu>
+    <Menu theme="dark">
         {bridges &&
             bridges.map(b => (
                 <Menu.Item
                     key={b.deviceIdentifier}
-                    onMouseDown={() => onSelect(b)}
+                    onClick={() => onSelect(b)}
                     disabled={
                         currentBridge &&
                         b.deviceIdentifier === currentBridge.deviceIdentifier
@@ -73,9 +72,13 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
                     {b.deviceName}
                 </Menu.Item>
             ))}
-        {!bridges && <Menu.Item disabled>No Bridges</Menu.Item>}
+        {!bridges && (
+            <Menu.Item key="none" disabled>
+                No Bridges
+            </Menu.Item>
+        )}
         <Menu.Divider />
-        <Menu.Item onMouseDown={() => refresh()}>
+        <Menu.Item key="refresh" onClick={() => refresh()}>
             <Icon type="sync" />
             Refresh Bridges
         </Menu.Item>
@@ -83,10 +86,10 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
 );
 
 interface ISandboxHeaderProps {
+    sandboxStore: SandboxStore;
     canSave: boolean;
     isSaving: boolean;
     canEdit: boolean;
-    sandboxStore: SandboxStore;
     canRun: boolean;
     isRunning: boolean;
     canSelectBridge: boolean;
@@ -141,12 +144,15 @@ const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
             </Button>
             <Dropdown
                 disabled={!canSelectBridge}
-                trigger={['click']}
                 overlay={
                     <BridgeMenu
                         onSelect={sandboxStore.onBridgeSelect}
-                        bridges={sandboxStore.hubStates.graph.bridges}
-                        currentBridge={sandboxStore.sandboxState.currentBridge}
+                        bridges={sandboxStore.stateManager.bridges}
+                        currentBridge={
+                            sandboxStore.stateManager.hasBridges
+                                ? sandboxStore.stateManager.activeBridge
+                                : undefined
+                        }
                         refresh={sandboxStore.refreshBridges}
                     />
                 }
@@ -157,9 +163,9 @@ const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
                     icon="deployment-unit"
                     loading={isBridgeLoading}
                 >
-                    {!sandboxStore.sandboxState.currentBridge
+                    {!sandboxStore.stateManager.hasActiveBridge
                         ? 'Bridge(s)'
-                        : sandboxStore.sandboxState.currentBridge.deviceName}
+                        : sandboxStore.stateManager.activeBridge.deviceName}
                     <Icon type="down" />
                 </Button>
             </Dropdown>
@@ -169,8 +175,7 @@ const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
 
 const dragContextOnDragEnd = (
     { result }: DragEndProps,
-    sandboxStore: SandboxStore,
-    addNode: (definition: NodeDefinition, position?: Vector2) => void
+    sandboxStore: SandboxStore
 ) => {
     if (!sandboxStore.tabManager.hasActiveTab || !result.destination) {
         return;
@@ -180,14 +185,7 @@ const dragContextOnDragEnd = (
         result.source.droppableId.startsWith(nodeSelectDroppableId) &&
         result.destination.droppableId === sandboxDroppableId
     ) {
-        const definition =
-            sandboxStore.nodeDefinitionCache.definitionLookup[
-                result.draggableId
-            ];
-
-        if (definition) {
-            addNode(definition, sandboxStore.sandboxManager.mousePos);
-        }
+        sandboxStore.addNode(result.draggableId);
     }
 };
 
@@ -195,27 +193,17 @@ export const SandboxView = observer(() => {
     const { sandboxStore, graphModalStore, macroModalStore } = useStore();
 
     useEffect(() => {
-        if (!sandboxStore.tabManager.hasTabs) {
-            sandboxStore.toggleModalState('selectionModal', true);
-        }
-
         sandboxStore.dragEndObservable.subscribe(result =>
-            dragContextOnDragEnd(result, sandboxStore, addNode)
+            dragContextOnDragEnd(result, sandboxStore)
         );
-        sandboxStore.setSandboxActive(true);
+        sandboxStore.stateManager.updateSandboxState('isActive', true);
         return () => {
             sandboxStore.dispose();
-            sandboxStore.setSandboxActive(false);
+            sandboxStore.stateManager.updateSandboxState('isActive', false);
         };
     }, [sandboxStore]);
 
-    const addNode = (definition: NodeDefinition, position?: Vector2) => {
-        sandboxStore.sandboxManager.addNode(
-            definitionToNode(definition, position || { x: 0, y: 0 })
-        );
-    };
-
-    function handleTabClick(tabId: string, data: TabData) {
+    function handleTabClick(tabId: string) {
         sandboxStore.tabManager.setActiveTab(tabId);
     }
 
@@ -224,7 +212,7 @@ export const SandboxView = observer(() => {
     }
 
     function editGraph(graph: Graph | Macro) {
-        sandboxStore.toggleSandboxState('isEditingSettings', true);
+        sandboxStore.stateManager.updateSandboxState('isEditingSettings', true);
         if (isMacro(graph)) {
             macroModalStore.openModal(graph, true);
         } else {
@@ -233,7 +221,7 @@ export const SandboxView = observer(() => {
     }
 
     function handleGraphCreate(type: GraphType) {
-        sandboxStore.toggleModalState('selectionModal', false);
+        sandboxStore.stateManager.updateModalState('initialPrompt', false);
         if (type === 'graph') {
             graphModalStore.openModal({ isActive: true });
         } else {
@@ -242,8 +230,8 @@ export const SandboxView = observer(() => {
     }
 
     function onGraphSelect() {
-        sandboxStore.toggleModalState('selectionModal', false);
-        sandboxStore.toggleModalState('selectGraph', true);
+        sandboxStore.stateManager.updateModalState('initialPrompt', false);
+        sandboxStore.stateManager.updateModalState('select', true);
     }
 
     const onGraphEdit = (graph?: Graph | Macro, edit?: boolean) => {
@@ -254,14 +242,20 @@ export const SandboxView = observer(() => {
                 sandboxStore.tabManager.editTab(graph);
             }
         }
-        sandboxStore.toggleSandboxState('isEditingSettings', false);
+        sandboxStore.stateManager.updateSandboxState(
+            'isEditingSettings',
+            false
+        );
     };
 
     function onGraphEditModalCancel() {
-        if (!sandboxStore.sandboxState.isEditingSettings) {
-            sandboxStore.toggleModalState('selectionModal', true);
+        if (!sandboxStore.stateManager.sandboxState.isEditingSettings) {
+            sandboxStore.stateManager.updateModalState('initialPrompt', true);
         } else {
-            sandboxStore.toggleSandboxState('isEditingSettings', false);
+            sandboxStore.stateManager.updateSandboxState(
+                'isEditingSettings',
+                false
+            );
         }
     }
 
@@ -278,12 +272,15 @@ export const SandboxView = observer(() => {
                 >
                     <SandboxHeader
                         canSave={sandboxStore.tabManager.hasActiveTab}
-                        isSaving={sandboxStore.sandboxState.savingGraph}
+                        isSaving={
+                            sandboxStore.stateManager.sandboxState.savingGraph
+                        }
                         canEdit={sandboxStore.tabManager.hasActiveTab}
                         canRun={sandboxStore.canRun}
                         isRunning={
                             sandboxStore.isLoading ||
-                            !!sandboxStore.hubStates.graph.running
+                            sandboxStore.stateManager.sandboxState
+                                .isGraphRunning
                         }
                         canSelectBridge={sandboxStore.canSelectBridge}
                         isBridgeLoading={sandboxStore.isLoading}
@@ -295,10 +292,14 @@ export const SandboxView = observer(() => {
                             size="15vw"
                             minSize="325px"
                             onTabClick={() =>
-                                sandboxStore.toggleViewState('nodeSelect')
+                                sandboxStore.stateManager.toggleViewState(
+                                    'nodeSelect'
+                                )
                             }
                             tabContent="Nodes"
-                            collapsed={!sandboxStore.viewStates.nodeSelect}
+                            collapsed={
+                                !sandboxStore.stateManager.viewState.nodeSelect
+                            }
                         >
                             <NodeSelect
                                 onFilter={text =>
@@ -306,13 +307,16 @@ export const SandboxView = observer(() => {
                                         text
                                     )
                                 }
-                                addNode={node => addNode(node)}
+                                addNode={node =>
+                                    sandboxStore.addNode(node.fullName)
+                                }
                                 loading={
-                                    sandboxStore.sandboxState.loadingDefinitions
+                                    sandboxStore.stateManager.sandboxState
+                                        .loadingDefinitions
                                 }
                                 nodeOptions={
-                                    sandboxStore.nodeDefinitionCache &&
-                                    sandboxStore.nodeDefinitionCache
+                                    sandboxStore.stateManager.nodeDefinitions &&
+                                    sandboxStore.stateManager.nodeDefinitions
                                         .selectFriendly
                                 }
                             />
@@ -344,8 +348,8 @@ export const SandboxView = observer(() => {
                                         sandboxStore.dragEndObservable
                                     }
                                     onTabAdd={() =>
-                                        sandboxStore.toggleModalState(
-                                            'selectionModal'
+                                        sandboxStore.stateManager.toggleModalState(
+                                            'initialPrompt'
                                         )
                                     }
                                     onTabClick={handleTabClick}
@@ -362,7 +366,10 @@ export const SandboxView = observer(() => {
                                 />
                             </FlexRow>
                             <SandboxCanvas
-                                loading={sandboxStore.sandboxState.loadingGraph}
+                                loading={
+                                    sandboxStore.stateManager.sandboxState
+                                        .loadingGraph
+                                }
                                 onFilter={text =>
                                     sandboxStore.searchManager.setNodeSearchText(
                                         text
@@ -384,15 +391,18 @@ export const SandboxView = observer(() => {
                                 sandboxManager={sandboxStore.sandboxManager}
                                 nodes={sandboxStore.sandboxManager.nodes}
                                 visibleLinks={
-                                    sandboxStore.sandboxState.linksVisible
+                                    sandboxStore.stateManager.sandboxState
+                                        .linksVisible
                                 }
                                 toggleConsole={() => {
                                     sandboxStore.logManager.markAllAsRead();
-                                    sandboxStore.toggleViewState('logs');
+                                    sandboxStore.stateManager.toggleViewState(
+                                        'logs'
+                                    );
                                 }}
                                 canToggleConsole={!sandboxStore.areLogsEnabled}
                                 isConsoleLoading={
-                                    sandboxStore.areLogsConnecting
+                                    sandboxStore.hubManager.isTerminalConnecting
                                 }
                                 unreadLogCount={
                                     sandboxStore.logManager.unreadLogCount
@@ -403,11 +413,15 @@ export const SandboxView = observer(() => {
                             size="18vw"
                             minSize="325px"
                             onTabClick={() =>
-                                sandboxStore.toggleViewState('nodeInfo')
+                                sandboxStore.stateManager.toggleViewState(
+                                    'nodeInfo'
+                                )
                             }
                             direction="left"
                             tabContent="Node Info"
-                            collapsed={!sandboxStore.viewStates.nodeInfo}
+                            collapsed={
+                                !sandboxStore.stateManager.viewState.nodeInfo
+                            }
                         >
                             <NodeInfo
                                 selectedNode={
@@ -434,10 +448,13 @@ export const SandboxView = observer(() => {
             <Modal
                 className="sandbox-modal prompt-graph-modal"
                 maskClosable={sandboxStore.tabManager.hasTabs}
-                visible={sandboxStore.modalStates.selectionModal}
+                visible={sandboxStore.stateManager.modalState.initialPrompt}
                 footer={null}
                 onCancel={() =>
-                    sandboxStore.toggleModalState('selectionModal', false)
+                    sandboxStore.stateManager.updateModalState(
+                        'initialPrompt',
+                        false
+                    )
                 }
                 centered
                 closable={sandboxStore.tabManager.hasActiveTab}
@@ -451,13 +468,16 @@ export const SandboxView = observer(() => {
                 className="sandbox-modal select-graph-modal"
                 title="Select Graph or Macro"
                 maskClosable={sandboxStore.tabManager.hasTabs}
-                visible={sandboxStore.modalStates.selectGraph}
+                visible={sandboxStore.stateManager.modalState.select}
                 footer={
                     <Button
                         onMouseDown={() => {
-                            sandboxStore.toggleModalState('selectGraph', false);
-                            sandboxStore.toggleModalState(
-                                'selectionModal',
+                            sandboxStore.stateManager.updateModalState(
+                                'select',
+                                false
+                            );
+                            sandboxStore.stateManager.updateModalState(
+                                'initialPrompt',
                                 true
                             );
                         }}
@@ -467,14 +487,20 @@ export const SandboxView = observer(() => {
                     </Button>
                 }
                 onCancel={() =>
-                    sandboxStore.toggleModalState('selectGraph', false)
+                    sandboxStore.stateManager.updateModalState(
+                        'initialPrompt',
+                        false
+                    )
                 }
                 centered
                 closable={sandboxStore.tabManager.hasActiveTab}
             >
                 <SelectGraph
                     onGraphSelect={g => {
-                        sandboxStore.toggleModalState('selectGraph', false);
+                        sandboxStore.stateManager.updateModalState(
+                            'select',
+                            false
+                        );
                         sandboxStore.tabManager.addTab(g);
                     }}
                 />
@@ -483,10 +509,12 @@ export const SandboxView = observer(() => {
                 className="sandbox-modal log-view-modal"
                 title="Console"
                 maskClosable
-                visible={sandboxStore.viewStates.logs}
+                visible={sandboxStore.stateManager.viewState.logs}
                 style={{ minHeight: '80vh', maxHeight: '80vh' }}
                 footer={null}
-                onCancel={() => sandboxStore.toggleViewState('logs', false)}
+                onCancel={() =>
+                    sandboxStore.stateManager.updateViewState('logs', false)
+                }
                 centered
             >
                 <LogView

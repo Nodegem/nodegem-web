@@ -61,7 +61,7 @@ export class TabManager implements IDisposable {
             return;
         }
 
-        this.tabs.push({ graph });
+        this.tabs.push({ graph, isDirty: false });
         this.setActiveTab(graph.id);
     };
 

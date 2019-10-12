@@ -21,8 +21,6 @@ function getStyle(style, snapshot) {
     };
 }
 
-const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
-
 const DefinitionItem = (
     item: NodeDefinition,
     i: number,

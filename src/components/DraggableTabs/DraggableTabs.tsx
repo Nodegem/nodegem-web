@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
     DragDropContext,
     Draggable,
@@ -8,11 +8,10 @@ import {
     NotDraggingStyle,
 } from 'react-beautiful-dnd';
 
-import { Button, Col, Icon, Row, Tooltip } from 'antd';
+import { Icon } from 'antd';
 import classnames from 'classnames';
 import { FlexRow } from 'components';
-import { FlexFill } from 'components/Flex';
-import { DragEndProps } from 'stores';
+import { DragEndProps } from 'features/Sandbox/managers/sandbox-store';
 import { reorder, SimpleObservable } from 'utils';
 import './DraggableTabs.less';
 
