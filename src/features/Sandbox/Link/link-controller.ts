@@ -58,7 +58,9 @@ export default class LinkController implements IDisposable {
         private canvasController: CanvasController
     ) {
         this._linkData.sourceData.connected = true;
+        this._linkData.sourceData.value = undefined;
         this._linkData.destinationData.connected = true;
+        this._linkData.destinationData.value = undefined;
     }
 
     public getElementRef = (element: SVGPathElement) => {

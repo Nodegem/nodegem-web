@@ -153,12 +153,7 @@ class NodeController implements IDisposable {
         if (this._ports.has(port.id)) {
             this._ports.delete(port.id);
 
-            const {
-                flowInputs,
-                flowOutputs,
-                valueInputs,
-                valueOutputs,
-            } = this.nodeData.portData;
+            const { valueInputs } = this.nodeData.portData;
             if (port.io === 'input') {
                 if (port.type === 'value') {
                     valueInputs.removeWhere(x => x.id === port.id);
