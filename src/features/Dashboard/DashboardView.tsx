@@ -62,13 +62,7 @@ class DashboardView extends React.Component<
         this.modals[type]!.openModal(item, true);
     };
 
-    public onBuild = (item: Graph | Macro) => {
-        if (isMacro(item)) {
-            this.props.history.push(`editor/macro/${item.id}`);
-        } else {
-            this.props.history.push(`editor/graph/${item.id}`);
-        }
-    };
+    public onBuild = (item: Graph | Macro) => {};
 
     public render() {
         const { graphs, loadingGraphs } = this.props.graphStore!;

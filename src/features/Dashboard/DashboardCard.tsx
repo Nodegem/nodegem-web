@@ -35,7 +35,7 @@ class DashboardCard extends React.Component<IDashboardCardProps> {
                 title={item.name}
                 actions={[
                     <Tooltip title="Edit">
-                        <div onClick={this.onBuild}>
+                        <div>
                             <Icon
                                 type="tool"
                                 theme="filled"
