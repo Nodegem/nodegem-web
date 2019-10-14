@@ -2390,18 +2390,6 @@ moment.locale('fr');
 
 This will only work for locales that have been explicitly imported before.
 
-### `npm run build` fails to minify
-
-You may occasionally find a package you depend on needs compiled or ships code for a non-browser environment.<br>
-This is considered poor practice in the ecosystem and does not have an escape hatch in Create React App.<br>
-<br>
-To resolve this:
-1. Open an issue on the dependency's issue tracker and ask that the package be published pre-compiled (retaining ES6 Modules).
-2. Fork the package and publish a corrected version yourself.
-3. If the dependency is small enough, copy it to your `` folder and treat it as application code.
-
-In the future, we might start automatically compiling incompatible third-party modules, but it is not currently supported. This approach would also slow down the production builds.
-
 ## Alternatives to Ejecting
 
 [Ejecting](#npm-run-eject) lets you customize anything, but from that point on you have to maintain the configuration and scripts yourself. This can be daunting if you have many similar projects. In such cases instead of ejecting we recommend to *fork* `react-scripts` and any other packages you need. [This article](https://auth0.com/blog/how-to-configure-create-react-app/) dives into how to do it in depth. You can find more discussion in [this issue](https://github.com/facebookincubator/create-react-app/issues/682).
