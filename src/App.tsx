@@ -1,41 +1,68 @@
-import * as React from 'react';
-import { Switch, Route, Router } from 'react-router-dom';
+import './App.less';
+
 import { Layout } from 'antd';
-import Sider from './features/Sider/Sider';
-import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute';
+import { inject, observer } from 'mobx-react';
+import * as React from 'react';
+import { RouteComponentProps, Switch, withRouter } from 'react-router';
+
+import { Header } from 'components/Header/Header';
+import { SandboxView } from 'features/Sandbox/SandboxView';
+import { AuthorizedRoute } from './components/AuthorizedRoute/AuthorizedRoute';
+import { PublicRoute } from './components/PublicRoute/AuthorizedRoute';
 import LoginView from './features/Account/Login/LoginFormView';
 import RegisterView from './features/Account/Register/RegisterFormView';
-import history from './utils/history';
-
-import './App.less';
-import EditorView from './features/Editor/EditorView';
 import DashboardView from './features/Dashboard/DashboardView';
+import NotFoundView from './features/NotFound/NotFound';
+import ProfileView from './features/Profile/ProfileView';
+import { UserStore } from './stores/user-store';
 
 const { Content } = Layout;
+const ForgotPassword = () => <div>Welp, that sucks duude</div>;
 
-class App extends React.PureComponent {
-
-  public render() {
-
-    return (
-        <Router history={history}>
-            <Layout className="app-layout">
-              <Layout>
-                <Sider />
-                <Content className="app-layout-content" >
-                  <Switch>
-                    <Route path="/login" component={LoginView} />
-                    <Route path="/register" component={RegisterView} />
-                    <Route path="/forgot-password" component={RegisterView} />
-                    <Route path="/editor" component={EditorView} />
-                    <ProtectedRoute exact path="/" component={DashboardView} />
-                  </Switch>
-                </Content>
-              </Layout>
-            </Layout>
-        </Router>
-    );
-  }
+interface IAppProps {
+    userStore?: UserStore;
 }
 
-export default App;
+@inject('userStore')
+@observer
+class App extends React.Component<IAppProps & RouteComponentProps<any>> {
+    public render() {
+        const { userStore } = this.props;
+
+        return (
+            <Layout className="app-layout">
+                {userStore!.isLoggedIn && <Header />}
+                <Content className="app-layout-content">
+                    <Switch>
+                        <AuthorizedRoute
+                            exact
+                            path="/"
+                            component={DashboardView}
+                        />
+                        <AuthorizedRoute
+                            path="/sandbox"
+                            component={SandboxView}
+                        />
+                        <AuthorizedRoute
+                            path="/profile"
+                            component={ProfileView}
+                        />
+                        <PublicRoute path="/login" component={LoginView} />
+                        <PublicRoute
+                            path="/register"
+                            component={RegisterView}
+                        />
+                        <PublicRoute
+                            path="/forgot-password"
+                            component={ForgotPassword}
+                        />
+                        <AuthorizedRoute component={NotFoundView} />
+                        <PublicRoute component={NotFoundView} />
+                    </Switch>
+                </Content>
+            </Layout>
+        );
+    }
+}
+
+export default withRouter(App);

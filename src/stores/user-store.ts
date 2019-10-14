@@ -1,63 +1,45 @@
-import { observable, action, computed } from "mobx";
+import { action, computed, observable } from 'mobx';
+import { deleteFromStorage, getFromStorage, saveToStorage } from 'utils';
 
-class UserStore {
-
-    @observable
-    token?: string = "";
-
-    @observable
-    refreshToken?: string = "";
-
-    @observable
-    userData?: UserData;  
-
-    @observable
-    rememberMe: boolean = false;
-
-    @observable
-    rememberedData: RememberedUserData;
+class UserStore implements IDisposableStore {
+    @observable public user?: User;
+    @observable public token?: TokenData;
 
     @computed
-    public get isAuthenticated() : boolean {
-        return !!this.token && !!this.refreshToken;
+    public get username(): string {
+        return (this.user && this.user.userName) || '';
     }
 
-    public setRememberMe = action((value: boolean) => {
-        this.rememberMe = value;
-    })
+    @computed get isLoggedIn(): boolean {
+        return !!this.user && !!this.token && Object.keys(this.user).length > 0;
+    }
 
-    public setRememberedUserData = action((value: RememberedUserData) => {
-        this.rememberedData = value;
-    })
+    constructor() {
+        this.init();
+    }
 
-    public setUserData = action((data: UserData) => {
-        this.userData = data;
-    })
+    @action
+    public init() {
+        this.user = getFromStorage<User>('user')!;
+        this.token = getFromStorage<TokenData>('token')!;
+    }
 
-    public setToken = action((token: string) => {
+    @action public setToken(token: TokenData) {
         this.token = token;
-    })
+        saveToStorage('token', token);
+    }
 
-    public setRefreshToken = action((token: string) => {
-        this.refreshToken = token;
-    })
+    @action public setUser(user?: User) {
+        this.user = user;
+        saveToStorage('user', user);
+    }
 
-    public logout = action(() => {
+    @action public dispose() {
+        deleteFromStorage('user', 'token');
         this.token = undefined;
-        this.userData = undefined;
-    })
-
+        this.user = undefined;
+    }
 }
 
-export interface RememberedUserData {
-    username: string;
-}
-
-export interface UserData {
-    userName: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-}
-
-export const userStore = new UserStore();
+export default new UserStore();
+export { UserStore };

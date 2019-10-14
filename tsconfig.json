@@ -1,34 +1,42 @@
 {
-  "compilerOptions": {
-    "outDir": "build/dist",
-    "module": "esnext",
-    "target": "es5",
-    "lib": ["es6", "esnext", "dom"],
-    "sourceMap": true,
-    "allowJs": true,
-    "jsx": "react",
-    "moduleResolution": "node",
-    "rootDir": "src",
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "baseUrl": ".",
-    "typeRoots": [
-      "node_modules/@types",
-      "utils/types.d.ts"
-    ]
-  },
-  "exclude": [
-    "node_modules",
-    "build",
-    "scripts",
-    "acceptance-tests",
-    "webpack",
-    "jest",
-    "src/setupTests.ts"
-  ]
+    "compilerOptions": {
+        "outDir": "build/dist",
+        "module": "esnext",
+        "target": "es5",
+        "lib": ["es6", "es7", "esnext", "dom"],
+        "sourceMap": true,
+        "allowJs": true,
+        "jsx": "preserve",
+        "moduleResolution": "node",
+        "rootDir": "src",
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true,
+        "noImplicitAny": false,
+        "strictPropertyInitialization": false,
+        "baseUrl": "src",
+        "typeRoots": ["node_modules/@types", "**/*"],
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "strict": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "alwaysStrict": false,
+        "strictFunctionTypes": false
+    },
+    "exclude": [
+        "node_modules",
+        "build",
+        "scripts",
+        "acceptance-tests",
+        "webpack",
+        "jest",
+        "src/setupTests.ts"
+    ],
+    "include": ["src"]
 }

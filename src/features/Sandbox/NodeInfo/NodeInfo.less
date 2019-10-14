@@ -1,0 +1,81 @@
+.node-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    align-items: stretch;
+    height: 100%;
+    max-height: 100%;
+    padding: 15px;
+
+    &.empty {
+        align-content: center;
+        justify-content: center;
+    }
+
+    .header {
+        font-size: 1.4em;
+    }
+
+    .node-info-title {
+        font-size: 1.5em;
+
+        p {
+            color: white;
+            margin-bottom: 10px;
+        }
+    }
+
+    .node-info-description {
+        * {
+            color: white;
+        }
+    }
+
+    .node-info-properties {
+        flex: 1 1 auto;
+        max-height: 100%;
+        min-height: 0;
+
+        p {
+            font-size: 1.35em;
+            color: white;
+        }
+
+        .node-info-form {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            height: 100%;
+        }
+    }
+
+    .node-info-form {
+        height: 100%;
+    }
+
+    .ant-divider {
+        margin: 20px 0;
+        width: 90%;
+        min-width: 90%;
+    }
+
+    .info-submit {
+        display: flex;
+        flex-direction: column;
+        flex: 0 1 auto;
+        margin-top: 15px;
+    }
+
+    .properties {
+        display: flex;
+        flex: 0 1 100%;
+        overflow-y: auto;
+        flex-direction: column;
+        max-height: 100%;
+        overflow-x: hidden;
+
+        label {
+            color: white;
+        }
+    }
+}

@@ -1,30 +1,27 @@
+import './index.less';
+import './utils/extensions';
+
+import { Provider } from 'mobx-react';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { Router } from 'react-router';
+
+import { StoreProvider } from 'stores/StoreProvider';
 import App from './App';
-import './index.less';
-import registerServiceWorker from './registerServiceWorker';
+import * as servicerWorker from './serviceWorker';
+import history from './utils/history';
 
-import './utils/extensions';
-import { AsyncTrunk } from 'mobx-sync';
-import { rootStore } from './stores/root-store';
-import MobXPersistGate from './components/MobXPersistGate/MobXPersistGate';
-
-const trunk = new AsyncTrunk(rootStore, {
-  storage: localStorage,
-  storageKey: "root"
-});
-
-trunk.init().then(() => {
-  rootStore.isLoaded = true;
-});
+import { legacyStore } from './stores';
 
 ReactDOM.render(
-  (
-    <MobXPersistGate rootStore={rootStore} loading={<>Loading...</>}>
-      <App />
-    </MobXPersistGate>
-  ),
-  document.getElementById('root') as HTMLElement
+    <Provider {...legacyStore}>
+        <StoreProvider>
+            <Router history={history}>
+                <App />
+            </Router>
+        </StoreProvider>
+    </Provider>,
+    document.getElementById('root') as HTMLElement
 );
-registerServiceWorker();
 
+servicerWorker.unregister();

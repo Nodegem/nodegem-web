@@ -1,0 +1,211 @@
+@import '../../styles/vars.less';
+@import './sandbox-variables.less';
+
+.sandbox-view-container {
+    height: 100%;
+    display: flex;
+    flex: 1 1 100%;
+    flex-direction: column;
+    align-items: stretch;
+    overflow: hidden;
+    max-height: 100%;
+
+    .sandbox-header {
+        padding: 8px;
+        background-color: @background;
+
+        .ant-badge-count {
+            right: 5px;
+            top: 7px;
+        }
+
+        .header-action {
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            i {
+                margin-right: 10px;
+            }
+        }
+    }
+}
+
+.graph-content {
+    background-color: @background;
+    will-change: width;
+    display: flex;
+    flex: 1 1 100%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: stretch;
+    min-height: 0;
+
+    .links {
+        path {
+            stroke: @primary-color1;
+        }
+    }
+
+    .port-action {
+        &.remove-port {
+            color: @primary-color5;
+        }
+
+        &.add-port {
+            color: @primary-color1;
+        }
+    }
+
+    .port {
+        &:hover::after {
+            background-color: @primary-color1;
+        }
+
+        &.connected::after,
+        &.connecting::after {
+            background-color: @primary-color1;
+        }
+    }
+
+    .node-select-container {
+        background-color: @primary-color7;
+
+        .filter {
+            background-color: @primary-color6;
+        }
+    }
+
+    .node-info {
+        background-color: @primary-color7;
+    }
+}
+
+.tabs-container {
+    max-height: 40px;
+    min-height: 40px;
+
+    .tab-list {
+        align-items: flex-end;
+    }
+
+    .active {
+        .tab {
+            background-color: @active-tab-color;
+            border-bottom: 3px solid @primary-color3;
+
+            &:hover {
+                background-color: @active-tab-color;
+            }
+        }
+    }
+
+    .tab {
+        cursor: pointer;
+        transition: height 150ms ease, background-color 200ms ease;
+        height: 40px;
+        min-width: 120px;
+        width: 120px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: @primary-color1;
+        text-align: center;
+
+        .tab-title {
+            min-width: 90px;
+            max-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: white;
+            margin-right: 5px;
+        }
+
+        .tab-close {
+            opacity: 0;
+            transition: opacity 150ms ease-in;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: black;
+        }
+
+        &:hover {
+            background-color: @active-tab-color;
+
+            .tab-close {
+                opacity: 1;
+            }
+        }
+
+        &.tab-add {
+            background-color: transparent !important;
+            cursor: pointer;
+            color: @primary-color1;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.05) !important;
+            }
+        }
+    }
+}
+
+.sandbox {
+    flex: 1 1 auto;
+
+    .select-container {
+        z-index: 0;
+        border-color: lightskyblue;
+        background-color: rgba(135, 206, 250, 0.1);
+        opacity: 0;
+        transition: opacity 100ms ease-in;
+        will-change: opacity;
+
+        &.selecting {
+            z-index: 999;
+            opacity: 1;
+        }
+    }
+}
+
+.container {
+    display: flex;
+    overflow: hidden;
+    transition: flex 250ms ease-in;
+    &.closed {
+        flex: 0;
+    }
+}
+
+.sandbox-modal {
+    width: 850px !important;
+    @media screen and (max-width: 858px) {
+        width: 100% !important;
+    }
+}
+
+.log-view-modal {
+    width: 60vw !important;
+    @media screen and (max-width: 1200px) {
+        width: 100% !important;
+    }
+
+    .ant-modal-content {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        max-height: 80vh;
+    }
+
+    .ant-modal-body {
+        display: flex;
+        flex: 1 1 auto;
+        max-height: 100%;
+        min-height: 0;
+    }
+}
+
+.select-graph-modal {
+    .ant-modal-footer {
+        text-align: left !important;
+    }
+}

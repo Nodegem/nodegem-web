@@ -1,9 +1,34 @@
 {
-  "extends": [],//["tslint:recommended", "tslint-react", "tslint-config-prettier"],
-  "linterOptions": {
-    "exclude": [
-      "config/**/*.js",
-      "node_modules/**/*.ts"
-    ]
-  }
+    "extends": ["tslint:latest", "tslint-react", "tslint-config-prettier"],
+    "linterOptions": {
+        "exclude": [
+            "config/**/*.js",
+            "node_modules/**/*.ts",
+            "**/*.js",
+            "**/rete-engine/**/*"
+        ]
+    },
+    "rules": {
+        "no-bitwise": false,
+        "no-this-assignment": false,
+        "radix": false,
+        "object-literal-sort-keys": false,
+        "no-submodule-imports": false,
+        "no-implicit-dependencies": false,
+        "no-console": false,
+        "member-ordering": false,
+        "jsx-boolean-value": false,
+        "prefer-for-of": false,
+        "array-type": false,
+        "jsx-key": false,
+        "no-object-literal-type-assertion": false,
+        "max-classes-per-file": false,
+        "jsx-no-lambda": false,
+        "interface-over-type-literal": false,
+        "ban-types": false,
+        "no-empty-interface": false,
+        "no-empty": false,
+        "variable-name": false
+    },
+    "defaultSeverity": "warning"
 }

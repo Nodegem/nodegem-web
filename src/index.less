@@ -1,5 +1,35 @@
+@import './styles/vars.less';
+
 body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+#root {
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    height: 100%;
+    flex: 1 1 100%;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #0000009f;
+}
+
+* {
+    scrollbar-color: #0000009f transparent;
+    scrollbar-width: thin;
 }
