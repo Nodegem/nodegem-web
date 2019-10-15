@@ -254,9 +254,6 @@ export class SandboxStore implements IDisposable {
                     event.preventDefault();
                     this.saveGraph();
                     break;
-            }
-        } else {
-            switch (event.keyCode) {
                 case 90:
                     this.stateManager.toggleViewState('nodeSelect');
                     event.stopImmediatePropagation();

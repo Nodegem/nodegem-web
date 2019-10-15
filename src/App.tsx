@@ -3,10 +3,11 @@ import './App.less';
 import { Layout } from 'antd';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
-import { RouteComponentProps, Switch, withRouter } from 'react-router';
+import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
 
 import { Header } from 'components/Header/Header';
 import { SandboxView } from 'features/Sandbox/SandboxView';
+import { GlobalContainer } from 'global-container';
 import { AuthorizedRoute } from './components/AuthorizedRoute/AuthorizedRoute';
 import { PublicRoute } from './components/PublicRoute/AuthorizedRoute';
 import LoginView from './features/Account/Login/LoginFormView';
@@ -33,32 +34,33 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
             <Layout className="app-layout">
                 {userStore!.isLoggedIn && <Header />}
                 <Content className="app-layout-content">
-                    <Switch>
-                        <AuthorizedRoute
-                            exact
-                            path="/"
-                            component={DashboardView}
-                        />
-                        <AuthorizedRoute
-                            path="/sandbox"
-                            component={SandboxView}
-                        />
-                        <AuthorizedRoute
-                            path="/profile"
-                            component={ProfileView}
-                        />
-                        <PublicRoute path="/login" component={LoginView} />
-                        <PublicRoute
-                            path="/register"
-                            component={RegisterView}
-                        />
-                        <PublicRoute
-                            path="/forgot-password"
-                            component={ForgotPassword}
-                        />
-                        <AuthorizedRoute component={NotFoundView} />
-                        <PublicRoute component={NotFoundView} />
-                    </Switch>
+                    <GlobalContainer.Provider>
+                        <Switch>
+                            <AuthorizedRoute
+                                exact
+                                path="/"
+                                component={DashboardView}
+                            />
+                            <AuthorizedRoute
+                                path="/sandbox"
+                                component={SandboxView}
+                            />
+                            <AuthorizedRoute
+                                path="/profile"
+                                component={ProfileView}
+                            />
+                            <PublicRoute path="/login" component={LoginView} />
+                            <PublicRoute
+                                path="/register"
+                                component={RegisterView}
+                            />
+                            <PublicRoute
+                                path="/forgot-password"
+                                component={ForgotPassword}
+                            />
+                            <Route component={NotFoundView} />
+                        </Switch>
+                    </GlobalContainer.Provider>
                 </Content>
             </Layout>
         );

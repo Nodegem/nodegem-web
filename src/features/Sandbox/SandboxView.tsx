@@ -1,6 +1,6 @@
 import { Button, Dropdown, Icon, Menu, Modal } from 'antd';
 import classNames from 'classnames';
-import { CustomCollapsible, FlexFillGreedy, FlexRow } from 'components';
+import { FlexColumn, FlexFillGreedy, FlexRow } from 'components';
 import { DraggableTabs, ITab } from 'components/DraggableTabs';
 import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
 import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
@@ -9,14 +9,19 @@ import { observer } from 'mobx-react-lite';
 import React, { useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { useStore } from 'stores';
+import { Provider, Subscribe } from 'unstated-typescript';
 import { isMacro } from 'utils';
+import { GraphTabsSection } from './GraphTabsSection';
 import { LogView } from './LogView';
 import { DragEndProps, SandboxStore } from './managers/sandbox-store';
-import NodeInfo from './NodeInfo/NodeInfo';
-import { NodeSelect, nodeSelectDroppableId } from './NodeSelect/NodeSelect';
+import { NodeInfoSection } from './NodeInfoSection';
+import { nodeSelectDroppableId } from './NodeSelect/NodeSelect';
+import { NodeSelectSection } from './NodeSelectSection';
 import PromptGraph from './PromptGraph/PromptGraph';
 import SelectGraph from './PromptGraph/SelectGraph';
-import { SandboxCanvas, sandboxDroppableId } from './Sandbox/SandboxCanvas';
+import { sandboxDroppableId } from './Sandbox/SandboxCanvas';
+
+import { SandboxContainer } from './containers/sandbox-container';
 import './SandboxView.less';
 
 const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
@@ -189,343 +194,397 @@ const dragContextOnDragEnd = (
     }
 };
 
-export const SandboxView = observer(() => {
-    const { sandboxStore, graphModalStore, macroModalStore } = useStore();
+const SandboxComponent: React.FC = () => {
+    // useEffect(() => {
+    //     toggleActive(true);
+    //     nodeSelect.toggle(true);
+    //     return () => {
+    //         toggleActive(false);
+    //     };
+    // }, [isActive]);
 
+    return (
+        <DragDropContext onDragEnd={(result, provided) => {}}>
+            <FlexRow className="graph-content">
+                <NodeSelectSection />
+                <FlexColumn flex="1 1 0%" style={{ minWidth: 0 }}>
+                    <GraphTabsSection />
+                    {/* <SandboxCanvas
+                        loading={
+                            sandboxStore.stateManager.sandboxState.loadingGraph
+                        }
+                        onFilter={text =>
+                            sandboxStore.searchManager.setNodeSearchText(text)
+                        }
+                        isActive={sandboxStore.tabManager.hasActiveTab}
+                        editNode={sandboxStore.onNodeEdit}
+                        getDrawLinkRef={
+                            sandboxStore.drawLinkManager.fakeLink.getElementRef
+                        }
+                        isDrawing={sandboxStore.drawLinkManager.isDrawing}
+                        linkType={sandboxStore.drawLinkManager.fakeLink.type}
+                        links={sandboxStore.sandboxManager.links}
+                        sandboxManager={sandboxStore.sandboxManager}
+                        nodes={sandboxStore.sandboxManager.nodes}
+                        visibleLinks={
+                            sandboxStore.stateManager.sandboxState.linksVisible
+                        }
+                        toggleConsole={() => {
+                            sandboxStore.logManager.markAllAsRead();
+                            sandboxStore.stateManager.toggleViewState('logs');
+                        }}
+                        canToggleConsole={!sandboxStore.areLogsEnabled}
+                        isConsoleLoading={
+                            sandboxStore.hubManager.isTerminalConnecting
+                        }
+                        unreadLogCount={sandboxStore.logManager.unreadLogCount}
+                    /> */}
+                </FlexColumn>
+                <NodeInfoSection />
+            </FlexRow>
+        </DragDropContext>
+    );
+};
+
+let sandboxContainer = new SandboxContainer();
+
+export const SandboxView = () => {
     useEffect(() => {
-        sandboxStore.dragEndObservable.subscribe(result =>
-            dragContextOnDragEnd(result, sandboxStore)
-        );
-        sandboxStore.stateManager.updateSandboxState('isActive', true);
-        return () => {
-            sandboxStore.dispose();
-            sandboxStore.stateManager.updateSandboxState('isActive', false);
-        };
-    }, [sandboxStore]);
+        sandboxContainer = new SandboxContainer();
+        return () => {};
+    }, []);
 
     function handleTabClick(tabId: string) {
-        sandboxStore.tabManager.setActiveTab(tabId);
+        // sandboxStore.tabManager.setActiveTab(tabId);
     }
 
     function handleTabReorder(orderedTabs: any[]) {
-        sandboxStore.tabManager.setTabs(orderedTabs.map(x => x.data));
+        // sandboxStore.tabManager.setTabs(orderedTabs.map(x => x.data));
     }
 
     function editGraph(graph: Graph | Macro) {
-        sandboxStore.stateManager.updateSandboxState('isEditingSettings', true);
-        if (isMacro(graph)) {
-            macroModalStore.openModal(graph, true);
-        } else {
-            graphModalStore.openModal(graph, true);
-        }
+        // sandboxStore.stateManager.updateSandboxState('isEditingSettings', true);
+        // if (isMacro(graph)) {
+        //     macroModalStore.openModal(graph, true);
+        // } else {
+        //     graphModalStore.openModal(graph, true);
+        // }
     }
 
     function handleGraphCreate(type: GraphType) {
-        sandboxStore.stateManager.updateModalState('initialPrompt', false);
-        if (type === 'graph') {
-            graphModalStore.openModal({ isActive: true });
-        } else {
-            macroModalStore.openModal();
-        }
+        // sandboxStore.stateManager.updateModalState('initialPrompt', false);
+        // if (type === 'graph') {
+        //     graphModalStore.openModal({ isActive: true });
+        // } else {
+        //     macroModalStore.openModal();
+        // }
     }
 
     function onGraphSelect() {
-        sandboxStore.stateManager.updateModalState('initialPrompt', false);
-        sandboxStore.stateManager.updateModalState('select', true);
+        // sandboxStore.stateManager.updateModalState('initialPrompt', false);
+        // sandboxStore.stateManager.updateModalState('select', true);
     }
 
     const onGraphEdit = (graph?: Graph | Macro, edit?: boolean) => {
-        if (graph) {
-            if (!edit) {
-                sandboxStore.tabManager.addTab(graph);
-            } else {
-                sandboxStore.tabManager.editTab(graph);
-            }
-        }
-        sandboxStore.stateManager.updateSandboxState(
-            'isEditingSettings',
-            false
-        );
+        // if (graph) {
+        //     if (!edit) {
+        //         sandboxStore.tabManager.addTab(graph);
+        //     } else {
+        //         sandboxStore.tabManager.editTab(graph);
+        //     }
+        // }
+        // sandboxStore.stateManager.updateSandboxState(
+        //     'isEditingSettings',
+        //     false
+        // );
     };
 
     function onGraphEditModalCancel() {
-        if (!sandboxStore.stateManager.sandboxState.isEditingSettings) {
-            sandboxStore.stateManager.updateModalState('initialPrompt', true);
-        } else {
-            sandboxStore.stateManager.updateSandboxState(
-                'isEditingSettings',
-                false
-            );
-        }
+        // if (!sandboxStore.stateManager.sandboxState.isEditingSettings) {
+        //     sandboxStore.stateManager.updateModalState('initialPrompt', true);
+        // } else {
+        //     sandboxStore.stateManager.updateSandboxState(
+        //         'isEditingSettings',
+        //         false
+        //     );
+        // }
     }
 
     return (
-        <>
-            <div className="sandbox-view-container">
-                <DragDropContext
-                    onDragEnd={(result, provided) => {
-                        sandboxStore.dragEndObservable.execute({
-                            result,
-                            provided,
-                        });
-                    }}
-                >
-                    <SandboxHeader
-                        canSave={sandboxStore.tabManager.hasActiveTab}
-                        isSaving={
-                            sandboxStore.stateManager.sandboxState.savingGraph
-                        }
-                        canEdit={sandboxStore.tabManager.hasActiveTab}
-                        canRun={sandboxStore.canRun}
-                        isRunning={
-                            sandboxStore.isLoading ||
-                            sandboxStore.stateManager.sandboxState
-                                .isGraphRunning
-                        }
-                        canSelectBridge={sandboxStore.canSelectBridge}
-                        isBridgeLoading={sandboxStore.isLoading}
-                        editGraph={editGraph}
-                        sandboxStore={sandboxStore}
-                    />
-                    <div className="graph-content">
-                        <CustomCollapsible
-                            size="15vw"
-                            minSize="325px"
-                            onTabClick={() =>
-                                sandboxStore.stateManager.toggleViewState(
-                                    'nodeSelect'
-                                )
-                            }
-                            tabContent="Nodes"
-                            collapsed={
-                                !sandboxStore.stateManager.viewState.nodeSelect
-                            }
-                        >
-                            <NodeSelect
-                                onFilter={text =>
-                                    sandboxStore.searchManager.setNodeOptionSearchtext(
-                                        text
-                                    )
-                                }
-                                addNode={node =>
-                                    sandboxStore.addNode(node.fullName)
-                                }
-                                loading={
-                                    sandboxStore.stateManager.sandboxState
-                                        .loadingDefinitions
-                                }
-                                nodeOptions={
-                                    sandboxStore.stateManager.nodeDefinitions &&
-                                    sandboxStore.stateManager.nodeDefinitions
-                                        .selectFriendly
-                                }
-                            />
-                        </CustomCollapsible>
-                        <div
-                            style={{
-                                flex: '1 1 0%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                minWidth: 0,
-                            }}
-                        >
-                            <FlexRow className="graph-tabs" flex="0 1 auto">
-                                <DraggableTabs
-                                    tabs={sandboxStore.tabManager.tabs.map(
-                                        t => ({
-                                            id: t.graph.id!,
-                                            name: t.graph.name!,
-                                            data: t,
-                                        })
-                                    )}
-                                    activeTab={
-                                        sandboxStore.tabManager.activeTab &&
-                                        sandboxStore.tabManager.activeTab.graph
-                                            .id
-                                    }
-                                    onTabReorder={handleTabReorder}
-                                    dragEndObservable={
-                                        sandboxStore.dragEndObservable
-                                    }
-                                    onTabAdd={() =>
-                                        sandboxStore.stateManager.toggleModalState(
-                                            'initialPrompt'
-                                        )
-                                    }
-                                    onTabClick={handleTabClick}
-                                    tabTemplate={(tab, isDragging) => (
-                                        <TabTemplate
-                                            {...tab}
-                                            isDragging={isDragging}
-                                            deleteTab={
-                                                sandboxStore.tabManager
-                                                    .deleteTab
-                                            }
-                                        />
-                                    )}
-                                />
-                            </FlexRow>
-                            <SandboxCanvas
-                                loading={
-                                    sandboxStore.stateManager.sandboxState
-                                        .loadingGraph
-                                }
-                                onFilter={text =>
-                                    sandboxStore.searchManager.setNodeSearchText(
-                                        text
-                                    )
-                                }
-                                isActive={sandboxStore.tabManager.hasActiveTab}
-                                editNode={sandboxStore.onNodeEdit}
-                                getDrawLinkRef={
-                                    sandboxStore.drawLinkManager.fakeLink
-                                        .getElementRef
-                                }
-                                isDrawing={
-                                    sandboxStore.drawLinkManager.isDrawing
-                                }
-                                linkType={
-                                    sandboxStore.drawLinkManager.fakeLink.type
-                                }
-                                links={sandboxStore.sandboxManager.links}
-                                sandboxManager={sandboxStore.sandboxManager}
-                                nodes={sandboxStore.sandboxManager.nodes}
-                                visibleLinks={
-                                    sandboxStore.stateManager.sandboxState
-                                        .linksVisible
-                                }
-                                toggleConsole={() => {
-                                    sandboxStore.logManager.markAllAsRead();
-                                    sandboxStore.stateManager.toggleViewState(
-                                        'logs'
-                                    );
-                                }}
-                                canToggleConsole={!sandboxStore.areLogsEnabled}
-                                isConsoleLoading={
-                                    sandboxStore.hubManager.isTerminalConnecting
-                                }
-                                unreadLogCount={
-                                    sandboxStore.logManager.unreadLogCount
-                                }
-                            />
-                        </div>
-                        <CustomCollapsible
-                            size="18vw"
-                            minSize="325px"
-                            onTabClick={() =>
-                                sandboxStore.stateManager.toggleViewState(
-                                    'nodeInfo'
-                                )
-                            }
-                            direction="left"
-                            tabContent="Node Info"
-                            collapsed={
-                                !sandboxStore.stateManager.viewState.nodeInfo
-                            }
-                        >
-                            <NodeInfo
-                                selectedNode={
-                                    sandboxStore.sandboxManager
-                                        .firstSelectedNode
-                                }
-                                onNodeValueChange={(n, f) =>
-                                    n.updatePortValues(f)
-                                }
-                            />
-                        </CustomCollapsible>
-                    </div>
-                </DragDropContext>
-            </div>
-
-            <GraphModalFormController
-                onSave={onGraphEdit}
-                onGoBack={onGraphEditModalCancel}
-            />
-            <MacroModalFormController
-                onSave={onGraphEdit}
-                onGoBack={onGraphEditModalCancel}
-            />
-            <Modal
-                className="sandbox-modal prompt-graph-modal"
-                maskClosable={sandboxStore.tabManager.hasTabs}
-                visible={sandboxStore.stateManager.modalState.initialPrompt}
-                footer={null}
-                onCancel={() =>
-                    sandboxStore.stateManager.updateModalState(
-                        'initialPrompt',
-                        false
-                    )
-                }
-                centered
-                closable={sandboxStore.tabManager.hasActiveTab}
-            >
-                <PromptGraph
-                    onSelectGraph={onGraphSelect}
-                    onTypeSelect={handleGraphCreate}
-                />
-            </Modal>
-            <Modal
-                className="sandbox-modal select-graph-modal"
-                title="Select Graph or Macro"
-                maskClosable={sandboxStore.tabManager.hasTabs}
-                visible={sandboxStore.stateManager.modalState.select}
-                footer={
-                    <Button
-                        onMouseDown={() => {
-                            sandboxStore.stateManager.updateModalState(
-                                'select',
-                                false
-                            );
-                            sandboxStore.stateManager.updateModalState(
-                                'initialPrompt',
-                                true
-                            );
-                        }}
-                        icon="left"
-                    >
-                        Go Back
-                    </Button>
-                }
-                onCancel={() =>
-                    sandboxStore.stateManager.updateModalState(
-                        'initialPrompt',
-                        false
-                    )
-                }
-                centered
-                closable={sandboxStore.tabManager.hasActiveTab}
-            >
-                <SelectGraph
-                    onGraphSelect={g => {
-                        sandboxStore.stateManager.updateModalState(
-                            'select',
-                            false
-                        );
-                        sandboxStore.tabManager.addTab(g);
-                    }}
-                />
-            </Modal>
-            <Modal
-                className="sandbox-modal log-view-modal"
-                title="Console"
-                maskClosable
-                visible={sandboxStore.stateManager.viewState.logs}
-                style={{ minHeight: '80vh', maxHeight: '80vh' }}
-                footer={null}
-                onCancel={() =>
-                    sandboxStore.stateManager.updateViewState('logs', false)
-                }
-                centered
-            >
-                <LogView
-                    logs={sandboxStore.logManager.activeTabLogs}
-                    clearLogs={sandboxStore.logManager.clearLogs}
-                />
-            </Modal>
-            {/* <Prompt
-                when={sandboxStore.sandboxManager.isDirty}
-                message="You have some unsaved changes. Are you sure you want to leave?"
-            /> */}
-        </>
+        <Provider inject={[sandboxContainer]}>
+            <Subscribe to={[SandboxContainer]}>
+                {container => (
+                    <FlexRow className="sandbox-view-container">
+                        <SandboxComponent />
+                    </FlexRow>
+                )}
+            </Subscribe>
+        </Provider>
     );
-});
+};
+
+// /* <div className="sandbox-view-container">
+//                 <DragDropContext
+//                     onDragEnd={(result, provided) => {
+//                         sandboxStore.dragEndObservable.execute({
+//                             result,
+//                             provided,
+//                         });
+//                     }}
+//                 >
+//                     <SandboxHeader
+//                         canSave={sandboxStore.tabManager.hasActiveTab}
+//                         isSaving={
+//                             sandboxStore.stateManager.sandboxState.savingGraph
+//                         }
+//                         canEdit={sandboxStore.tabManager.hasActiveTab}
+//                         canRun={sandboxStore.canRun}
+//                         isRunning={
+//                             sandboxStore.isLoading ||
+//                             sandboxStore.stateManager.sandboxState
+//                                 .isGraphRunning
+//                         }
+//                         canSelectBridge={sandboxStore.canSelectBridge}
+//                         isBridgeLoading={sandboxStore.isLoading}
+//                         editGraph={editGraph}
+//                         sandboxStore={sandboxStore}
+//                     />
+//                     <div className="graph-content">
+//                         <CustomCollapsible
+//                             size="15vw"
+//                             minSize="325px"
+//                             onTabClick={() =>
+//                                 sandboxStore.stateManager.toggleViewState(
+//                                     'nodeSelect'
+//                                 )
+//                             }
+//                             tabContent="Nodes"
+//                             collapsed={
+//                                 !sandboxStore.stateManager.viewState.nodeSelect
+//                             }
+//                         >
+//                             <NodeSelect
+//                                 onFilter={text =>
+//                                     sandboxStore.searchManager.setNodeOptionSearchtext(
+//                                         text
+//                                     )
+//                                 }
+//                                 addNode={node =>
+//                                     sandboxStore.addNode(node.fullName)
+//                                 }
+//                                 loading={
+//                                     sandboxStore.stateManager.sandboxState
+//                                         .loadingDefinitions
+//                                 }
+//                                 nodeOptions={
+//                                     sandboxStore.stateManager.nodeDefinitions &&
+//                                     sandboxStore.stateManager.nodeDefinitions
+//                                         .selectFriendly
+//                                 }
+//                             />
+//                         </CustomCollapsible>
+//                         <div
+//                             style={{
+//                                 flex: '1 1 0%',
+//                                 display: 'flex',
+//                                 flexDirection: 'column',
+//                                 minWidth: 0,
+//                             }}
+//                         >
+//                             <FlexRow className="graph-tabs" flex="0 1 auto">
+//                                 <DraggableTabs
+//                                     tabs={sandboxStore.tabManager.tabs.map(
+//                                         t => ({
+//                                             id: t.graph.id!,
+//                                             name: t.graph.name!,
+//                                             data: t,
+//                                         })
+//                                     )}
+//                                     activeTab={
+//                                         sandboxStore.tabManager.activeTab &&
+//                                         sandboxStore.tabManager.activeTab.graph
+//                                             .id
+//                                     }
+//                                     onTabReorder={handleTabReorder}
+//                                     dragEndObservable={
+//                                         sandboxStore.dragEndObservable
+//                                     }
+//                                     onTabAdd={() =>
+//                                         sandboxStore.stateManager.toggleModalState(
+//                                             'initialPrompt'
+//                                         )
+//                                     }
+//                                     onTabClick={handleTabClick}
+//                                     tabTemplate={(tab, isDragging) => (
+//                                         <TabTemplate
+//                                             {...tab}
+//                                             isDragging={isDragging}
+//                                             deleteTab={
+//                                                 sandboxStore.tabManager
+//                                                     .deleteTab
+//                                             }
+//                                         />
+//                                     )}
+//                                 />
+//                             </FlexRow>
+//                             <SandboxCanvas
+//                                 loading={
+//                                     sandboxStore.stateManager.sandboxState
+//                                         .loadingGraph
+//                                 }
+//                                 onFilter={text =>
+//                                     sandboxStore.searchManager.setNodeSearchText(
+//                                         text
+//                                     )
+//                                 }
+//                                 isActive={sandboxStore.tabManager.hasActiveTab}
+//                                 editNode={sandboxStore.onNodeEdit}
+//                                 getDrawLinkRef={
+//                                     sandboxStore.drawLinkManager.fakeLink
+//                                         .getElementRef
+//                                 }
+//                                 isDrawing={
+//                                     sandboxStore.drawLinkManager.isDrawing
+//                                 }
+//                                 linkType={
+//                                     sandboxStore.drawLinkManager.fakeLink.type
+//                                 }
+//                                 links={sandboxStore.sandboxManager.links}
+//                                 sandboxManager={sandboxStore.sandboxManager}
+//                                 nodes={sandboxStore.sandboxManager.nodes}
+//                                 visibleLinks={
+//                                     sandboxStore.stateManager.sandboxState
+//                                         .linksVisible
+//                                 }
+//                                 toggleConsole={() => {
+//                                     sandboxStore.logManager.markAllAsRead();
+//                                     sandboxStore.stateManager.toggleViewState(
+//                                         'logs'
+//                                     );
+//                                 }}
+//                                 canToggleConsole={!sandboxStore.areLogsEnabled}
+//                                 isConsoleLoading={
+//                                     sandboxStore.hubManager.isTerminalConnecting
+//                                 }
+//                                 unreadLogCount={
+//                                     sandboxStore.logManager.unreadLogCount
+//                                 }
+//                             />
+//                         </div>
+//                         <CustomCollapsible
+//                             size="18vw"
+//                             minSize="325px"
+//                             onTabClick={() =>
+//                                 sandboxStore.stateManager.toggleViewState(
+//                                     'nodeInfo'
+//                                 )
+//                             }
+//                             direction="left"
+//                             tabContent="Node Info"
+//                             collapsed={
+//                                 !sandboxStore.stateManager.viewState.nodeInfo
+//                             }
+//                         >
+//                             <NodeInfo
+//                                 selectedNode={
+//                                     sandboxStore.sandboxManager
+//                                         .firstSelectedNode
+//                                 }
+//                                 onNodeValueChange={(n, f) =>
+//                                     n.updatePortValues(f)
+//                                 }
+//                             />
+//                         </CustomCollapsible>
+//                     </div>
+//                 </DragDropContext>
+//             </div> */}
+
+//                 {/* <GraphModalFormController
+//                 onSave={onGraphEdit}
+//                 onGoBack={onGraphEditModalCancel}
+//             />
+//             <MacroModalFormController
+//                 onSave={onGraphEdit}
+//                 onGoBack={onGraphEditModalCancel}
+//             />
+//             <Modal
+//                 className="sandbox-modal prompt-graph-modal"
+//                 maskClosable={sandboxStore.tabManager.hasTabs}
+//                 visible={sandboxStore.stateManager.modalState.initialPrompt}
+//                 footer={null}
+//                 onCancel={() =>
+//                     sandboxStore.stateManager.updateModalState(
+//                         'initialPrompt',
+//                         false
+//                     )
+//                 }
+//                 centered
+//                 closable={sandboxStore.tabManager.hasActiveTab}
+//             >
+//                 <PromptGraph
+//                     onSelectGraph={onGraphSelect}
+//                     onTypeSelect={handleGraphCreate}
+//                 />
+//             </Modal>
+//             <Modal
+//                 className="sandbox-modal select-graph-modal"
+//                 title="Select Graph or Macro"
+//                 maskClosable={sandboxStore.tabManager.hasTabs}
+//                 visible={sandboxStore.stateManager.modalState.select}
+//                 footer={
+//                     <Button
+//                         onMouseDown={() => {
+//                             sandboxStore.stateManager.updateModalState(
+//                                 'select',
+//                                 false
+//                             );
+//                             sandboxStore.stateManager.updateModalState(
+//                                 'initialPrompt',
+//                                 true
+//                             );
+//                         }}
+//                         icon="left"
+//                     >
+//                         Go Back
+//                     </Button>
+//                 }
+//                 onCancel={() =>
+//                     sandboxStore.stateManager.updateModalState(
+//                         'initialPrompt',
+//                         false
+//                     )
+//                 }
+//                 centered
+//                 closable={sandboxStore.tabManager.hasActiveTab}
+//             >
+//                 <SelectGraph
+//                     onGraphSelect={g => {
+//                         sandboxStore.stateManager.updateModalState(
+//                             'select',
+//                             false
+//                         );
+//                         sandboxStore.tabManager.addTab(g);
+//                     }}
+//                 />
+//             </Modal>
+//             <Modal
+//                 className="sandbox-modal log-view-modal"
+//                 title="Console"
+//                 maskClosable
+//                 visible={sandboxStore.stateManager.viewState.logs}
+//                 style={{ minHeight: '80vh', maxHeight: '80vh' }}
+//                 footer={null}
+//                 onCancel={() =>
+//                     sandboxStore.stateManager.updateViewState('logs', false)
+//                 }
+//                 centered
+//             >
+//                 <LogView
+//                     logs={sandboxStore.logManager.activeTabLogs}
+//                     clearLogs={sandboxStore.logManager.clearLogs}
+//                 />
+//             </Modal> */}
+//                 {/* <Prompt
+//                 when={sandboxStore.sandboxManager.isDirty}
+//                 message="You have some unsaved changes. Are you sure you want to leave?"
+//             /> */}
