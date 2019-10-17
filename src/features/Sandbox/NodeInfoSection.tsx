@@ -2,9 +2,11 @@ import { CustomCollapsible } from 'components';
 import React from 'react';
 import NodeInfo from './NodeInfo/NodeInfo';
 
-export const NodeInfoSection = () => {
-    // const { isOpen, toggle } = nodeInfo;
+interface INodeInfoProps {
+    open: boolean;
+}
 
+export const NodeInfoSection: React.FC<INodeInfoProps> = ({ open }) => {
     return (
         <CustomCollapsible
             size="18vw"
@@ -12,7 +14,7 @@ export const NodeInfoSection = () => {
             onTabClick={() => {}}
             direction="left"
             tabContent="Node Info"
-            collapsed={false}
+            collapsed={!open}
         >
             <NodeInfo
                 // selectedNode={sandboxStore.sandboxManager.firstSelectedNode}

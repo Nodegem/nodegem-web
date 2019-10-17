@@ -1424,6 +1424,14 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
+"@types/react@^16.8.12", "@types/react@^16.8.17":
+  version "16.9.9"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.9.tgz#a62c6f40f04bc7681be5e20975503a64fe783c3a"
+  integrity sha512-L+AudFJkDukk+ukInYvpoAPyJK5q1GanFOINOJnM0w6tUgITuWvJ4jyoBPFL7z4/L8hGLd+K/6xR5uUjXu0vVg==
+  dependencies:
+    "@types/prop-types" "*"
+    csstype "^2.2.0"
+
 "@types/shortid@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/shortid/-/shortid-0.0.29.tgz#8093ee0416a6e2bf2aa6338109114b3fbffa0e9b"
@@ -1925,6 +1933,13 @@ archy@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/archy/-/archy-1.0.0.tgz#f9c8c13757cc1dd7bc379ac77b2c62a5c2868c40"
   integrity sha1-+cjBN1fMHde8N5rHeyxipcKGjEA=
+
+are-shallow-equal@^1.0.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/are-shallow-equal/-/are-shallow-equal-1.1.0.tgz#df0fca248750afe1d234e92e071bd07b6380e5fe"
+  integrity sha512-4keLgs/T3YbM+r+xUnEp+ug6w4XMbtCNFm/MEbikv0EoDIO5YIhICHJK31Jvbm5x/mqfEpFNggHHszReaTEaoA==
+  dependencies:
+    is-primitive "^3.0.1"
 
 are-we-there-yet@~1.1.2:
   version "1.1.5"
@@ -2633,6 +2648,11 @@ cache-base@^1.0.1:
     to-object-path "^0.3.0"
     union-value "^1.0.0"
     unset-value "^1.0.0"
+
+call-hooks@^1.0.0:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/call-hooks/-/call-hooks-1.0.1.tgz#3518d56ea3ad2946be40cded14a29ac7606c1662"
+  integrity sha512-m/nE/Wm3vfVAlK6bE+Ks6bSRXZ1zkUh1qOuFrB2XoO0Q+vbaWxREkCJDvQmWat/lvhUrS5LuN38uqj9wJ6Ddbg==
 
 call-limit@^1.1.1:
   version "1.1.1"
@@ -3685,6 +3705,11 @@ deep-is@~0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
   integrity sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ=
+
+deep-object-diff@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/deep-object-diff/-/deep-object-diff-1.1.0.tgz#d6fabf476c2ed1751fc94d5ca693d2ed8c18bc5a"
+  integrity sha512-b+QLs5vHgS+IoSNcUE4n9HP2NwcHj7aqnJWsjPtuG75Rh5TOaGt0OjAYInh77d5T16V5cRDC+Pw/6ZZZiETBGw==
 
 default-gateway@^4.2.0:
   version "4.2.0"
@@ -6009,6 +6034,11 @@ is-plain-object@^2.0.1, is-plain-object@^2.0.3, is-plain-object@^2.0.4:
   integrity sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==
   dependencies:
     isobject "^3.0.1"
+
+is-primitive@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/is-primitive/-/is-primitive-3.0.1.tgz#98c4db1abff185485a657fc2905052b940524d05"
+  integrity sha512-GljRxhWvlCNRfZyORiH77FwdFwGcMO620o37EOYC0ORWdq+WYNVqW0w2Juzew4M+L81l6/QS3t5gkkihyRqv9w==
 
 is-promise@^2.1.0:
   version "2.1.0"
@@ -8413,6 +8443,18 @@ osenv@^0.1.4, osenv@^0.1.5:
     os-homedir "^1.0.0"
     os-tmpdir "^1.0.0"
 
+overstated@^2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/overstated/-/overstated-2.2.2.tgz#7c65810d78bfb098e4ab26f901c3b53dfcdf1d31"
+  integrity sha512-9sw2BwC6ZU1hWXA6lTQVKfU1UkPevDIQvtrVg0ECpSxFJJxYsnCuSYW3Xn+kLYc7lWBMoWpHccQttRidEgQxow==
+  dependencies:
+    "@types/react" "^16.8.12"
+    are-shallow-equal "^1.0.0"
+    call-hooks "^1.0.0"
+    deep-object-diff "^1.1.0"
+    react-use-mounted "^1.0.0"
+    react-use-previous "^1.0.0"
+
 p-defer@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/p-defer/-/p-defer-1.0.0.tgz#9f6eb182f6c9aa8cd743004a7d4f96b196b0fb0c"
@@ -10436,6 +10478,20 @@ react-slick@~0.25.2:
     lodash.debounce "^4.0.8"
     resize-observer-polyfill "^1.5.0"
 
+react-use-mounted@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-use-mounted/-/react-use-mounted-1.0.0.tgz#f16bf0bccddbb317400e19ad7873887f72b5fa25"
+  integrity sha512-TmnJSd2heRhYVy37H5s0b2N0BhvRgDCmmYj8hlNicn9MiXbY3VVdwTMtNpTZMSRNVZOtDBP5UxAZc6WgDutBoA==
+  dependencies:
+    "@types/react" "^16.8.17"
+
+react-use-previous@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-use-previous/-/react-use-previous-1.0.0.tgz#3e7dc26c1d711c8ad1a3cc1934eb70feab42cb92"
+  integrity sha512-G6L1GFJtwpgNP63AFF4KU8fhzCDkdWha/+Nh41SXQ4sY8eLjvurdD4ApcvNPrMovLnzDN0KE/4T/EujGTgo6FA==
+  dependencies:
+    "@types/react" "^16.8.17"
+
 react@^16.9.0:
   version "16.10.2"
   resolved "https://registry.yarnpkg.com/react/-/react-16.10.2.tgz#a5ede5cdd5c536f745173c8da47bda64797a4cf0"
@@ -12254,13 +12310,6 @@ unset-value@^1.0.0:
   dependencies:
     has-value "^0.3.1"
     isobject "^3.0.0"
-
-unstated-typescript@^2.1.7:
-  version "2.1.7"
-  resolved "https://registry.yarnpkg.com/unstated-typescript/-/unstated-typescript-2.1.7.tgz#1e96b4b4f1b6c8c2b8143bc4d127b11f06440f92"
-  integrity sha512-SIRDIOMjUr++Uj0ibUcJjPKdwR03RcbIOwaefI8eJgB68ufJ30SjGbTOVXrOe4BYwNiIpVOSKjOX2yWFsMBZQA==
-  dependencies:
-    hoist-non-react-statics "^3.3.0"
 
 unzip-response@^2.0.1:
   version "2.0.1"

@@ -2,14 +2,18 @@ import { CustomCollapsible } from 'components';
 import React from 'react';
 import { NodeSelect } from './NodeSelect';
 
-export const NodeSelectSection = () => {
+interface INodeSelectProps {
+    open: boolean;
+}
+
+export const NodeSelectSection: React.FC<INodeSelectProps> = ({ open }) => {
     return (
         <CustomCollapsible
             size="15vw"
             minSize="325px"
             onTabClick={() => {}}
             tabContent="Nodes"
-            collapsed={true}
+            collapsed={!open}
         >
             <NodeSelect
                 // onFilter={text =>

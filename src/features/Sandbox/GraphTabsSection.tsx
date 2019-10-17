@@ -13,7 +13,7 @@ const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
 
 const TabTemplate: React.FC<
     ITab & { deleteTab: (tabId: string) => void; isDragging: boolean }
-> = ({ name, id, isDragging, deleteTab }) => {
+> = React.memo(({ name, id, isDragging, deleteTab }) => {
     return (
         <div
             className={classNames({ tab: true, dragging: isDragging })}
@@ -27,35 +27,45 @@ const TabTemplate: React.FC<
             </span>
         </div>
     );
-};
+});
 
-export const GraphTabsSection = () => {
+interface IGraphTabsProps {
+    tabs: TabData[];
+    activeTab: TabData;
+    deleteTab: (id: string) => void;
+    onTabAdd: () => void;
+    onTabClick: (id: string) => void;
+    onTabReorder: (tabs: ITab[]) => void;
+}
+
+export const GraphTabsSection: React.FC<IGraphTabsProps> = ({
+    tabs,
+    activeTab,
+    deleteTab,
+    onTabAdd,
+    onTabClick,
+    onTabReorder,
+}) => {
     return (
         <FlexRow className="graph-tabs" flex="0 1 auto">
-            {/* <DraggableTabs
-                tabs={sandboxStore.tabManager.tabs.map(t => ({
+            <DraggableTabs
+                tabs={tabs.map(t => ({
                     id: t.graph.id!,
                     name: t.graph.name!,
                     data: t,
                 }))}
-                activeTab={
-                    sandboxStore.tabManager.activeTab &&
-                    sandboxStore.tabManager.activeTab.graph.id
-                }
-                onTabReorder={handleTabReorder}
-                dragEndObservable={sandboxStore.dragEndObservable}
-                onTabAdd={() =>
-                    sandboxStore.stateManager.toggleModalState('initialPrompt')
-                }
-                onTabClick={handleTabClick}
+                activeTab={activeTab && activeTab.graph.id}
+                onTabReorder={onTabReorder}
+                onTabAdd={onTabAdd}
+                onTabClick={onTabClick}
                 tabTemplate={(tab, isDragging) => (
                     <TabTemplate
                         {...tab}
                         isDragging={isDragging}
-                        deleteTab={sandboxStore.tabManager.deleteTab}
+                        deleteTab={deleteTab}
                     />
                 )}
-            /> */}
+            />
         </FlexRow>
     );
 };

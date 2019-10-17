@@ -5,7 +5,9 @@ import {
     DraggableStateSnapshot,
     DraggingStyle,
     Droppable,
+    DropResult,
     NotDraggingStyle,
+    ResponderProvided,
 } from 'react-beautiful-dnd';
 
 import { Icon } from 'antd';
@@ -37,40 +39,42 @@ const tabDragStyle = (
     };
 };
 
-function DraggableTab({
-    tab,
-    isActive,
-    onClick,
-    index,
-    tabTemplate,
-}: IDraggableTabPaneProps & {
-    isActive: boolean;
-    onClick: (tabId: string) => void;
-    index: number;
-}) {
-    return (
-        <Draggable draggableId={tab.id} index={index}>
-            {(provided, snapshot) => (
-                <div
-                    onClick={() => onClick(tab.id)}
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    className={classnames({
-                        'tab-drag': true,
-                        active: isActive,
-                    })}
-                    style={tabDragStyle(
-                        provided.draggableProps.style,
-                        snapshot
-                    )}
-                >
-                    {tabTemplate(tab, snapshot.isDragging)}
-                </div>
-            )}
-        </Draggable>
-    );
-}
+const DraggableTab = React.memo(
+    ({
+        tab,
+        isActive,
+        onClick,
+        index,
+        tabTemplate,
+    }: IDraggableTabPaneProps & {
+        isActive: boolean;
+        onClick: (tabId: string) => void;
+        index: number;
+    }) => {
+        return (
+            <Draggable draggableId={tab.id} index={index}>
+                {(provided, snapshot) => (
+                    <div
+                        onClick={() => onClick(tab.id)}
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className={classnames({
+                            'tab-drag': true,
+                            active: isActive,
+                        })}
+                        style={tabDragStyle(
+                            provided.draggableProps.style,
+                            snapshot
+                        )}
+                    >
+                        {tabTemplate(tab, snapshot.isDragging)}
+                    </div>
+                )}
+            </Draggable>
+        );
+    }
+);
 
 interface IDragTab extends ITab {
     tabTemplate: (tab: ITab, isDragging: boolean) => JSX.Element;
@@ -95,37 +99,27 @@ const DraggableTabList: React.FC<IDraggableTabList> = ({ tabs }) => {
 export interface ITab {
     id: string;
     name: string;
-    data: any;
+    data: TabData;
 }
 
 interface IDraggableTabProps {
     tabs: ITab[];
     activeTab?: string;
     tabTemplate: (tab: ITab, isDragging: boolean) => JSX.Element;
-    dragEndObservable: SimpleObservable<DragEndProps>;
     onTabReorder: (tabs: ITab[]) => void;
     onTabAdd?: () => void;
-    onTabClick?: (tabId: string, data: any) => void;
+    onTabClick?: (tabId: string) => void;
 }
 
 export const DraggableTabs: React.FC<IDraggableTabProps> = ({
     activeTab,
-    dragEndObservable,
     onTabAdd,
     onTabClick,
     onTabReorder,
     tabs,
     tabTemplate,
 }) => {
-    useEffect(() => {
-        dragEndObservable.subscribe(onDragEnd);
-
-        return () => {
-            dragEndObservable.unsubscribe(onDragEnd);
-        };
-    }, [tabs, activeTab]);
-
-    function onDragEnd({ result, provided }: DragEndProps) {
+    function onDragEnd(result: DropResult, provided: ResponderProvided) {
         if (!result.destination) {
             return;
         }
@@ -150,16 +144,12 @@ export const DraggableTabs: React.FC<IDraggableTabProps> = ({
     function onClick(tabId: string) {
         if (onTabClick) {
             const tab = tabs.find(x => x.id === tabId);
-            onTabClick(tabId, tab && tab.data);
+            onTabClick(tabId);
         }
     }
 
     return (
-        <DragDropContext
-            onDragEnd={(result, provided) =>
-                dragEndObservable.execute({ result, provided })
-            }
-        >
+        <DragDropContext onDragEnd={onDragEnd}>
             <FlexRow className="tabs-container" flex={100}>
                 <Droppable droppableId={tabListId} direction="horizontal">
                     {(provided, snapshot) => (

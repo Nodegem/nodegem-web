@@ -84,10 +84,6 @@ const convertToSelectFriendlyHelper = (
     return returnList.length > 0 ? returnList : returnObject;
 };
 
-export const getGraphType = (graph: Graph | Macro): GraphType => {
-    return isMacro(graph) ? 'macro' : 'graph';
-};
-
 export const getAllPorts = (node: INodeUIData) => {
     const {
         flowInputs,

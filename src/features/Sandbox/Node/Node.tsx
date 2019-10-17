@@ -4,24 +4,6 @@ import { Button, Tooltip } from 'antd';
 import { Socket as Port } from '../Port/Port';
 import './Node.less';
 
-interface INodeProps {
-    data: INodeUIData;
-    sandboxMode?: boolean;
-    editNode?: (nodeData: INodeUIData) => void;
-    removeNode?: (id: string) => void;
-    getRef?: (instance: HTMLDivElement) => void;
-    getPortRef?: (port: IPortUIData, element: HTMLElement) => void;
-    removePortRef?: (id: string) => void;
-    onPortAdd?: (port: IPortUIData) => void;
-    onPortRemove?: (port: IPortUIData) => void;
-    onPortEvent?: (
-        event: PortEvent,
-        element: HTMLElement,
-        data: IPortUIData
-    ) => void;
-    hidePortActions?: boolean;
-}
-
 const ToolbarContents: React.FC<IToolbarProps> = ({
     nodeData,
     edit,
@@ -51,7 +33,6 @@ const ToolbarContents: React.FC<IToolbarProps> = ({
 
 interface IToolbarProps {
     visible?: boolean;
-    sandboxMode?: boolean;
     nodeData: INodeUIData;
     edit: (data: INodeUIData) => void;
     remove: (id: string) => void;
@@ -64,10 +45,9 @@ const Toolbar: React.FC<IToolbarProps> = ({
     edit,
     forceClose,
     nodeData,
-    sandboxMode,
     children,
 }) => {
-    return sandboxMode ? (
+    return (
         <Tooltip
             visible={visible}
             className="toolbar-tooltip"
@@ -82,10 +62,26 @@ const Toolbar: React.FC<IToolbarProps> = ({
         >
             {children}
         </Tooltip>
-    ) : (
-        <>{children}</>
     );
 };
+
+interface INodeProps {
+    data: INodeUIData;
+    sandboxMode?: boolean;
+    editNode?: (nodeData: INodeUIData) => void;
+    removeNode?: (id: string) => void;
+    getRef?: (instance: HTMLDivElement) => void;
+    getPortRef?: (port: IPortUIData, element: HTMLElement) => void;
+    removePortRef?: (id: string) => void;
+    onPortAdd?: (port: IPortUIData) => void;
+    onPortRemove?: (port: IPortUIData) => void;
+    onPortEvent?: (
+        event: PortEvent,
+        element: HTMLElement,
+        data: IPortUIData
+    ) => void;
+    hidePortActions?: boolean;
+}
 
 export const Node: React.FC<INodeProps> = ({
     getRef,
@@ -110,10 +106,6 @@ export const Node: React.FC<INodeProps> = ({
     useEffect(() => {
         if (getRef) {
             getRef(container.current!);
-        }
-
-        if (!sandboxMode) {
-            return;
         }
 
         const preventDefault = (event: MouseEvent) => {
@@ -143,10 +135,6 @@ export const Node: React.FC<INodeProps> = ({
         container.current!.addEventListener('mousedown', disable);
         container.current!.addEventListener('contextmenu', preventDefault);
         return () => {
-            if (!sandboxMode) {
-                return;
-            }
-
             window.removeEventListener('contextmenu', outsideClick);
             container.current!.removeEventListener('mousedown', disable);
             container.current!.removeEventListener(
@@ -175,9 +163,13 @@ export const Node: React.FC<INodeProps> = ({
             edit={editNode}
             remove={removeNode}
             nodeData={data}
-            sandboxMode={sandboxMode}
         >
-            <div ref={container} className="node-container" {...rest}>
+            <div
+                ref={container}
+                style={{ position: 'absolute' }}
+                className="node-container"
+                {...rest}
+            >
                 <div className="flow flow-inputs">
                     {flowInputs.map((fi, i) => (
                         <Port
@@ -186,7 +178,6 @@ export const Node: React.FC<INodeProps> = ({
                             key={fi.id}
                             data={fi}
                             onPortEvent={onPortEvent}
-                            sandboxMode={sandboxMode}
                             onAddPort={onPortAdd}
                             lastPort={i === flowInputs.length - 1}
                             hidePortActions={hidePortActions}
@@ -202,7 +193,6 @@ export const Node: React.FC<INodeProps> = ({
                                 key={vi.id}
                                 data={vi}
                                 onPortEvent={onPortEvent}
-                                sandboxMode={sandboxMode}
                                 onAddPort={handlePortAdd}
                                 onRemovePort={handlePortRemove}
                                 lastPort={i === valueInputs.length - 1}
@@ -219,7 +209,6 @@ export const Node: React.FC<INodeProps> = ({
                                 key={vo.id}
                                 data={vo}
                                 onPortEvent={onPortEvent}
-                                sandboxMode={sandboxMode}
                                 lastPort={i === valueOutputs.length - 1}
                                 onAddPort={onPortAdd}
                                 hidePortActions={hidePortActions}
@@ -235,7 +224,6 @@ export const Node: React.FC<INodeProps> = ({
                             key={fo.id}
                             data={fo}
                             onPortEvent={onPortEvent}
-                            sandboxMode={sandboxMode}
                             onAddPort={onPortAdd}
                             lastPort={i === flowOutputs.length - 1}
                             hidePortActions={hidePortActions}
@@ -245,12 +233,4 @@ export const Node: React.FC<INodeProps> = ({
             </div>
         </Toolbar>
     );
-};
-
-export const SandboxNode: React.FC<INodeProps> = props => {
-    const style: React.CSSProperties = {
-        position: 'absolute',
-        visibility: 'hidden', // hack for jitter
-    };
-    return React.cloneElement(<Node {...props} sandboxMode />, { style });
 };

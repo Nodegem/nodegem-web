@@ -1,4 +1,3 @@
-import { timeout } from 'q';
 import { isMacro } from './typeguards';
 
 export const isInput = (target: Element): boolean => {
