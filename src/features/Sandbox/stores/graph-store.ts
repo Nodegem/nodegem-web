@@ -3,15 +3,16 @@ import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { waitWhile } from 'utils';
 import LinkController from '../Link/link-controller';
 import NodeController from '../Node/node-controller';
+import { nodeSelectDroppableId } from '../NodeSelect';
 import { ZoomBounds } from '../Sandbox/Canvas';
 import CanvasController from '../Sandbox/Canvas/canvas-controller';
 import SelectionController from '../Sandbox/Canvas/selection-controller';
+import { sandboxDroppableId } from '../Sandbox/SandboxCanvas';
 import { definitionToNode } from '../utils';
 import { SandboxStore } from './sandbox-store';
 
 interface IGraphState {
     graph: Graph | Macro;
-    definitions: SelectFriendly<NodeDefinition>;
     nodes: NodeController[];
     links: LinkController[];
     hasLoadedGraph: boolean;
@@ -28,8 +29,9 @@ export class GraphStore extends Store<IGraphState, SandboxStore> {
         return this._canvasController.mousePos;
     }
 
-    private get nodeCache(): NodeCache {
-        return this.ctx.stateStore.getActiveTab().definitions;
+    public get nodeCache(): NodeCache {
+        const { hasActiveTab, activeTab } = this.ctx.stateStore;
+        return (hasActiveTab && activeTab.definitions) || ({} as any);
     }
 
     private _nodes: Map<string, NodeController> = new Map();
@@ -71,7 +73,18 @@ export class GraphStore extends Store<IGraphState, SandboxStore> {
     public onCanvasDrag = (
         result: DropResult,
         provided: ResponderProvided
-    ): void => {};
+    ): void => {
+        const { hasActiveTab } = this.ctx.stateStore;
+        if (!hasActiveTab || !result.destination) {
+            return;
+        }
+        if (
+            result.source.droppableId.startsWith(nodeSelectDroppableId) &&
+            result.destination.droppableId === sandboxDroppableId
+        ) {
+            this.createNodeFromDefinition(result.draggableId, false);
+        }
+    };
 
     public createNodeFromDefinition = (
         nodeDefinitionId: string,
@@ -192,6 +205,10 @@ export class GraphStore extends Store<IGraphState, SandboxStore> {
     public clearLinks = () => {
         this._links.forEach(l => l.dispose());
         this._links.clear();
+    };
+
+    public resetView = () => {
+        this._canvasController.reset();
     };
 
     public clearView() {

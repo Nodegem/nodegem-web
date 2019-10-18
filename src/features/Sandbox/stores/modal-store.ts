@@ -11,15 +11,15 @@ export class ModalStore extends Store<IModalState, SandboxStore> {
         isChoosingGraphState: false,
     };
 
-    public toggleSelectionState(value?: boolean) {
+    public toggleSelectionState = (value?: boolean) => {
         this.setState({
             isInSelectionState: this.state.isInSelectionState.toggle(value),
         });
-    }
+    };
 
-    public toggleChoosingGraphState(value?: boolean) {
+    public toggleChoosingGraphState = (value?: boolean) => {
         this.setState({
             isChoosingGraphState: this.state.isChoosingGraphState.toggle(value),
         });
-    }
+    };
 }

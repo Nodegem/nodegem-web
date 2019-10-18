@@ -23,7 +23,7 @@ import { BooleanLiteral } from '@babel/types';
 import { useStore } from 'overstated';
 import { graphModalStore, macroModalStore } from 'stores';
 import './SandboxView.less';
-import { SandboxStore, StateStore } from './stores';
+import { GraphStore, SandboxStore, StateStore } from './stores';
 import { ModalStore } from './stores/modal-store';
 
 const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
@@ -33,24 +33,6 @@ const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
         deleteTab();
     }
 };
-
-// const TabTemplate: React.FC<
-//     ITab & { deleteTab: (tabId: string) => void; isDragging: boolean }
-// > = ({ name, id, isDragging, deleteTab }) => {
-//     return (
-//         <div
-//             className={classNames({ tab: true, dragging: isDragging })}
-//             onMouseDown={event =>
-//                 middleDelete(event.nativeEvent, () => deleteTab(id))
-//             }
-//         >
-//             <span className="tab-title">{name}</span>
-//             <span className="tab-close" onMouseDown={() => deleteTab(id)}>
-//                 <Icon type="close" />
-//             </span>
-//         </div>
-//     );
-// };
 
 // interface IBridgeMenuProps {
 //     bridges?: IBridgeInfo[];
@@ -180,67 +162,32 @@ const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
 //     </FlexRow>
 // );
 
-// const dragContextOnDragEnd = (
-//     { result }: DragEndProps,
-//     sandboxStore: SandboxStore
-// ) => {
-//     if (!sandboxStore.tabManager.hasActiveTab || !result.destination) {
-//         return;
-//     }
-
-//     if (
-//         result.source.droppableId.startsWith(nodeSelectDroppableId) &&
-//         result.destination.droppableId === sandboxDroppableId
-//     ) {
-//         sandboxStore.addNode(result.draggableId);
-//     }
-// };
-
 export const SandboxView = () => {
-    const {
-        sandboxStore,
-        modalStore,
-        onDragNodeCanvas,
-        nodeInfoOpen,
-        nodeSelectOpen,
-        registerEvents,
-        disposeEvents,
-        stateStore,
-        tabs,
-        isLoadingDefinitions,
-        isLoadingGraph,
-        graphStore,
-        links,
-        nodes,
-        addTab,
-        selectionState,
-        choosingState,
-        edittingSettings,
-    } = useStore(SandboxStore, app => ({
-        onDragNodeCanvas: app.graphStore.onCanvasDrag,
-        nodeInfoOpen: app.panelStore.state.nodeInfoOpen,
-        nodeSelectOpen: app.panelStore.state.nodeSelectOpen,
-        registerEvents: app.registerKeyEvents,
-        disposeEvents: app.disposeKeyEvents,
-        stateStore: app.stateStore,
-        tabs: app.stateStore.state.tabs,
-        isLoadingGraph: app.state.isLoadingGraph,
-        isLoadingDefinitions: app.state.isLoadingDefinitions,
-        graphStore: app.graphStore,
-        modalStore: app.modalStore,
+    const sandboxState = useStore(SandboxStore, app => ({
         sandboxStore: app,
-        links: app.graphStore.state.links,
-        nodes: app.graphStore.state.nodes,
+        graphStore: app.graphStore,
+        stateStore: app.stateStore,
+        onDragNodeCanvas: app.graphStore.onCanvasDrag,
         addTab: app.stateStore.addTab,
-        selectionState: app.modalStore.state.isInSelectionState,
-        choosingState: app.modalStore.state.isChoosingGraphState,
-        edittingSettings: app.stateStore.state.edittingSettings,
+        setTabs: app.stateStore.setTabs,
+        activeTab: app.stateStore.activeTab,
+        hasTabs: app.stateStore.hasTabs,
+        onEditGraph: app.onEditGraph,
+        toggleSelectionState: app.modalStore.toggleSelectionState,
+        toggleChoosingGraphState: app.modalStore.toggleChoosingGraphState,
+        nodeCache: app.graphStore.nodeCache,
+        ...app.state,
+        ...app.panelStore.state,
+        ...app.graphStore.state,
+        ...app.modalStore.state,
+        ...app.stateStore.state,
     }));
 
     useEffect(() => {
-        registerEvents();
+        sandboxState.sandboxStore.registerEvents();
+        sandboxState.sandboxStore.initialize();
         return () => {
-            disposeEvents();
+            sandboxState.sandboxStore.dispose();
         };
     }, []);
 
@@ -250,75 +197,82 @@ export const SandboxView = () => {
 
     const tabReorder = useCallback(
         (orderedTabs: ITab[]) =>
-            stateStore.setTabs(orderedTabs.map(t => t.data)),
+            sandboxState.setTabs(orderedTabs.map(t => t.data)),
         []
     );
 
-    console.log(links, nodes);
+    const addNode = useCallback((definition: NodeDefinition) => {
+        sandboxState.graphStore.createNodeFromDefinition(
+            definition.fullName,
+            true
+        );
+    }, []);
 
     return (
         <>
             <FlexRow className="sandbox-view-container">
-                <DragDropContext onDragEnd={onDragNodeCanvas}>
+                <DragDropContext onDragEnd={sandboxState.onDragNodeCanvas}>
                     <FlexRow className="graph-content">
-                        <NodeSelectSection open={nodeSelectOpen} />
+                        <NodeSelectSection
+                            open={sandboxState.nodeSelectOpen}
+                            addNode={addNode}
+                            nodeOptions={sandboxState.nodeCache}
+                            {...sandboxState}
+                        />
                         <FlexColumn flex="1 1 0%" style={{ minWidth: 0 }}>
                             <GraphTabsSection
-                                activeTab={stateStore.getActiveTab()}
-                                deleteTab={stateStore.removeTab}
-                                onTabAdd={() => {}}
-                                onTabClick={stateStore.setActiveTab}
-                                tabs={tabs}
+                                {...sandboxState}
                                 onTabReorder={tabReorder}
+                                deleteTab={sandboxState.stateStore.removeTab}
+                                onTabAdd={() => {}}
+                                onTabClick={
+                                    sandboxState.stateStore.setActiveTab
+                                }
                             />
                             <SandboxCanvas
-                                graphStore={graphStore}
-                                loading={isLoadingGraph}
-                                isActive={stateStore.hasActiveTab()}
+                                graphStore={sandboxState.graphStore}
+                                loading={sandboxState.isLoadingGraph}
+                                isActive={sandboxState.stateStore.hasActiveTab}
                                 hasUnread={false}
                                 toggleConsole={() => {}}
                                 canToggleConsole={false}
                                 visibleLinks={true}
                                 isConsoleLoading={false}
-                                links={links}
-                                nodes={nodes}
+                                links={sandboxState.links}
+                                nodes={sandboxState.nodes}
                             />
                         </FlexColumn>
-                        <NodeInfoSection open={nodeInfoOpen} />
+                        <NodeInfoSection open={sandboxState.nodeInfoOpen} />
                     </FlexRow>
                 </DragDropContext>
             </FlexRow>
             <ModalContainer
-                sandboxStore={sandboxStore}
-                modalStore={modalStore}
-                hasTabs={stateStore.hasTabs()}
-                hasActiveTab={stateStore.hasActiveTab()}
-                selectionState={selectionState}
-                choosingState={choosingState}
-                addTab={addTab}
-                edittingSettings={edittingSettings}
+                {...sandboxState}
+                hasActiveTab={sandboxState.stateStore.hasActiveTab}
             />
         </>
     );
 };
 
 interface IModalContainerProps {
-    sandboxStore: SandboxStore;
-    modalStore: ModalStore;
-    selectionState: boolean;
-    choosingState: boolean;
+    onEditGraph: (graph?: Graph | Macro) => void;
+    toggleSelectionState: (value: boolean) => void;
+    toggleChoosingGraphState: (value: boolean) => void;
+    addTab: (graph: Graph | Macro) => void;
+    isInSelectionState: boolean;
+    isChoosingGraphState: boolean;
     hasTabs: boolean;
     hasActiveTab: boolean;
-    addTab: (graph: Graph | Macro) => void;
     edittingSettings: boolean;
 }
 
 const ModalContainer: React.FC<IModalContainerProps> = ({
-    sandboxStore,
-    modalStore,
+    onEditGraph,
+    toggleChoosingGraphState,
+    toggleSelectionState,
     hasTabs,
-    selectionState,
-    choosingState,
+    isInSelectionState,
+    isChoosingGraphState,
     hasActiveTab,
     addTab,
     edittingSettings,
@@ -326,17 +280,17 @@ const ModalContainer: React.FC<IModalContainerProps> = ({
     const onGraphCancel = useCallback(() => {
         if (edittingSettings) {
         } else {
-            modalStore.toggleSelectionState(true);
+            toggleSelectionState(true);
         }
     }, [edittingSettings]);
 
     const onGraphSelect = useCallback(() => {
-        modalStore.toggleSelectionState(false);
-        modalStore.toggleChoosingGraphState(true);
+        toggleSelectionState(false);
+        toggleChoosingGraphState(true);
     }, []);
 
     const onGraphCreate = useCallback((type: GraphType) => {
-        modalStore.toggleSelectionState(false);
+        toggleSelectionState(false);
         if (type === 'graph') {
             graphModalStore.openModal({ isActive: true });
         } else {
@@ -345,13 +299,13 @@ const ModalContainer: React.FC<IModalContainerProps> = ({
     }, []);
 
     const graphSelectCancel = useCallback(() => {
-        modalStore.toggleChoosingGraphState(false);
-        modalStore.toggleSelectionState(true);
+        toggleChoosingGraphState(false);
+        toggleSelectionState(true);
     }, []);
 
     const onGraphAdd = useCallback(
         (graph: Graph | Macro) => {
-            modalStore.toggleChoosingGraphState(false);
+            toggleChoosingGraphState(false);
             addTab(graph);
         },
         [addTab]
@@ -360,19 +314,19 @@ const ModalContainer: React.FC<IModalContainerProps> = ({
     return (
         <>
             <GraphModalFormController
-                onSave={sandboxStore.onEditGraph}
+                onSave={onEditGraph}
                 onGoBack={onGraphCancel}
             />
             <MacroModalFormController
-                onSave={sandboxStore.onEditGraph}
+                onSave={onEditGraph}
                 onGoBack={onGraphCancel}
             />
             <Modal
                 className="sandbox-modal prompt-graph-modal"
                 maskClosable={hasTabs}
-                visible={selectionState}
+                visible={isInSelectionState}
                 footer={null}
-                onCancel={() => modalStore.toggleSelectionState(false)}
+                onCancel={() => toggleSelectionState(false)}
                 centered
                 closable={hasActiveTab}
             >
@@ -385,13 +339,13 @@ const ModalContainer: React.FC<IModalContainerProps> = ({
                 className="sandbox-modal select-graph-modal"
                 title="Select Graph or Macro"
                 maskClosable={hasTabs}
-                visible={choosingState}
+                visible={isChoosingGraphState}
                 footer={
                     <Button onMouseDown={graphSelectCancel} icon="left">
                         Go Back
                     </Button>
                 }
-                onCancel={() => modalStore.toggleChoosingGraphState(false)}
+                onCancel={() => toggleChoosingGraphState(false)}
                 centered
                 closable={hasActiveTab}
             >

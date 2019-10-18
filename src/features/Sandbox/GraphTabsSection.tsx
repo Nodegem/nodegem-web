@@ -1,7 +1,7 @@
 import { Icon } from 'antd';
 import classNames from 'classnames';
 import { DraggableTabs, FlexRow, ITab } from 'components';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
     if (event.button === 1) {
@@ -46,26 +46,29 @@ export const GraphTabsSection: React.FC<IGraphTabsProps> = ({
     onTabClick,
     onTabReorder,
 }) => {
-    return (
-        <FlexRow className="graph-tabs" flex="0 1 auto">
-            <DraggableTabs
-                tabs={tabs.map(t => ({
-                    id: t.graph.id!,
-                    name: t.graph.name!,
-                    data: t,
-                }))}
-                activeTab={activeTab && activeTab.graph.id}
-                onTabReorder={onTabReorder}
-                onTabAdd={onTabAdd}
-                onTabClick={onTabClick}
-                tabTemplate={(tab, isDragging) => (
-                    <TabTemplate
-                        {...tab}
-                        isDragging={isDragging}
-                        deleteTab={deleteTab}
-                    />
-                )}
-            />
-        </FlexRow>
+    return useMemo(
+        () => (
+            <FlexRow className="graph-tabs" flex="0 1 auto">
+                <DraggableTabs
+                    tabs={tabs.map(t => ({
+                        id: t.graph.id!,
+                        name: t.graph.name!,
+                        data: t,
+                    }))}
+                    activeTab={activeTab && activeTab.graph.id}
+                    onTabReorder={onTabReorder}
+                    onTabAdd={onTabAdd}
+                    onTabClick={onTabClick}
+                    tabTemplate={(tab, isDragging) => (
+                        <TabTemplate
+                            {...tab}
+                            isDragging={isDragging}
+                            deleteTab={deleteTab}
+                        />
+                    )}
+                />
+            </FlexRow>
+        ),
+        [tabs, activeTab]
     );
 };

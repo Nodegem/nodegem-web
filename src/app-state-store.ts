@@ -3,7 +3,7 @@ import { ArgsProps, NotificationPlacement } from 'antd/lib/notification';
 import { Store } from 'overstated';
 
 interface IAppState {
-    selectedGraph?: { id: string; type: GraphType };
+    selectedGraph?: Graph | Macro;
 }
 
 type NoticeType = 'success' | 'info' | 'warn' | 'error';
@@ -19,8 +19,20 @@ interface INotifyOptions {
     icon?: React.ReactNode;
 }
 
-class AppStateContainer extends Store<IAppState> {
+class AppStore extends Store<IAppState> {
     public state: IAppState = {};
+
+    public get hasSelectedGraph(): boolean {
+        return !!this.state.selectedGraph;
+    }
+
+    public setSelectedGraph = (graph: Graph | Macro) => {
+        this.setState({ selectedGraph: graph });
+    };
+
+    public clearSelectedGraph = () => {
+        this.setState({ selectedGraph: undefined });
+    };
 
     public openNotification = ({
         title,
@@ -85,4 +97,4 @@ class AppStateContainer extends Store<IAppState> {
     };
 }
 
-export const appStateContainer = new AppStateContainer();
+export const appStore = new AppStore();

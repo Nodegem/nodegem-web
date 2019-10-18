@@ -4,32 +4,30 @@ import { NodeSelect } from './NodeSelect';
 
 interface INodeSelectProps {
     open: boolean;
+    addNode: (definition: NodeDefinition) => void;
+    isLoadingDefinitions: boolean;
+    nodeOptions: NodeCache;
 }
 
-export const NodeSelectSection: React.FC<INodeSelectProps> = ({ open }) => {
+export const NodeSelectSection: React.FC<INodeSelectProps> = ({
+    open,
+    addNode,
+    isLoadingDefinitions,
+    nodeOptions,
+}) => {
     return (
         <CustomCollapsible
             size="15vw"
             minSize="325px"
             onTabClick={() => {}}
             tabContent="Nodes"
-            collapsed={!open}
+            collapsed={!open && !!nodeOptions}
         >
             <NodeSelect
-                // onFilter={text =>
-                //     sandboxStore.searchManager.setNodeOptionSearchtext(text)
-                // }
                 onFilter={text => {}}
-                // addNode={node => sandboxStore.addNode(node.fullName)}
-                addNode={node => {}}
-                loading={
-                    false
-                    // sandboxStore.stateManager.sandboxState.loadingDefinitions
-                }
-                nodeOptions={{} as any}
-                //     sandboxStore.stateManager.nodeDefinitions &&
-                //     sandboxStore.stateManager.nodeDefinitions.selectFriendly
-                // }
+                addNode={addNode}
+                loading={isLoadingDefinitions}
+                nodeOptions={nodeOptions.selectFriendly}
             />
         </CustomCollapsible>
     );

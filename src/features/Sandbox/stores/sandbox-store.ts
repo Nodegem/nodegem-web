@@ -1,5 +1,7 @@
+import { appStore } from 'app-state-store';
+import localforage from 'localforage';
 import { compose, Store } from 'overstated';
-import { NodeService } from 'services';
+import { GraphService, MacroService, NodeService } from 'services';
 import { getGraphType } from 'utils';
 import { convertToSelectFriendly, flatten, getPort } from '../utils';
 import { GraphStore } from './graph-store';
@@ -34,16 +36,25 @@ const tryGetValue = (node: NodeData, key: string, defaultValue?: any) => {
     graphStore: GraphStore,
     modalStore: ModalStore,
 })
-export class SandboxStore extends Store<
-    ISandboxState,
-    undefined,
-    ISandboxCompose
-> {
-    public registerKeyEvents = () => {
+export class SandboxStore
+    extends Store<ISandboxState, undefined, ISandboxCompose>
+    implements IDisposable {
+    public initialize() {
+        if (appStore.hasSelectedGraph) {
+            this.stateStore.addTab(appStore.state.selectedGraph!);
+        } else {
+            this.tryLoadLocalState();
+        }
+    }
+
+    public registerEvents = () => {
+        window.onbeforeunload = () => {
+            this.saveStateLocally();
+        };
         window.addEventListener('keydown', this.listenToKeyDown);
     };
 
-    public disposeKeyEvents = () => {
+    public disposeEvents = () => {
         window.removeEventListener('keydown', this.listenToKeyDown);
     };
 
@@ -73,10 +84,8 @@ export class SandboxStore extends Store<
                 this.stateStore.addTab(graph);
             }
         }
-        // sandboxStore.stateManager.updateSandboxState(
-        //     'isEditingSettings',
-        //     false
-        // );
+
+        this.stateStore.toggleSettingsEdit(false);
     };
 
     public load = async (graph: Partial<Graph | Macro>) => {
@@ -87,8 +96,6 @@ export class SandboxStore extends Store<
             id!,
             getGraphType(graph)
         );
-
-        console.log(definitions);
 
         const uiNodes = (nodes || []).map<INodeUIData>(n => {
             const info = definitions.definitionLookup[n.fullName];
@@ -190,6 +197,34 @@ export class SandboxStore extends Store<
         // this.hubManager.initialize();
     };
 
+    public saveStateLocally = async () => {
+        const { tabs } = this.stateStore.state;
+        const graphInfo = tabs.map(x => ({
+            id: x.graph.id,
+            type: getGraphType(x.graph),
+        }));
+        await localforage.setItem('openedTabs', graphInfo);
+    };
+
+    public tryLoadLocalState = async () => {
+        const graphInfo = await localforage.getItem<
+            {
+                id: string;
+                type: GraphType;
+            }[]
+        >('openedTabs');
+
+        if (graphInfo.any()) {
+            graphInfo.forEach(async g => {
+                if (g.type === 'graph') {
+                    this.stateStore.addTab(await GraphService.get(g.id));
+                } else {
+                    this.stateStore.addTab(await MacroService.get(g.id));
+                }
+            });
+        }
+    };
+
     private listenToKeyDown = (event: KeyboardEvent) => {
         if (event.ctrlKey || event.metaKey) {
             switch (event.keyCode) {
@@ -206,11 +241,11 @@ export class SandboxStore extends Store<
                     this.panelStore.toggleNodeInfo();
                     break;
                 case 67:
-                    // this.stateManager.toggleViewState('logs');
                     event.preventDefault();
+                    this.panelStore.toggleConsole();
                     break;
                 case 32:
-                    // this.sandboxManager.resetView();
+                    this.graphStore.resetView();
                     break;
                 case 27:
                     // const { activeTab } = this.tabManager;
@@ -228,4 +263,9 @@ export class SandboxStore extends Store<
             }
         }
     };
+
+    public dispose() {
+        this.saveStateLocally();
+        this.disposeEvents();
+    }
 }

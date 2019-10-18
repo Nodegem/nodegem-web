@@ -1,7 +1,7 @@
 import { notification } from 'antd';
 import { action, observable } from 'mobx';
 import { AuthService } from 'services';
-import history from 'utils/history';
+import routerHistory from 'utils/history';
 
 import { saveToStorage } from 'utils';
 import userStore from './user-store';
@@ -25,7 +25,7 @@ class AuthStore {
             userStore.setUser(response.user);
             userStore.setToken(response.token);
 
-            history.push('/');
+            routerHistory.push('/');
         } catch (e) {
             let errorMessage = 'Unable to connect to service.';
             if (e.status) {
@@ -52,7 +52,7 @@ class AuthStore {
             const response = await AuthService.register(registerRequest);
             userStore.setUser(response.user);
             userStore.setToken(response.token);
-            history.push('/');
+            routerHistory.push('/');
         } catch (e) {
             let errorMessage = 'Unable to connect to service.';
 
@@ -97,7 +97,7 @@ class AuthStore {
             console.warn(e);
         } finally {
             userStore.dispose();
-            history.push('/login');
+            routerHistory.push('/login');
         }
     }
 }

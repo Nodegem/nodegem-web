@@ -1,6 +1,6 @@
 import { Store } from 'overstated';
 import { SandboxStore } from '.';
-import { appStateContainer } from './../../../app-state-store';
+import { appStore } from './../../../app-state-store';
 
 interface ISandboxState {
     isActive: boolean;
@@ -18,23 +18,22 @@ export class StateStore extends Store<ISandboxState, SandboxStore> {
         edittingSettings: false,
     };
 
-    public getActiveTab = (): TabData => {
+    public get activeTab(): TabData {
         return this.state.tabs.firstOrDefault(
             x => x.graph.id === this.state.activeTabId
         )!;
-    };
+    }
 
-    public hasActiveTab = (): boolean => {
-        return !!this.getActiveTab();
-    };
+    public get hasActiveTab(): boolean {
+        return !!this.activeTab;
+    }
 
-    public hasTabs = (): boolean => {
+    public get hasTabs(): boolean {
         return this.state.tabs.length > 0;
-    };
+    }
 
     public setDefinitionsForActiveTab = (definitions: NodeCache) => {
-        const activeTab = this.getActiveTab();
-        activeTab.definitions = definitions;
+        this.activeTab.definitions = definitions;
     };
 
     public setActiveTab = (id: string): void => {
@@ -49,7 +48,7 @@ export class StateStore extends Store<ISandboxState, SandboxStore> {
 
     public addTab = (graph: Graph | Macro) => {
         if (this.state.tabs.any(x => x.graph.id === graph.id)) {
-            appStateContainer.toast('Graph already opened', 'warn');
+            appStore.toast('Graph already opened', 'warn');
             this.setActiveTab(graph.id);
             return;
         }

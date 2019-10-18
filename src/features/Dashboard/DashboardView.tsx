@@ -11,8 +11,9 @@ import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { GraphStore } from 'stores/graph-store';
 import { MacroStore } from 'stores/macro-store';
+import routerHistory from '../../utils/history';
 
-import { isMacro } from 'utils';
+import { appStore } from 'app-state-store';
 import DashboardCard from './DashboardCard';
 
 interface IDashboardProps {
@@ -58,11 +59,14 @@ class DashboardView extends React.Component<
         }
     };
 
-    public onEdit = (item: any, type: GraphType) => {
+    public onSettings = (item: any, type: GraphType) => {
         this.modals[type]!.openModal(item, true);
     };
 
-    public onBuild = (item: Graph | Macro) => {};
+    public onEdit = (item: Graph | Macro) => {
+        appStore.setSelectedGraph(item);
+        routerHistory.push('/sandbox');
+    };
 
     public render() {
         const { graphs, loadingGraphs } = this.props.graphStore!;
@@ -126,8 +130,8 @@ class DashboardView extends React.Component<
                                                 item={item}
                                                 type={x.key}
                                                 onDelete={this.onDelete}
-                                                onEdit={this.onEdit}
-                                                onBuild={this.onBuild}
+                                                onEdit={this.onSettings}
+                                                onBuild={this.onEdit}
                                             />
                                         </List.Item>
                                     )}
