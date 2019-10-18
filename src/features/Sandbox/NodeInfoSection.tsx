@@ -1,12 +1,21 @@
+import { Empty } from 'antd';
 import { CustomCollapsible } from 'components';
+import { useStore } from 'overstated';
 import React from 'react';
 import NodeInfo from './NodeInfo/NodeInfo';
+import { NodeInfoStore } from './stores/node-info-store';
 
 interface INodeInfoProps {
-    open: boolean;
+    nodeInfoStore: NodeInfoStore;
 }
 
-export const NodeInfoSection: React.FC<INodeInfoProps> = ({ open }) => {
+export const NodeInfoSection: React.FC<INodeInfoProps> = ({
+    nodeInfoStore,
+}) => {
+    const { isOpen, selectedNode } = useStore(nodeInfoStore, store => ({
+        ...store.state,
+    }));
+
     return (
         <CustomCollapsible
             size="18vw"
@@ -14,13 +23,22 @@ export const NodeInfoSection: React.FC<INodeInfoProps> = ({ open }) => {
             onTabClick={() => {}}
             direction="left"
             tabContent="Node Info"
-            collapsed={!open}
+            collapsed={!isOpen}
+            className="node-info-collapsible"
         >
-            <NodeInfo
-                // selectedNode={sandboxStore.sandboxManager.firstSelectedNode}
-                selectedNode={undefined}
-                onNodeValueChange={(n, f) => n.updatePortValues(f)}
-            />
+            {!selectedNode && (
+                <Empty
+                    description="Select a Node"
+                    style={{ alignItems: 'center' }}
+                />
+            )}
+
+            {selectedNode && (
+                <NodeInfo
+                    selectedNode={selectedNode}
+                    onNodeValueChange={(n, f) => n.updatePortValues(f)}
+                />
+            )}
         </CustomCollapsible>
     );
 };

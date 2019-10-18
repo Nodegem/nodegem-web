@@ -4,16 +4,22 @@ import { compose, Store } from 'overstated';
 import { GraphService, MacroService, NodeService } from 'services';
 import { getGraphType } from 'utils';
 import { convertToSelectFriendly, flatten, getPort } from '../utils';
-import { GraphStore } from './graph-store';
-import { ModalStore } from './modal-store';
-import { PanelStore } from './panel-store';
-import { StateStore } from './state-store';
+import { CanvasStore } from './canvas-store';
+import { IntroStore } from './intro-store';
+import { LogsStore } from './logs-store';
+import { NodeInfoStore } from './node-info-store';
+import { NodeSelectStore } from './node-select-store';
+import { SandboxHeaderStore } from './sandbox-header-store';
+import { TabsStore } from './tabs-store';
 
 interface ISandboxCompose {
-    stateStore: StateStore;
-    panelStore: PanelStore;
-    graphStore: GraphStore;
-    modalStore: ModalStore;
+    canvasStore: CanvasStore;
+    sandboxHeaderStore: SandboxHeaderStore;
+    introStore: IntroStore;
+    tabsStore: TabsStore;
+    logsStore: LogsStore;
+    nodeInfoStore: NodeInfoStore;
+    nodeSelectStore: NodeSelectStore;
 }
 
 interface ISandboxState {
@@ -31,17 +37,25 @@ const tryGetValue = (node: NodeData, key: string, defaultValue?: any) => {
 };
 
 @compose({
-    stateStore: StateStore,
-    panelStore: PanelStore,
-    graphStore: GraphStore,
-    modalStore: ModalStore,
+    canvasStore: CanvasStore,
+    sandboxHeaderStore: SandboxHeaderStore,
+    introStore: IntroStore,
+    tabsStore: TabsStore,
+    logsStore: LogsStore,
+    nodeInfoStore: NodeInfoStore,
+    nodeSelectStore: NodeSelectStore,
 })
 export class SandboxStore
     extends Store<ISandboxState, undefined, ISandboxCompose>
     implements IDisposable {
+    public state: ISandboxState = {
+        isLoadingDefinitions: false,
+        isLoadingGraph: false,
+    };
+
     public initialize() {
         if (appStore.hasSelectedGraph) {
-            this.stateStore.addTab(appStore.state.selectedGraph!);
+            this.tabsStore.addTab(appStore.state.selectedGraph!);
         } else {
             this.tryLoadLocalState();
         }
@@ -73,22 +87,24 @@ export class SandboxStore
             selectFriendly: convertToSelectFriendly(definitions.children),
         };
 
-        this.stateStore.setDefinitionsForActiveTab(definitionObject);
+        this.tabsStore.setDefinitionsForGraph(graphId, definitionObject);
         this.setState({ isLoadingDefinitions: false });
         return definitionObject;
     };
 
-    public onEditGraph = (graph?: Graph | Macro, edit?: boolean) => {
-        if (graph) {
-            if (!edit) {
-                this.stateStore.addTab(graph);
-            }
-        }
-
-        this.stateStore.toggleSettingsEdit(false);
+    public editGraph = () => {
+        // if (graph) {
+        //     if (!edit) {
+        //         this.stateStore.addTab(graph);
+        //     }
+        // }
     };
 
-    public load = async (graph: Partial<Graph | Macro>) => {
+    public saveGraph = () => {};
+
+    public runGraph = () => {};
+
+    public load = async (graph: Graph | Macro) => {
         this.setState({ isLoadingGraph: true });
 
         const { nodes, links, id } = graph;
@@ -189,16 +205,17 @@ export class SandboxStore
             };
         });
 
-        await this.graphStore.load(uiNodes, uiLinks);
+        await this.canvasStore.load(uiNodes, uiLinks);
 
+        this.nodeSelectStore.setNodeOptions(definitions);
         this.setState({ isLoadingGraph: false });
-        this.panelStore.toggleNodeSelect(true);
+        this.nodeSelectStore.toggleOpen(true);
 
         // this.hubManager.initialize();
     };
 
     public saveStateLocally = async () => {
-        const { tabs } = this.stateStore.state;
+        const { tabs } = this.tabsStore.state;
         const graphInfo = tabs.map(x => ({
             id: x.graph.id,
             type: getGraphType(x.graph),
@@ -214,14 +231,19 @@ export class SandboxStore
             }[]
         >('openedTabs');
 
-        if (graphInfo.any()) {
-            graphInfo.forEach(async g => {
-                if (g.type === 'graph') {
-                    this.stateStore.addTab(await GraphService.get(g.id));
+        if (graphInfo && graphInfo.any()) {
+            this.suspend();
+            for (const graph of graphInfo) {
+                if (graph.type === 'graph') {
+                    this.tabsStore.addTab(await GraphService.get(graph.id));
                 } else {
-                    this.stateStore.addTab(await MacroService.get(g.id));
+                    this.tabsStore.addTab(await MacroService.get(graph.id));
                 }
-            });
+            }
+            this.unsuspend();
+            this.tabsStore.setActiveTab(graphInfo.firstOrDefault()!.id);
+        } else {
+            this.introStore.toggleStartPrompt(true);
         }
     };
 
@@ -234,18 +256,18 @@ export class SandboxStore
                     break;
                 case 90:
                     event.preventDefault();
-                    this.panelStore.toggleNodeSelect();
+                    this.nodeSelectStore.toggleOpen();
                     break;
                 case 88:
                     event.preventDefault();
-                    this.panelStore.toggleNodeInfo();
+                    this.nodeInfoStore.toggleOpen();
                     break;
                 case 67:
                     event.preventDefault();
-                    this.panelStore.toggleConsole();
+                    this.logsStore.toggleOpen();
                     break;
                 case 32:
-                    this.graphStore.resetView();
+                    this.canvasStore.resetView();
                     break;
                 case 27:
                     // const { activeTab } = this.tabManager;

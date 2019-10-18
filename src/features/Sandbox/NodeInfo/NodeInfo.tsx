@@ -25,7 +25,7 @@ import './NodeInfo.less';
 const { Option } = Select;
 
 interface INodeInfoProps {
-    selectedNode?: NodeController;
+    selectedNode: NodeController;
     onNodeValueChange: (node: NodeController, fields: IPortUIData[]) => void;
 }
 
@@ -44,34 +44,25 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
 
     return (
         <div className={containerClass}>
-            {!selectedNode ? (
-                <Empty
-                    description="Select a Node"
-                    style={{ alignItems: 'center' }}
+            <div className="node-info-title">
+                <p className="header">{selectedNode.nodeData.title}</p>
+            </div>
+            <Divider />
+            <div className="node-info-description">
+                <p className="header underline">Description:</p>
+                <Paragraph>
+                    {selectedNode.nodeData.description || 'N/A'}
+                </Paragraph>
+            </div>
+            <Divider />
+            <div className="node-info-properties">
+                <NodeInfoForm
+                    valueInputs={selectedNode.portsList.filter(
+                        x => x.io === 'input' && x.type === 'value'
+                    )}
+                    onUpdate={handleUpdate}
                 />
-            ) : (
-                <>
-                    <div className="node-info-title">
-                        <p className="header">{selectedNode.nodeData.title}</p>
-                    </div>
-                    <Divider />
-                    <div className="node-info-description">
-                        <p className="header underline">Description:</p>
-                        <Paragraph>
-                            {selectedNode.nodeData.description || 'N/A'}
-                        </Paragraph>
-                    </div>
-                    <Divider />
-                    <div className="node-info-properties">
-                        <NodeInfoForm
-                            valueInputs={selectedNode.portsList.filter(
-                                x => x.io === 'input' && x.type === 'value'
-                            )}
-                            onUpdate={handleUpdate}
-                        />
-                    </div>
-                </>
-            )}
+            </div>
         </div>
     );
 };

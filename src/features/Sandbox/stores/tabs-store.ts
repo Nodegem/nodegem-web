@@ -1,21 +1,16 @@
+import { appStore } from 'app-state-store';
 import { Store } from 'overstated';
 import { SandboxStore } from '.';
-import { appStore } from './../../../app-state-store';
 
-interface ISandboxState {
-    isActive: boolean;
+interface ITabsState {
     tabs: TabData[];
     activeTabId: string;
-    activeGraph?: Graph | Macro;
-    edittingSettings: boolean;
 }
 
-export class StateStore extends Store<ISandboxState, SandboxStore> {
-    public state: ISandboxState = {
-        isActive: false,
+export class TabsStore extends Store<ITabsState, SandboxStore> {
+    public state: ITabsState = {
         tabs: [],
         activeTabId: '',
-        edittingSettings: false,
     };
 
     public get activeTab(): TabData {
@@ -32,18 +27,26 @@ export class StateStore extends Store<ISandboxState, SandboxStore> {
         return this.state.tabs.length > 0;
     }
 
-    public setDefinitionsForActiveTab = (definitions: NodeCache) => {
-        this.activeTab.definitions = definitions;
+    public setDefinitionsForGraph = (
+        graphId: string,
+        definitions: NodeCache
+    ) => {
+        const tab = this.state.tabs.firstOrDefault(x => x.graph.id === graphId);
+        if (tab) {
+            this.setState({
+                tabs: [
+                    ...this.state.tabs.filter(x => x.graph.id !== graphId),
+                    {
+                        ...tab,
+                        definitions,
+                    },
+                ],
+            });
+        }
     };
 
     public setActiveTab = (id: string): void => {
         this.setState({ activeTabId: id });
-    };
-
-    public toggleSettingsEdit = (value?: boolean) => {
-        this.setState({
-            edittingSettings: this.state.edittingSettings.toggle(value),
-        });
     };
 
     public addTab = (graph: Graph | Macro) => {
@@ -61,6 +64,10 @@ export class StateStore extends Store<ISandboxState, SandboxStore> {
         });
         this.setActiveTab(graph.id);
         this.ctx.load(graph);
+    };
+
+    public openIntroPrompt = () => {
+        this.ctx.introStore.toggleStartPrompt(true);
     };
 
     public removeTab = (graphId: string) => {

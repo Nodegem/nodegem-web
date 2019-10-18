@@ -11,27 +11,32 @@ import { sandboxDroppableId } from '../Sandbox/SandboxCanvas';
 import { definitionToNode } from '../utils';
 import { SandboxStore } from './sandbox-store';
 
-interface IGraphState {
-    graph: Graph | Macro;
+interface ICanvasState {
     nodes: NodeController[];
     links: LinkController[];
-    hasLoadedGraph: boolean;
+    isLoading: boolean;
+    linksVisible: boolean;
 }
 
-export class GraphStore extends Store<IGraphState, SandboxStore> {
-    public state: IGraphState = {
+export class CanvasStore extends Store<ICanvasState, SandboxStore> {
+    public state: ICanvasState = {
         nodes: [],
         links: [],
-        hasLoadedGraph: false,
-    } as any;
+        isLoading: false,
+        linksVisible: true,
+    };
 
     public get mousePos(): Vector2 {
         return this._canvasController.mousePos;
     }
 
     public get nodeCache(): NodeCache {
-        const { hasActiveTab, activeTab } = this.ctx.stateStore;
+        const { hasActiveTab, activeTab } = this.ctx.tabsStore;
         return (hasActiveTab && activeTab.definitions) || ({} as any);
+    }
+
+    public get isDisabled(): boolean {
+        return this.state.isLoading;
     }
 
     private _nodes: Map<string, NodeController> = new Map();
@@ -74,7 +79,7 @@ export class GraphStore extends Store<IGraphState, SandboxStore> {
         result: DropResult,
         provided: ResponderProvided
     ): void => {
-        const { hasActiveTab } = this.ctx.stateStore;
+        const { hasActiveTab } = this.ctx.tabsStore;
         if (!hasActiveTab || !result.destination) {
             return;
         }
@@ -82,18 +87,22 @@ export class GraphStore extends Store<IGraphState, SandboxStore> {
             result.source.droppableId.startsWith(nodeSelectDroppableId) &&
             result.destination.droppableId === sandboxDroppableId
         ) {
-            this.createNodeFromDefinition(result.draggableId, false);
+            const { definitionLookup } = this.nodeCache;
+            this.createNodeFromDefinition(
+                definitionLookup[result.draggableId],
+                false
+            );
         }
     };
 
     public createNodeFromDefinition = (
-        nodeDefinitionId: string,
+        definition: NodeDefinition,
         centered = false
     ) => {
         const { definitionLookup } = this.nodeCache;
 
         const node = definitionToNode(
-            definitionLookup[nodeDefinitionId],
+            definitionLookup[definition.fullName],
             centered ? { x: 0, y: 0 } : this.mousePos
         );
 
@@ -112,6 +121,7 @@ export class GraphStore extends Store<IGraphState, SandboxStore> {
         );
 
         this._nodes.set(node.id, controller);
+        this.setState({ nodes: Array.from(this._nodes.values()) });
     };
 
     public addLink = (
@@ -152,33 +162,37 @@ export class GraphStore extends Store<IGraphState, SandboxStore> {
         if (destinationNode) {
             destinationNode.addLink(linkController);
         }
+
+        this.setState({ links: Array.from(this._links.values()) });
     };
 
     public async load(nodes: INodeUIData[], links: ILinkInitializeData[]) {
+        this.setState({ isLoading: true });
+
         this.clearView();
+
+        this.suspend();
         for (const node of nodes) {
             this.addNode(node);
         }
+        this.unsuspend();
 
-        await this.updateNodesFromMap();
         await waitWhile(() => this.state.nodes.every(n => n.hasLoaded));
 
+        this.suspend();
         for (const link of links) {
             const sourceNode = this._nodes.get(link.sourceNodeId);
             const destinationNode = this._nodes.get(link.destinationNodeId);
             if (!sourceNode || !destinationNode) {
                 continue;
             }
-
             const sourcePort = sourceNode.ports.get(link.sourceData.id);
             const destinationPort = destinationNode.ports.get(
                 link.destinationData.id
             );
-
             if (!sourcePort || !destinationPort) {
                 continue;
             }
-
             this.addLink(
                 {
                     node: sourceNode,
@@ -192,9 +206,9 @@ export class GraphStore extends Store<IGraphState, SandboxStore> {
                 }
             );
         }
+        this.unsuspend();
 
-        await this.updateLinksFromMap();
-        this.setState({ hasLoadedGraph: true });
+        this.setState({ isLoading: false });
     }
 
     public clearNodes() {
@@ -214,8 +228,11 @@ export class GraphStore extends Store<IGraphState, SandboxStore> {
     public clearView() {
         this.clearNodes();
         this.clearLinks();
-        this.setState({ hasLoadedGraph: false });
     }
+
+    public toggleLinkVisibility = (toggle?: boolean) => {
+        this.setState({ linksVisible: this.state.linksVisible.toggle(toggle) });
+    };
 
     private async updateNodesFromMap() {
         await this.setState({ nodes: Array.from(this._nodes.values()) });
@@ -232,6 +249,11 @@ export class GraphStore extends Store<IGraphState, SandboxStore> {
     private handleCanvasDown = (event: MouseEvent) => {
         // this._selectedNodes = [];
         // this.onCanvasDown(event);
+    };
+
+    public editNode = (node: INodeUIData) => {
+        this.ctx.nodeInfoStore.toggleOpen(true);
+        this.ctx.nodeInfoStore.setSelectedNode(this._nodes.get(node.id)!);
     };
 
     public removeNode = (nodeId: string) => {

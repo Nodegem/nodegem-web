@@ -1,7 +1,9 @@
 import { Icon } from 'antd';
 import classNames from 'classnames';
 import { DraggableTabs, FlexRow, ITab } from 'components';
-import React, { useMemo } from 'react';
+import { useStore } from 'overstated';
+import React, { useCallback, useMemo } from 'react';
+import { TabsStore } from './stores/tabs-store';
 
 const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
     if (event.button === 1) {
@@ -30,45 +32,50 @@ const TabTemplate: React.FC<
 });
 
 interface IGraphTabsProps {
-    tabs: TabData[];
-    activeTab: TabData;
-    deleteTab: (id: string) => void;
-    onTabAdd: () => void;
-    onTabClick: (id: string) => void;
-    onTabReorder: (tabs: ITab[]) => void;
+    tabsStore: TabsStore;
 }
 
-export const GraphTabsSection: React.FC<IGraphTabsProps> = ({
-    tabs,
-    activeTab,
-    deleteTab,
-    onTabAdd,
-    onTabClick,
-    onTabReorder,
-}) => {
-    return useMemo(
-        () => (
-            <FlexRow className="graph-tabs" flex="0 1 auto">
-                <DraggableTabs
-                    tabs={tabs.map(t => ({
-                        id: t.graph.id!,
-                        name: t.graph.name!,
-                        data: t,
-                    }))}
-                    activeTab={activeTab && activeTab.graph.id}
-                    onTabReorder={onTabReorder}
-                    onTabAdd={onTabAdd}
-                    onTabClick={onTabClick}
-                    tabTemplate={(tab, isDragging) => (
-                        <TabTemplate
-                            {...tab}
-                            isDragging={isDragging}
-                            deleteTab={deleteTab}
-                        />
-                    )}
-                />
-            </FlexRow>
-        ),
-        [tabs, activeTab]
+export const GraphTabsSection: React.FC<IGraphTabsProps> = ({ tabsStore }) => {
+    const {
+        tabs,
+        activeTab,
+        setTabs,
+        addTabPrompt,
+        setActiveTab,
+        removeTab,
+    } = useStore(tabsStore, store => ({
+        tabs: store.state.tabs,
+        activeTab: store.activeTab,
+        setTabs: store.setTabs,
+        addTabPrompt: store.openIntroPrompt,
+        setActiveTab: store.setActiveTab,
+        removeTab: store.removeTab,
+    }));
+
+    const tabReorder = useCallback(
+        (orderedTabs: ITab[]) => setTabs(orderedTabs.map(t => t.data)),
+        []
+    );
+    return (
+        <FlexRow className="graph-tabs" flex="0 1 auto">
+            <DraggableTabs
+                tabs={tabs.map(t => ({
+                    id: t.graph.id!,
+                    name: t.graph.name!,
+                    data: t,
+                }))}
+                activeTab={activeTab && activeTab.graph.id}
+                onTabReorder={tabReorder}
+                onTabAdd={addTabPrompt}
+                onTabClick={setActiveTab}
+                tabTemplate={(tab, isDragging) => (
+                    <TabTemplate
+                        {...tab}
+                        isDragging={isDragging}
+                        deleteTab={removeTab}
+                    />
+                )}
+            />
+        </FlexRow>
     );
 };
