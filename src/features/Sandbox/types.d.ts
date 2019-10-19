@@ -11,3 +11,10 @@ type NodeCache = {
     definitionLookup: { [id: string]: NodeDefinition };
     selectFriendly: SelectFriendly<NodeDefinition>;
 };
+
+type PortDataSlim = {
+    id: string;
+    nodeId: string;
+    io: PortIOType;
+    type: PortType;
+};

@@ -116,10 +116,10 @@ export class SandboxStore implements IDisposable {
 
         this.logManager = new LogManager(this.tabManager);
 
-        this.drawLinkManager = new DrawLinkManager(
-            this.sandboxManager,
-            this.notify
-        );
+        // this.drawLinkManager = new DrawLinkManager(
+        //     this.sandboxManager,
+        //     this.notify
+        // );
 
         this.searchManager = new SearchManager(
             () => this.sandboxManager.nodes,
@@ -386,7 +386,7 @@ export class SandboxStore implements IDisposable {
         data: IPortUIData,
         node: NodeController
     ) => {
-        this.drawLinkManager.toggleDraw(event, element, data, node);
+        // this.drawLinkManager.toggleDraw(event, element, data, node);
     };
 
     public load = async (graph: Partial<Graph | Macro>) => {
@@ -473,6 +473,7 @@ export class SandboxStore implements IDisposable {
                 },
                 title: info.title,
                 permanent: n.permanent,
+                selected: false,
             };
         });
 

@@ -119,7 +119,7 @@ export class SandboxStore
             return {
                 id: n.id,
                 fullName: n.fullName,
-                position: n.position,
+                position: n.position || { x: 0, y: 0 },
                 description: info.description,
                 macroFieldId: info.macroFieldId,
                 macroId: info.macroId,
@@ -188,6 +188,7 @@ export class SandboxStore
                 },
                 title: info.title,
                 permanent: n.permanent,
+                selected: false,
             };
         });
 

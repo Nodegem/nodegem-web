@@ -114,8 +114,8 @@ class CanvasController implements IDisposable {
 
         this.drag = new DragController(
             this.parentElement,
+            this.backgroundElement,
             this.onTranslate,
-            () => {},
             this.onCanvasDown
         );
         this.zoom = new ZoomController(
@@ -126,7 +126,6 @@ class CanvasController implements IDisposable {
         );
 
         this.updateBackground();
-        // this.resize();
         this.update();
     }
 
@@ -156,7 +155,7 @@ class CanvasController implements IDisposable {
             x: -offset.x + x,
             y: offset.y + y,
         };
-        this.canvas.style.transform = `translate3d(${newTransform.x}px, ${newTransform.y}px, 0px) scale3d(${scale}, ${scale}, ${scale})`;
+        this.canvas.style.transform = `translate(${newTransform.x}px, ${newTransform.y}px) scale(${scale})`;
     }
 
     private onTranslate = (delta: Vector2, e: MouseEvent) => {

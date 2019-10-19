@@ -1,35 +1,43 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 
 import { Button, Tooltip } from 'antd';
+import Draggable, {
+    DraggableData,
+    DraggableEvent,
+    DraggableEventHandler,
+} from 'react-draggable';
 import { Socket as Port } from '../Port/Port';
 import './Node.less';
 
-const ToolbarContents: React.FC<IToolbarProps> = ({
-    nodeData,
-    edit,
-    remove,
-    forceClose,
-}) => {
-    return (
-        <span className="toolbar">
-            <Button
-                onClick={() => {
-                    edit(nodeData);
-                    forceClose();
-                }}
-                type="primary"
-                icon="edit"
-            />
-            {!nodeData.permanent && (
+const ToolbarContents: React.FC<IToolbarProps> = React.memo(
+    ({ nodeData, edit, remove, forceClose }) => {
+        return (
+            <span className="toolbar">
                 <Button
-                    onClick={() => remove(nodeData.id)}
-                    type="danger"
-                    icon="delete"
+                    onClick={() => {
+                        edit(nodeData);
+                        forceClose();
+                    }}
+                    type="primary"
+                    icon="edit"
                 />
-            )}
-        </span>
-    );
-};
+                {!nodeData.permanent && (
+                    <Button
+                        onClick={() => remove(nodeData.id)}
+                        type="danger"
+                        icon="delete"
+                    />
+                )}
+            </span>
+        );
+    }
+);
 
 interface IToolbarProps {
     visible?: boolean;
@@ -39,139 +47,101 @@ interface IToolbarProps {
     forceClose: () => void;
 }
 
-const Toolbar: React.FC<IToolbarProps> = ({
-    visible,
-    remove,
-    edit,
-    forceClose,
-    nodeData,
-    children,
-}) => {
-    return (
-        <Tooltip
-            visible={visible}
-            className="toolbar-tooltip"
-            title={
-                <ToolbarContents
-                    edit={edit}
-                    remove={remove}
-                    nodeData={nodeData}
-                    forceClose={forceClose}
-                />
-            }
-        >
-            {children}
-        </Tooltip>
-    );
-};
+const Toolbar: React.FC<IToolbarProps> = React.memo(
+    ({ visible, remove, edit, forceClose, nodeData, children }) => {
+        return (
+            <Tooltip
+                visible={visible}
+                className="toolbar-tooltip"
+                title={
+                    <ToolbarContents
+                        edit={edit}
+                        remove={remove}
+                        nodeData={nodeData}
+                        forceClose={forceClose}
+                    />
+                }
+            >
+                {children}
+            </Tooltip>
+        );
+    }
+);
 
 interface INodeProps {
-    data: INodeUIData;
-    sandboxMode?: boolean;
-    editNode?: (nodeData: INodeUIData) => void;
-    removeNode?: (id: string) => void;
-    getRef?: (instance: HTMLDivElement) => void;
-    getPortRef?: (port: IPortUIData, element: HTMLElement) => void;
-    removePortRef?: (id: string) => void;
-    onPortAdd?: (port: IPortUIData) => void;
-    onPortRemove?: (port: IPortUIData) => void;
-    onPortEvent?: (
+    id: string;
+    selected: boolean;
+    title: string;
+    initialPosition: Vector2;
+    flowInputs: IPortUIData[];
+    flowOutputs: IPortUIData[];
+    valueInputs: IPortUIData[];
+    valueOutputs: IPortUIData[];
+    hidePortActions: boolean;
+    onDrag: (id: string) => void;
+    onDragStop: (position: Vector2) => void;
+    onPortEvent: (
         event: PortEvent,
         element: HTMLElement,
-        data: IPortUIData
+        data: PortDataSlim
     ) => void;
-    hidePortActions?: boolean;
+    onPortAdd: (port: PortDataSlim) => void;
+    onPortRemove: (port: PortDataSlim) => void;
 }
 
 export const Node: React.FC<INodeProps> = ({
-    getRef,
-    data,
-    editNode = () => {},
-    removeNode = () => {},
-    onPortAdd = () => {},
-    onPortRemove = () => {},
-    getPortRef,
-    removePortRef,
-    sandboxMode,
-    onPortEvent,
+    id,
+    selected,
+    title,
+    initialPosition,
+    flowInputs,
+    flowOutputs,
+    valueInputs,
+    valueOutputs,
     hidePortActions,
-    ...rest
+    onPortEvent,
+    onPortAdd,
+    onPortRemove,
+    onDrag,
+    onDragStop,
 }: INodeProps) => {
-    const { portData, title } = data;
-    const { flowInputs, flowOutputs, valueInputs, valueOutputs } = portData;
-    const container = useRef<HTMLDivElement>(null);
-    const [visibleToolbar, setVisible] = useState(false);
-    const [portCount, setPortCount] = useState(0); // Just a hack to forceUpdate
+    const [position, setPosition] = useState(initialPosition);
 
-    useEffect(() => {
-        if (getRef) {
-            getRef(container.current!);
-        }
+    const handleDrag = useCallback(
+        (e: DraggableEvent, data: DraggableData) => {
+            e.stopPropagation();
+            onDrag(id);
+        },
+        [onDrag, id]
+    );
 
-        const preventDefault = (event: MouseEvent) => {
-            event.preventDefault();
-            event.stopPropagation();
-        };
-
-        const disable = (event: MouseEvent) => {
-            if (event.button === 2) {
-                event.stopPropagation();
-                event.preventDefault();
-                setVisible(!visibleToolbar);
-            } else {
-                setVisible(false);
-            }
-        };
-
-        const outsideClick = (event: MouseEvent) => {
-            if (visibleToolbar) {
-                event.preventDefault();
-                event.stopPropagation();
-                setVisible(false);
-            }
-        };
-
-        window.addEventListener('contextmenu', outsideClick);
-        container.current!.addEventListener('mousedown', disable);
-        container.current!.addEventListener('contextmenu', preventDefault);
-        return () => {
-            window.removeEventListener('contextmenu', outsideClick);
-            container.current!.removeEventListener('mousedown', disable);
-            container.current!.removeEventListener(
-                'contextmenu',
-                preventDefault
-            );
-        };
-    }, [container, visibleToolbar, portCount]);
-
-    const closeToolbar = () => setVisible(false);
-
-    const handlePortAdd = (port: IPortUIData) => {
-        onPortAdd(port);
-        setPortCount(portCount + 1);
-    };
-
-    const handlePortRemove = (port: IPortUIData) => {
-        onPortRemove(port);
-        setPortCount(portCount - 1);
-    };
+    const handleDragStop = useCallback(
+        (e: DraggableEvent, data: DraggableData) => {
+            setPosition(data);
+            onDragStop(data);
+        },
+        [onDragStop]
+    );
 
     return (
-        <Toolbar
-            forceClose={closeToolbar}
-            visible={visibleToolbar}
-            edit={editNode}
-            remove={removeNode}
-            nodeData={data}
+        // <Toolbar
+        //     // edit={editNode}
+        //     // remove={removeNode}
+        //     // nodeData={data}
+        // >
+        <Draggable
+            position={position}
+            onDrag={handleDrag}
+            onStop={handleDragStop}
         >
-            <div
-                ref={container}
-                style={{ position: 'absolute' }}
-                className="node-container"
-                {...rest}
-            >
-                <div className="flow flow-inputs">
-                    {flowInputs.map((fi, i) => (
+            {useMemo(
+                () => (
+                    <div
+                        style={{ position: 'absolute' }}
+                        className="node-container"
+                    >
+                        <div className="flow flow-inputs">
+                            {/* {flowInputs.map((fi, i) => (
                         <Port
                             getPortRef={getPortRef}
                             removePortRef={removePortRef}
@@ -182,27 +152,26 @@ export const Node: React.FC<INodeProps> = ({
                             lastPort={i === flowInputs.length - 1}
                             hidePortActions={hidePortActions}
                         />
-                    ))}
-                </div>
-                <div className="inner">
-                    <div className="value value-inputs">
-                        {valueInputs.map((vi, i) => (
-                            <Port
-                                getPortRef={getPortRef}
-                                removePortRef={removePortRef}
-                                key={vi.id}
-                                data={vi}
-                                onPortEvent={onPortEvent}
-                                onAddPort={handlePortAdd}
-                                onRemovePort={handlePortRemove}
-                                lastPort={i === valueInputs.length - 1}
-                                hidePortActions={hidePortActions}
-                            />
-                        ))}
-                    </div>
-                    <span className="title">{title}</span>
-                    <div className="value value-outputs">
-                        {valueOutputs.map((vo, i) => (
+                    ))} */}
+                        </div>
+                        <div className="inner">
+                            <div className="value value-inputs">
+                                {valueInputs.map((vi, i) => (
+                                    <Port
+                                        key={vi.id}
+                                        onPortEvent={onPortEvent}
+                                        onAddPort={onPortAdd}
+                                        onRemovePort={onPortRemove}
+                                        lastPort={i === valueInputs.length - 1}
+                                        hidePortActions={hidePortActions}
+                                        nodeId={id}
+                                        {...vi}
+                                    />
+                                ))}
+                            </div>
+                            <span className="title">{title}</span>
+                            <div className="value value-outputs">
+                                {/* {valueOutputs.map((vo, i) => (
                             <Port
                                 getPortRef={getPortRef}
                                 removePortRef={removePortRef}
@@ -213,11 +182,11 @@ export const Node: React.FC<INodeProps> = ({
                                 onAddPort={onPortAdd}
                                 hidePortActions={hidePortActions}
                             />
-                        ))}
-                    </div>
-                </div>
-                <div className="flow flow-outputs">
-                    {flowOutputs.map((fo, i) => (
+                        ))} */}
+                            </div>
+                        </div>
+                        <div className="flow flow-outputs">
+                            {/* {flowOutputs.map((fo, i) => (
                         <Port
                             getPortRef={getPortRef}
                             removePortRef={removePortRef}
@@ -228,9 +197,13 @@ export const Node: React.FC<INodeProps> = ({
                             lastPort={i === flowOutputs.length - 1}
                             hidePortActions={hidePortActions}
                         />
-                    ))}
-                </div>
-            </div>
-        </Toolbar>
+                    ))} */}
+                        </div>
+                    </div>
+                ),
+                [title, flowInputs, flowOutputs, valueInputs, valueOutputs]
+            )}
+        </Draggable>
+        // </Toolbar>
     );
 };

@@ -9,8 +9,8 @@ class DragController implements IDisposable {
 
     constructor(
         private container: HTMLElement,
+        private viewbox: HTMLElement,
         private onTranslate: DragTranslateEvent = () => {},
-        private onDragUp: DragUpEvent = () => {},
         private onCanvasDown: DragStartEvent = () => {}
     ) {
         this.mouseStart = null;
@@ -21,12 +21,6 @@ class DragController implements IDisposable {
         this.container.addEventListener('mousedown', this.handleDown);
         window.addEventListener('mousemove', this.handleMove);
         window.addEventListener('mouseup', this.handleUp);
-
-        this.container.addEventListener('touchstart', this.handleDown);
-        window.addEventListener('touchmove', this.handleMove, {
-            passive: false,
-        });
-        window.addEventListener('touchend', this.handleUp);
     }
 
     private getCoords(event: MouseEvent | TouchEvent): Vector2 {
@@ -42,7 +36,11 @@ class DragController implements IDisposable {
             return;
         }
 
-        // event.stopPropagation();
+        const target = event.target as HTMLElement;
+        if (target !== this.container && target !== this.viewbox) {
+            return;
+        }
+
         this.onCanvasDown(event as MouseEvent);
         this.mouseStart = this.getCoords(event);
     };
@@ -51,8 +49,6 @@ class DragController implements IDisposable {
         if (!this.mouseStart) {
             return;
         }
-        event.preventDefault();
-        // event.stopPropagation();
 
         const { x, y } = this.getCoords(event);
         const delta = { x: x - this.mouseStart.x, y: y - this.mouseStart.y };
@@ -72,7 +68,6 @@ class DragController implements IDisposable {
         }
 
         this.mouseStart = null;
-        this.onDragUp(event as MouseEvent);
     };
 
     public dispose(): void {

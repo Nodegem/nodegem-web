@@ -4,7 +4,7 @@ import NodeController from '../Node/node-controller';
 export type DrawArgs = {
     element: HTMLElement;
     data: IPortUIData;
-    node: NodeController;
+    node: INodeUIData;
 };
 
 class DrawLinkController implements IDisposable {
@@ -28,7 +28,7 @@ class DrawLinkController implements IDisposable {
         type: PortEvent,
         source: HTMLElement,
         data: IPortUIData,
-        node: NodeController
+        node: INodeUIData
     ) {
         if (!this.isDrawing && type === 'down') {
             this._source = { element: source, data, node };

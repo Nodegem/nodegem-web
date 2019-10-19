@@ -1,10 +1,7 @@
-import { computed, observable } from 'mobx';
 import { getCenterCoordinates } from 'utils';
 import DrawLinkController, { DrawArgs } from '../Link/draw-link-controller';
 import FakeLinkController from '../Link/fake-link-controller';
 import LinkController from '../Link/link-controller';
-import NodeController from '../Node/node-controller';
-import SandboxManager from '../Sandbox/sandbox-manager';
 import { isValidConnection } from '../utils';
 
 export class DrawLinkManager implements IDisposable {
@@ -17,16 +14,18 @@ export class DrawLinkManager implements IDisposable {
 
     public fakeLink: FakeLinkController;
 
-    @computed
-    public get isDrawing(): boolean {
-        return this._isDrawing;
-    }
-
-    @observable
-    private _isDrawing = false;
+    private isDrawing = false;
 
     constructor(
-        private sandboxManager: SandboxManager,
+        private getMousePos: () => Vector2,
+        private getLinkByNode: (
+            nodeId: string,
+            portId: string
+        ) => LinkController,
+        private removeLink: (id: string) => void,
+        private convertCoordinates: (coordinates: Vector2) => Vector2,
+        private getNode: (nodeId: string) => INodeUIData,
+        private addLink: (start: DrawArgs, end: DrawArgs) => void,
         private onLinkError: (message: string) => void
     ) {
         this.drawLinkController = new DrawLinkController(
@@ -42,7 +41,7 @@ export class DrawLinkManager implements IDisposable {
         event: PortEvent,
         element: HTMLDivElement,
         data: IPortUIData,
-        node: NodeController
+        node: INodeUIData
     ): void => {
         this.drawLinkController.toggleDraw(event, element, data, node);
     };
@@ -54,7 +53,7 @@ export class DrawLinkManager implements IDisposable {
     };
 
     private handleDrawing = () => {
-        this.fakeLink.update(this.sandboxManager.mousePos);
+        this.fakeLink.update(this.getMousePos());
     };
 
     private handleDrawStart = (source: DrawArgs) => {
@@ -63,14 +62,11 @@ export class DrawLinkManager implements IDisposable {
             source.data.connected &&
             !(source.data.io === 'output' && source.data.type === 'value')
         ) {
-            const link = this.sandboxManager.getLinkByNode(
-                source.node.id,
-                source.data.id
-            );
+            const link = this.getLinkByNode(source.node.id, source.data.id);
 
             if (link) {
                 startElement = link.getOppositePortElement(source.element);
-                this.sandboxManager.removeLink(link.id);
+                this.removeLink(link.id);
                 link.toggleConnectingOppositePort(source.element);
 
                 this.modifiedLink = {
@@ -82,13 +78,13 @@ export class DrawLinkManager implements IDisposable {
             source.data.connecting = true;
         }
 
-        const start = this.sandboxManager.convertCoordinates(
+        const start = this.convertCoordinates(
             getCenterCoordinates(startElement)
         );
 
-        this._isDrawing = true;
+        this.isDrawing = true;
         this.fakeLink.begin(start, source.data.type);
-        this.fakeLink.update(this.sandboxManager.mousePos);
+        this.fakeLink.update(this.getMousePos());
     };
 
     private handleDrawEnd = (s: DrawArgs, d: DrawArgs) => {
@@ -98,9 +94,7 @@ export class DrawLinkManager implements IDisposable {
                 const start = {
                     element: startElement,
                     data: link.getSourceData(startElement),
-                    node: this.sandboxManager.getNode(
-                        link.getSourceNodeId(startElement)
-                    )!,
+                    node: this.getNode(link.getSourceNodeId(startElement))!,
                 };
                 const destination =
                     s === d
@@ -109,7 +103,7 @@ export class DrawLinkManager implements IDisposable {
                                   startElement
                               ),
                               data: link.getOppositeData(startElement),
-                              node: this.sandboxManager.getNode(
+                              node: this.getNode(
                                   link.getOppositeNodeId(startElement)
                               )!,
                           }
@@ -124,7 +118,7 @@ export class DrawLinkManager implements IDisposable {
                         }
                     )
                 ) {
-                    this.sandboxManager.addLink(start, destination);
+                    this.addLink(start, destination);
                 } else {
                     this.onLinkError('Not a valid connection');
                     link.dispose();
@@ -136,7 +130,7 @@ export class DrawLinkManager implements IDisposable {
                         { nodeId: d.node.id, port: d.data }
                     )
                 ) {
-                    this.sandboxManager.addLink(s, d);
+                    this.addLink(s, d);
                 } else {
                     this.onLinkError('Not a valid connection');
                 }
@@ -152,13 +146,13 @@ export class DrawLinkManager implements IDisposable {
         }
 
         this.fakeLink.stop();
-        this._isDrawing = false;
+        this.isDrawing = false;
         this.modifiedLink = undefined;
     };
 
     public dispose() {
         this.fakeLink.dispose();
         this.drawLinkController.dispose();
-        this._isDrawing = false;
+        this.isDrawing = false;
     }
 }

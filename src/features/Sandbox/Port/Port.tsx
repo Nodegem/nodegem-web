@@ -1,81 +1,106 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 
 import { Icon, Tooltip } from 'antd';
 import { TooltipPlacement } from 'antd/lib/tooltip';
 import classNames from 'classnames';
+import _ from 'lodash';
 import './Port.less';
 
+const getPlacement = (io: PortIOType, type: PortType): TooltipPlacement => {
+    return io === 'output' && type === 'flow'
+        ? 'bottom'
+        : io === 'input' && type === 'value'
+        ? 'left'
+        : io === 'output' && type === 'value'
+        ? 'right'
+        : 'top';
+};
+
 interface ISocketProps {
-    data: IPortUIData;
+    name: string;
+    id: string;
+    nodeId: string;
+    io: PortIOType;
+    type: PortType;
+    indefinite?: boolean;
+    connected?: boolean;
+    connecting?: boolean;
     lastPort: boolean;
-    getPortRef?: (port: IPortUIData, element: HTMLElement) => void;
-    removePortRef?: (id: string) => void;
-    onPortEvent?: (
+    onPortEvent: (
         event: PortEvent,
         element: HTMLElement,
-        data: IPortUIData
+        data: PortDataSlim
     ) => void;
-    onAddPort?: (port: IPortUIData) => void;
-    onRemovePort?: (port: IPortUIData) => void;
+    onAddPort?: (data: PortDataSlim) => void;
+    onRemovePort?: (data: PortDataSlim) => void;
     hidePortActions?: boolean;
 }
+
+const propEqual = (prev: ISocketProps, cur: ISocketProps) => {
+    if (prev.nodeId !== cur.nodeId && prev.id !== cur.id) {
+        return false;
+    }
+
+    // If you aren't indefinite but wanna hide port actions just pretend you are the same
+    if (cur.hidePortActions && !cur.indefinite) {
+        return true;
+    }
+
+    return prev === cur;
+};
 
 export const Socket: React.FC<ISocketProps> = React.memo(
     ({
         onPortEvent,
-        data,
-        getPortRef,
-        removePortRef,
+        id,
+        nodeId,
+        io,
+        type,
         onAddPort,
         lastPort,
         onRemovePort,
+        indefinite = false,
+        connected = false,
+        connecting = false,
         hidePortActions = false,
     }: ISocketProps) => {
         const portRef = useRef<HTMLSpanElement>(null);
+        const data = { id, nodeId, io, type };
 
-        useEffect(() => {
-            const portClick = (event: MouseEvent | TouchEvent) => {
+        const portUp = useCallback(
+            (
+                event:
+                    | React.MouseEvent<HTMLSpanElement, MouseEvent>
+                    | React.TouchEvent<HTMLSpanElement>
+            ) => {
                 event.stopPropagation();
                 event.preventDefault();
+                onPortEvent('up', event.target as HTMLElement, data);
+            },
+            [onPortEvent, id, nodeId, io, type]
+        );
 
-                if (onPortEvent) {
-                    const type =
-                        event.type === 'mouseup' || event.type === 'touchstart'
-                            ? 'up'
-                            : 'down';
-                    onPortEvent(type, event.target as HTMLElement, data);
-                }
-            };
+        const portDown = useCallback(
+            (
+                event:
+                    | React.MouseEvent<HTMLSpanElement, MouseEvent>
+                    | React.TouchEvent<HTMLSpanElement>
+            ) => {
+                event.stopPropagation();
+                event.preventDefault();
+                onPortEvent('down', event.target as HTMLElement, data);
+            },
+            [onPortEvent, id, nodeId, io, type]
+        );
 
-            getPortRef!(data, portRef.current!);
-            portRef.current!.addEventListener('mousedown', portClick);
-            portRef.current!.addEventListener('mouseup', portClick);
-            portRef.current!.addEventListener('touchstart', portClick);
-            portRef.current!.addEventListener('touchend', portClick);
-            return () => {
-                removePortRef!(data.id);
-                portRef.current!.removeEventListener('mousedown', portClick);
-                portRef.current!.removeEventListener('mouseup', portClick);
-                portRef.current!.removeEventListener('touchstart', portClick);
-                portRef.current!.removeEventListener('touchend', portClick);
-            };
-        }, [portRef]);
-
-        const placement: TooltipPlacement =
-            data.io === 'output' && data.type === 'flow'
-                ? 'bottom'
-                : data.io === 'input' && data.type === 'value'
-                ? 'left'
-                : data.io === 'output' && data.type === 'value'
-                ? 'right'
-                : 'top';
+        const placement = useMemo(() => getPlacement(io, type), [io, type]);
 
         return (
             <div
                 className={classNames({
                     'port-container': true,
-                    indefinite: data.indefinite,
-                    [placement]: data.indefinite,
+                    indefinite,
+                    [placement]: indefinite,
                 })}
                 style={{
                     display: 'flex',
@@ -83,9 +108,9 @@ export const Socket: React.FC<ISocketProps> = React.memo(
                         placement === 'right' ? 'row-reverse' : 'row',
                 }}
             >
-                {data.indefinite &&
+                {indefinite &&
                     (lastPort ? (
-                        <Tooltip title={`Add to ${data.name}`}>
+                        <Tooltip title={`Add to ${name}`}>
                             <span
                                 onClick={() => onAddPort && onAddPort(data)}
                                 className={classNames({
@@ -98,7 +123,7 @@ export const Socket: React.FC<ISocketProps> = React.memo(
                             </span>
                         </Tooltip>
                     ) : (
-                        !data.connected && (
+                        !connected && (
                             <span
                                 onClick={() =>
                                     onRemovePort && onRemovePort(data)
@@ -113,18 +138,22 @@ export const Socket: React.FC<ISocketProps> = React.memo(
                             </span>
                         )
                     ))}
-                <Tooltip title={data.name} placement={placement}>
+                <Tooltip title={name} placement={placement}>
                     <span
                         ref={portRef}
+                        onMouseDown={portDown}
+                        onTouchStart={portDown}
+                        onMouseUp={portUp}
+                        onTouchEnd={portUp}
                         className={classNames({
                             port: true,
-                            'sandbox-mode': true,
-                            connecting: data.connecting,
-                            connected: data.connected,
+                            connecting,
+                            connected,
                         })}
                     />
                 </Tooltip>
             </div>
         );
-    }
+    },
+    propEqual
 );

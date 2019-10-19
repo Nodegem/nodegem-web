@@ -36,7 +36,7 @@ export const NodeInfoSection: React.FC<INodeInfoProps> = ({
             {selectedNode && (
                 <NodeInfo
                     selectedNode={selectedNode}
-                    onNodeValueChange={(n, f) => n.updatePortValues(f)}
+                    onNodeValueChange={(n, f) => {}}
                 />
             )}
         </CustomCollapsible>

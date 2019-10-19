@@ -4,7 +4,7 @@ import NodeController from '../Node/node-controller';
 
 interface INodeInfoState {
     isOpen: boolean;
-    selectedNode?: NodeController;
+    selectedNode?: INodeUIData;
 }
 
 export class NodeInfoStore extends Store<INodeInfoState, SandboxStore> {
@@ -12,7 +12,7 @@ export class NodeInfoStore extends Store<INodeInfoState, SandboxStore> {
         isOpen: false,
     };
 
-    public setSelectedNode = (node: NodeController) => {
+    public setSelectedNode = (node: INodeUIData) => {
         this.setState({ selectedNode: node });
     };
 

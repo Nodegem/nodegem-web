@@ -42,13 +42,14 @@ interface INodeUIData {
     title: string;
     fullName: string;
     description: string;
+    selected: boolean;
     portData: {
         flowInputs: IPortUIData[];
         flowOutputs: IPortUIData[];
         valueInputs: IPortUIData[];
         valueOutputs: IPortUIData[];
     };
-    position?: Vector2;
+    position: Vector2;
     permanent?: boolean;
     macroFieldId?: string;
     macroId?: string;

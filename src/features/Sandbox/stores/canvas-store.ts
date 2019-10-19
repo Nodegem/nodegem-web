@@ -1,7 +1,9 @@
 import { Store } from 'overstated';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { waitWhile } from 'utils';
+import DrawLinkController from '../Link/draw-link-controller';
 import LinkController from '../Link/link-controller';
+import { DrawLinkManager } from '../managers';
 import NodeController from '../Node/node-controller';
 import { nodeSelectDroppableId } from '../NodeSelect';
 import { ZoomBounds } from '../Sandbox/Canvas';
@@ -12,10 +14,15 @@ import { definitionToNode } from '../utils';
 import { SandboxStore } from './sandbox-store';
 
 interface ICanvasState {
-    nodes: NodeController[];
+    nodes: INodeUIData[];
     links: LinkController[];
     isLoading: boolean;
     linksVisible: boolean;
+    isDrawingLink: boolean;
+}
+
+interface INodeUIDataWithLinks extends INodeUIData {
+    links?: LinkController[];
 }
 
 export class CanvasStore extends Store<ICanvasState, SandboxStore> {
@@ -24,10 +31,11 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         links: [],
         isLoading: false,
         linksVisible: true,
+        isDrawingLink: false,
     };
 
     public get mousePos(): Vector2 {
-        return this._canvasController.mousePos;
+        return this.canvasController.mousePos;
     }
 
     public get nodeCache(): NodeCache {
@@ -39,12 +47,13 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         return this.state.isLoading;
     }
 
-    private _nodes: Map<string, NodeController> = new Map();
+    private _nodes: Map<string, INodeUIDataWithLinks> = new Map();
     private _links: Map<string, LinkController> = new Map();
 
     private canvasElement: HTMLDivElement;
     private selectController: SelectionController;
-    private _canvasController: CanvasController;
+    private canvasController: CanvasController;
+    private drawLinkManager: DrawLinkManager;
     private bounds: Dimensions;
     private zoomBounds?: ZoomBounds;
 
@@ -57,16 +66,23 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         this.bounds = bounds;
         this.zoomBounds = zoomBounds;
 
-        this._canvasController = new CanvasController(
+        this.canvasController = new CanvasController(
             element,
             this.bounds,
             this.zoomBounds,
             this.handleCanvasDown
         );
+
         this.selectController = new SelectionController(
-            this._canvasController,
+            this.canvasController,
             this.handleSelection
         );
+
+        // this.drawLinkManager = new DrawLinkManager(
+        //     () => this.mousePos,
+        //     this.getLinkByNode,
+        //     this.remove
+        // );
 
         element.parentElement!.addEventListener(
             'mousedown',
@@ -110,30 +126,32 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
     };
 
     public addNode = (node: INodeUIData) => {
-        const controller = new NodeController(
-            node,
-            this._canvasController,
-            () => {},
-            this.onNodeMove,
-            this.handleNodeDblClick,
-            this.handleNodeClick,
-            () => {}
-        );
-
-        this._nodes.set(node.id, controller);
+        this._nodes.set(node.id, node);
         this.setState({ nodes: Array.from(this._nodes.values()) });
+    };
+
+    private getNode = (nodeId: string) => {
+        return this._nodes.get(nodeId);
+    };
+
+    private getLinkByNode = (nodeId: string, portId: string) => {
+        // const nodeLinks = this._nodeLinks.get(nodeId);
+        // if (nodeLinks) {
+        //     return nodeLinks.get(portId);
+        // }
+        // return undefined;
     };
 
     public addLink = (
         source: {
             element: HTMLElement;
             data: IPortUIData;
-            node: NodeController;
+            node: INodeUIData;
         },
         destination: {
             element: HTMLElement;
             data: IPortUIData;
-            node: NodeController;
+            node: INodeUIData;
         }
     ) => {
         const linkController = new LinkController(
@@ -146,22 +164,28 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
                 destinationNodeId: destination.node.id,
             },
             source.data.type,
-            this._canvasController
+            this.canvasController
         );
 
         this._links.set(linkController.id, linkController);
-        const sourceNode = this._nodes.get(linkController.sourceNodeId);
-        const destinationNode = this._nodes.get(
-            linkController.destinationNodeId
-        );
 
-        if (sourceNode) {
-            sourceNode.addLink(linkController);
-        }
+        // const sourceNodeLinks = this._nodeLinks.get(source.node.id);
+        // if(sourceNodeLinks) {
+        //     sourceNodeLinks.set(source.data.id, linkController);
+        // } else {
+        //     const newNodeLinkMap = new Map();
+        //     newNodeLinkMap.set(source.data.id, linkController);
+        //     this._nodeLinks.set(source.node.id, newNodeLinkMap);
+        // }
 
-        if (destinationNode) {
-            destinationNode.addLink(linkController);
-        }
+        // const destinationNodeLinks = this._nodeLinks.get(destination.node.id);
+        // if(destinationNodeLinks) {
+        //     destinationNodeLinks.set(destination.data.id, linkController);
+        // } else {
+        //     const newNodeLinkMap = new Map();
+        //     newNodeLinkMap.set(destination.data.id, linkController);
+        //     this._nodeLinks.set(destination.node.id, newNodeLinkMap);
+        // }
 
         this.setState({ links: Array.from(this._links.values()) });
     };
@@ -177,52 +201,55 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         }
         this.unsuspend();
 
-        await waitWhile(() => this.state.nodes.every(n => n.hasLoaded));
+        // await waitWhile(() => this.state.nodes.every(n => n.hasLoaded));
 
         this.suspend();
-        for (const link of links) {
-            const sourceNode = this._nodes.get(link.sourceNodeId);
-            const destinationNode = this._nodes.get(link.destinationNodeId);
-            if (!sourceNode || !destinationNode) {
-                continue;
-            }
-            const sourcePort = sourceNode.ports.get(link.sourceData.id);
-            const destinationPort = destinationNode.ports.get(
-                link.destinationData.id
-            );
-            if (!sourcePort || !destinationPort) {
-                continue;
-            }
-            this.addLink(
-                {
-                    node: sourceNode,
-                    data: sourcePort.port,
-                    element: sourcePort.element,
-                },
-                {
-                    node: destinationNode,
-                    data: destinationPort.port,
-                    element: destinationPort.element,
-                }
-            );
-        }
+        // for (const link of links) {
+        //     const sourceNode = this._nodes.get(link.sourceNodeId);
+        //     const destinationNode = this._nodes.get(link.destinationNodeId);
+        //     if (!sourceNode || !destinationNode) {
+        //         continue;
+        //     }
+        //     const sourcePort = sourceNode.ports.get(link.sourceData.id);
+        //     const destinationPort = destinationNode.ports.get(
+        //         link.destinationData.id
+        //     );
+        //     if (!sourcePort || !destinationPort) {
+        //         continue;
+        //     }
+        //     this.addLink(
+        //         {
+        //             node: sourceNode,
+        //             data: sourcePort.port,
+        //             element: sourcePort.element,
+        //         },
+        //         {
+        //             node: destinationNode,
+        //             data: destinationPort.port,
+        //             element: destinationPort.element,
+        //         }
+        //     );
+        // }
         this.unsuspend();
 
         this.setState({ isLoading: false });
     }
 
+    public onNodePositionUpdate = (position: Vector2) => {};
+
     public clearNodes() {
-        this._nodes.forEach(n => n.dispose());
         this._nodes.clear();
+        this.setState({ nodes: [] });
     }
 
     public clearLinks = () => {
         this._links.forEach(l => l.dispose());
         this._links.clear();
+        this.setState({ links: [] });
     };
 
     public resetView = () => {
-        this._canvasController.reset();
+        this.canvasController.reset();
     };
 
     public clearView() {
@@ -231,20 +258,12 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
     }
 
     public toggleLinkVisibility = (toggle?: boolean) => {
-        this.setState({ linksVisible: this.state.linksVisible.toggle(toggle) });
+        this.setState({
+            linksVisible: this.state.linksVisible.toggle(toggle),
+        });
     };
 
-    private async updateNodesFromMap() {
-        await this.setState({ nodes: Array.from(this._nodes.values()) });
-    }
-
-    private async updateLinksFromMap() {
-        await this.setState({ links: Array.from(this._links.values()) });
-    }
-
-    public onNodeMove = (node: NodeController) => {
-        node.updateLinks();
-    };
+    public onNodeMove = (nodeId: string) => {};
 
     private handleCanvasDown = (event: MouseEvent) => {
         // this._selectedNodes = [];
@@ -254,6 +273,13 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
     public editNode = (node: INodeUIData) => {
         this.ctx.nodeInfoStore.toggleOpen(true);
         this.ctx.nodeInfoStore.setSelectedNode(this._nodes.get(node.id)!);
+    };
+
+    public removeLink = (linkId: string) => {
+        const link = this._links.get(linkId);
+        if (link) {
+            const sourceNode = this._nodes.get(link.sourceNodeId);
+        }
     };
 
     public removeNode = (nodeId: string) => {
@@ -279,17 +305,27 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
 
     private handleSelection = (bounds: Bounds) => {};
 
+    public onPortAdd = (data: PortDataSlim) => {};
+
+    public onPortRemove = (data: PortDataSlim) => {};
+
+    public onPortEvent = (
+        type: PortEvent,
+        element: HTMLElement,
+        data: PortDataSlim
+    ) => {};
+
     private handleMouseDown = (event: MouseEvent) => {
         if (event.ctrlKey) {
-            this._canvasController.toggleDragging(false);
-            this.selectController.startSelect(this._canvasController.mousePos);
+            this.canvasController.toggleDragging(false);
+            this.selectController.startSelect(this.canvasController.mousePos);
         }
     };
 
     private handleMouseUp = (event: MouseEvent) => {
         if (this.selectController.selecting) {
-            this.selectController.stopSelect(this._canvasController.mousePos);
-            this._canvasController.toggleDragging(true);
+            this.selectController.stopSelect(this.canvasController.mousePos);
+            this.canvasController.toggleDragging(true);
         }
     };
 }

@@ -150,5 +150,6 @@ export const definitionToNode = (
         title: definition.title,
         macroFieldId: definition.macroFieldId,
         macroId: definition.macroId,
+        selected: false,
     };
 };
