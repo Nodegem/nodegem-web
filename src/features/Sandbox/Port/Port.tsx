@@ -96,8 +96,6 @@ export const Socket: React.FC<ISocketProps> = React.memo(
 
         const placement = useMemo(() => getPlacement(io, type), [io, type]);
 
-        console.log(id, nodeId, connecting);
-
         return (
             <div
                 className={classNames({
