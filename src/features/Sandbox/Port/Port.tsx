@@ -4,6 +4,7 @@ import { Icon, Tooltip } from 'antd';
 import { TooltipPlacement } from 'antd/lib/tooltip';
 import classNames from 'classnames';
 import _ from 'lodash';
+import { getPortId } from '../utils';
 import './Port.less';
 
 const getPlacement = (io: PortIOType, type: PortType): TooltipPlacement => {
@@ -22,18 +23,17 @@ interface ISocketProps {
     nodeId: string;
     io: PortIOType;
     type: PortType;
-    indefinite?: boolean;
-    connected?: boolean;
-    connecting?: boolean;
+    indefinite: boolean;
+    connected: boolean;
     lastPort: boolean;
     onPortEvent: (
         event: PortEvent,
         element: HTMLElement,
-        data: PortDataSlim,
+        data: IPortUIData,
         nodeId: string
     ) => void;
-    onAddPort?: (data: PortDataSlim) => void;
-    onRemovePort?: (data: PortDataSlim) => void;
+    onAddPort?: (data: IPortUIData) => void;
+    onRemovePort?: (data: IPortUIData) => void;
     hidePortActions?: boolean;
 }
 
@@ -62,10 +62,9 @@ export const Socket: React.FC<ISocketProps> = React.memo(
         onRemovePort,
         indefinite = false,
         connected = false,
-        connecting = false,
         hidePortActions = false,
     }: ISocketProps) => {
-        const data = { id, nodeId, io, type, connected, connecting, name };
+        const data = { id, nodeId, io, type, connected, name, indefinite };
 
         const portUp = useCallback(
             (
@@ -94,6 +93,7 @@ export const Socket: React.FC<ISocketProps> = React.memo(
         );
 
         const placement = useMemo(() => getPlacement(io, type), [io, type]);
+        const portId = useMemo(() => getPortId({ nodeId, id }), [nodeId, id]);
 
         return (
             <div
@@ -140,14 +140,13 @@ export const Socket: React.FC<ISocketProps> = React.memo(
                     ))}
                 <Tooltip title={name} placement={placement}>
                     <span
-                        id={`${nodeId}-${id}`}
+                        id={portId}
                         onMouseDown={portDown}
                         onTouchStart={portDown}
                         onMouseUp={portUp}
                         onTouchEnd={portUp}
                         className={classNames({
                             port: true,
-                            connecting,
                             connected,
                         })}
                     />

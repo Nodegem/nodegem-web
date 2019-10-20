@@ -24,8 +24,8 @@ interface ISandboxCompose {
 }
 
 interface ISandboxState {
-    isLoadingGraph: boolean;
     isLoadingDefinitions: boolean;
+    isLoading: boolean;
 }
 
 @compose({
@@ -42,7 +42,7 @@ export class SandboxStore
     implements IDisposable {
     public state: ISandboxState = {
         isLoadingDefinitions: false,
-        isLoadingGraph: false,
+        isLoading: false,
     };
 
     public initialize() {
@@ -97,7 +97,7 @@ export class SandboxStore
     public runGraph = () => {};
 
     public load = async (graph: Graph | Macro) => {
-        this.setState({ isLoadingGraph: true });
+        this.setState({ isLoading: true });
 
         const { nodes, links, id } = graph;
         const definitions = await this.loadDefinitions(
@@ -124,13 +124,13 @@ export class SandboxStore
             };
         });
 
-        await this.canvasStore.load(uiNodes, uiLinks);
+        this.canvasStore.load(uiNodes, uiLinks);
 
         this.nodeSelectStore.setNodeOptions(definitions);
-        this.setState({ isLoadingGraph: false });
         this.nodeSelectStore.toggleOpen(true);
 
         // this.hubManager.initialize();
+        this.setState({ isLoading: false });
     };
 
     public saveStateLocally = async () => {
@@ -205,7 +205,7 @@ export class SandboxStore
         } else {
             switch (event.keyCode) {
                 case 27:
-                    this.canvasStore.stopDrawingLink();
+                    this.canvasStore.drawLinkStore.stopDraw();
                     break;
             }
         }

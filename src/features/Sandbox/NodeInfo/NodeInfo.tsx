@@ -4,7 +4,6 @@ import {
     Button,
     DatePicker,
     Divider,
-    Empty,
     Form,
     Input,
     InputNumber,
@@ -19,7 +18,6 @@ import { PhoneInput } from 'components/PhoneInput/PhoneInput';
 import _ from 'lodash';
 import { toJS } from 'mobx';
 import moment from 'moment';
-import NodeController from '../Node/node-controller';
 import './NodeInfo.less';
 
 const { Option } = Select;
@@ -34,7 +32,7 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
     onNodeValueChange,
 }) => {
     const containerClass = classNames({
-        'node-info': true
+        'node-info': true,
     });
 
     const handleUpdate = (fields: IPortUIData[]) => {
@@ -49,14 +47,12 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
             <Divider />
             <div className="node-info-description">
                 <p className="header underline">Description:</p>
-                <Paragraph>
-                    {selectedNode.description || 'N/A'}
-                </Paragraph>
+                <Paragraph>{selectedNode.description || 'N/A'}</Paragraph>
             </div>
             <Divider />
             <div className="node-info-properties">
                 <NodeInfoForm
-                    valueInputs={selectedNode.portData.valueInputs}
+                    valueInputs={selectedNode.valueInputs}
                     onUpdate={handleUpdate}
                 />
             </div>

@@ -3,6 +3,7 @@ const {
     fixBabelImports,
     addLessLoader,
     disableEsLint,
+    useBabelRc,
 } = require('customize-cra');
 const theme = require('./theme');
 
@@ -13,6 +14,7 @@ module.exports = override(
         libraryDirectory: 'es',
         style: true,
     }),
+    useBabelRc(),
     addLessLoader({
         javascriptEnabled: true,
         modifyVars: theme,

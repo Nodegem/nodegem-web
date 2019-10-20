@@ -13,8 +13,7 @@ import {
 import { Icon } from 'antd';
 import classnames from 'classnames';
 import { FlexRow } from 'components';
-import { DragEndProps } from 'features/Sandbox/managers/sandbox-store';
-import { reorder, SimpleObservable } from 'utils';
+import { reorder } from 'utils';
 import './DraggableTabs.less';
 
 interface IDraggableTabPaneProps {

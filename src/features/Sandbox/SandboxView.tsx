@@ -22,6 +22,7 @@ export const SandboxView = () => {
         tabsStore,
         nodeInfoStore,
         nodeSelectStore,
+        isLoading,
     } = useStore(SandboxStore, app => ({
         sandboxStore: app,
         sandboxHeaderStore: app.sandboxHeaderStore,
@@ -30,6 +31,7 @@ export const SandboxView = () => {
         tabsStore: app.tabsStore,
         nodeInfoStore: app.nodeInfoStore,
         nodeSelectStore: app.nodeSelectStore,
+        isLoading: app.state.isLoading,
     }));
 
     useEffect(() => {
@@ -49,7 +51,10 @@ export const SandboxView = () => {
                         <NodeSelectSection nodeSelectStore={nodeSelectStore} />
                         <FlexColumn flex="1 1 0%" style={{ minWidth: 0 }}>
                             <GraphTabsSection tabsStore={tabsStore} />
-                            <Canvas canvasStore={canvasStore} />
+                            <Canvas
+                                canvasStore={canvasStore}
+                                isLoading={isLoading}
+                            />
                         </FlexColumn>
                         <NodeInfoSection nodeInfoStore={nodeInfoStore} />
                     </FlexRow>

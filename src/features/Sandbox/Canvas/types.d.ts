@@ -26,14 +26,15 @@ interface IDisposable {
 
 interface IPortUIData {
     id: string;
+    nodeId: string;
     name: string;
     type: PortType;
     io: PortIOType;
-    connected?: boolean;
+    connected: boolean;
+    indefinite: boolean;
     value?: any;
     valueType?: ValueType;
     defaultValue?: any;
-    indefinite?: boolean;
 }
 
 interface INodeUIData {
@@ -42,12 +43,10 @@ interface INodeUIData {
     fullName: string;
     description: string;
     selected: boolean;
-    portData: {
-        flowInputs: IPortUIData[];
-        flowOutputs: IPortUIData[];
-        valueInputs: IPortUIData[];
-        valueOutputs: IPortUIData[];
-    };
+    flowInputs: IPortUIData[];
+    flowOutputs: IPortUIData[];
+    valueInputs: IPortUIData[];
+    valueOutputs: IPortUIData[];
     position: Vector2;
     permanent?: boolean;
     macroFieldId?: string;
@@ -63,7 +62,7 @@ interface ILinkUIData {
     destination: HTMLElement;
     destinationData: IPortUIData;
     type: PortType;
-    getLinkElement: () => SVGPathElement;
+    element: SVGPathElement;
 }
 
 interface ILinkInitializeData {

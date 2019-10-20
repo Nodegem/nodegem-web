@@ -4,7 +4,6 @@ import graphModalStore, {
 import macroModalStore, {
     MacroModalStore,
 } from 'components/Modals/MacroModal/macro-modal-store';
-import { SandboxStore } from 'features/Sandbox/managers/sandbox-store';
 import { UserStore } from 'stores';
 import authStore, { AuthStore } from './auth-store';
 import commonStore, { CommonStore } from './common-store';
@@ -20,7 +19,6 @@ type TRootStore = {
     macroModalStore: MacroModalStore;
     macroStore: MacroStore;
     graphStore: GraphStore;
-    sandboxStore: SandboxStore;
 };
 
 function createRootStore(): TRootStore {
@@ -32,7 +30,6 @@ function createRootStore(): TRootStore {
         graphModalStore,
         macroStore,
         graphStore,
-        sandboxStore: new SandboxStore(),
     };
 }
 

@@ -16,4 +16,3 @@ export * from './NodeSelectSection';
 export * from './SandboxHeader';
 export * from './SandboxView';
 export * from './typeguards';
-export * from './types.d';

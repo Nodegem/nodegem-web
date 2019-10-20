@@ -69,15 +69,15 @@ interface INodeProps {
     editNode: (nodeId: string) => void;
     removeNode: (nodeId: string) => void;
     onDrag: (id: string) => void;
-    onDragStop: (position: Vector2) => void;
+    onDragStop: (id: string, position: Vector2) => void;
     onPortEvent: (
         event: PortEvent,
         element: HTMLElement,
-        data: PortDataSlim,
+        data: IPortUIData,
         nodeId: string
     ) => void;
-    onPortAdd: (port: PortDataSlim) => void;
-    onPortRemove: (port: PortDataSlim) => void;
+    onPortAdd: (port: IPortUIData) => void;
+    onPortRemove: (port: IPortUIData) => void;
 }
 
 export const Node: React.FC<INodeProps> = ({
@@ -103,7 +103,6 @@ export const Node: React.FC<INodeProps> = ({
 
     const handleDrag = useCallback(
         (e: DraggableEvent, data: DraggableData) => {
-            e.stopPropagation();
             onDrag(id);
         },
         [onDrag, id]
@@ -112,9 +111,9 @@ export const Node: React.FC<INodeProps> = ({
     const handleDragStop = useCallback(
         (e: DraggableEvent, data: DraggableData) => {
             setPosition(data);
-            onDragStop(data);
+            onDragStop(id, data);
         },
-        [onDragStop]
+        [id, onDragStop]
     );
 
     const classes = classNames({

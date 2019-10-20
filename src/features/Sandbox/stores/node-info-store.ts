@@ -1,6 +1,5 @@
 import { Store } from 'overstated';
 import { SandboxStore } from '.';
-import NodeController from '../Node/node-controller';
 
 interface INodeInfoState {
     isOpen: boolean;

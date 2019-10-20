@@ -1,21 +1,26 @@
 import { compose, Store } from 'overstated';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
+import { getCenterCoordinates } from 'utils';
 import { sandboxDroppableId, ZoomBounds } from '..';
 import CanvasController from '../Canvas/controllers/canvas-controller';
 import SelectionController from '../Canvas/controllers/selection-controller';
 import { nodeSelectDroppableId } from '../NodeSelect';
-import { definitionToNode, getLinkId } from '../utils';
-import { generateLinkId, getOppositeNodeIdFromId } from './../utils/link-utils';
+import { definitionToNode } from '../utils';
+import {
+    flowPath,
+    generateLinkId,
+    getOppositeNodeIdFromId,
+    updateLinkPath,
+    valuePath,
+} from './../utils/link-utils';
+import { getPort, getPortId } from './../utils/node-utils';
 import { DrawLinkStore } from './draw-link-store';
 import { SandboxStore } from './sandbox-store';
 
 interface ICanvasState {
     nodes: INodeUIData[];
     links: ILinkUIData[];
-    isLoading: boolean;
     linksVisible: boolean;
-    isDrawingLink: boolean;
-    linkType?: PortType;
 }
 
 interface ICanvasChildren {
@@ -23,7 +28,7 @@ interface ICanvasChildren {
 }
 
 interface INodeUIDataWithLinks extends INodeUIData {
-    links: ILinkUIData[];
+    links: string[];
 }
 
 @compose({
@@ -37,10 +42,12 @@ export class CanvasStore extends Store<
     public state: ICanvasState = {
         nodes: [],
         links: [],
-        isLoading: false,
         linksVisible: true,
-        isDrawingLink: false,
     };
+
+    public get isLoading(): boolean {
+        return this.ctx.state.isLoading;
+    }
 
     public get mousePos(): Vector2 {
         return this.canvasController.mousePos;
@@ -52,7 +59,7 @@ export class CanvasStore extends Store<
     }
 
     public get isDisabled(): boolean {
-        return this.state.isLoading;
+        return this.isLoading;
     }
 
     private _nodes: Map<string, INodeUIDataWithLinks> = new Map();
@@ -135,20 +142,18 @@ export class CanvasStore extends Store<
     public getLinkByNode = (nodeId: string, portId: string) => {
         const node = this._nodes.get(nodeId);
         if (node) {
-            return (
-                node.links &&
-                node.links.firstOrDefault(
-                    x =>
-                        x.destinationData.id === portId ||
-                        x.sourceData.id === portId
-                )
+            const links = node.links.map(l => this._links.get(l)!);
+            return links.firstOrDefault(
+                x =>
+                    x.destinationData.id === portId ||
+                    x.sourceData.id === portId
             );
         }
 
         return undefined;
     };
 
-    public addLink = (
+    public addLink = async (
         source: {
             element: HTMLElement;
             data: IPortUIData;
@@ -175,68 +180,82 @@ export class CanvasStore extends Store<
             destinationData: destination.data,
             destinationNodeId: destination.node.id,
             type: source.data.type,
-            getLinkElement: () => document.getElementById(linkId) as any,
+            element: null as any,
         };
 
         this._links.set(linkId, linkData);
 
+        this.togglePortConnected(source.data, true);
+        this.togglePortConnected(destination.data, true);
+        await this.setState({ links: Array.from(this._links.values()) });
+
+        const element = document.getElementById(linkId) as any;
+        console.log(element);
+
+        this._links.set(linkId, { ...linkData, element });
+
         const sourceNode = this._nodes.get(source.node.id);
         if (sourceNode) {
-            sourceNode.links.push(linkData);
+            sourceNode.links.push(linkId);
         }
 
         const destinationNode = this._nodes.get(destination.node.id);
         if (destinationNode) {
-            destinationNode.links.push(linkData);
+            destinationNode.links.push(linkId);
         }
-
-        this.setState({ links: Array.from(this._links.values()) });
     };
 
     public async load(nodes: INodeUIData[], links: ILinkInitializeData[]) {
-        this.setState({ isLoading: true });
-
         this.clearView();
 
-        this.suspend();
         for (const node of nodes) {
             this.addNode(node);
         }
-        this.unsuspend();
 
-        this.suspend();
         for (const link of links) {
-            // const sourceNode = this._nodes.get(link.sourceNodeId);
-            // const destinationNode = this._nodes.get(link.destinationNodeId);
-            // if (!sourceNode || !destinationNode) {
-            //     continue;
-            // }
-            // const sourcePort = sourceNode.ports.get(link.sourceData.id);
-            // const destinationPort = destinationNode.ports.get(
-            //     link.destinationData.id
-            // );
-            // if (!sourcePort || !destinationPort) {
-            //     continue;
-            // }
-            // this.addLink(
-            //     {
-            //         node: sourceNode,
-            //         data: sourcePort.port,
-            //         element: sourcePort.element,
-            //     },
-            //     {
-            //         node: destinationNode,
-            //         data: destinationPort.port,
-            //         element: destinationPort.element,
-            //     }
-            // );
-        }
-        this.unsuspend();
+            const sourceNode = this._nodes.get(link.sourceNodeId);
+            const destinationNode = this._nodes.get(link.destinationNodeId);
+            if (!sourceNode || !destinationNode) {
+                continue;
+            }
+            const sourcePort = getPort(sourceNode, link.sourceData.id);
+            const destinationPort = getPort(
+                destinationNode,
+                link.destinationData.id
+            );
 
-        this.setState({ isLoading: false });
+            if (!sourcePort || !destinationPort) {
+                continue;
+            }
+
+            await this.addLink(
+                {
+                    node: sourceNode,
+                    data: sourcePort,
+                    element: document.getElementById(
+                        getPortId(sourcePort)
+                    ) as HTMLElement,
+                },
+                {
+                    node: destinationNode,
+                    data: destinationPort,
+                    element: document.getElementById(
+                        getPortId(destinationPort)
+                    ) as HTMLElement,
+                }
+            );
+        }
+
+        this.updateLinkPaths(Array.from(this._links.values()));
     }
 
-    public onNodePositionUpdate = (position: Vector2) => {};
+    public onNodePositionUpdate = (nodeId: string, position: Vector2) => {
+        const node = this._nodes.get(nodeId);
+        if (node) {
+            // No need to update visually
+            node.position = position;
+        }
+    };
 
     public clearNodes() {
         this._nodes.clear();
@@ -263,40 +282,53 @@ export class CanvasStore extends Store<
         });
     };
 
-    public onNodeMove = (nodeId: string) => {};
+    public onNodeMove = async (nodeId: string) => {
+        const node = this._nodes.get(nodeId);
+        if (node) {
+            this.updateLinkPathsFromIds(node.links);
+        }
+    };
 
     public editNode = (id: string) => {
         this.ctx.nodeInfoStore.toggleOpen(true);
         this.ctx.nodeInfoStore.setSelectedNode(this._nodes.get(id)!);
     };
 
-    public removeLink = (linkId: string) => {
+    public removeLink = (linkId: string, nodeId: string) => {
         const link = this._links.get(linkId);
         if (link) {
-            this.removeLinkFromNode(link.sourceNodeId, linkId);
-            this.removeLinkFromNode(link.destinationNodeId, linkId);
+            this.suspend();
+            this.togglePortConnected(link.sourceData, false);
+            this.togglePortConnected(link.destinationData, false);
+
+            if (nodeId) {
+                this.removeLinkFromNode(
+                    getOppositeNodeIdFromId(link, nodeId),
+                    linkId
+                );
+            } else {
+                this.removeLinkFromNode(link.sourceNodeId, linkId);
+                this.removeLinkFromNode(link.destinationNodeId, linkId);
+            }
+
+            this.unsuspend();
         }
     };
 
     private removeLinkFromNode = (nodeId: string, linkId: string) => {
         const node = this._nodes.get(nodeId);
-        if (node && node.links) {
-            node.links = node.links.filter(x => x.id !== linkId);
+        if (node) {
+            node.links = node.links.filter(x => x !== linkId);
         }
     };
 
     public removeNode = (nodeId: string) => {
         const node = this._nodes.get(nodeId);
         if (node) {
-            if (node.links) {
-                node.links.forEach(l => {
-                    this.removeLinkFromNode(
-                        getOppositeNodeIdFromId(l, nodeId),
-                        l.id
-                    );
-                });
-            }
+            const links = [...node.links];
+            links.forEach(l => this.removeLink(l, nodeId));
             this._nodes.delete(nodeId);
+            this.setState({ nodes: Array.from(this._nodes.values()) });
         }
     };
 
@@ -312,7 +344,7 @@ export class CanvasStore extends Store<
     //     // this._selectedNodes = [node];
     // };
 
-    private updateNode = (
+    public updateNode = (
         id: string,
         newDataFunc: (node: INodeUIData) => Partial<INodeUIData>
     ) => {
@@ -324,12 +356,17 @@ export class CanvasStore extends Store<
         }
     };
 
-    private updateNodePort = (
+    //#region Port methods
+
+    public updateNodePort = (
         node: INodeUIData,
-        port: PortDataSlim,
-        newPortData: Partial<IPortUIData>
+        port: IPortUIData,
+        newPortData: (oldPort: IPortUIData) => Partial<IPortUIData>
     ): Partial<INodeUIData> => {
-        let portListName: keyof INodeUIData['portData'];
+        let portListName: keyof Pick<
+            INodeUIData,
+            'flowInputs' | 'flowOutputs' | 'valueInputs' | 'valueOutputs'
+        >;
         // tslint:disable-next-line: prefer-conditional-expression
         if (port.type === 'flow') {
             portListName = port.io === 'input' ? 'flowInputs' : 'flowOutputs';
@@ -337,23 +374,27 @@ export class CanvasStore extends Store<
             portListName = port.io === 'input' ? 'valueInputs' : 'valueOutputs';
         }
 
-        const list = node.portData[portListName];
+        const list = node[portListName];
         const existingPort = list.first(x => x.id === port.id);
 
         return {
-            portData: {
-                ...node.portData,
-                [portListName]: [
-                    ...node.portData[portListName].filter(
-                        p => p.id !== port.id
-                    ),
-                    {
-                        ...existingPort,
-                        ...newPortData,
-                    },
-                ],
-            },
+            ...node,
+            [portListName]: [
+                ...node[portListName].filter(p => p.id !== port.id),
+                {
+                    ...existingPort,
+                    ...newPortData(existingPort),
+                },
+            ],
         };
+    };
+
+    public togglePortConnected = (port: IPortUIData, value?: boolean) => {
+        this.updateNode(port.nodeId, oldNode =>
+            this.updateNodePort(oldNode, port, oldPort => ({
+                connected: oldPort.connected.toggle(value),
+            }))
+        );
     };
 
     public convertCoordinates = (coords: Vector2) => {
@@ -362,30 +403,52 @@ export class CanvasStore extends Store<
 
     private handleSelection = (bounds: Bounds) => {};
 
-    public onPortAdd = (data: PortDataSlim) => {};
+    public onPortAdd = (data: IPortUIData) => {};
 
-    public onPortRemove = (data: PortDataSlim) => {};
+    public onPortRemove = (data: IPortUIData) => {};
 
     public onPortEvent = (
-        type: PortEvent,
+        event: PortEvent,
         element: HTMLElement,
-        data: PortDataSlim,
+        data: IPortUIData,
         nodeId: string
     ) => {
         const node = this.getNode(nodeId);
         if (node) {
             this.canvasController.toggleDragging(false);
-            // this.drawLinkManager.toggleDraw(type, element, data, node);
-            this.updateNode(nodeId, oldNode =>
-                this.updateNodePort(oldNode, data, { connected: true })
-            );
-            this.setState({ isDrawingLink: true, linkType: data.type });
+            this.drawLinkStore.startDraw(event, data, element);
         }
     };
 
-    public stopDrawingLink = () => {
-        this.setState({ isDrawingLink: false, linkType: undefined });
+    //#endregion
+
+    //#region Links
+
+    private updateLink = (
+        linkId: string,
+        updateFunc: (oldLink: ILinkUIData) => Partial<ILinkUIData>
+    ) => {
+        const link = this._links.get(linkId);
+        if (link) {
+            const newLink = { ...link, ...updateFunc(link) };
+            this._links.set(link.id, newLink);
+            this.setState({ nodes: Array.from(this._nodes.values()) });
+        }
     };
+
+    private updateLinkPathsFromIds = (linkIds: string[]) => {
+        this.updateLinkPaths(linkIds.map(l => this._links.get(l)!));
+    };
+
+    private updateLinkPaths = (links: ILinkUIData[]) => {
+        links.forEach(x => {
+            updateLinkPath(x, element =>
+                this.convertCoordinates(getCenterCoordinates(element))
+            );
+        });
+    };
+
+    //#endregion
 
     //#region  Canvas Events
 
@@ -404,10 +467,10 @@ export class CanvasStore extends Store<
     };
 
     private onCanvasRightClick = (event: MouseEvent) => {
-        if (this.state.isDrawingLink) {
+        if (this.drawLinkStore.state.isDrawing) {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.stopDrawingLink();
+            this.drawLinkStore.stopDraw();
         }
     };
 

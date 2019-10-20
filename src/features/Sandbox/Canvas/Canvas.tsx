@@ -1,14 +1,14 @@
-import { Badge, Button, Icon, Input, Spin } from 'antd';
+import { Badge, Button, Icon, Input } from 'antd';
 import classNames from 'classnames';
 import { Loader } from 'components';
 import { useStore } from 'overstated';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
-import { Link } from '../Link/Link';
+import { Link } from '..';
 import { Node } from '../Node';
 import { CanvasStore } from '../stores';
+import './Canvas.less';
 import { DrawLink } from './DrawLink';
-import './SandboxCanvas.less';
 
 export const sandboxDroppableId = 'sandboxId';
 
@@ -29,15 +29,16 @@ const SandboxDropContainer = React.memo(() => (
 
 export interface ISandboxProps {
     canvasStore: CanvasStore;
+    isLoading: boolean;
     size?: Dimensions;
 }
 
 export const Canvas: React.FC<ISandboxProps> = ({
+    isLoading,
     canvasStore,
     size = { width: 12000, height: 12000 },
 }: ISandboxProps) => {
     const {
-        isLoading,
         links,
         nodes,
         isDisabled,
@@ -55,7 +56,6 @@ export const Canvas: React.FC<ISandboxProps> = ({
         onPortEvent,
         isDrawingLink,
         onNodeDrag,
-        linkType,
         drawLinkStore,
     } = useStore(canvasStore, store => ({
         toggleConsole: store.ctx.logsStore.toggleOpen,
@@ -71,8 +71,8 @@ export const Canvas: React.FC<ISandboxProps> = ({
         onPortRemove: store.onPortRemove,
         onPortEvent: store.onPortEvent,
         onNodeDrag: store.onNodeMove,
-        getDrawLinkRef: store.drawLinkManager.fakeLink.getElementRef,
         drawLinkStore: store.drawLinkStore,
+        isDrawingLink: store.drawLinkStore.state.isDrawing,
         ...store.state,
     }));
 
@@ -96,14 +96,14 @@ export const Canvas: React.FC<ISandboxProps> = ({
                 ref={canvasRef}
             >
                 <div className="links" style={{ position: 'absolute' }}>
-                    {/* {links.map(l => (
+                    {links.map(l => (
                         <Link
                             key={l.id}
-                            type={l.type}
                             linkId={l.id}
                             visible={linksVisible}
+                            {...l}
                         />
-                    ))} */}
+                    ))}
                     <DrawLink drawLinkStore={drawLinkStore} />
                 </div>
                 <div className="nodes">
@@ -111,10 +111,10 @@ export const Canvas: React.FC<ISandboxProps> = ({
                         <Node
                             key={n.id}
                             initialPosition={n.position}
-                            flowInputs={n.portData.flowInputs}
-                            flowOutputs={n.portData.flowOutputs}
-                            valueInputs={n.portData.valueInputs}
-                            valueOutputs={n.portData.valueOutputs}
+                            flowInputs={n.flowInputs}
+                            flowOutputs={n.flowOutputs}
+                            valueInputs={n.valueInputs}
+                            valueOutputs={n.valueOutputs}
                             hidePortActions={isDrawingLink}
                             editNode={editNode}
                             removeNode={removeNode}

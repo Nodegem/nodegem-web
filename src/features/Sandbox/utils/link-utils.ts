@@ -1,6 +1,6 @@
 export const isValidConnection = (
-    p1: PortDataSlim,
-    p2: PortDataSlim
+    p1: IPortUIData,
+    p2: IPortUIData
 ): boolean => {
     if (p1.io === p2.io) {
         return false;
@@ -51,7 +51,7 @@ export const updateLinkPath = (
             ? flowPath(source, destination)
             : valuePath(source, destination);
 
-    link.getLinkElement().setAttribute('d', path);
+    link.element.setAttribute('d', path);
 };
 
 export const getLinkId = (link: ILinkUIData) =>

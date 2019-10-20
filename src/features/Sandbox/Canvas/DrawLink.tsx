@@ -1,7 +1,7 @@
 import { useStore } from 'overstated';
 import React from 'react';
+import { drawLinkElementId, DrawLinkStore } from '..';
 import { Link } from '../Link/Link';
-import { DrawLinkStore } from '../stores/draw-link-store';
 
 interface IDrawLinkProps {
     drawLinkStore: DrawLinkStore;
@@ -9,8 +9,11 @@ interface IDrawLinkProps {
 
 export const DrawLink: React.FC<IDrawLinkProps> = ({ drawLinkStore }) => {
     const { isDrawing, linkType } = useStore(drawLinkStore, store => ({
-        ...store.state,
+        isDrawing: store.state.isDrawing,
+        linkType: store.state.linkType,
     }));
 
-    return <Link linkId="drawn-link" visible={isDrawing} type={linkType!} />;
+    return (
+        <Link linkId={drawLinkElementId} visible={isDrawing} type={linkType!} />
+    );
 };
