@@ -82,7 +82,9 @@ class CanvasController implements IDisposable {
         public canvas: HTMLDivElement,
         private dimensions: Dimensions,
         private zoomBounds: ZoomBounds = { min: 0.53, max: 2.75 },
-        private onCanvasDown: (event: MouseEvent) => void
+        private onCanvasDown: (event: MouseEvent) => void,
+        private onCanvasUp: (event: MouseEvent) => void,
+        private onCanvasRightClick: (event: MouseEvent) => void
     ) {
         this._mousePos = { x: 0, y: 0 };
 
@@ -116,7 +118,9 @@ class CanvasController implements IDisposable {
             this.parentElement,
             this.backgroundElement,
             this.onTranslate,
-            this.onCanvasDown
+            this.onCanvasDown,
+            this.onCanvasUp,
+            this.onCanvasRightClick
         );
         this.zoom = new ZoomController(
             this.parentElement,
@@ -278,6 +282,10 @@ class CanvasController implements IDisposable {
 
     private resize = (event?: UIEvent) => {
         this.update();
+    };
+
+    public isCanvas = (element: HTMLElement) => {
+        return this.drag.isCanvas(element);
     };
 
     public dispose(): void {

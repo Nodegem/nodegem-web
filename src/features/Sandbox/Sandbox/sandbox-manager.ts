@@ -90,12 +90,12 @@ class SandboxManager implements IDisposable {
         this.bounds = bounds;
         this.zoomBounds = zoomBounds;
 
-        this._canvasController = new CanvasController(
-            element,
-            this.bounds,
-            this.zoomBounds,
-            this.handleCanvasDown
-        );
+        // this._canvasController = new CanvasController(
+        //     element,
+        //     this.bounds,
+        //     this.zoomBounds,
+        //     this.handleCanvasDown
+        // );
         this.selectController = new SelectionController(
             this._canvasController,
             this.handleSelection

@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import NodeController from '../Node/node-controller';
 
 export type DrawArgs = {
     element: HTMLElement;
@@ -27,14 +26,14 @@ class DrawLinkController implements IDisposable {
     public toggleDraw(
         type: PortEvent,
         source: HTMLElement,
-        data: IPortUIData,
+        data: PortDataSlim,
         node: INodeUIData
     ) {
         if (!this.isDrawing && type === 'down') {
             this._source = { element: source, data, node };
             window.addEventListener('contextmenu', this.canvasDownEvent);
             window.addEventListener('mousemove', this.throttleEvent);
-            this.onDrawStart(this._source);
+            this.onDrawStart(this._source!);
         } else {
             if (this.isDrawing) {
                 if (
@@ -73,8 +72,6 @@ class DrawLinkController implements IDisposable {
     };
 
     private canvasDownEvent = (event: MouseEvent) => {
-        // event.preventDefault();
-        // event.stopPropagation();
         this.stopDrawing();
     };
 
@@ -82,9 +79,6 @@ class DrawLinkController implements IDisposable {
         if (!this.isDrawing) {
             return;
         }
-
-        // event.stopPropagation();
-        // event.preventDefault();
 
         this.onDrawing();
     };

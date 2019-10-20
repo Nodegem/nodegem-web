@@ -4,6 +4,7 @@ import { compose, Store } from 'overstated';
 import { GraphService, MacroService, NodeService } from 'services';
 import { getGraphType } from 'utils';
 import { convertToSelectFriendly, flatten, getPort } from '../utils';
+import { nodeDataToUINodeData } from './../utils';
 import { CanvasStore } from './canvas-store';
 import { IntroStore } from './intro-store';
 import { LogsStore } from './logs-store';
@@ -26,15 +27,6 @@ interface ISandboxState {
     isLoadingGraph: boolean;
     isLoadingDefinitions: boolean;
 }
-
-const tryGetValue = (node: NodeData, key: string, defaultValue?: any) => {
-    if (node.fieldData) {
-        const fd = node.fieldData.firstOrDefault(x => x.key === key);
-        return (fd && fd.value) || defaultValue;
-    }
-
-    return defaultValue;
-};
 
 @compose({
     canvasStore: CanvasStore,
@@ -114,82 +106,8 @@ export class SandboxStore
         );
 
         const uiNodes = (nodes || []).map<INodeUIData>(n => {
-            const info = definitions.definitionLookup[n.fullName];
-            const { flowInputs, flowOutputs, valueInputs, valueOutputs } = info;
-            return {
-                id: n.id,
-                fullName: n.fullName,
-                position: n.position || { x: 0, y: 0 },
-                description: info.description,
-                macroFieldId: info.macroFieldId,
-                macroId: info.macroId,
-                portData: {
-                    flowInputs: (flowInputs || []).map<IPortUIData>(fi => ({
-                        id: fi.key,
-                        name: fi.label,
-                        io: 'input',
-                        type: 'flow',
-                        value: tryGetValue(n, fi.key),
-                    })),
-                    flowOutputs: (flowOutputs || []).map<IPortUIData>(fo => ({
-                        id: fo.key,
-                        name: fo.label,
-                        io: 'output',
-                        type: 'flow',
-                        value: tryGetValue(n, fo.key),
-                    })),
-                    valueInputs: (valueInputs || []).flatMap<IPortUIData>(
-                        vi => {
-                            if (vi.indefinite && n.fieldData) {
-                                return n.fieldData
-                                    .filter(x => x.key.includes('|'))
-                                    .map(fd => ({
-                                        id: fd.key,
-                                        name: vi.label,
-                                        io: 'input',
-                                        type: 'value',
-                                        valueType: vi.valueType,
-                                        defaultValue: vi.defaultValue,
-                                        indefinite: vi.indefinite,
-                                        value: tryGetValue(
-                                            n,
-                                            fd.key,
-                                            vi.defaultValue
-                                        ),
-                                    }));
-                            }
-
-                            return [
-                                {
-                                    id: vi.key,
-                                    name: vi.label,
-                                    io: 'input',
-                                    type: 'value',
-                                    valueType: vi.valueType,
-                                    defaultValue: vi.defaultValue,
-                                    indefinite: vi.indefinite,
-                                    value: tryGetValue(
-                                        n,
-                                        vi.key,
-                                        vi.defaultValue
-                                    ),
-                                },
-                            ];
-                        }
-                    ),
-                    valueOutputs: (valueOutputs || []).map<IPortUIData>(vo => ({
-                        id: vo.key,
-                        name: vo.label,
-                        io: 'output',
-                        type: 'value',
-                        valueType: vo.valueType,
-                        value: tryGetValue(n, vo.key),
-                    })),
-                },
-                title: info.title,
-                permanent: n.permanent,
-                selected: false,
-            };
+            const definition = definitions.definitionLookup[n.fullName];
+            return nodeDataToUINodeData(n, definition);
         });
 
         const nodeLookup = uiNodes.toDictionary('id');
@@ -282,6 +200,12 @@ export class SandboxStore
                     // }
 
                     // this.drawLinkManager.stopDrawing();
+                    break;
+            }
+        } else {
+            switch (event.keyCode) {
+                case 27:
+                    this.canvasStore.stopDrawingLink();
                     break;
             }
         }

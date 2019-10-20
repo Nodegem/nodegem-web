@@ -1,8 +1,6 @@
 import { isInput, isTouchEvent } from 'utils';
 
-export type DragStartEvent = (e: MouseEvent) => void;
 export type DragTranslateEvent = (delta: Vector2, e: MouseEvent) => void;
-export type DragUpEvent = (e: MouseEvent) => void;
 
 class DragController implements IDisposable {
     private mouseStart: Vector2 | null;
@@ -11,7 +9,9 @@ class DragController implements IDisposable {
         private container: HTMLElement,
         private viewbox: HTMLElement,
         private onTranslate: DragTranslateEvent = () => {},
-        private onCanvasDown: DragStartEvent = () => {}
+        private onCanvasDown: (event: MouseEvent) => void,
+        private onCanvasUp: (event: MouseEvent) => void,
+        private onCanvasRightClick: (event: MouseEvent) => void
     ) {
         this.mouseStart = null;
         this.initEvents();
@@ -19,6 +19,8 @@ class DragController implements IDisposable {
 
     private initEvents() {
         this.container.addEventListener('mousedown', this.handleDown);
+        this.container.addEventListener('mouseup', this.handleCanvasUp);
+        this.container.addEventListener('contextmenu', this.handleRightClick);
         window.addEventListener('mousemove', this.handleMove);
         window.addEventListener('mouseup', this.handleUp);
     }
@@ -37,12 +39,30 @@ class DragController implements IDisposable {
         }
 
         const target = event.target as HTMLElement;
-        if (target !== this.container && target !== this.viewbox) {
+        if (!this.isCanvas(target)) {
             return;
         }
 
         this.onCanvasDown(event as MouseEvent);
         this.mouseStart = this.getCoords(event);
+    };
+
+    private handleCanvasUp = (event: MouseEvent) => {
+        const target = event.target as HTMLElement;
+        if (!this.isCanvas(target)) {
+            return;
+        }
+
+        this.onCanvasUp(event);
+    };
+
+    private handleRightClick = (event: MouseEvent) => {
+        const target = event.target as HTMLElement;
+        if (!this.isCanvas(target)) {
+            return;
+        }
+
+        this.onCanvasRightClick(event);
     };
 
     private handleMove = (event: MouseEvent | TouchEvent) => {
@@ -70,8 +90,17 @@ class DragController implements IDisposable {
         this.mouseStart = null;
     };
 
+    public isCanvas = (element: HTMLElement) => {
+        return element === this.container || element === this.viewbox;
+    };
+
     public dispose(): void {
         this.container.removeEventListener('mousedown', this.handleDown);
+        this.container.removeEventListener('mouseup', this.handleCanvasUp);
+        this.container.removeEventListener(
+            'contextmenu',
+            this.handleRightClick
+        );
         window.removeEventListener('mousemove', this.handleMove);
         window.removeEventListener('mouseup', this.handleUp);
 

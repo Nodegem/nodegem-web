@@ -29,7 +29,8 @@ interface ISocketProps {
     onPortEvent: (
         event: PortEvent,
         element: HTMLElement,
-        data: PortDataSlim
+        data: PortDataSlim,
+        nodeId: string
     ) => void;
     onAddPort?: (data: PortDataSlim) => void;
     onRemovePort?: (data: PortDataSlim) => void;
@@ -65,7 +66,7 @@ export const Socket: React.FC<ISocketProps> = React.memo(
         hidePortActions = false,
     }: ISocketProps) => {
         const portRef = useRef<HTMLSpanElement>(null);
-        const data = { id, nodeId, io, type };
+        const data = { id, nodeId, io, type, connected, connecting, name };
 
         const portUp = useCallback(
             (
@@ -75,7 +76,7 @@ export const Socket: React.FC<ISocketProps> = React.memo(
             ) => {
                 event.stopPropagation();
                 event.preventDefault();
-                onPortEvent('up', event.target as HTMLElement, data);
+                onPortEvent('up', event.target as HTMLElement, data, nodeId);
             },
             [onPortEvent, id, nodeId, io, type]
         );
@@ -88,12 +89,14 @@ export const Socket: React.FC<ISocketProps> = React.memo(
             ) => {
                 event.stopPropagation();
                 event.preventDefault();
-                onPortEvent('down', event.target as HTMLElement, data);
+                onPortEvent('down', event.target as HTMLElement, data, nodeId);
             },
             [onPortEvent, id, nodeId, io, type]
         );
 
         const placement = useMemo(() => getPlacement(io, type), [io, type]);
+
+        console.log(id, nodeId, connecting);
 
         return (
             <div

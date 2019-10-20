@@ -1,15 +1,14 @@
 import { uuid } from 'lodash-uuid';
-import { isMacro } from 'utils';
 
 export const isValidConnection = (
-    p1: { nodeId: string; port: IPortUIData },
-    p2: { nodeId: string; port: IPortUIData }
+    p1: PortDataSlim,
+    p2: PortDataSlim
 ): boolean => {
-    if (p1.port.io === p2.port.io) {
+    if (p1.io === p2.io) {
         return false;
     }
 
-    if (p1.port.type !== p2.port.type) {
+    if (p1.type !== p2.type) {
         return false;
     }
 
@@ -17,10 +16,10 @@ export const isValidConnection = (
         return false;
     }
 
-    const source = p1.port.io === 'output' ? p1 : p2;
-    const destination = p1.port.io === 'output' ? p2 : p1;
+    const source = p1.io === 'output' ? p1 : p2;
+    const destination = p1.io === 'output' ? p2 : p1;
 
-    if (source.port.type === 'flow' && source.port.connected) {
+    if (source.type === 'flow' && source.connected) {
         return false;
     }
 
@@ -150,6 +149,86 @@ export const definitionToNode = (
         title: definition.title,
         macroFieldId: definition.macroFieldId,
         macroId: definition.macroId,
+        selected: false,
+    };
+};
+
+const tryGetValue = (node: NodeData, key: string, defaultValue?: any) => {
+    if (node.fieldData) {
+        const fd = node.fieldData.firstOrDefault(x => x.key === key);
+        return (fd && fd.value) || defaultValue;
+    }
+
+    return defaultValue;
+};
+
+export const nodeDataToUINodeData = (
+    node: NodeData,
+    definition: NodeDefinition
+): INodeUIData => {
+    const { flowInputs, flowOutputs, valueInputs, valueOutputs } = definition;
+    return {
+        id: node.id,
+        fullName: node.fullName,
+        position: node.position || { x: 0, y: 0 },
+        description: definition.description,
+        macroFieldId: definition.macroFieldId,
+        macroId: definition.macroId,
+        portData: {
+            flowInputs: (flowInputs || []).map<IPortUIData>(fi => ({
+                id: fi.key,
+                name: fi.label,
+                io: 'input',
+                type: 'flow',
+                value: tryGetValue(node, fi.key),
+            })),
+            flowOutputs: (flowOutputs || []).map<IPortUIData>(fo => ({
+                id: fo.key,
+                name: fo.label,
+                io: 'output',
+                type: 'flow',
+                value: tryGetValue(node, fo.key),
+            })),
+            valueInputs: (valueInputs || []).flatMap<IPortUIData>(vi => {
+                if (vi.indefinite && node.fieldData) {
+                    return node.fieldData
+                        .filter(x => x.key.includes('|'))
+                        .map(fd => ({
+                            id: fd.key,
+                            name: vi.label,
+                            io: 'input',
+                            type: 'value',
+                            valueType: vi.valueType,
+                            defaultValue: vi.defaultValue,
+                            indefinite: vi.indefinite,
+                            value: tryGetValue(node, fd.key, vi.defaultValue),
+                        }));
+                }
+
+                return [
+                    {
+                        id: vi.key,
+                        name: vi.label,
+                        io: 'input',
+                        type: 'value',
+                        valueType: vi.valueType,
+                        defaultValue: vi.defaultValue,
+                        indefinite: vi.indefinite,
+                        value: tryGetValue(node, vi.key, vi.defaultValue),
+                    },
+                ];
+            }),
+            valueOutputs: (valueOutputs || []).map<IPortUIData>(vo => ({
+                id: vo.key,
+                name: vo.label,
+                io: 'output',
+                type: 'value',
+                valueType: vo.valueType,
+                value: tryGetValue(node, vo.key),
+            })),
+        },
+        title: definition.title,
+        permanent: node.permanent,
         selected: false,
     };
 };

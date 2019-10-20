@@ -14,17 +14,15 @@ export class DrawLinkManager implements IDisposable {
 
     public fakeLink: FakeLinkController;
 
-    private isDrawing = false;
-
     constructor(
         private getMousePos: () => Vector2,
         private getLinkByNode: (
             nodeId: string,
             portId: string
-        ) => LinkController,
+        ) => LinkController | undefined,
         private removeLink: (id: string) => void,
         private convertCoordinates: (coordinates: Vector2) => Vector2,
-        private getNode: (nodeId: string) => INodeUIData,
+        private getNode: (nodeId: string) => INodeUIData | undefined,
         private addLink: (start: DrawArgs, end: DrawArgs) => void,
         private onLinkError: (message: string) => void
     ) {
@@ -39,15 +37,20 @@ export class DrawLinkManager implements IDisposable {
 
     public toggleDraw = (
         event: PortEvent,
-        element: HTMLDivElement,
+        element: HTMLElement,
         data: IPortUIData,
         node: INodeUIData
     ): void => {
-        this.drawLinkController.toggleDraw(event, element, data, node);
+        this.drawLinkController.toggleDraw(
+            event,
+            element,
+            { ...data, nodeId: node.id },
+            node
+        );
     };
 
     public stopDrawing = () => {
-        if (this.isDrawing) {
+        if (this.drawLinkController.isDrawing) {
             this.drawLinkController.stopDrawing();
         }
     };
@@ -67,22 +70,19 @@ export class DrawLinkManager implements IDisposable {
             if (link) {
                 startElement = link.getOppositePortElement(source.element);
                 this.removeLink(link.id);
-                link.toggleConnectingOppositePort(source.element);
+                // link.toggleConnectingOppositePort(source.element);
 
                 this.modifiedLink = {
                     link,
                     startElement,
                 };
             }
-        } else {
-            source.data.connecting = true;
         }
 
         const start = this.convertCoordinates(
             getCenterCoordinates(startElement)
         );
 
-        this.isDrawing = true;
         this.fakeLink.begin(start, source.data.type);
         this.fakeLink.update(this.getMousePos());
     };
@@ -111,10 +111,10 @@ export class DrawLinkManager implements IDisposable {
 
                 if (
                     isValidConnection(
-                        { nodeId: start.node.id, port: start.data },
+                        { ...start.data, nodeId: start.node.id },
                         {
+                            ...destination.data,
                             nodeId: destination.node.id,
-                            port: destination.data,
                         }
                     )
                 ) {
@@ -126,8 +126,8 @@ export class DrawLinkManager implements IDisposable {
             } else {
                 if (
                     isValidConnection(
-                        { nodeId: s.node.id, port: s.data },
-                        { nodeId: d.node.id, port: d.data }
+                        { ...s.data, nodeId: s.node.id },
+                        { ...d.data, nodeId: d.node.id }
                     )
                 ) {
                     this.addLink(s, d);
@@ -135,10 +135,7 @@ export class DrawLinkManager implements IDisposable {
                     this.onLinkError('Not a valid connection');
                 }
             }
-            s.data.connecting = false;
-            d.data.connecting = false;
         } else if (s) {
-            s.data.connecting = false;
             if (this.modifiedLink) {
                 const { link } = this.modifiedLink;
                 link.dispose();
@@ -146,13 +143,11 @@ export class DrawLinkManager implements IDisposable {
         }
 
         this.fakeLink.stop();
-        this.isDrawing = false;
         this.modifiedLink = undefined;
     };
 
     public dispose() {
         this.fakeLink.dispose();
         this.drawLinkController.dispose();
-        this.isDrawing = false;
     }
 }

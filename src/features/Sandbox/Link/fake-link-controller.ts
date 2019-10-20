@@ -1,7 +1,7 @@
 import { flowPath, valuePath } from './link-controller';
 
 export default class FakeLinkController implements IDisposable {
-    private element: SVGPathElement;
+    public element: SVGPathElement;
     private source?: Vector2;
     private portType?: PortType;
 

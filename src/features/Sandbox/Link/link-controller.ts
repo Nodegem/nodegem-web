@@ -56,10 +56,7 @@ export default class LinkController implements IDisposable {
         private _linkData: ILinkUIData,
         private _type: PortType,
         private canvasController: CanvasController
-    ) {
-        this._linkData.sourceData.connected = true;
-        this._linkData.destinationData.connected = true;
-    }
+    ) {}
 
     public getElementRef = (element: SVGPathElement) => {
         this.element = element;
@@ -112,6 +109,12 @@ export default class LinkController implements IDisposable {
             : this.sourceNodeId;
     };
 
+    public getOppositeNodeIdFromId = (nodeId: string) => {
+        return nodeId === this.sourceNodeId
+            ? this.destinationNodeId
+            : this.sourceNodeId;
+    };
+
     public toggleSourcePort = (element: HTMLElement) => {
         if (element === this.sourceElement) {
             this._linkData.sourceData.connected = !this._linkData
@@ -132,19 +135,7 @@ export default class LinkController implements IDisposable {
         }
     };
 
-    public toggleConnectingOppositePort = (element: HTMLElement) => {
-        if (element === this.sourceElement) {
-            this._linkData.destinationData.connecting = !this._linkData
-                .destinationData.connecting;
-        } else {
-            this._linkData.sourceData.connecting = !this._linkData.sourceData
-                .connecting;
-        }
-    };
-
     public disconnect = () => {
-        this._linkData.sourceData.connecting = false;
-        this._linkData.destinationData.connecting = false;
         this._linkData.sourceData.connected = false;
         this._linkData.destinationData.connected = false;
     };

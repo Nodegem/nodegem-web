@@ -14,7 +14,10 @@ type NodeCache = {
 
 type PortDataSlim = {
     id: string;
+    name: string;
     nodeId: string;
     io: PortIOType;
     type: PortType;
+    connected?: boolean;
+    connecting?: boolean;
 };

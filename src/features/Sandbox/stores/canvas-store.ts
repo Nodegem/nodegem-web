@@ -1,7 +1,5 @@
 import { Store } from 'overstated';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
-import { waitWhile } from 'utils';
-import DrawLinkController from '../Link/draw-link-controller';
 import LinkController from '../Link/link-controller';
 import { DrawLinkManager } from '../managers';
 import NodeController from '../Node/node-controller';
@@ -19,6 +17,7 @@ interface ICanvasState {
     isLoading: boolean;
     linksVisible: boolean;
     isDrawingLink: boolean;
+    linkType?: PortType;
 }
 
 interface INodeUIDataWithLinks extends INodeUIData {
@@ -47,15 +46,32 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         return this.state.isLoading;
     }
 
+    public drawLinkManager: DrawLinkManager;
+
     private _nodes: Map<string, INodeUIDataWithLinks> = new Map();
     private _links: Map<string, LinkController> = new Map();
 
     private canvasElement: HTMLDivElement;
     private selectController: SelectionController;
     private canvasController: CanvasController;
-    private drawLinkManager: DrawLinkManager;
     private bounds: Dimensions;
     private zoomBounds?: ZoomBounds;
+
+    constructor() {
+        super();
+
+        this.drawLinkManager = new DrawLinkManager(
+            () => this.mousePos,
+            this.getLinkByNode,
+            this.removeLink,
+            coords => this.canvasController.convertCoordinates(coords),
+            this.getNode,
+            this.addLink,
+            errorMessage => {
+                console.log(errorMessage);
+            }
+        );
+    }
 
     public bindElement = (
         element: HTMLDivElement,
@@ -70,25 +86,15 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
             element,
             this.bounds,
             this.zoomBounds,
-            this.handleCanvasDown
+            this.handleCanvasDown,
+            this.onCanvasMouseUp,
+            this.onCanvasRightClick
         );
 
         this.selectController = new SelectionController(
             this.canvasController,
             this.handleSelection
         );
-
-        // this.drawLinkManager = new DrawLinkManager(
-        //     () => this.mousePos,
-        //     this.getLinkByNode,
-        //     this.remove
-        // );
-
-        element.parentElement!.addEventListener(
-            'mousedown',
-            this.handleMouseDown
-        );
-        element.parentElement!.addEventListener('mouseup', this.handleMouseUp);
     };
 
     public onCanvasDrag = (
@@ -135,11 +141,19 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
     };
 
     private getLinkByNode = (nodeId: string, portId: string) => {
-        // const nodeLinks = this._nodeLinks.get(nodeId);
-        // if (nodeLinks) {
-        //     return nodeLinks.get(portId);
-        // }
-        // return undefined;
+        const node = this._nodes.get(nodeId);
+        if (node) {
+            return (
+                node.links &&
+                node.links.firstOrDefault(
+                    x =>
+                        x.destinationPortId === portId ||
+                        x.sourcePortId === portId
+                )
+            );
+        }
+
+        return undefined;
     };
 
     public addLink = (
@@ -169,23 +183,23 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
 
         this._links.set(linkController.id, linkController);
 
-        // const sourceNodeLinks = this._nodeLinks.get(source.node.id);
-        // if(sourceNodeLinks) {
-        //     sourceNodeLinks.set(source.data.id, linkController);
-        // } else {
-        //     const newNodeLinkMap = new Map();
-        //     newNodeLinkMap.set(source.data.id, linkController);
-        //     this._nodeLinks.set(source.node.id, newNodeLinkMap);
-        // }
+        const sourceNode = this._nodes.get(source.node.id);
+        if (sourceNode) {
+            if (sourceNode.links) {
+                sourceNode.links.push(linkController);
+            } else {
+                sourceNode.links = [linkController];
+            }
+        }
 
-        // const destinationNodeLinks = this._nodeLinks.get(destination.node.id);
-        // if(destinationNodeLinks) {
-        //     destinationNodeLinks.set(destination.data.id, linkController);
-        // } else {
-        //     const newNodeLinkMap = new Map();
-        //     newNodeLinkMap.set(destination.data.id, linkController);
-        //     this._nodeLinks.set(destination.node.id, newNodeLinkMap);
-        // }
+        const destinationNode = this._nodes.get(destination.node.id);
+        if (destinationNode) {
+            if (destinationNode.links) {
+                destinationNode.links.push(linkController);
+            } else {
+                destinationNode.links = [linkController];
+            }
+        }
 
         this.setState({ links: Array.from(this._links.values()) });
     };
@@ -201,35 +215,33 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         }
         this.unsuspend();
 
-        // await waitWhile(() => this.state.nodes.every(n => n.hasLoaded));
-
         this.suspend();
-        // for (const link of links) {
-        //     const sourceNode = this._nodes.get(link.sourceNodeId);
-        //     const destinationNode = this._nodes.get(link.destinationNodeId);
-        //     if (!sourceNode || !destinationNode) {
-        //         continue;
-        //     }
-        //     const sourcePort = sourceNode.ports.get(link.sourceData.id);
-        //     const destinationPort = destinationNode.ports.get(
-        //         link.destinationData.id
-        //     );
-        //     if (!sourcePort || !destinationPort) {
-        //         continue;
-        //     }
-        //     this.addLink(
-        //         {
-        //             node: sourceNode,
-        //             data: sourcePort.port,
-        //             element: sourcePort.element,
-        //         },
-        //         {
-        //             node: destinationNode,
-        //             data: destinationPort.port,
-        //             element: destinationPort.element,
-        //         }
-        //     );
-        // }
+        for (const link of links) {
+            // const sourceNode = this._nodes.get(link.sourceNodeId);
+            // const destinationNode = this._nodes.get(link.destinationNodeId);
+            // if (!sourceNode || !destinationNode) {
+            //     continue;
+            // }
+            // const sourcePort = sourceNode.ports.get(link.sourceData.id);
+            // const destinationPort = destinationNode.ports.get(
+            //     link.destinationData.id
+            // );
+            // if (!sourcePort || !destinationPort) {
+            //     continue;
+            // }
+            // this.addLink(
+            //     {
+            //         node: sourceNode,
+            //         data: sourcePort.port,
+            //         element: sourcePort.element,
+            //     },
+            //     {
+            //         node: destinationNode,
+            //         data: destinationPort.port,
+            //         element: destinationPort.element,
+            //     }
+            // );
+        }
         this.unsuspend();
 
         this.setState({ isLoading: false });
@@ -265,30 +277,39 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
 
     public onNodeMove = (nodeId: string) => {};
 
-    private handleCanvasDown = (event: MouseEvent) => {
-        // this._selectedNodes = [];
-        // this.onCanvasDown(event);
-    };
-
-    public editNode = (node: INodeUIData) => {
+    public editNode = (id: string) => {
         this.ctx.nodeInfoStore.toggleOpen(true);
-        this.ctx.nodeInfoStore.setSelectedNode(this._nodes.get(node.id)!);
+        this.ctx.nodeInfoStore.setSelectedNode(this._nodes.get(id)!);
     };
 
     public removeLink = (linkId: string) => {
         const link = this._links.get(linkId);
         if (link) {
-            const sourceNode = this._nodes.get(link.sourceNodeId);
+            this.removeLinkFromNode(link.sourceNodeId, linkId);
+            this.removeLinkFromNode(link.destinationNodeId, linkId);
+        }
+    };
+
+    private removeLinkFromNode = (nodeId: string, linkId: string) => {
+        const node = this._nodes.get(nodeId);
+        if (node && node.links) {
+            node.links = node.links.filter(x => x.id !== linkId);
         }
     };
 
     public removeNode = (nodeId: string) => {
         const node = this._nodes.get(nodeId);
-        // if (node) {
-        //     node.links.forEach(x => this.removeLink(x.id));
-        //     node.dispose();
-        //     this._nodes.delete(nodeId);
-        // }
+        if (node) {
+            if (node.links) {
+                node.links.forEach(l => {
+                    this.removeLinkFromNode(
+                        l.getOppositeNodeIdFromId(nodeId),
+                        l.id
+                    );
+                });
+            }
+            this._nodes.delete(nodeId);
+        }
     };
 
     private handleNodeClick = (event: MouseEvent, node: NodeController) => {
@@ -303,6 +324,50 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         // this._selectedNodes = [node];
     };
 
+    private updateNode = (
+        id: string,
+        newDataFunc: (node: INodeUIData) => Partial<INodeUIData>
+    ) => {
+        const oldNode = this.getNode(id);
+        if (oldNode) {
+            const newNode = { ...oldNode, ...newDataFunc(oldNode) };
+            this._nodes.set(id, newNode);
+            this.setState({ nodes: Array.from(this._nodes.values()) });
+        }
+    };
+
+    private updateNodePort = (
+        node: INodeUIData,
+        port: PortDataSlim,
+        newPortData: Partial<IPortUIData>
+    ): Partial<INodeUIData> => {
+        let portListName: keyof INodeUIData['portData'];
+        // tslint:disable-next-line: prefer-conditional-expression
+        if (port.type === 'flow') {
+            portListName = port.io === 'input' ? 'flowInputs' : 'flowOutputs';
+        } else {
+            portListName = port.io === 'input' ? 'valueInputs' : 'valueOutputs';
+        }
+
+        const list = node.portData[portListName];
+        const existingPort = list.first(x => x.id === port.id);
+
+        return {
+            portData: {
+                ...node.portData,
+                [portListName]: [
+                    ...node.portData[portListName].filter(
+                        p => p.id !== port.id
+                    ),
+                    {
+                        ...existingPort,
+                        ...newPortData,
+                    },
+                ],
+            },
+        };
+    };
+
     private handleSelection = (bounds: Bounds) => {};
 
     public onPortAdd = (data: PortDataSlim) => {};
@@ -312,20 +377,49 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
     public onPortEvent = (
         type: PortEvent,
         element: HTMLElement,
-        data: PortDataSlim
-    ) => {};
+        data: PortDataSlim,
+        nodeId: string
+    ) => {
+        const node = this.getNode(nodeId);
+        if (node) {
+            this.canvasController.toggleDragging(false);
+            this.drawLinkManager.toggleDraw(type, element, data, node);
+            this.updateNode(nodeId, oldNode =>
+                this.updateNodePort(oldNode, data, { connected: true })
+            );
+            this.setState({ isDrawingLink: true, linkType: data.type });
+        }
+    };
 
-    private handleMouseDown = (event: MouseEvent) => {
+    public stopDrawingLink = () => {
+        this.drawLinkManager.stopDrawing();
+        this.canvasController.toggleDragging(true);
+        this.setState({ isDrawingLink: false, linkType: undefined });
+    };
+
+    //#region  Canvas Events
+
+    private handleCanvasDown = (event: MouseEvent) => {
         if (event.ctrlKey) {
             this.canvasController.toggleDragging(false);
             this.selectController.startSelect(this.canvasController.mousePos);
         }
     };
 
-    private handleMouseUp = (event: MouseEvent) => {
+    private onCanvasMouseUp = (event: MouseEvent) => {
         if (this.selectController.selecting) {
             this.selectController.stopSelect(this.canvasController.mousePos);
             this.canvasController.toggleDragging(true);
         }
     };
+
+    private onCanvasRightClick = (event: MouseEvent) => {
+        if (this.state.isDrawingLink) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.stopDrawingLink();
+        }
+    };
+
+    //#endregion
 }

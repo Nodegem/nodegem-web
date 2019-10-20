@@ -5,7 +5,6 @@ import { useStore } from 'overstated';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { Link } from '../Link/Link';
-import LinkController from '../Link/link-controller';
 import { Node } from '../Node';
 import { CanvasStore } from '../stores';
 import './SandboxCanvas.less';
@@ -55,6 +54,8 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
         onPortEvent,
         isDrawingLink,
         onNodeDrag,
+        linkType,
+        getDrawLinkRef,
     } = useStore(canvasStore, store => ({
         toggleConsole: store.ctx.logsStore.toggleOpen,
         isDisabled: store.isDisabled,
@@ -69,6 +70,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
         onPortRemove: store.onPortRemove,
         onPortEvent: store.onPortEvent,
         onNodeDrag: store.onNodeMove,
+        getDrawLinkRef: store.drawLinkManager.fakeLink.getElementRef,
         ...store.state,
     }));
 
@@ -92,8 +94,12 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
     const portAdd = useCallback((data: PortDataSlim) => onPortAdd(data), []);
 
     const portEvent = useCallback(
-        (type: PortEvent, element: HTMLElement, data: PortDataSlim) =>
-            onPortEvent(type, element, data),
+        (
+            type: PortEvent,
+            element: HTMLElement,
+            data: PortDataSlim,
+            nodeId: string
+        ) => onPortEvent(type, element, data, nodeId),
         []
     );
 
@@ -121,11 +127,11 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                             getRef={l.getElementRef}
                         />
                     ))}
-                    {/* <Link
-                        visible={!!isDrawing}
+                    <Link
+                        visible={isDrawingLink}
                         type={linkType!}
                         getRef={getDrawLinkRef}
-                    /> */}
+                    />
                 </div>
                 <div className="nodes">
                     {nodes.map(n => (
@@ -137,6 +143,8 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                             valueInputs={n.portData.valueInputs}
                             valueOutputs={n.portData.valueOutputs}
                             hidePortActions={isDrawingLink}
+                            editNode={editNode}
+                            removeNode={removeNode}
                             onPortAdd={portAdd}
                             onPortEvent={portEvent}
                             onPortRemove={portRemove}

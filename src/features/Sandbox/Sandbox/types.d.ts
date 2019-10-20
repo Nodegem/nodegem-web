@@ -30,7 +30,6 @@ interface IPortUIData {
     type: PortType;
     io: PortIOType;
     connected?: boolean;
-    connecting?: boolean;
     value?: any;
     valueType?: ValueType;
     defaultValue?: any;
