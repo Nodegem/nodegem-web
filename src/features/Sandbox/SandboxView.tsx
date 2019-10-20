@@ -2,10 +2,10 @@ import { FlexColumn, FlexRow } from 'components';
 import _ from 'lodash';
 import React, { useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { Canvas } from './Canvas';
 import { GraphTabsSection } from './GraphTabsSection';
 import { NodeInfoSection } from './NodeInfoSection';
 import { NodeSelectSection } from './NodeSelectSection';
-import { SandboxCanvas } from './Sandbox/SandboxCanvas';
 
 import { useStore } from 'overstated';
 import { IntroPrompts } from './IntroPrompts';
@@ -49,7 +49,7 @@ export const SandboxView = () => {
                         <NodeSelectSection nodeSelectStore={nodeSelectStore} />
                         <FlexColumn flex="1 1 0%" style={{ minWidth: 0 }}>
                             <GraphTabsSection tabsStore={tabsStore} />
-                            <SandboxCanvas canvasStore={canvasStore} />
+                            <Canvas canvasStore={canvasStore} />
                         </FlexColumn>
                         <NodeInfoSection nodeInfoStore={nodeInfoStore} />
                     </FlexRow>

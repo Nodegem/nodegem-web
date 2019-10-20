@@ -7,6 +7,7 @@ import { Droppable } from 'react-beautiful-dnd';
 import { Link } from '../Link/Link';
 import { Node } from '../Node';
 import { CanvasStore } from '../stores';
+import { DrawLink } from './DrawLink';
 import './SandboxCanvas.less';
 
 export const sandboxDroppableId = 'sandboxId';
@@ -31,7 +32,7 @@ export interface ISandboxProps {
     size?: Dimensions;
 }
 
-export const SandboxCanvas: React.FC<ISandboxProps> = ({
+export const Canvas: React.FC<ISandboxProps> = ({
     canvasStore,
     size = { width: 12000, height: 12000 },
 }: ISandboxProps) => {
@@ -55,7 +56,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
         isDrawingLink,
         onNodeDrag,
         linkType,
-        getDrawLinkRef,
+        drawLinkStore,
     } = useStore(canvasStore, store => ({
         toggleConsole: store.ctx.logsStore.toggleOpen,
         isDisabled: store.isDisabled,
@@ -71,6 +72,7 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
         onPortEvent: store.onPortEvent,
         onNodeDrag: store.onNodeMove,
         getDrawLinkRef: store.drawLinkManager.fakeLink.getElementRef,
+        drawLinkStore: store.drawLinkStore,
         ...store.state,
     }));
 
@@ -79,31 +81,6 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
         const canvasElement = canvasRef.current!;
         canvasStore.bindElement(canvasElement, size);
     }, []);
-
-    // This may or may not be necessary
-    const nodePositionUpdate = useCallback(
-        (position: Vector2) => onNodePositionUpdate(position),
-        []
-    );
-
-    const portRemove = useCallback(
-        (data: PortDataSlim) => onPortRemove(data),
-        []
-    );
-
-    const portAdd = useCallback((data: PortDataSlim) => onPortAdd(data), []);
-
-    const portEvent = useCallback(
-        (
-            type: PortEvent,
-            element: HTMLElement,
-            data: PortDataSlim,
-            nodeId: string
-        ) => onPortEvent(type, element, data, nodeId),
-        []
-    );
-
-    const nodeDrag = useCallback((id: string) => onNodeDrag(id), []);
 
     return (
         <div
@@ -119,19 +96,15 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                 ref={canvasRef}
             >
                 <div className="links" style={{ position: 'absolute' }}>
-                    {links.map(l => (
+                    {/* {links.map(l => (
                         <Link
                             key={l.id}
                             type={l.type}
+                            linkId={l.id}
                             visible={linksVisible}
-                            getRef={l.getElementRef}
                         />
-                    ))}
-                    <Link
-                        visible={isDrawingLink}
-                        type={linkType!}
-                        getRef={getDrawLinkRef}
-                    />
+                    ))} */}
+                    <DrawLink drawLinkStore={drawLinkStore} />
                 </div>
                 <div className="nodes">
                     {nodes.map(n => (
@@ -145,11 +118,11 @@ export const SandboxCanvas: React.FC<ISandboxProps> = ({
                             hidePortActions={isDrawingLink}
                             editNode={editNode}
                             removeNode={removeNode}
-                            onPortAdd={portAdd}
-                            onPortEvent={portEvent}
-                            onPortRemove={portRemove}
-                            onDragStop={nodePositionUpdate}
-                            onDrag={nodeDrag}
+                            onPortAdd={onPortAdd}
+                            onPortEvent={onPortEvent}
+                            onPortRemove={onPortRemove}
+                            onDragStop={onNodePositionUpdate}
+                            onDrag={onNodeDrag}
                             {...n}
                         />
                     ))}

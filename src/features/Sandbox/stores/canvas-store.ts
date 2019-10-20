@@ -1,30 +1,39 @@
-import { Store } from 'overstated';
+import { compose, Store } from 'overstated';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
-import LinkController from '../Link/link-controller';
-import { DrawLinkManager } from '../managers';
-import NodeController from '../Node/node-controller';
+import { sandboxDroppableId, ZoomBounds } from '..';
+import CanvasController from '../Canvas/controllers/canvas-controller';
+import SelectionController from '../Canvas/controllers/selection-controller';
 import { nodeSelectDroppableId } from '../NodeSelect';
-import { ZoomBounds } from '../Sandbox/Canvas';
-import CanvasController from '../Sandbox/Canvas/canvas-controller';
-import SelectionController from '../Sandbox/Canvas/selection-controller';
-import { sandboxDroppableId } from '../Sandbox/SandboxCanvas';
-import { definitionToNode } from '../utils';
+import { definitionToNode, getLinkId } from '../utils';
+import { generateLinkId, getOppositeNodeIdFromId } from './../utils/link-utils';
+import { DrawLinkStore } from './draw-link-store';
 import { SandboxStore } from './sandbox-store';
 
 interface ICanvasState {
     nodes: INodeUIData[];
-    links: LinkController[];
+    links: ILinkUIData[];
     isLoading: boolean;
     linksVisible: boolean;
     isDrawingLink: boolean;
     linkType?: PortType;
 }
 
-interface INodeUIDataWithLinks extends INodeUIData {
-    links?: LinkController[];
+interface ICanvasChildren {
+    drawLinkStore: DrawLinkStore;
 }
 
-export class CanvasStore extends Store<ICanvasState, SandboxStore> {
+interface INodeUIDataWithLinks extends INodeUIData {
+    links: ILinkUIData[];
+}
+
+@compose({
+    drawLinkStore: DrawLinkStore,
+})
+export class CanvasStore extends Store<
+    ICanvasState,
+    SandboxStore,
+    ICanvasChildren
+> {
     public state: ICanvasState = {
         nodes: [],
         links: [],
@@ -46,39 +55,19 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         return this.state.isLoading;
     }
 
-    public drawLinkManager: DrawLinkManager;
-
     private _nodes: Map<string, INodeUIDataWithLinks> = new Map();
-    private _links: Map<string, LinkController> = new Map();
+    private _links: Map<string, ILinkUIData> = new Map();
 
-    private canvasElement: HTMLDivElement;
     private selectController: SelectionController;
     private canvasController: CanvasController;
     private bounds: Dimensions;
     private zoomBounds?: ZoomBounds;
-
-    constructor() {
-        super();
-
-        this.drawLinkManager = new DrawLinkManager(
-            () => this.mousePos,
-            this.getLinkByNode,
-            this.removeLink,
-            coords => this.canvasController.convertCoordinates(coords),
-            this.getNode,
-            this.addLink,
-            errorMessage => {
-                console.log(errorMessage);
-            }
-        );
-    }
 
     public bindElement = (
         element: HTMLDivElement,
         bounds: Dimensions,
         zoomBounds?: ZoomBounds
     ) => {
-        this.canvasElement = element;
         this.bounds = bounds;
         this.zoomBounds = zoomBounds;
 
@@ -132,23 +121,26 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
     };
 
     public addNode = (node: INodeUIData) => {
-        this._nodes.set(node.id, node);
+        this._nodes.set(node.id, {
+            ...node,
+            links: [],
+        });
         this.setState({ nodes: Array.from(this._nodes.values()) });
     };
 
-    private getNode = (nodeId: string) => {
+    public getNode = (nodeId: string) => {
         return this._nodes.get(nodeId);
     };
 
-    private getLinkByNode = (nodeId: string, portId: string) => {
+    public getLinkByNode = (nodeId: string, portId: string) => {
         const node = this._nodes.get(nodeId);
         if (node) {
             return (
                 node.links &&
                 node.links.firstOrDefault(
                     x =>
-                        x.destinationPortId === portId ||
-                        x.sourcePortId === portId
+                        x.destinationData.id === portId ||
+                        x.sourceData.id === portId
                 )
             );
         }
@@ -168,37 +160,34 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
             node: INodeUIData;
         }
     ) => {
-        const linkController = new LinkController(
-            {
-                source: source.element,
-                sourceData: source.data,
-                sourceNodeId: source.node.id,
-                destination: destination.element,
-                destinationData: destination.data,
-                destinationNodeId: destination.node.id,
-            },
-            source.data.type,
-            this.canvasController
+        const linkId = generateLinkId(
+            source.node.id,
+            source.data,
+            destination.node.id,
+            destination.data
         );
+        const linkData: ILinkUIData = {
+            id: linkId,
+            source: source.element,
+            sourceData: source.data,
+            sourceNodeId: source.node.id,
+            destination: destination.element,
+            destinationData: destination.data,
+            destinationNodeId: destination.node.id,
+            type: source.data.type,
+            getLinkElement: () => document.getElementById(linkId) as any,
+        };
 
-        this._links.set(linkController.id, linkController);
+        this._links.set(linkId, linkData);
 
         const sourceNode = this._nodes.get(source.node.id);
         if (sourceNode) {
-            if (sourceNode.links) {
-                sourceNode.links.push(linkController);
-            } else {
-                sourceNode.links = [linkController];
-            }
+            sourceNode.links.push(linkData);
         }
 
         const destinationNode = this._nodes.get(destination.node.id);
         if (destinationNode) {
-            if (destinationNode.links) {
-                destinationNode.links.push(linkController);
-            } else {
-                destinationNode.links = [linkController];
-            }
+            destinationNode.links.push(linkData);
         }
 
         this.setState({ links: Array.from(this._links.values()) });
@@ -255,7 +244,6 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
     }
 
     public clearLinks = () => {
-        this._links.forEach(l => l.dispose());
         this._links.clear();
         this.setState({ links: [] });
     };
@@ -303,7 +291,7 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
             if (node.links) {
                 node.links.forEach(l => {
                     this.removeLinkFromNode(
-                        l.getOppositeNodeIdFromId(nodeId),
+                        getOppositeNodeIdFromId(l, nodeId),
                         l.id
                     );
                 });
@@ -312,17 +300,17 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         }
     };
 
-    private handleNodeClick = (event: MouseEvent, node: NodeController) => {
-        // if (event.ctrlKey) {
-        //     this._selectedNodes.push(node);
-        // } else {
-        //     this._selectedNodes = [node];
-        // }
-    };
+    // private handleNodeClick = (event: MouseEvent, node: NodeController) => {
+    //     // if (event.ctrlKey) {
+    //     //     this._selectedNodes.push(node);
+    //     // } else {
+    //     //     this._selectedNodes = [node];
+    //     // }
+    // };
 
-    private handleNodeDblClick = (node: NodeController) => {
-        // this._selectedNodes = [node];
-    };
+    // private handleNodeDblClick = (node: NodeController) => {
+    //     // this._selectedNodes = [node];
+    // };
 
     private updateNode = (
         id: string,
@@ -368,6 +356,10 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         };
     };
 
+    public convertCoordinates = (coords: Vector2) => {
+        return this.canvasController.convertCoordinates(coords);
+    };
+
     private handleSelection = (bounds: Bounds) => {};
 
     public onPortAdd = (data: PortDataSlim) => {};
@@ -383,7 +375,7 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
         const node = this.getNode(nodeId);
         if (node) {
             this.canvasController.toggleDragging(false);
-            this.drawLinkManager.toggleDraw(type, element, data, node);
+            // this.drawLinkManager.toggleDraw(type, element, data, node);
             this.updateNode(nodeId, oldNode =>
                 this.updateNodePort(oldNode, data, { connected: true })
             );
@@ -392,8 +384,6 @@ export class CanvasStore extends Store<ICanvasState, SandboxStore> {
     };
 
     public stopDrawingLink = () => {
-        this.drawLinkManager.stopDrawing();
-        this.canvasController.toggleDragging(true);
         this.setState({ isDrawingLink: false, linkType: undefined });
     };
 

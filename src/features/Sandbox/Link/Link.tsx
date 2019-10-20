@@ -3,20 +3,12 @@ import React, { useEffect, useRef } from 'react';
 import './Link.less';
 
 interface ILinkProps {
+    linkId: string;
     visible: boolean;
     type: PortType;
-    getRef: (element: SVGPathElement) => void;
 }
 
-export const Link: React.FC<ILinkProps> = ({ visible, type, getRef }) => {
-    const ref = useRef<SVGPathElement>(null);
-
-    useEffect(() => {
-        if (getRef) {
-            getRef(ref.current!);
-        }
-    }, [getRef]);
-
+export const Link: React.FC<ILinkProps> = ({ visible, type, linkId }) => {
     return (
         <svg
             className={classNames({
@@ -26,7 +18,7 @@ export const Link: React.FC<ILinkProps> = ({ visible, type, getRef }) => {
             })}
             style={{ position: 'absolute', opacity: visible ? 1 : 0 }}
         >
-            <path ref={ref} />
+            <path id={linkId} />
         </svg>
     );
 };

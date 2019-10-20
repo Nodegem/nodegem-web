@@ -55,12 +55,15 @@ interface INodeUIData {
 }
 
 interface ILinkUIData {
+    id: string;
     sourceNodeId: string;
     source: HTMLElement;
     sourceData: IPortUIData;
     destinationNodeId: string;
     destination: HTMLElement;
     destinationData: IPortUIData;
+    type: PortType;
+    getLinkElement: () => SVGPathElement;
 }
 
 interface ILinkInitializeData {

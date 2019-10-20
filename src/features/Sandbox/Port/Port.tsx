@@ -65,7 +65,6 @@ export const Socket: React.FC<ISocketProps> = React.memo(
         connecting = false,
         hidePortActions = false,
     }: ISocketProps) => {
-        const portRef = useRef<HTMLSpanElement>(null);
         const data = { id, nodeId, io, type, connected, connecting, name };
 
         const portUp = useCallback(
@@ -141,7 +140,7 @@ export const Socket: React.FC<ISocketProps> = React.memo(
                     ))}
                 <Tooltip title={name} placement={placement}>
                     <span
-                        ref={portRef}
+                        id={`${nodeId}-${id}`}
                         onMouseDown={portDown}
                         onTouchStart={portDown}
                         onMouseUp={portUp}

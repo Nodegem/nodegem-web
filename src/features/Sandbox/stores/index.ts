@@ -1,4 +1,5 @@
 export * from './canvas-store';
+export * from './draw-link-store';
 export * from './intro-store';
 export * from './logs-store';
 export * from './node-info-store';
