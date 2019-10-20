@@ -30,6 +30,10 @@ export class IntroStore extends Store<IIntroState, SandboxStore> {
             this.toggleChoosingGraphState(false);
             this.toggleStartPrompt();
             this.unsuspend();
+        } else {
+            this.ctx.sandboxHeaderStore.setState({
+                modifyingGraphSettings: false,
+            });
         }
     };
 

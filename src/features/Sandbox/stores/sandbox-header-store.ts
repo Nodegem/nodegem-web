@@ -1,4 +1,6 @@
 import { Store } from 'overstated';
+import { graphModalStore, macroModalStore } from 'stores';
+import { isMacro } from 'utils';
 import { SandboxStore } from '.';
 
 interface ISandboxHeaderState {
@@ -8,6 +10,10 @@ interface ISandboxHeaderState {
     bridges: IBridgeInfo[];
     loadingBridges: boolean;
     modifyingGraphSettings: boolean;
+    canSave: boolean;
+    canEdit: boolean;
+    canSelectBridge: boolean;
+    canRun: boolean;
 }
 
 export class SandboxHeaderStore extends Store<
@@ -20,32 +26,43 @@ export class SandboxHeaderStore extends Store<
         bridges: [],
         loadingBridges: false,
         modifyingGraphSettings: false,
+        canSave: false,
+        canEdit: false,
+        canRun: false,
+        canSelectBridge: false,
     };
 
     public get hasBridgeSelected(): boolean {
         return !!this.state.bridge;
     }
 
-    public get canSave(): boolean {
-        return false;
-    }
-
-    public get canEdit(): boolean {
-        return false;
-    }
-
-    public get canRun(): boolean {
-        return false;
-    }
-
-    public get canSelectBridge(): boolean {
-        return false;
-    }
-
     public onBridgeSelect = (bridge: IBridgeInfo) => {};
 
     public onEditGraph = () => {
+        const { graph } = this.ctx.tabsStore.activeTab;
+        if (isMacro(graph)) {
+            macroModalStore.openModal(graph, true);
+        } else {
+            graphModalStore.openModal(graph, true);
+        }
         this.setState({ modifyingGraphSettings: true });
+    };
+
+    public onTabLoaded = () => {
+        this.setState({
+            canSave: true,
+            canEdit: true,
+            canSelectBridge: true,
+        });
+    };
+
+    public onTabUnloaded = () => {
+        this.setState({
+            canSave: false,
+            canEdit: false,
+            canRun: false,
+            canSelectBridge: false,
+        });
     };
 
     public refreshBridges = () => {};

@@ -62,11 +62,12 @@ export class CanvasStore extends Store<
         return this.isLoading;
     }
 
+    public canvasController: CanvasController;
+
     private _nodes: Map<string, INodeUIDataWithLinks> = new Map();
     private _links: Map<string, ILinkUIData> = new Map();
 
     private selectController: SelectionController;
-    private canvasController: CanvasController;
     private bounds: Dimensions;
     private zoomBounds?: ZoomBounds;
 
@@ -163,7 +164,8 @@ export class CanvasStore extends Store<
             element: HTMLElement;
             data: IPortUIData;
             node: INodeUIData;
-        }
+        },
+        render = true
     ) => {
         const linkId = generateLinkId(
             source.node.id,
@@ -190,9 +192,9 @@ export class CanvasStore extends Store<
         await this.setState({ links: Array.from(this._links.values()) });
 
         const element = document.getElementById(linkId) as any;
-        console.log(element);
 
-        this._links.set(linkId, { ...linkData, element });
+        const linkDataWithElement = { ...linkData, element };
+        this._links.set(linkId, linkDataWithElement);
 
         const sourceNode = this._nodes.get(source.node.id);
         if (sourceNode) {
@@ -202,6 +204,10 @@ export class CanvasStore extends Store<
         const destinationNode = this._nodes.get(destination.node.id);
         if (destinationNode) {
             destinationNode.links.push(linkId);
+        }
+
+        if (render) {
+            this.updateLinkPaths([linkDataWithElement]);
         }
     };
 
@@ -242,7 +248,8 @@ export class CanvasStore extends Store<
                     element: document.getElementById(
                         getPortId(destinationPort)
                     ) as HTMLElement,
-                }
+                },
+                false
             );
         }
 
@@ -250,10 +257,11 @@ export class CanvasStore extends Store<
     }
 
     public onNodePositionUpdate = (nodeId: string, position: Vector2) => {
-        const node = this._nodes.get(nodeId);
+        const node = this.getNode(nodeId);
         if (node) {
-            // No need to update visually
-            node.position = position;
+            this._nodes.delete(nodeId);
+            this._nodes.set(nodeId, { ...node, position });
+            this.setState({ nodes: Array.from(this._nodes.values()) });
         }
     };
 
@@ -294,7 +302,7 @@ export class CanvasStore extends Store<
         this.ctx.nodeInfoStore.setSelectedNode(this._nodes.get(id)!);
     };
 
-    public removeLink = (linkId: string, nodeId: string) => {
+    public removeLink = (linkId: string, nodeId: string = '') => {
         const link = this._links.get(linkId);
         if (link) {
             this.suspend();
@@ -311,19 +319,21 @@ export class CanvasStore extends Store<
                 this.removeLinkFromNode(link.destinationNodeId, linkId);
             }
 
+            this._links.delete(linkId);
+            this.setState({ links: Array.from(this._links.values()) });
             this.unsuspend();
         }
     };
 
     private removeLinkFromNode = (nodeId: string, linkId: string) => {
-        const node = this._nodes.get(nodeId);
+        const node = this.getNode(nodeId);
         if (node) {
             node.links = node.links.filter(x => x !== linkId);
         }
     };
 
     public removeNode = (nodeId: string) => {
-        const node = this._nodes.get(nodeId);
+        const node = this.getNode(nodeId);
         if (node) {
             const links = [...node.links];
             links.forEach(l => this.removeLink(l, nodeId));
@@ -415,7 +425,6 @@ export class CanvasStore extends Store<
     ) => {
         const node = this.getNode(nodeId);
         if (node) {
-            this.canvasController.toggleDragging(false);
             this.drawLinkStore.startDraw(event, data, element);
         }
     };
@@ -424,16 +433,41 @@ export class CanvasStore extends Store<
 
     //#region Links
 
-    private updateLink = (
-        linkId: string,
-        updateFunc: (oldLink: ILinkUIData) => Partial<ILinkUIData>
-    ) => {
-        const link = this._links.get(linkId);
-        if (link) {
-            const newLink = { ...link, ...updateFunc(link) };
-            this._links.set(link.id, newLink);
-            this.setState({ nodes: Array.from(this._nodes.values()) });
+    public hasLink = (port: IPortUIData) => {
+        const node = this.getNode(port.nodeId);
+        if (node) {
+            const links = node.links.map(x => this.getLink(x)!);
+            return links.any(
+                l =>
+                    (l.destinationNodeId === port.nodeId &&
+                        l.destinationData.id === port.id) ||
+                    (l.sourceNodeId === port.nodeId &&
+                        l.sourceData.id === port.id)
+            );
         }
+
+        return false;
+    };
+
+    public getLink = (linkId: string) => {
+        return this._links.get(linkId);
+    };
+
+    public getLinkFromPort = (port: IPortUIData) => {
+        const node = this.getNode(port.nodeId);
+        if (node) {
+            const links = node.links.map(l => this.getLink(l)!);
+            const foundLink = links.firstOrDefault(
+                l =>
+                    (l.sourceNodeId === port.nodeId &&
+                        l.sourceData.id === port.id) ||
+                    (l.destinationNodeId === port.nodeId &&
+                        l.destinationData.id === port.id)
+            );
+            return foundLink;
+        }
+
+        return undefined;
     };
 
     private updateLinkPathsFromIds = (linkIds: string[]) => {

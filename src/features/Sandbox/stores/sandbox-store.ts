@@ -2,7 +2,8 @@ import { appStore } from 'app-state-store';
 import localforage from 'localforage';
 import { compose, Store } from 'overstated';
 import { GraphService, MacroService, NodeService } from 'services';
-import { getGraphType } from 'utils';
+import { userStore } from 'stores';
+import { getGraphType, isMacro } from 'utils';
 import { convertToSelectFriendly, flatten, getPort } from '../utils';
 import { nodeDataToUINodeData } from './../utils';
 import { CanvasStore } from './canvas-store';
@@ -90,9 +91,33 @@ export class SandboxStore
         //         this.stateStore.addTab(graph);
         //     }
         // }
+
+        this.sandboxHeaderStore.setState({ modifyingGraphSettings: false });
     };
 
-    public saveGraph = () => {};
+    public saveGraph = async () => {
+        if (!this.tabsStore.hasActiveTab) {
+            return;
+        }
+
+        this.sandboxHeaderStore.setState({ isSavingGraph: true });
+
+        try {
+            const data = this.getGraphData();
+            if (isMacro(data)) {
+                await MacroService.update(data);
+            } else {
+                await GraphService.update(data);
+            }
+
+            appStore.toast('Graph saved successfully!', 'success');
+        } catch (e) {
+            appStore.toast('Unable to save graph', 'error');
+            console.error(e);
+        }
+
+        this.sandboxHeaderStore.setState({ isSavingGraph: false });
+    };
 
     public runGraph = () => {};
 
@@ -131,6 +156,7 @@ export class SandboxStore
 
         // this.hubManager.initialize();
         this.setState({ isLoading: false });
+        this.sandboxHeaderStore.onTabLoaded();
     };
 
     public saveStateLocally = async () => {
@@ -188,19 +214,6 @@ export class SandboxStore
                 case 32:
                     this.canvasStore.resetView();
                     break;
-                case 27:
-                    // const { activeTab } = this.tabManager;
-                    // const {
-                    //     initialPrompt,
-                    //     select,
-                    // } = this.stateManager.modalState;
-                    // if (!activeTab && (initialPrompt || select)) {
-                    //     event.stopImmediatePropagation();
-                    //     event.preventDefault();
-                    // }
-
-                    // this.drawLinkManager.stopDrawing();
-                    break;
             }
         } else {
             switch (event.keyCode) {
@@ -209,6 +222,38 @@ export class SandboxStore
                     break;
             }
         }
+    };
+
+    private getGraphData = (): Graph | Macro => {
+        const { nodes, links } = this.canvasStore.state;
+        const linkData = links.map<LinkData>(l => ({
+            sourceNode: l.sourceNodeId,
+            sourceKey: l.sourceData.id,
+            destinationNode: l.destinationNodeId,
+            destinationKey: l.destinationData.id,
+        }));
+
+        const nodeData = nodes.map<NodeData>(n => ({
+            id: n.id,
+            position: n.position,
+            fullName: n.fullName,
+            fieldData: n.valueInputs.map<FieldData>(f => ({
+                key: f.id,
+                value: f.value,
+            })),
+            macroFieldId: n.macroFieldId,
+            macroId: n.macroId,
+        }));
+
+        const { graph } = this.tabsStore.activeTab;
+        const { user } = userStore;
+
+        return {
+            ...graph,
+            userId: user!.id,
+            nodes: nodeData,
+            links: linkData,
+        };
     };
 
     public dispose() {

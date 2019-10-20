@@ -9,6 +9,7 @@ import { NodeSelectSection } from './NodeSelectSection';
 
 import { useStore } from 'overstated';
 import { IntroPrompts } from './IntroPrompts';
+import { LogsView } from './LogView';
 import { SandboxHeader } from './SandboxHeader';
 import './SandboxView.less';
 import { SandboxStore } from './stores';
@@ -23,6 +24,8 @@ export const SandboxView = () => {
         nodeInfoStore,
         nodeSelectStore,
         isLoading,
+        logsStore,
+        hasUnreadLogs,
     } = useStore(SandboxStore, app => ({
         sandboxStore: app,
         sandboxHeaderStore: app.sandboxHeaderStore,
@@ -32,6 +35,8 @@ export const SandboxView = () => {
         nodeInfoStore: app.nodeInfoStore,
         nodeSelectStore: app.nodeSelectStore,
         isLoading: app.state.isLoading,
+        logsStore: app.logsStore,
+        hasUnreadLogs: app.logsStore.state.hasUnread,
     }));
 
     useEffect(() => {
@@ -54,6 +59,7 @@ export const SandboxView = () => {
                             <Canvas
                                 canvasStore={canvasStore}
                                 isLoading={isLoading}
+                                hasUnreadLogs={hasUnreadLogs}
                             />
                         </FlexColumn>
                         <NodeInfoSection nodeInfoStore={nodeInfoStore} />
@@ -61,6 +67,7 @@ export const SandboxView = () => {
                 </DragDropContext>
             </FlexColumn>
             <IntroPrompts introStore={introStore} />
+            <LogsView logStore={logsStore} />
         </>
     );
 };

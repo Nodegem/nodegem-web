@@ -21,8 +21,6 @@ export const IntroPrompts: React.FC<IIntroPromptsProps> = ({ introStore }) => {
         onGraphCreate,
         graphSelect,
         graphSelected,
-        isLogModalOpen,
-        toggleLogs,
     } = useStore(introStore, store => ({
         editGraph: store.ctx.editGraph,
         goBack: store.goBack,
@@ -30,8 +28,6 @@ export const IntroPrompts: React.FC<IIntroPromptsProps> = ({ introStore }) => {
         graphSelect: store.onGraphSelect,
         graphSelected: store.onGraphSelected,
         onGraphCreate: store.onGraphCreate,
-        isLogModalOpen: store.ctx.logsStore.state.isOpen,
-        toggleLogs: store.ctx.logsStore.toggleOpen,
         ...store.state,
     }));
 
@@ -68,21 +64,6 @@ export const IntroPrompts: React.FC<IIntroPromptsProps> = ({ introStore }) => {
                 closable={hasTabs}
             >
                 <SelectGraph onGraphSelect={graphSelected} />
-            </Modal>
-            <Modal
-                className="sandbox-modal log-view-modal"
-                title="Console"
-                maskClosable
-                visible={isLogModalOpen}
-                style={{ minHeight: '80vh', maxHeight: '80vh' }}
-                footer={null}
-                onCancel={() => toggleLogs(false)}
-                centered
-            >
-                {/* <LogView
-                    logs={sandboxStore.logManager.activeTabLogs}
-                    clearLogs={sandboxStore.logManager.clearLogs}
-                /> */}
             </Modal>
         </>
     );

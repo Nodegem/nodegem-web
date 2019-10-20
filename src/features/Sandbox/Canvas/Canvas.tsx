@@ -30,22 +30,22 @@ const SandboxDropContainer = React.memo(() => (
 export interface ISandboxProps {
     canvasStore: CanvasStore;
     isLoading: boolean;
+    hasUnreadLogs: boolean;
     size?: Dimensions;
 }
 
 export const Canvas: React.FC<ISandboxProps> = ({
     isLoading,
     canvasStore,
+    hasUnreadLogs,
     size = { width: 12000, height: 12000 },
 }: ISandboxProps) => {
     const {
         links,
         nodes,
         isDisabled,
-        toggleConsole,
         canToggleConsole,
         linksVisible,
-        hasUnread,
         isConsoleLoading,
         resetView,
         editNode,
@@ -57,11 +57,10 @@ export const Canvas: React.FC<ISandboxProps> = ({
         isDrawingLink,
         onNodeDrag,
         drawLinkStore,
+        toggleLogView,
     } = useStore(canvasStore, store => ({
-        toggleConsole: store.ctx.logsStore.toggleOpen,
         isDisabled: store.isDisabled,
         canToggleConsole: store.ctx.logsStore.canToggle,
-        hasUnread: store.ctx.logsStore.state.hasUnread,
         isConsoleLoading: store.ctx.logsStore.state.isLoading,
         resetView: store.resetView,
         editNode: store.editNode,
@@ -73,6 +72,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
         onNodeDrag: store.onNodeMove,
         drawLinkStore: store.drawLinkStore,
         isDrawingLink: store.drawLinkStore.state.isDrawing,
+        toggleLogView: store.ctx.logsStore.toggleOpen,
         ...store.state,
     }));
 
@@ -135,14 +135,14 @@ export const Canvas: React.FC<ISandboxProps> = ({
                     allowClear
                     placeholder="Search Nodes"
                 />
-                <Badge count={hasUnread ? 1 : 0} dot>
+                <Badge count={hasUnreadLogs ? 1 : 0} dot>
                     <Button
-                        disabled={canToggleConsole}
+                        disabled={!canToggleConsole}
                         shape="circle"
                         type="primary"
                         icon="code"
                         loading={isConsoleLoading}
-                        onClick={() => toggleConsole()}
+                        onClick={() => toggleLogView(true)}
                     />
                 </Badge>
             </div>

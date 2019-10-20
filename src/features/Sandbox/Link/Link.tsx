@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React from 'react';
 import './Link.less';
 
 interface ILinkProps {
@@ -7,6 +7,10 @@ interface ILinkProps {
     visible: boolean;
     type: PortType;
 }
+
+const areEqual = (prev: ILinkProps, cur: ILinkProps) => {
+    return prev.visible === cur.visible;
+};
 
 export const Link: React.FC<ILinkProps> = React.memo(
     ({ visible, type, linkId }) => {
@@ -22,5 +26,6 @@ export const Link: React.FC<ILinkProps> = React.memo(
                 <path id={linkId} />
             </svg>
         );
-    }
+    },
+    areEqual
 );

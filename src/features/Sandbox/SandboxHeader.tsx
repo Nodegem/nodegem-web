@@ -81,13 +81,9 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
         bridge,
         loadingBridges,
     } = useStore(sandboxHeaderStore, store => ({
-        canSave: store.canSave,
         saveGraph: store.ctx.saveGraph,
-        canEdit: store.canEdit,
         editGraph: store.onEditGraph,
-        canRun: store.canRun,
         runGraph: store.ctx.runGraph,
-        canSelectBridge: store.canSelectBridge,
         hasBridge: store.hasBridgeSelected,
         onBridgeSelect: store.onBridgeSelect,
         refreshBridges: store.refreshBridges,

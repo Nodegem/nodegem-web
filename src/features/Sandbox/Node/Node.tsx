@@ -80,114 +80,116 @@ interface INodeProps {
     onPortRemove: (port: IPortUIData) => void;
 }
 
-export const Node: React.FC<INodeProps> = ({
-    id,
-    permanent,
-    selected,
-    title,
-    initialPosition,
-    flowInputs,
-    flowOutputs,
-    valueInputs,
-    valueOutputs,
-    hidePortActions,
-    editNode,
-    removeNode,
-    onPortEvent,
-    onPortAdd,
-    onPortRemove,
-    onDrag,
-    onDragStop,
-}: INodeProps) => {
-    const [position, setPosition] = useState(initialPosition);
-
-    const handleDrag = useCallback(
-        (e: DraggableEvent, data: DraggableData) => {
-            onDrag(id);
-        },
-        [onDrag, id]
-    );
-
-    const handleDragStop = useCallback(
-        (e: DraggableEvent, data: DraggableData) => {
-            setPosition(data);
-            onDragStop(id, data);
-        },
-        [id, onDragStop]
-    );
-
-    const classes = classNames({
-        'node-container': true,
+export const Node: React.FC<INodeProps> = React.memo(
+    ({
+        id,
+        permanent,
         selected,
-    });
+        title,
+        initialPosition,
+        flowInputs,
+        flowOutputs,
+        valueInputs,
+        valueOutputs,
+        hidePortActions,
+        editNode,
+        removeNode,
+        onPortEvent,
+        onPortAdd,
+        onPortRemove,
+        onDrag,
+        onDragStop,
+    }: INodeProps) => {
+        const [position, setPosition] = useState(initialPosition);
 
-    return (
-        <Draggable
-            position={position}
-            onDrag={handleDrag}
-            onStop={handleDragStop}
-        >
-            <div style={{ position: 'absolute' }} className={classes}>
-                <div className="flow flow-inputs">
-                    {flowInputs.map((fi, i) => (
-                        <Port
-                            key={fi.id}
-                            onPortEvent={onPortEvent}
-                            onAddPort={onPortAdd}
-                            onRemovePort={onPortRemove}
-                            lastPort={i === valueInputs.length - 1}
-                            hidePortActions={hidePortActions}
-                            nodeId={id}
-                            {...fi}
-                        />
-                    ))}
-                </div>
-                <div className="inner">
-                    <div className="value value-inputs">
-                        {valueInputs.map((vi, i) => (
+        const handleDrag = useCallback(
+            (e: DraggableEvent, data: DraggableData) => {
+                onDrag(id);
+            },
+            [onDrag, id]
+        );
+
+        const handleDragStop = useCallback(
+            (e: DraggableEvent, data: DraggableData) => {
+                setPosition(data);
+                onDragStop(id, { x: data.x, y: data.y });
+            },
+            [id, onDragStop]
+        );
+
+        const classes = classNames({
+            'node-container': true,
+            selected,
+        });
+
+        return (
+            <Draggable
+                position={position}
+                onDrag={handleDrag}
+                onStop={handleDragStop}
+            >
+                <div style={{ position: 'absolute' }} className={classes}>
+                    <div className="flow flow-inputs">
+                        {flowInputs.map((fi, i) => (
                             <Port
-                                key={vi.id}
+                                key={fi.id}
                                 onPortEvent={onPortEvent}
                                 onAddPort={onPortAdd}
                                 onRemovePort={onPortRemove}
                                 lastPort={i === valueInputs.length - 1}
                                 hidePortActions={hidePortActions}
                                 nodeId={id}
-                                {...vi}
+                                {...fi}
                             />
                         ))}
                     </div>
-                    <span className="title">{title}</span>
-                    <div className="value value-outputs">
-                        {valueOutputs.map((vo, i) => (
+                    <div className="inner">
+                        <div className="value value-inputs">
+                            {valueInputs.map((vi, i) => (
+                                <Port
+                                    key={vi.id}
+                                    onPortEvent={onPortEvent}
+                                    onAddPort={onPortAdd}
+                                    onRemovePort={onPortRemove}
+                                    lastPort={i === valueInputs.length - 1}
+                                    hidePortActions={hidePortActions}
+                                    nodeId={id}
+                                    {...vi}
+                                />
+                            ))}
+                        </div>
+                        <span className="title">{title}</span>
+                        <div className="value value-outputs">
+                            {valueOutputs.map((vo, i) => (
+                                <Port
+                                    key={vo.id}
+                                    onPortEvent={onPortEvent}
+                                    onAddPort={onPortAdd}
+                                    onRemovePort={onPortRemove}
+                                    lastPort={i === valueInputs.length - 1}
+                                    hidePortActions={hidePortActions}
+                                    nodeId={id}
+                                    {...vo}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flow flow-outputs">
+                        {flowOutputs.map((fo, i) => (
                             <Port
-                                key={vo.id}
+                                key={fo.id}
                                 onPortEvent={onPortEvent}
                                 onAddPort={onPortAdd}
                                 onRemovePort={onPortRemove}
                                 lastPort={i === valueInputs.length - 1}
                                 hidePortActions={hidePortActions}
                                 nodeId={id}
-                                {...vo}
+                                {...fo}
                             />
                         ))}
                     </div>
                 </div>
-                <div className="flow flow-outputs">
-                    {flowOutputs.map((fo, i) => (
-                        <Port
-                            key={fo.id}
-                            onPortEvent={onPortEvent}
-                            onAddPort={onPortAdd}
-                            onRemovePort={onPortRemove}
-                            lastPort={i === valueInputs.length - 1}
-                            hidePortActions={hidePortActions}
-                            nodeId={id}
-                            {...fo}
-                        />
-                    ))}
-                </div>
-            </div>
-        </Draggable>
-    );
-};
+            </Draggable>
+        );
+    }
+);

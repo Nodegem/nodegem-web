@@ -65,35 +65,11 @@ export const generateLinkId = (
 ) =>
     `${sourceNodeId}|${sourcePort.id}|${destinationNodeId}|${destinationPort.id}`;
 
-// export const getSourceData = (link: ILinkUIData) => {
-//     return link.destination === this.sourceElement
-//         ? this._linkData.sourceData
-//         : this._linkData.destinationData;
-// };
-
-// export const getSourceNodeId = (element: HTMLElement) => {
-//     return element === this.sourceElement
-//         ? this.sourceNodeId
-//         : this.destinationNodeId;
-// };
-
-// export const getOppositePortElement = (element: HTMLElement) => {
-//     return element === this.sourceElement
-//         ? this.destinationElement
-//         : this.sourceElement;
-// };
-
-// export const getOppositeData = (element: HTMLElement) => {
-//     return element === this.sourceElement
-//         ? this._linkData.destinationData
-//         : this._linkData.sourceData;
-// };
-
-// export const getOppositeNodeId = (element: HTMLElement) => {
-//     return element === this.sourceElement
-//         ? this.destinationNodeId
-//         : this.sourceNodeId;
-// };
+export const getOppositePortFromId = (link: ILinkUIData, portId: string) => {
+    return portId === link.sourceData.id
+        ? link.destinationData
+        : link.sourceData;
+};
 
 export const getOppositeNodeIdFromId = (link: ILinkUIData, nodeId: string) => {
     return nodeId === link.sourceNodeId
@@ -101,22 +77,6 @@ export const getOppositeNodeIdFromId = (link: ILinkUIData, nodeId: string) => {
         : link.sourceNodeId;
 };
 
-// export const toggleSourcePort = (element: HTMLElement) => {
-//     if (element === this.sourceElement) {
-//         this._linkData.sourceData.connected = !this._linkData
-//             .destinationData.connected;
-//     } else {
-//         this._linkData.destinationData.connected = !this._linkData
-//             .sourceData.connected;
-//     }
-// };
-
-// export const toggleConnectedOppositePort = (element: HTMLElement) => {
-//     if (element === this.sourceElement) {
-//         this._linkData.destinationData.connected = !this._linkData
-//             .destinationData.connected;
-//     } else {
-//         this._linkData.sourceData.connected = !this._linkData.sourceData
-//             .connected;
-//     }
-// };
+export const getOppositeElementFromId = (link: ILinkUIData, portId: string) => {
+    return portId === link.sourceData.id ? link.destination : link.source;
+};

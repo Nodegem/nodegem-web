@@ -1,9 +1,14 @@
+import { appStore } from 'app-state-store';
 import _ from 'lodash';
 import { Store } from 'overstated';
 import { getCenterCoordinates } from 'utils';
 import { CanvasStore } from '.';
 import { flowPath, valuePath } from '..';
-import { isValidConnection } from './../utils/link-utils';
+import {
+    getOppositeElementFromId,
+    getOppositePortFromId,
+    isValidConnection,
+} from './../utils/link-utils';
 
 export const drawLinkElementId = 'draw-link';
 
@@ -13,6 +18,8 @@ interface IDrawLinkState {
     source?: Vector2;
     portElement?: HTMLElement;
     port?: IPortUIData;
+    detachElement?: HTMLElement;
+    detachPort?: IPortUIData;
 }
 
 export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
@@ -41,27 +48,52 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
         if (
             event === 'up' &&
             element !== this.state.portElement &&
+            element !== this.state.detachElement &&
             this.state.isDrawing
         ) {
             this.stopDraw(port, element);
             return;
         }
 
-        window.addEventListener('mousemove', this.throttleEvent);
-        this.getLinkElement().addEventListener(
-            'contextmenu',
-            this.handleRightClick
-        );
+        if (event === 'down') {
+            window.addEventListener('mousemove', this.throttleEvent);
+            this.getLinkElement().addEventListener(
+                'contextmenu',
+                this.handleRightClick
+            );
 
-        this.suspend();
-        this.ctx.togglePortConnected(port, true);
-        this.setState({
-            isDrawing: true,
-            linkType: port.type,
-            source: this.ctx.convertCoordinates(getCenterCoordinates(element)),
-            portElement: element,
-            port,
-        });
+            this.suspend();
+
+            if (this.ctx.hasLink(port)) {
+                const { oppositeElement, oppositePort } = this.detachLink(
+                    port,
+                    element
+                );
+                this.setState({
+                    isDrawing: true,
+                    linkType: port.type,
+                    source: this.ctx.convertCoordinates(
+                        getCenterCoordinates(oppositeElement)
+                    ),
+                    portElement: oppositeElement,
+                    port: oppositePort,
+                });
+            } else {
+                this.ctx.togglePortConnected(port, true);
+                this.setState({
+                    isDrawing: true,
+                    linkType: port.type,
+                    source: this.ctx.convertCoordinates(
+                        getCenterCoordinates(element)
+                    ),
+                    portElement: element,
+                    port,
+                });
+            }
+
+            this.ctx.canvasController.toggleDragging(false);
+        }
+
         this.unsuspend();
     };
 
@@ -84,12 +116,13 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
                 };
                 if (isValidConnection(port, destinationPort)) {
                     this.ctx.addLink(source, destination);
+                } else {
+                    appStore.toast('Invalid connection', 'warn');
+                    this.clearConnections(port);
                 }
             }
         } else {
-            if (port) {
-                this.ctx.togglePortConnected(port, false);
-            }
+            this.clearConnections(port);
         }
 
         window.removeEventListener('mousemove', this.throttleEvent);
@@ -104,7 +137,11 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
             source: undefined,
             port: undefined,
             portElement: undefined,
+            detachElement: undefined,
+            detachPort: undefined,
         });
+
+        this.ctx.canvasController.toggleDragging(true);
     };
 
     private updateLink = () => {
@@ -126,6 +163,34 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
             ) as any;
         }
         return this.linkElement;
+    };
+
+    private detachLink = (
+        port: IPortUIData,
+        originalElement: HTMLElement
+    ): { oppositePort: IPortUIData; oppositeElement: HTMLElement } => {
+        const existingLink = this.ctx.getLinkFromPort(port)!;
+        const oppositePort = getOppositePortFromId(existingLink, port.id);
+
+        this.ctx.removeLink(existingLink.id);
+        this.ctx.togglePortConnected(oppositePort, true);
+
+        const element = getOppositeElementFromId(existingLink, port.id);
+        this.setState({
+            detachElement: originalElement,
+            detachPort: oppositePort,
+        });
+        return { oppositeElement: element, oppositePort };
+    };
+
+    private clearConnections = (port?: IPortUIData) => {
+        if (port) {
+            this.ctx.togglePortConnected(port, false);
+        }
+
+        if (this.state.detachPort) {
+            this.ctx.togglePortConnected(this.state.detachPort, false);
+        }
     };
 
     private handleRightClick = (event: MouseEvent) => {

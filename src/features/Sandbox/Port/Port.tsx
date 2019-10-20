@@ -53,6 +53,7 @@ const propEqual = (prev: ISocketProps, cur: ISocketProps) => {
 export const Socket: React.FC<ISocketProps> = React.memo(
     ({
         onPortEvent,
+        name,
         id,
         nodeId,
         io,
