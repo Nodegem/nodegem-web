@@ -14,7 +14,9 @@ import routerHistory from './utils/history';
 import ReactDOM from 'react-dom';
 import { legacyStore } from './stores';
 
-debug();
+if (process.env.NODE_ENV && process.env.NODE_ENV === 'development') {
+    debug();
+}
 
 localforage.config({
     name: 'nodegem',

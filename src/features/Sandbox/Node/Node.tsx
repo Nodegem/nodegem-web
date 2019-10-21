@@ -57,6 +57,7 @@ const Toolbar: React.FC<IToolbarProps> = React.memo(
 
 interface INodeProps {
     id: string;
+    scale: number;
     selected: boolean;
     title: string;
     permanent?: boolean;
@@ -83,6 +84,7 @@ interface INodeProps {
 export const Node: React.FC<INodeProps> = React.memo(
     ({
         id,
+        scale,
         permanent,
         selected,
         title,
@@ -127,6 +129,7 @@ export const Node: React.FC<INodeProps> = React.memo(
                 position={position}
                 onDrag={handleDrag}
                 onStop={handleDragStop}
+                scale={scale}
             >
                 <div style={{ position: 'absolute' }} className={classes}>
                     <div className="flow flow-inputs">

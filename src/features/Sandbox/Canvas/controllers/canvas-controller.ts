@@ -84,7 +84,8 @@ class CanvasController implements IDisposable {
         private zoomBounds: ZoomBounds = { min: 0.53, max: 2.75 },
         private onCanvasDown: (event: MouseEvent) => void,
         private onCanvasUp: (event: MouseEvent) => void,
-        private onCanvasRightClick: (event: MouseEvent) => void
+        private onCanvasRightClick: (event: MouseEvent) => void,
+        private onZooming: (scale: number) => void
     ) {
         this._mousePos = { x: 0, y: 0 };
 
@@ -243,6 +244,7 @@ class CanvasController implements IDisposable {
 
     private onZoom = (delta: number, type: ZoomType, position: Vector2) => {
         this.performZoom(this.transform.scale * (1 + delta), type, position);
+        this.onZooming(this.scale);
     };
 
     private performZoom = (

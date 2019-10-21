@@ -21,6 +21,7 @@ interface ICanvasState {
     nodes: INodeUIData[];
     links: ILinkUIData[];
     linksVisible: boolean;
+    scale: number;
 }
 
 interface ICanvasChildren {
@@ -43,6 +44,7 @@ export class CanvasStore extends Store<
         nodes: [],
         links: [],
         linksVisible: true,
+        scale: 1,
     };
 
     public get isLoading(): boolean {
@@ -85,7 +87,8 @@ export class CanvasStore extends Store<
             this.zoomBounds,
             this.handleCanvasDown,
             this.onCanvasMouseUp,
-            this.onCanvasRightClick
+            this.onCanvasRightClick,
+            scale => this.setState({ scale })
         );
 
         this.selectController = new SelectionController(
@@ -399,6 +402,30 @@ export class CanvasStore extends Store<
         };
     };
 
+    public updateNodePortList = (
+        node: INodeUIData,
+        port: IPortUIData,
+        newPortsData: (oldPorts: IPortUIData[]) => IPortUIData[]
+    ): Partial<INodeUIData> => {
+        let portListName: keyof Pick<
+            INodeUIData,
+            'flowInputs' | 'flowOutputs' | 'valueInputs' | 'valueOutputs'
+        >;
+        // tslint:disable-next-line: prefer-conditional-expression
+        if (port.type === 'flow') {
+            portListName = port.io === 'input' ? 'flowInputs' : 'flowOutputs';
+        } else {
+            portListName = port.io === 'input' ? 'valueInputs' : 'valueOutputs';
+        }
+
+        const list = node[portListName];
+
+        return {
+            ...node,
+            [portListName]: [...newPortsData(list)],
+        };
+    };
+
     public togglePortConnected = (port: IPortUIData, value?: boolean) => {
         this.updateNode(port.nodeId, oldNode =>
             this.updateNodePort(oldNode, port, oldPort => ({
@@ -413,7 +440,15 @@ export class CanvasStore extends Store<
 
     private handleSelection = (bounds: Bounds) => {};
 
-    public onPortAdd = (data: IPortUIData) => {};
+    public onPortAdd = (data: IPortUIData) => {
+        const node = this.getNode(data.nodeId);
+        if (node) {
+            this.updateNodePortList(node, data, ports => [
+                ...ports,
+                { ...data },
+            ]);
+        }
+    };
 
     public onPortRemove = (data: IPortUIData) => {};
 
@@ -493,12 +528,7 @@ export class CanvasStore extends Store<
         }
     };
 
-    private onCanvasMouseUp = (event: MouseEvent) => {
-        if (this.selectController.selecting) {
-            this.selectController.stopSelect(this.canvasController.mousePos);
-            this.canvasController.toggleDragging(true);
-        }
-    };
+    private onCanvasMouseUp = (event: MouseEvent) => {};
 
     private onCanvasRightClick = (event: MouseEvent) => {
         if (this.drawLinkStore.state.isDrawing) {

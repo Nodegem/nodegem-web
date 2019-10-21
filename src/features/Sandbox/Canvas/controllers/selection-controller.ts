@@ -4,7 +4,7 @@ const selectingClass = 'selecting';
 
 type SelectedEvent = (bounds: Bounds) => void;
 
-class SelectionController implements IDisposable {
+class SelectionController {
     public get selecting(): boolean {
         return !!this.start;
     }
@@ -20,7 +20,6 @@ class SelectionController implements IDisposable {
         this.selectElement.style.position = 'absolute';
         this.selectElement.style.display = 'none';
         this.selectElement.classList.add('select-container');
-        window.addEventListener('mousemove', this.onSelecting);
         this.canvasContainer.canvas.appendChild(this.selectElement);
 
         this.selectElement.addEventListener('transitionend', event => {
@@ -40,6 +39,8 @@ class SelectionController implements IDisposable {
         this.start = pos;
         const { x, y } = pos;
 
+        window.addEventListener('mousemove', this.onSelecting);
+        window.addEventListener('mouseup', this.onMouseUp);
         this.selectElement.style.transform = `translate(${x}px, ${y}px)`;
     }
 
@@ -72,6 +73,10 @@ class SelectionController implements IDisposable {
         this.selectElement.style.height = height + 'px';
     };
 
+    private onMouseUp = (event: MouseEvent) => {
+        this.stopSelect(this.canvasContainer.mousePos);
+    };
+
     public stopSelect(pos: Vector2) {
         if (!this.selecting) {
             return;
@@ -101,10 +106,8 @@ class SelectionController implements IDisposable {
         });
 
         this.start = null;
-    }
 
-    public dispose(): void {
-        this.selectElement.remove();
+        window.removeEventListener('mouseup', this.onMouseUp);
         window.removeEventListener('mousemove', this.onSelecting);
     }
 }

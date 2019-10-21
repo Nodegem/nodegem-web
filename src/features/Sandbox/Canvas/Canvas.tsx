@@ -58,6 +58,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
         onNodeDrag,
         drawLinkStore,
         toggleLogView,
+        scale,
     } = useStore(canvasStore, store => ({
         isDisabled: store.isDisabled,
         canToggleConsole: store.ctx.logsStore.canToggle,
@@ -73,6 +74,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
         drawLinkStore: store.drawLinkStore,
         isDrawingLink: store.drawLinkStore.state.isDrawing,
         toggleLogView: store.ctx.logsStore.toggleOpen,
+        scale: store.state.scale,
         ...store.state,
     }));
 
@@ -109,6 +111,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
                 <div className="nodes">
                     {nodes.map(n => (
                         <Node
+                            scale={scale}
                             key={n.id}
                             initialPosition={n.position}
                             flowInputs={n.flowInputs}
