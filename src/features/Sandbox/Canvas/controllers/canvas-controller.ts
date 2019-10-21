@@ -127,7 +127,8 @@ class CanvasController implements IDisposable {
             this.parentElement,
             this.canvas,
             0.1,
-            this.onZoom
+            this.onZoom,
+            this
         );
 
         this.updateBackground();

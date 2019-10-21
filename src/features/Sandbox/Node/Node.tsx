@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button, Tooltip } from 'antd';
 import classNames from 'classnames';
@@ -6,17 +6,11 @@ import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { Socket as Port } from '../Port/Port';
 import './Node.less';
 
-const ToolbarContents: React.FC<IToolbarProps> = React.memo(
+const ToolbarContents: React.FC<Omit<IToolbarProps, 'visible'>> = React.memo(
     ({ id, edit, remove, permanent }) => {
         return (
             <span className="toolbar">
-                <Button
-                    onClick={() => {
-                        edit(id);
-                    }}
-                    type="primary"
-                    icon="edit"
-                />
+                <Button onClick={() => edit(id)} type="primary" icon="edit" />
                 <Button
                     onClick={() => remove(id)}
                     type="danger"
@@ -29,6 +23,7 @@ const ToolbarContents: React.FC<IToolbarProps> = React.memo(
 );
 
 interface IToolbarProps {
+    visible: boolean;
     id: string;
     permanent?: boolean;
     edit: (id: string) => void;
@@ -36,10 +31,10 @@ interface IToolbarProps {
 }
 
 const Toolbar: React.FC<IToolbarProps> = React.memo(
-    ({ remove, edit, permanent, id, children }) => {
+    ({ remove, edit, permanent, id, visible, children }) => {
         return (
             <Tooltip
-                className="toolbar-tooltip"
+                visible={visible}
                 title={
                     <ToolbarContents
                         edit={edit}
@@ -67,6 +62,8 @@ interface INodeProps {
     valueInputs: IPortUIData[];
     valueOutputs: IPortUIData[];
     hidePortActions: boolean;
+    onDblClick: (event: MouseEvent, nodeId: string) => void;
+    onClick: (event: MouseEvent, nodeId: string) => void;
     editNode: (nodeId: string) => void;
     removeNode: (nodeId: string) => void;
     onDrag: (id: string) => void;
@@ -81,57 +78,85 @@ interface INodeProps {
     onPortRemove: (port: IPortUIData) => void;
 }
 
-export const Node: React.FC<INodeProps> = React.memo(
-    ({
-        id,
-        scale,
-        permanent,
+export const Node: React.FC<INodeProps> = ({
+    id,
+    scale,
+    permanent,
+    selected,
+    title,
+    initialPosition,
+    flowInputs,
+    flowOutputs,
+    valueInputs,
+    valueOutputs,
+    hidePortActions,
+    onClick,
+    editNode,
+    removeNode,
+    onDblClick,
+    onPortEvent,
+    onPortAdd,
+    onPortRemove,
+    onDrag,
+    onDragStop,
+}: INodeProps) => {
+    const [position, setPosition] = useState(initialPosition);
+
+    const handleDrag = useCallback(
+        (e: DraggableEvent, data: DraggableData) => {
+            onDrag(id);
+        },
+        [onDrag, id]
+    );
+
+    const handleDragStop = useCallback(
+        (e: DraggableEvent, data: DraggableData) => {
+            setPosition(data);
+            onDragStop(id, { x: data.x, y: data.y });
+        },
+        [id, onDragStop]
+    );
+
+    const handleDblClick = useCallback(
+        (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+            onDblClick(event.nativeEvent, id);
+        },
+        [id, onDblClick]
+    );
+
+    const handleClick = useCallback(
+        (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+            onClick(event.nativeEvent, id);
+        },
+        [id, onClick]
+    );
+
+    const classes = classNames({
+        'node-container': true,
         selected,
-        title,
-        initialPosition,
-        flowInputs,
-        flowOutputs,
-        valueInputs,
-        valueOutputs,
-        hidePortActions,
-        editNode,
-        removeNode,
-        onPortEvent,
-        onPortAdd,
-        onPortRemove,
-        onDrag,
-        onDragStop,
-    }: INodeProps) => {
-        const [position, setPosition] = useState(initialPosition);
+    });
 
-        const handleDrag = useCallback(
-            (e: DraggableEvent, data: DraggableData) => {
-                onDrag(id);
-            },
-            [onDrag, id]
-        );
-
-        const handleDragStop = useCallback(
-            (e: DraggableEvent, data: DraggableData) => {
-                setPosition(data);
-                onDragStop(id, { x: data.x, y: data.y });
-            },
-            [id, onDragStop]
-        );
-
-        const classes = classNames({
-            'node-container': true,
-            selected,
-        });
-
-        return (
+    return (
+        <Toolbar
+            id={id}
+            edit={editNode}
+            remove={removeNode}
+            permanent={permanent}
+            visible={selected}
+        >
             <Draggable
                 position={position}
                 onDrag={handleDrag}
                 onStop={handleDragStop}
                 scale={scale}
             >
-                <div style={{ position: 'absolute' }} className={classes}>
+                <div
+                    id={id}
+                    style={{ position: 'absolute' }}
+                    className={classes}
+                    onDoubleClick={handleDblClick}
+                    onClick={handleClick}
+                >
                     <div className="flow flow-inputs">
                         {flowInputs.map((fi, i) => (
                             <Port
@@ -193,6 +218,6 @@ export const Node: React.FC<INodeProps> = React.memo(
                     </div>
                 </div>
             </Draggable>
-        );
-    }
-);
+        </Toolbar>
+    );
+};

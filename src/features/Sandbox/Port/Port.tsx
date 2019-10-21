@@ -32,128 +32,122 @@ interface ISocketProps {
         data: IPortUIData,
         nodeId: string
     ) => void;
-    onAddPort?: (data: IPortUIData) => void;
-    onRemovePort?: (data: IPortUIData) => void;
+    onAddPort: (data: IPortUIData) => void;
+    onRemovePort: (data: IPortUIData) => void;
     hidePortActions?: boolean;
 }
 
-const propEqual = (prev: ISocketProps, cur: ISocketProps) => {
-    if (prev.nodeId !== cur.nodeId && prev.id !== cur.id) {
-        return false;
-    }
+// const propEqual = (prev: ISocketProps, cur: ISocketProps) => {
+//     if (prev.nodeId !== cur.nodeId && prev.id !== cur.id) {
+//         return false;
+//     }
 
-    // If you aren't indefinite but wanna hide port actions just pretend you are the same
-    if (cur.hidePortActions && !cur.indefinite) {
-        return true;
-    }
+//     // If you aren't indefinite but wanna hide port actions just pretend you are the same
+//     if (cur.hidePortActions && !cur.indefinite) {
+//         return true;
+//     }
 
-    return prev === cur;
+//     return prev === cur;
+// };
+
+export const Socket: React.FC<ISocketProps> = ({
+    onPortEvent,
+    name,
+    id,
+    nodeId,
+    io,
+    type,
+    onAddPort,
+    lastPort,
+    onRemovePort,
+    indefinite = false,
+    connected = false,
+    hidePortActions = false,
+}: ISocketProps) => {
+    const data = { id, nodeId, io, type, connected, name, indefinite };
+
+    const portUp = useCallback(
+        (
+            event:
+                | React.MouseEvent<HTMLSpanElement, MouseEvent>
+                | React.TouchEvent<HTMLSpanElement>
+        ) => {
+            event.stopPropagation();
+            event.preventDefault();
+            onPortEvent('up', event.target as HTMLElement, data, nodeId);
+        },
+        [onPortEvent, id, nodeId, io, type]
+    );
+
+    const portDown = useCallback(
+        (
+            event:
+                | React.MouseEvent<HTMLSpanElement, MouseEvent>
+                | React.TouchEvent<HTMLSpanElement>
+        ) => {
+            event.stopPropagation();
+            event.preventDefault();
+            onPortEvent('down', event.target as HTMLElement, data, nodeId);
+        },
+        [onPortEvent, id, nodeId, io, type]
+    );
+
+    const placement = useMemo(() => getPlacement(io, type), [io, type]);
+    const portId = useMemo(() => getPortId({ nodeId, id }), [nodeId, id]);
+
+    return (
+        <div
+            className={classNames({
+                'port-container': true,
+                indefinite,
+                [placement]: indefinite,
+            })}
+            style={{
+                display: 'flex',
+                flexDirection: placement === 'right' ? 'row-reverse' : 'row',
+            }}
+        >
+            {indefinite &&
+                (lastPort ? (
+                    <Tooltip title={`Add to ${name}`}>
+                        <span
+                            onClick={() => onAddPort(data)}
+                            className={classNames({
+                                'port-action': true,
+                                'add-port': true,
+                                hidden: hidePortActions,
+                            })}
+                        >
+                            <Icon type="plus-circle" />
+                        </span>
+                    </Tooltip>
+                ) : (
+                    !connected && (
+                        <span
+                            onClick={() => onRemovePort(data)}
+                            className={classNames({
+                                'port-action': true,
+                                'remove-port': true,
+                                hidden: hidePortActions,
+                            })}
+                        >
+                            <Icon type="minus-circle" />
+                        </span>
+                    )
+                ))}
+            <Tooltip title={name} placement={placement}>
+                <span
+                    id={portId}
+                    onMouseDown={portDown}
+                    onTouchStart={portDown}
+                    onMouseUp={portUp}
+                    onTouchEnd={portUp}
+                    className={classNames({
+                        port: true,
+                        connected,
+                    })}
+                />
+            </Tooltip>
+        </div>
+    );
 };
-
-export const Socket: React.FC<ISocketProps> = React.memo(
-    ({
-        onPortEvent,
-        name,
-        id,
-        nodeId,
-        io,
-        type,
-        onAddPort,
-        lastPort,
-        onRemovePort,
-        indefinite = false,
-        connected = false,
-        hidePortActions = false,
-    }: ISocketProps) => {
-        const data = { id, nodeId, io, type, connected, name, indefinite };
-
-        const portUp = useCallback(
-            (
-                event:
-                    | React.MouseEvent<HTMLSpanElement, MouseEvent>
-                    | React.TouchEvent<HTMLSpanElement>
-            ) => {
-                event.stopPropagation();
-                event.preventDefault();
-                onPortEvent('up', event.target as HTMLElement, data, nodeId);
-            },
-            [onPortEvent, id, nodeId, io, type]
-        );
-
-        const portDown = useCallback(
-            (
-                event:
-                    | React.MouseEvent<HTMLSpanElement, MouseEvent>
-                    | React.TouchEvent<HTMLSpanElement>
-            ) => {
-                event.stopPropagation();
-                event.preventDefault();
-                onPortEvent('down', event.target as HTMLElement, data, nodeId);
-            },
-            [onPortEvent, id, nodeId, io, type]
-        );
-
-        const placement = useMemo(() => getPlacement(io, type), [io, type]);
-        const portId = useMemo(() => getPortId({ nodeId, id }), [nodeId, id]);
-
-        return (
-            <div
-                className={classNames({
-                    'port-container': true,
-                    indefinite,
-                    [placement]: indefinite,
-                })}
-                style={{
-                    display: 'flex',
-                    flexDirection:
-                        placement === 'right' ? 'row-reverse' : 'row',
-                }}
-            >
-                {indefinite &&
-                    (lastPort ? (
-                        <Tooltip title={`Add to ${name}`}>
-                            <span
-                                onClick={() => onAddPort && onAddPort(data)}
-                                className={classNames({
-                                    'port-action': true,
-                                    'add-port': true,
-                                    hidden: hidePortActions,
-                                })}
-                            >
-                                <Icon type="plus-circle" />
-                            </span>
-                        </Tooltip>
-                    ) : (
-                        !connected && (
-                            <span
-                                onClick={() =>
-                                    onRemovePort && onRemovePort(data)
-                                }
-                                className={classNames({
-                                    'port-action': true,
-                                    'remove-port': true,
-                                    hidden: hidePortActions,
-                                })}
-                            >
-                                <Icon type="minus-circle" />
-                            </span>
-                        )
-                    ))}
-                <Tooltip title={name} placement={placement}>
-                    <span
-                        id={portId}
-                        onMouseDown={portDown}
-                        onTouchStart={portDown}
-                        onMouseUp={portUp}
-                        onTouchEnd={portUp}
-                        className={classNames({
-                            port: true,
-                            connected,
-                        })}
-                    />
-                </Tooltip>
-            </div>
-        );
-    },
-    propEqual
-);

@@ -1,3 +1,4 @@
+import { uuid } from 'lodash-uuid';
 import { compose, Store } from 'overstated';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { getCenterCoordinates } from 'utils';
@@ -217,9 +218,11 @@ export class CanvasStore extends Store<
     public async load(nodes: INodeUIData[], links: ILinkInitializeData[]) {
         this.clearView();
 
+        this.suspend();
         for (const node of nodes) {
             this.addNode(node);
         }
+        this.unsuspend();
 
         for (const link of links) {
             const sourceNode = this._nodes.get(link.sourceNodeId);
@@ -260,12 +263,9 @@ export class CanvasStore extends Store<
     }
 
     public onNodePositionUpdate = (nodeId: string, position: Vector2) => {
-        const node = this.getNode(nodeId);
-        if (node) {
-            this._nodes.delete(nodeId);
-            this._nodes.set(nodeId, { ...node, position });
-            this.setState({ nodes: Array.from(this._nodes.values()) });
-        }
+        this.updateNode(nodeId, _ => ({
+            position,
+        }));
     };
 
     public clearNodes() {
@@ -305,22 +305,15 @@ export class CanvasStore extends Store<
         this.ctx.nodeInfoStore.setSelectedNode(this._nodes.get(id)!);
     };
 
-    public removeLink = (linkId: string, nodeId: string = '') => {
+    public removeLink = (linkId: string) => {
         const link = this._links.get(linkId);
         if (link) {
             this.suspend();
             this.togglePortConnected(link.sourceData, false);
             this.togglePortConnected(link.destinationData, false);
 
-            if (nodeId) {
-                this.removeLinkFromNode(
-                    getOppositeNodeIdFromId(link, nodeId),
-                    linkId
-                );
-            } else {
-                this.removeLinkFromNode(link.sourceNodeId, linkId);
-                this.removeLinkFromNode(link.destinationNodeId, linkId);
-            }
+            this.removeLinkFromNode(link.sourceNodeId, linkId);
+            this.removeLinkFromNode(link.destinationNodeId, linkId);
 
             this._links.delete(linkId);
             this.setState({ links: Array.from(this._links.values()) });
@@ -335,37 +328,89 @@ export class CanvasStore extends Store<
         }
     };
 
-    public removeNode = (nodeId: string) => {
+    public removeNode = async (nodeId: string) => {
         const node = this.getNode(nodeId);
         if (node) {
-            const links = [...node.links];
-            links.forEach(l => this.removeLink(l, nodeId));
+            const linkIds = [...node.links];
+            const links = linkIds.map(l => this.getLink(l)!);
             this._nodes.delete(nodeId);
-            this.setState({ nodes: Array.from(this._nodes.values()) });
+
+            this.suspend();
+            links.forEach(l => {
+                if (l.sourceNodeId === nodeId) {
+                    this.togglePortConnected(l.destinationData, false);
+                } else {
+                    this.togglePortConnected(l.sourceData, false);
+                }
+            });
+            linkIds.forEach(id => this._links.delete(id));
+            await this.setState({ nodes: Array.from(this._nodes.values()) });
+            await this.setState({ links: [] });
+            await this.setState({
+                links: Array.from(this._links.values()),
+            });
+            this.unsuspend();
         }
     };
 
-    // private handleNodeClick = (event: MouseEvent, node: NodeController) => {
-    //     // if (event.ctrlKey) {
-    //     //     this._selectedNodes.push(node);
-    //     // } else {
-    //     //     this._selectedNodes = [node];
-    //     // }
-    // };
+    public onNodeClick = (event: MouseEvent, nodeId: string) => {
+        if (event.ctrlKey) {
+            this.updateNode(nodeId, _ => ({
+                selected: true,
+            }));
+        } else {
+            this.suspend();
+            const nodeIds = Array.from(this._nodes.keys());
 
-    // private handleNodeDblClick = (node: NodeController) => {
-    //     // this._selectedNodes = [node];
-    // };
+            nodeIds.forEach(id =>
+                this.updateNode(id, _ => ({
+                    selected: false,
+                }))
+            );
 
-    public updateNode = (
+            this.updateNode(nodeId, _ => ({
+                selected: true,
+            }));
+            this.unsuspend();
+        }
+    };
+
+    public onNodeDblClick = (event: MouseEvent, nodeId: string) => {
+        event.stopPropagation();
+
+        this.suspend();
+        const nodeIds = Array.from(this._nodes.keys());
+
+        nodeIds.forEach(id =>
+            this.updateNode(id, _ => ({
+                selected: false,
+            }))
+        );
+
+        const node = this.getNode(nodeId);
+        this.updateNode(nodeId, _ => ({
+            selected: true,
+        }));
+
+        this.ctx.nodeInfoStore.toggleOpen(true);
+        this.ctx.nodeInfoStore.setSelectedNode(node!);
+        this.unsuspend();
+    };
+
+    public updateNode = async (
         id: string,
-        newDataFunc: (node: INodeUIData) => Partial<INodeUIData>
+        newDataFunc: (node: INodeUIData) => Partial<INodeUIData>,
+        updatePathLinks?: boolean
     ) => {
         const oldNode = this.getNode(id);
         if (oldNode) {
             const newNode = { ...oldNode, ...newDataFunc(oldNode) };
             this._nodes.set(id, newNode);
-            this.setState({ nodes: Array.from(this._nodes.values()) });
+            await this.setState({ nodes: Array.from(this._nodes.values()) });
+
+            if (updatePathLinks) {
+                this.updateLinkPathsFromIds(newNode.links);
+            }
         }
     };
 
@@ -441,16 +486,34 @@ export class CanvasStore extends Store<
     private handleSelection = (bounds: Bounds) => {};
 
     public onPortAdd = (data: IPortUIData) => {
-        const node = this.getNode(data.nodeId);
-        if (node) {
-            this.updateNodePortList(node, data, ports => [
-                ...ports,
-                { ...data },
-            ]);
-        }
+        const fullId = `${data.name.toLowerCase()}|${uuid().replace(/-/g, '')}`;
+
+        this.updateNode(
+            data.nodeId,
+            oldNode =>
+                this.updateNodePortList(oldNode, data, ports => [
+                    ...ports,
+                    {
+                        ...data,
+                        id: fullId,
+                        connected: false,
+                        value: data.defaultValue,
+                    },
+                ]),
+            true
+        );
     };
 
-    public onPortRemove = (data: IPortUIData) => {};
+    public onPortRemove = (data: IPortUIData) => {
+        this.updateNode(
+            data.nodeId,
+            oldNode =>
+                this.updateNodePortList(oldNode, data, ports => [
+                    ...ports.filter(p => p.id !== data.id),
+                ]),
+            true
+        );
+    };
 
     public onPortEvent = (
         event: PortEvent,
@@ -525,6 +588,15 @@ export class CanvasStore extends Store<
         if (event.ctrlKey) {
             this.canvasController.toggleDragging(false);
             this.selectController.startSelect(this.canvasController.mousePos);
+        } else {
+            this.suspend();
+            const nodeIds = Array.from(this._nodes.keys());
+            nodeIds.forEach(id => {
+                this.updateNode(id, _ => ({
+                    selected: false,
+                }));
+            });
+            this.unsuspend();
         }
     };
 

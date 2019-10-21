@@ -1,4 +1,5 @@
 import { isInput, isTouchEvent } from 'utils';
+import CanvasController from './canvas-controller';
 
 export type ZoomEvent = (
     delta: number,
@@ -14,7 +15,8 @@ class ZoomController implements IDisposable {
         private parentContainer: HTMLElement,
         private viewContainer: HTMLElement,
         private intensity: number,
-        private onZoom: ZoomEvent
+        private onZoom: ZoomEvent,
+        private canvasController: CanvasController
     ) {
         this.intensity = intensity;
         this._distance = null;
@@ -78,6 +80,10 @@ class ZoomController implements IDisposable {
 
     public handleDblClick = (e: MouseEvent) => {
         if (isInput(e.target as Element)) {
+            return;
+        }
+
+        if (!this.canvasController.isCanvas(e.target as HTMLElement)) {
             return;
         }
 
