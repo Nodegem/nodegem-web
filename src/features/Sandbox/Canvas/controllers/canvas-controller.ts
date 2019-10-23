@@ -233,6 +233,7 @@ class CanvasController implements IDisposable {
             },
             defaultTween
         );
+        this.onZooming(1);
     }
 
     public magnify(zoomDelta: number) {
@@ -245,7 +246,6 @@ class CanvasController implements IDisposable {
 
     private onZoom = (delta: number, type: ZoomType, position: Vector2) => {
         this.performZoom(this.transform.scale * (1 + delta), type, position);
-        this.onZooming(this.scale);
     };
 
     private performZoom = (
@@ -265,6 +265,8 @@ class CanvasController implements IDisposable {
             y: y + position.y * d,
             scale: clampedZoom || 1,
         };
+
+        this.onZooming(clampedZoom);
 
         if (type !== 'dblClick') {
             this.translate(newTransform);
