@@ -19,7 +19,7 @@ const getPlacement = (io: PortIOType, type: PortType): TooltipPlacement => {
 
 interface ISocketProps {
     name: string;
-    id: string;
+    portId: string;
     nodeId: string;
     io: PortIOType;
     type: PortType;
@@ -37,23 +37,10 @@ interface ISocketProps {
     hidePortActions?: boolean;
 }
 
-// const propEqual = (prev: ISocketProps, cur: ISocketProps) => {
-//     if (prev.nodeId !== cur.nodeId && prev.id !== cur.id) {
-//         return false;
-//     }
-
-//     // If you aren't indefinite but wanna hide port actions just pretend you are the same
-//     if (cur.hidePortActions && !cur.indefinite) {
-//         return true;
-//     }
-
-//     return prev === cur;
-// };
-
 export const Socket: React.FC<ISocketProps> = ({
     onPortEvent,
     name,
-    id,
+    portId,
     nodeId,
     io,
     type,
@@ -64,7 +51,7 @@ export const Socket: React.FC<ISocketProps> = ({
     connected = false,
     hidePortActions = false,
 }: ISocketProps) => {
-    const data = { id, nodeId, io, type, connected, name, indefinite };
+    const data = { id: portId, nodeId, io, type, connected, name, indefinite };
 
     const portUp = useCallback(
         (
@@ -76,7 +63,7 @@ export const Socket: React.FC<ISocketProps> = ({
             event.preventDefault();
             onPortEvent('up', event.target as HTMLElement, data, nodeId);
         },
-        [onPortEvent, id, nodeId, io, type]
+        [onPortEvent, portId, nodeId, io, type, connected]
     );
 
     const portDown = useCallback(
@@ -89,11 +76,14 @@ export const Socket: React.FC<ISocketProps> = ({
             event.preventDefault();
             onPortEvent('down', event.target as HTMLElement, data, nodeId);
         },
-        [onPortEvent, id, nodeId, io, type]
+        [onPortEvent, portId, nodeId, io, type, connected]
     );
 
     const placement = useMemo(() => getPlacement(io, type), [io, type]);
-    const portId = useMemo(() => getPortId({ nodeId, id }), [nodeId, id]);
+    const portNodeId = useMemo(() => getPortId({ nodeId, id: portId }), [
+        nodeId,
+        portId,
+    ]);
 
     return (
         <div
@@ -137,11 +127,9 @@ export const Socket: React.FC<ISocketProps> = ({
                 ))}
             <Tooltip title={name} placement={placement}>
                 <span
-                    id={portId}
+                    id={portNodeId}
                     onMouseDown={portDown}
-                    onTouchStart={portDown}
                     onMouseUp={portUp}
-                    onTouchEnd={portUp}
                     className={classNames({
                         port: true,
                         connected,

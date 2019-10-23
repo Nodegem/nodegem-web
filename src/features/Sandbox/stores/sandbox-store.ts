@@ -241,6 +241,7 @@ export class SandboxStore
                 key: f.id,
                 value: f.value,
             })),
+            permanent: n.permanent,
             macroFieldId: n.macroFieldId,
             macroId: n.macroId,
         }));

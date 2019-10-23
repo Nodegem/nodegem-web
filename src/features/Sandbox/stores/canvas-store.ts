@@ -7,13 +7,7 @@ import CanvasController from '../Canvas/controllers/canvas-controller';
 import SelectionController from '../Canvas/controllers/selection-controller';
 import { nodeSelectDroppableId } from '../NodeSelect';
 import { definitionToNode } from '../utils';
-import {
-    flowPath,
-    generateLinkId,
-    getOppositeNodeIdFromId,
-    updateLinkPath,
-    valuePath,
-} from './../utils/link-utils';
+import { generateLinkId, updateLinkPath } from './../utils/link-utils';
 import { getPort, getPortId } from './../utils/node-utils';
 import { DrawLinkStore } from './draw-link-store';
 import { SandboxStore } from './sandbox-store';
@@ -23,6 +17,7 @@ interface ICanvasState {
     links: ILinkUIData[];
     linksVisible: boolean;
     scale: number;
+    openContext?: { id: string; canDelete: boolean };
 }
 
 interface ICanvasChildren {
@@ -48,10 +43,6 @@ export class CanvasStore extends Store<
         scale: 1,
     };
 
-    public get isLoading(): boolean {
-        return this.ctx.state.isLoading;
-    }
-
     public get mousePos(): Vector2 {
         return this.canvasController.mousePos;
     }
@@ -59,10 +50,6 @@ export class CanvasStore extends Store<
     public get nodeCache(): NodeCache {
         const { hasActiveTab, activeTab } = this.ctx.tabsStore;
         return (hasActiveTab && activeTab.definitions) || ({} as any);
-    }
-
-    public get isDisabled(): boolean {
-        return this.isLoading;
     }
 
     public canvasController: CanvasController;
@@ -124,9 +111,17 @@ export class CanvasStore extends Store<
     ) => {
         const { definitionLookup } = this.nodeCache;
 
+        const offset = { x: 75, y: 25 };
+        const mousePos = this.mousePos;
+
         const node = definitionToNode(
             definitionLookup[definition.fullName],
-            centered ? { x: 0, y: 0 } : this.mousePos
+            centered
+                ? { x: 0, y: 0 }
+                : {
+                      x: mousePos.x - offset.x,
+                      y: mousePos.y - offset.y,
+                  }
         );
 
         this.addNode(node);
@@ -331,23 +326,16 @@ export class CanvasStore extends Store<
     public removeNode = async (nodeId: string) => {
         const node = this.getNode(nodeId);
         if (node) {
-            const linkIds = [...node.links];
-            const links = linkIds.map(l => this.getLink(l)!);
-            this._nodes.delete(nodeId);
-
             this.suspend();
-            links.forEach(l => {
-                if (l.sourceNodeId === nodeId) {
-                    this.togglePortConnected(l.destinationData, false);
-                } else {
-                    this.togglePortConnected(l.sourceData, false);
-                }
-            });
-            linkIds.forEach(id => this._links.delete(id));
-            await this.setState({ nodes: Array.from(this._nodes.values()) });
-            await this.setState({ links: [] });
-            await this.setState({
-                links: Array.from(this._links.values()),
+            const linkIds = [...node.links];
+
+            for (const linkId of linkIds) {
+                this.removeLink(linkId);
+            }
+
+            this._nodes.delete(nodeId);
+            this.setState({
+                nodes: Array.from(this._nodes.values()),
             });
             this.unsuspend();
         }
@@ -397,6 +385,15 @@ export class CanvasStore extends Store<
         this.unsuspend();
     };
 
+    public onNodeRightClick = (event: MouseEvent, nodeId: string) => {
+        event.preventDefault();
+
+        const node = this.getNode(nodeId)!;
+        this.setState({
+            openContext: { id: nodeId, canDelete: !node.permanent },
+        });
+    };
+
     public updateNode = async (
         id: string,
         newDataFunc: (node: INodeUIData) => Partial<INodeUIData>,
@@ -434,16 +431,14 @@ export class CanvasStore extends Store<
 
         const list = node[portListName];
         const existingPort = list.first(x => x.id === port.id);
+        list.addOrUpdate(
+            { ...existingPort, ...newPortData(existingPort) },
+            x => x.id === port.id
+        );
 
         return {
             ...node,
-            [portListName]: [
-                ...node[portListName].filter(p => p.id !== port.id),
-                {
-                    ...existingPort,
-                    ...newPortData(existingPort),
-                },
-            ],
+            [portListName]: [...list],
         };
     };
 
@@ -523,7 +518,7 @@ export class CanvasStore extends Store<
     ) => {
         const node = this.getNode(nodeId);
         if (node) {
-            this.drawLinkStore.startDraw(event, data, element);
+            this.drawLinkStore.toggleDraw(event, data, element);
         }
     };
 

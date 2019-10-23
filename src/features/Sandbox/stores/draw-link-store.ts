@@ -35,7 +35,7 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
         this.throttleEvent = _.throttle(this.updateLink, 5);
     }
 
-    public startDraw = (
+    public toggleDraw = (
         event: PortEvent,
         port: IPortUIData,
         element: HTMLElement

@@ -15,7 +15,7 @@ import ReactDOM from 'react-dom';
 import { legacyStore } from './stores';
 
 if (process.env.NODE_ENV && process.env.NODE_ENV === 'development') {
-    debug();
+    // debug();
 }
 
 localforage.config({
