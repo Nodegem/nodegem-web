@@ -21,78 +21,85 @@ function getStyle(style, snapshot) {
     };
 }
 
-const DefinitionItem = (
-    item: NodeDefinition,
-    i: number,
-    addNode: (definition: NodeDefinition) => void
-) => (
-    <Draggable
-        key={i}
-        disableInteractiveElementBlocking
-        draggableId={item.fullName}
-        index={i}
-    >
-        {(provided, snapshot) => (
-            <span
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                style={getStyle(provided.draggableProps.style, snapshot)}
-            >
-                <List.Item
-                    className="definition-item"
-                    style={{
-                        userSelect: 'none',
-                        alignItems: 'center',
-                    }}
-                    extra={
-                        <span>
-                            <Tooltip title={item.description || 'N/A'}>
-                                <Button
-                                    style={{
-                                        visibility:
-                                            snapshot.isDragging ||
-                                            snapshot.isDropAnimating
-                                                ? 'hidden'
-                                                : 'visible',
-                                    }}
-                                    icon="info-circle"
-                                    type="link"
-                                    size="large"
-                                />
-                            </Tooltip>
-                            <Tooltip title="Add">
-                                <Button
-                                    style={{
-                                        visibility:
-                                            snapshot.isDragging ||
-                                            snapshot.isDropAnimating
-                                                ? 'hidden'
-                                                : 'visible',
-                                    }}
-                                    onClick={() => addNode(item)}
-                                    icon="plus-square"
-                                    type="link"
-                                    size="large"
-                                />
-                            </Tooltip>
-                        </span>
-                    }
+interface IDefinitionItemProps {
+    item: NodeDefinition;
+    i: number;
+    addNode: (definition: NodeDefinition) => void;
+}
+
+const DefinitionItem: React.FC<IDefinitionItemProps> = React.memo(
+    ({ item, i, addNode }) => (
+        <Draggable
+            key={i}
+            disableInteractiveElementBlocking
+            draggableId={item.fullName}
+            index={i}
+        >
+            {(provided, snapshot) => (
+                <span
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    style={getStyle(provided.draggableProps.style, snapshot)}
                 >
-                    <Row>
-                        <Col span={2}>
-                            <Icon type="drag" style={{ fontSize: '1.3em' }} />
-                        </Col>
-                        <Col span={14} offset={4}>
-                            <span style={{ flex: 1, alignSelf: 'center' }}>
-                                {item.title}
+                    <List.Item
+                        className="definition-item"
+                        style={{
+                            userSelect: 'none',
+                            alignItems: 'center',
+                        }}
+                        extra={
+                            <span>
+                                <Tooltip title={item.description || 'N/A'}>
+                                    <Button
+                                        style={{
+                                            visibility:
+                                                snapshot.isDragging ||
+                                                snapshot.isDropAnimating
+                                                    ? 'hidden'
+                                                    : 'visible',
+                                        }}
+                                        icon="info-circle"
+                                        type="link"
+                                        size="large"
+                                    />
+                                </Tooltip>
+                                <Tooltip title="Add">
+                                    <Button
+                                        style={{
+                                            visibility:
+                                                snapshot.isDragging ||
+                                                snapshot.isDropAnimating
+                                                    ? 'hidden'
+                                                    : 'visible',
+                                        }}
+                                        onClick={() => addNode(item)}
+                                        icon="plus-square"
+                                        type="link"
+                                        size="large"
+                                    />
+                                </Tooltip>
                             </span>
-                        </Col>
-                    </Row>
-                </List.Item>
-            </span>
-        )}
-    </Draggable>
+                        }
+                    >
+                        <Row>
+                            <Col span={2}>
+                                <Icon
+                                    type="drag"
+                                    style={{ fontSize: '1.3em' }}
+                                />
+                            </Col>
+                            <Col span={14} offset={4}>
+                                <span style={{ flex: 1, alignSelf: 'center' }}>
+                                    {item.title}
+                                </span>
+                            </Col>
+                        </Row>
+                    </List.Item>
+                </span>
+            )}
+        </Draggable>
+    )
 );
 
 interface INodeSelectProps {
@@ -175,13 +182,19 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                                                                         renderItem={(
                                                                             item: NodeDefinition,
                                                                             itemIndex
-                                                                        ) =>
-                                                                            DefinitionItem(
-                                                                                item,
-                                                                                itemIndex,
-                                                                                addNode
-                                                                            )
-                                                                        }
+                                                                        ) => (
+                                                                            <DefinitionItem
+                                                                                item={
+                                                                                    item
+                                                                                }
+                                                                                i={
+                                                                                    itemIndex
+                                                                                }
+                                                                                addNode={
+                                                                                    addNode
+                                                                                }
+                                                                            />
+                                                                        )}
                                                                     />
 
                                                                     {

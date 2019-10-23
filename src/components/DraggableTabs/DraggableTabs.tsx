@@ -59,6 +59,7 @@ const DraggableTab = React.memo(
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                         className={classnames({
+                            tab: true,
                             'tab-drag': true,
                             active: isActive,
                         })}

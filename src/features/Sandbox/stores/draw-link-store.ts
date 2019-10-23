@@ -57,10 +57,6 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
 
         if (event === 'down') {
             window.addEventListener('mousemove', this.throttleEvent);
-            this.getLinkElement().addEventListener(
-                'contextmenu',
-                this.handleRightClick
-            );
 
             this.suspend();
 
@@ -126,10 +122,6 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
         }
 
         window.removeEventListener('mousemove', this.throttleEvent);
-        this.getLinkElement().removeEventListener(
-            'contextmenu',
-            this.handleRightClick
-        );
         this.getLinkElement().setAttribute('d', '');
         this.setState({
             isDrawing: false,
@@ -198,4 +190,6 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
         event.preventDefault();
         this.stopDraw();
     };
+
+    private handleMouseDown = (event: MouseEvent) => {};
 }

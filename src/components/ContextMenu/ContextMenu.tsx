@@ -91,7 +91,7 @@ export const ContextMenu: React.FC<IContextMenuProps> = ({
             }}
             {...rest}
         >
-            <Menu>{children}</Menu>
+            {children}
         </div>
     );
 };

@@ -33,20 +33,23 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
     ) => {
         const tab = this.state.tabs.firstOrDefault(x => x.graph.id === graphId);
         if (tab) {
+            const { tabs } = this.state;
+            tabs.addOrUpdate(
+                { ...tab, definitions },
+                x => x.graph.id === graphId
+            );
             this.setState({
-                tabs: [
-                    ...this.state.tabs.filter(x => x.graph.id !== graphId),
-                    {
-                        ...tab,
-                        definitions,
-                    },
-                ],
+                tabs: [...tabs],
             });
         }
     };
 
-    public setActiveTab = (id: string): void => {
-        this.setState({ activeTabId: id });
+    public setActiveTab = async (id: string) => {
+        await this.setState({ activeTabId: id });
+
+        if (id) {
+            this.ctx.load(this.activeTab.graph);
+        }
     };
 
     public addTab = (graph: Graph | Macro) => {
@@ -62,8 +65,8 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
                 { graph, isDirty: false, definitions: {} as any },
             ],
         });
+
         this.setActiveTab(graph.id);
-        this.ctx.load(graph);
     };
 
     public openIntroPrompt = () => {
@@ -74,6 +77,22 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         this.setState({
             tabs: this.state.tabs.filter(x => x.graph.id !== graphId),
         });
+
+        if (this.hasTabs) {
+            if (this.state.activeTabId === graphId) {
+                this.setActiveTab(this.state.tabs.first().graph.id);
+            }
+        } else {
+            this.resetSandbox();
+        }
+    };
+
+    private resetSandbox = () => {
+        this.setActiveTab('');
+        this.ctx.canvasStore.clearView();
+        this.ctx.nodeSelectStore.toggleOpen(false);
+        this.ctx.nodeSelectStore.setNodeOptions({} as any);
+        this.openIntroPrompt();
     };
 
     public setTabs = (tabs: TabData[]) => {

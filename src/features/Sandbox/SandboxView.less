@@ -96,44 +96,51 @@
         align-items: flex-end;
     }
 
-    .active {
-        .tab {
-            background-color: @active-tab-color;
-            border-bottom: 3px solid @primary-color3;
-
-            &:hover {
-                background-color: @active-tab-color;
-            }
-        }
-    }
-
     .tab {
         cursor: pointer;
         transition: height 150ms ease, background-color 200ms ease;
         height: 40px;
         min-width: 120px;
-        width: 120px;
+        max-width: 250px;
         display: flex;
+        flex: 0 1 auto;
         justify-content: center;
         align-items: center;
         background-color: @primary-color1;
-        text-align: center;
 
-        .tab-title {
-            min-width: 90px;
-            max-width: 90px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: white;
-            margin-right: 5px;
-        }
+        .tab-content {
+            display: flex;
+            flex: 1 1 100%;
+            height: inherit;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
 
-        .tab-close {
-            opacity: 0;
-            transition: opacity 150ms ease-in;
-            cursor: pointer;
-            font-size: 0.9em;
-            color: black;
+            .graph-icon {
+                font-size: 1.5em;
+                color: black;
+            }
+
+            .tab-title {
+                margin-left: 5px;
+                display: flex;
+                flex: 1 1 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                color: white;
+                white-space: nowrap;
+            }
+
+            .tab-close {
+                margin-left: 5px;
+                display: flex;
+                flex: 1 1 0;
+                opacity: 0;
+                transition: opacity 150ms ease-in;
+                cursor: pointer;
+                font-size: 0.9em;
+                color: black;
+            }
         }
 
         &:hover {
@@ -145,6 +152,8 @@
         }
 
         &.tab-add {
+            width: 120px;
+            max-width: 120px;
             background-color: transparent !important;
             cursor: pointer;
             color: @primary-color1;
@@ -152,6 +161,19 @@
 
             &:hover {
                 background-color: rgba(255, 255, 255, 0.05) !important;
+            }
+        }
+
+        &.active {
+            background-color: @active-tab-color;
+            border-bottom: 3px solid @primary-color3;
+
+            &:hover {
+                background-color: @active-tab-color;
+            }
+
+            .graph-icon {
+                font-size: 1.7em;
             }
         }
     }

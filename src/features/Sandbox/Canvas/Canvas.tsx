@@ -205,7 +205,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
                 </div>
             </div>
             <ContextMenu trigger="data-node">
-                <Menu>
+                <Menu theme="dark">
                     <Menu.Item onMouseDown={() => editNode(openContext!.id)}>
                         <Icon type="edit" />
                         Edit

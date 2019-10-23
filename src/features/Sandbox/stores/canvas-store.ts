@@ -73,7 +73,7 @@ export class CanvasStore extends Store<
             element,
             this.bounds,
             this.zoomBounds,
-            this.handleCanvasDown,
+            this.onCanvasMouseDown,
             this.onCanvasMouseUp,
             this.onCanvasRightClick,
             scale => this.setState({ scale })
@@ -280,6 +280,7 @@ export class CanvasStore extends Store<
     public clearView() {
         this.clearNodes();
         this.clearLinks();
+        this.resetView();
     }
 
     public toggleLinkVisibility = (toggle?: boolean) => {
@@ -579,7 +580,12 @@ export class CanvasStore extends Store<
 
     //#region  Canvas Events
 
-    private handleCanvasDown = (event: MouseEvent) => {
+    private onCanvasMouseDown = (event: MouseEvent) => {
+        if (this.drawLinkStore.state.isDrawing) {
+            this.drawLinkStore.stopDraw();
+            return;
+        }
+
         if (event.ctrlKey) {
             this.canvasController.toggleDragging(false);
             this.selectController.startSelect(this.canvasController.mousePos);

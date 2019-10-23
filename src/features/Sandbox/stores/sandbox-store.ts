@@ -85,12 +85,12 @@ export class SandboxStore
         return definitionObject;
     };
 
-    public editGraph = () => {
-        // if (graph) {
-        //     if (!edit) {
-        //         this.stateStore.addTab(graph);
-        //     }
-        // }
+    public graphModifyOrCreate = (graph?: Graph | Macro, edit?: boolean) => {
+        if (graph) {
+            if (!edit) {
+                this.tabsStore.addTab(graph);
+            }
+        }
 
         this.sandboxHeaderStore.setState({ modifyingGraphSettings: false });
     };

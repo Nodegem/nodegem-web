@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { Icon, Tooltip } from 'antd';
 import { TooltipPlacement } from 'antd/lib/tooltip';
@@ -37,105 +37,116 @@ interface ISocketProps {
     hidePortActions?: boolean;
 }
 
-export const Socket: React.FC<ISocketProps> = ({
-    onPortEvent,
-    name,
-    portId,
-    nodeId,
-    io,
-    type,
-    onAddPort,
-    lastPort,
-    onRemovePort,
-    indefinite = false,
-    connected = false,
-    hidePortActions = false,
-}: ISocketProps) => {
-    const data = { id: portId, nodeId, io, type, connected, name, indefinite };
-
-    const portUp = useCallback(
-        (
-            event:
-                | React.MouseEvent<HTMLSpanElement, MouseEvent>
-                | React.TouchEvent<HTMLSpanElement>
-        ) => {
-            event.stopPropagation();
-            event.preventDefault();
-            onPortEvent('up', event.target as HTMLElement, data, nodeId);
-        },
-        [onPortEvent, portId, nodeId, io, type, connected]
-    );
-
-    const portDown = useCallback(
-        (
-            event:
-                | React.MouseEvent<HTMLSpanElement, MouseEvent>
-                | React.TouchEvent<HTMLSpanElement>
-        ) => {
-            event.stopPropagation();
-            event.preventDefault();
-            onPortEvent('down', event.target as HTMLElement, data, nodeId);
-        },
-        [onPortEvent, portId, nodeId, io, type, connected]
-    );
-
-    const placement = useMemo(() => getPlacement(io, type), [io, type]);
-    const portNodeId = useMemo(() => getPortId({ nodeId, id: portId }), [
-        nodeId,
+export const Socket: React.FC<ISocketProps> = React.memo(
+    ({
+        onPortEvent,
+        name,
         portId,
-    ]);
+        nodeId,
+        io,
+        type,
+        onAddPort,
+        lastPort,
+        onRemovePort,
+        indefinite = false,
+        connected = false,
+        hidePortActions = false,
+    }: ISocketProps) => {
+        const data = {
+            id: portId,
+            nodeId,
+            io,
+            type,
+            connected,
+            name,
+            indefinite,
+        };
 
-    return (
-        <div
-            className={classNames({
-                'port-container': true,
-                indefinite,
-                [placement]: indefinite,
-            })}
-            style={{
-                display: 'flex',
-                flexDirection: placement === 'right' ? 'row-reverse' : 'row',
-            }}
-        >
-            {indefinite &&
-                (lastPort ? (
-                    <Tooltip title={`Add to ${name}`}>
-                        <span
-                            onClick={() => onAddPort(data)}
-                            className={classNames({
-                                'port-action': true,
-                                'add-port': true,
-                                hidden: hidePortActions,
-                            })}
-                        >
-                            <Icon type="plus-circle" />
-                        </span>
-                    </Tooltip>
-                ) : (
-                    !connected && (
-                        <span
-                            onClick={() => onRemovePort(data)}
-                            className={classNames({
-                                'port-action': true,
-                                'remove-port': true,
-                                hidden: hidePortActions,
-                            })}
-                        >
-                            <Icon type="minus-circle" />
-                        </span>
-                    )
-                ))}
-            <Tooltip title={name} placement={placement}>
-                <span
-                    id={portNodeId}
-                    onMouseDown={portDown}
-                    onMouseUp={portUp}
-                    className={classNames({
-                        port: true,
-                        connected,
-                    })}
-                />
-            </Tooltip>
-        </div>
-    );
-};
+        const portUp = useCallback(
+            (
+                event:
+                    | React.MouseEvent<HTMLSpanElement, MouseEvent>
+                    | React.TouchEvent<HTMLSpanElement>
+            ) => {
+                event.stopPropagation();
+                event.preventDefault();
+                onPortEvent('up', event.target as HTMLElement, data, nodeId);
+            },
+            [onPortEvent, portId, nodeId, io, type, connected]
+        );
+
+        const portDown = useCallback(
+            (
+                event:
+                    | React.MouseEvent<HTMLSpanElement, MouseEvent>
+                    | React.TouchEvent<HTMLSpanElement>
+            ) => {
+                event.stopPropagation();
+                event.preventDefault();
+                onPortEvent('down', event.target as HTMLElement, data, nodeId);
+            },
+            [onPortEvent, portId, nodeId, io, type, connected]
+        );
+
+        const placement = useMemo(() => getPlacement(io, type), [io, type]);
+        const portNodeId = useMemo(() => getPortId({ nodeId, id: portId }), [
+            nodeId,
+            portId,
+        ]);
+
+        return (
+            <div
+                className={classNames({
+                    'port-container': true,
+                    indefinite,
+                    [placement]: indefinite,
+                })}
+                style={{
+                    display: 'flex',
+                    flexDirection:
+                        placement === 'right' ? 'row-reverse' : 'row',
+                }}
+            >
+                {indefinite &&
+                    (lastPort ? (
+                        <Tooltip title={`Add to ${name}`}>
+                            <span
+                                onClick={() => onAddPort(data)}
+                                className={classNames({
+                                    'port-action': true,
+                                    'add-port': true,
+                                    hidden: hidePortActions,
+                                })}
+                            >
+                                <Icon type="plus-circle" />
+                            </span>
+                        </Tooltip>
+                    ) : (
+                        !connected && (
+                            <span
+                                onClick={() => onRemovePort(data)}
+                                className={classNames({
+                                    'port-action': true,
+                                    'remove-port': true,
+                                    hidden: hidePortActions,
+                                })}
+                            >
+                                <Icon type="minus-circle" />
+                            </span>
+                        )
+                    ))}
+                <Tooltip title={name} placement={placement}>
+                    <span
+                        id={portNodeId}
+                        onMouseDown={portDown}
+                        onMouseUp={portUp}
+                        className={classNames({
+                            port: true,
+                            connected,
+                        })}
+                    />
+                </Tooltip>
+            </div>
+        );
+    }
+);

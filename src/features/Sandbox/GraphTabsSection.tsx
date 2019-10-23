@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { DraggableTabs, FlexRow, ITab } from 'components';
 import { useStore } from 'overstated';
 import React, { useCallback, useMemo } from 'react';
+import { isMacro } from 'utils';
 import { TabsStore } from './stores/tabs-store';
 
 const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
@@ -15,14 +16,21 @@ const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
 
 const TabTemplate: React.FC<
     ITab & { deleteTab: (tabId: string) => void; isDragging: boolean }
-> = React.memo(({ name, id, isDragging, deleteTab }) => {
+> = React.memo(({ name, id, data, isDragging, deleteTab }) => {
     return (
         <div
-            className={classNames({ tab: true, dragging: isDragging })}
+            className={classNames({
+                'tab-content': true,
+                dragging: isDragging,
+            })}
             onMouseDown={event =>
                 middleDelete(event.nativeEvent, () => deleteTab(id))
             }
         >
+            <Icon
+                className="graph-icon"
+                type={isMacro(data.graph) ? 'thunderbolt' : 'deployment-unit'}
+            />
             <span className="tab-title">{name}</span>
             <span className="tab-close" onMouseDown={() => deleteTab(id)}>
                 <Icon type="close" />
