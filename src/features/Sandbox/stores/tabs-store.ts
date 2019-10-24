@@ -13,6 +13,10 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         activeTabId: '',
     };
 
+    public get activeTabLogs(): LogData[] {
+        return this.hasActiveTab ? this.activeTab.logs : [];
+    }
+
     public get activeTab(): TabData {
         return this.state.tabs.firstOrDefault(
             x => x.graph.id === this.state.activeTabId
@@ -44,7 +48,11 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         }
     };
 
-    public setActiveTab = async (id: string) => {
+    public setActiveTab = async (id: string, forceReload: boolean = false) => {
+        if (!forceReload && this.state.activeTabId === id) {
+            return;
+        }
+
         await this.setState({ activeTabId: id });
 
         if (id) {
@@ -62,11 +70,41 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         this.setState({
             tabs: [
                 ...this.state.tabs,
-                { graph, isDirty: false, definitions: {} as any },
+                { graph, isDirty: false, definitions: {} as any, logs: [] },
             ],
         });
 
         this.setActiveTab(graph.id);
+    };
+
+    public updateTabData = (graph: Graph | Macro) => {
+        const { tabs } = this.state;
+        const tabData = tabs.first(x => x.graph.id === graph.id);
+        tabs.addOrUpdate({ ...tabData, graph }, x => x.graph.id === graph.id);
+        this.setState({ tabs: [...tabs] });
+
+        if (graph.id === this.state.activeTabId) {
+            this.setActiveTab(graph.id, true);
+        }
+    };
+
+    public addLogsToCurrentTab = (logs: LogData[]) => {
+        if (!this.hasActiveTab) {
+            return;
+        }
+
+        const { tabs } = this.state;
+        const { activeTab } = this;
+        const currentTabLogs = activeTab.logs;
+
+        tabs.addOrUpdate(
+            { ...activeTab, logs: [...currentTabLogs, ...logs] },
+            t => t.graph.id === activeTab.graph.id
+        );
+
+        this.setState({
+            tabs: [...tabs],
+        });
     };
 
     public openIntroPrompt = () => {

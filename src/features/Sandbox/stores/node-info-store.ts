@@ -18,4 +18,15 @@ export class NodeInfoStore extends Store<INodeInfoState, SandboxStore> {
     public toggleOpen = (value?: boolean) => {
         this.setState({ isOpen: this.state.isOpen.toggle(value) });
     };
+
+    public updatePortData = (node: INodeUIData, ports: IPortUIData[]) => {
+        this.ctx.canvasStore.updateNode(node.id, oldNode =>
+            this.ctx.canvasStore.updateNodePortList(
+                oldNode,
+                'value',
+                'input',
+                _ => ports
+            )
+        );
+    };
 }

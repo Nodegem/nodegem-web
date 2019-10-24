@@ -89,6 +89,8 @@ export class SandboxStore
         if (graph) {
             if (!edit) {
                 this.tabsStore.addTab(graph);
+            } else {
+                this.tabsStore.updateTabData(graph);
             }
         }
 
@@ -103,7 +105,7 @@ export class SandboxStore
         this.sandboxHeaderStore.setState({ isSavingGraph: true });
 
         try {
-            const data = this.getGraphData();
+            const data = this.getConvertedGraphData();
             if (isMacro(data)) {
                 await MacroService.update(data);
             } else {
@@ -118,8 +120,6 @@ export class SandboxStore
 
         this.sandboxHeaderStore.setState({ isSavingGraph: false });
     };
-
-    public runGraph = () => {};
 
     public load = async (graph: Graph | Macro) => {
         this.setState({ isLoading: true });
@@ -224,7 +224,7 @@ export class SandboxStore
         }
     };
 
-    private getGraphData = (): Graph | Macro => {
+    public getConvertedGraphData = (): Graph | Macro => {
         const { nodes, links } = this.canvasStore.state;
         const linkData = links.map<LinkData>(l => ({
             sourceNode: l.sourceNodeId,

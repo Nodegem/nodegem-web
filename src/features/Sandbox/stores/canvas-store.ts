@@ -445,7 +445,8 @@ export class CanvasStore extends Store<
 
     public updateNodePortList = (
         node: INodeUIData,
-        port: IPortUIData,
+        type: PortType,
+        io: PortIOType,
         newPortsData: (oldPorts: IPortUIData[]) => IPortUIData[]
     ): Partial<INodeUIData> => {
         let portListName: keyof Pick<
@@ -453,10 +454,10 @@ export class CanvasStore extends Store<
             'flowInputs' | 'flowOutputs' | 'valueInputs' | 'valueOutputs'
         >;
         // tslint:disable-next-line: prefer-conditional-expression
-        if (port.type === 'flow') {
-            portListName = port.io === 'input' ? 'flowInputs' : 'flowOutputs';
+        if (type === 'flow') {
+            portListName = io === 'input' ? 'flowInputs' : 'flowOutputs';
         } else {
-            portListName = port.io === 'input' ? 'valueInputs' : 'valueOutputs';
+            portListName = io === 'input' ? 'valueInputs' : 'valueOutputs';
         }
 
         const list = node[portListName];
@@ -487,7 +488,7 @@ export class CanvasStore extends Store<
         this.updateNode(
             data.nodeId,
             oldNode =>
-                this.updateNodePortList(oldNode, data, ports => [
+                this.updateNodePortList(oldNode, data.type, data.io, ports => [
                     ...ports,
                     {
                         ...data,
@@ -504,7 +505,7 @@ export class CanvasStore extends Store<
         this.updateNode(
             data.nodeId,
             oldNode =>
-                this.updateNodePortList(oldNode, data, ports => [
+                this.updateNodePortList(oldNode, data.type, data.io, ports => [
                     ...ports.filter(p => p.id !== data.id),
                 ]),
             true

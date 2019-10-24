@@ -3,6 +3,7 @@ type TabData = {
     graph: Graph | Macro;
     isDirty: boolean;
     definitions: NodeCache;
+    logs: LogData[];
 };
 
 type NodeCache = {

@@ -96,6 +96,11 @@ abstract class BaseHub {
 
     public async start() {
         try {
+            this.onConnecting.execute();
+
+            if (this.isConnected) {
+                await this.connection.stop();
+            }
             this.forceClosed = false;
             await this.connection.start();
             this.onConnected.execute();

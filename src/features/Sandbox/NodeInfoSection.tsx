@@ -12,9 +12,13 @@ interface INodeInfoProps {
 export const NodeInfoSection: React.FC<INodeInfoProps> = ({
     nodeInfoStore,
 }) => {
-    const { isOpen, selectedNode } = useStore(nodeInfoStore, store => ({
-        ...store.state,
-    }));
+    const { isOpen, selectedNode, updatePortData } = useStore(
+        nodeInfoStore,
+        store => ({
+            updatePortData: store.updatePortData,
+            ...store.state,
+        })
+    );
 
     return (
         <CustomCollapsible
@@ -36,7 +40,7 @@ export const NodeInfoSection: React.FC<INodeInfoProps> = ({
             {selectedNode && (
                 <NodeInfo
                     selectedNode={selectedNode}
-                    onNodeValueChange={(n, f) => {}}
+                    onNodeValueChange={updatePortData}
                 />
             )}
         </CustomCollapsible>

@@ -13,7 +13,7 @@ const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
 };
 
 interface IBridgeMenuProps {
-    bridges?: IBridgeInfo[];
+    bridges: IBridgeInfo[];
     currentBridge?: IBridgeInfo;
     onSelect: (bridge: IBridgeInfo) => void;
     refresh: () => void;
@@ -42,7 +42,7 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
                             {b.deviceName}
                         </Menu.Item>
                     ))}
-                {!bridges && (
+                {!bridges.any() && (
                     <Menu.Item key="none" disabled>
                         No Bridges
                     </Menu.Item>
@@ -71,9 +71,9 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
         canEdit,
         editGraph,
         isRunning,
-        canRun,
+        connected,
+        connecting,
         runGraph,
-        canSelectBridge,
         hasBridge,
         bridges,
         onBridgeSelect,
@@ -83,8 +83,8 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
     } = useStore(sandboxHeaderStore, store => ({
         saveGraph: store.ctx.saveGraph,
         editGraph: store.onEditGraph,
-        runGraph: store.ctx.runGraph,
-        hasBridge: store.hasBridgeSelected,
+        runGraph: store.runGraph,
+        hasBridge: store.hasSelectedBridge,
         onBridgeSelect: store.onBridgeSelect,
         refreshBridges: store.refreshBridges,
         ...store.state,
@@ -119,14 +119,14 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
                     type="primary"
                     shape="round"
                     icon="caret-right"
-                    disabled={!canRun}
+                    disabled={!connected}
                     onClick={runGraph}
-                    loading={isRunning}
+                    loading={isRunning || connecting}
                 >
                     Run
                 </Button>
                 <Dropdown
-                    disabled={!canSelectBridge}
+                    disabled={!connected}
                     overlay={
                         <BridgeMenu
                             onSelect={onBridgeSelect}

@@ -17,7 +17,7 @@ export const IntroPrompts: React.FC<IIntroPromptsProps> = ({ introStore }) => {
         isInStartPrompt,
         hasTabs,
         goBack,
-        graphModifyOrCreate: editGraph,
+        graphModifyOrCreate,
         onGraphCreate,
         graphSelect,
         graphSelected,
@@ -33,8 +33,14 @@ export const IntroPrompts: React.FC<IIntroPromptsProps> = ({ introStore }) => {
 
     return (
         <>
-            <GraphModalFormController onSave={editGraph} onGoBack={goBack} />
-            <MacroModalFormController onSave={editGraph} onGoBack={goBack} />
+            <GraphModalFormController
+                onSave={graphModifyOrCreate}
+                onGoBack={goBack}
+            />
+            <MacroModalFormController
+                onSave={graphModifyOrCreate}
+                onGoBack={goBack}
+            />
             <Modal
                 className="sandbox-modal prompt-graph-modal"
                 maskClosable={hasTabs}
