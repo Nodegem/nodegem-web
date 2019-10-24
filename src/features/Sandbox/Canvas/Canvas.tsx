@@ -130,6 +130,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
         onNodeDblClick: store.onNodeDblClick,
         onNodeClick: store.onNodeClick,
         onNodeRightClick: store.onNodeRightClick,
+        hasActiveTab: !!store.ctx.tabsStore.state.activeTabId,
         scale: store.state.scale,
         ...store.state,
     }));
@@ -142,6 +143,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
         openContext,
         editNode,
         removeNode,
+        hasActiveTab,
     } = storeData;
 
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -155,7 +157,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
             <div
                 className={classNames({
                     sandbox: true,
-                    disabled: isLoading,
+                    disabled: isLoading || !hasActiveTab,
                 })}
             >
                 {isLoading ? <Loader size={9} /> : <SandboxDropContainer />}

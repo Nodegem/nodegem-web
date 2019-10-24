@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { Store } from 'overstated';
 import { graphModalStore, macroModalStore } from 'stores';
 import { isMacro } from 'utils';
@@ -68,6 +69,12 @@ export class SandboxHeaderStore extends Store<
                     'error'
                 );
                 console.error(value);
+                this.ctx.tabsStore.addLogsToTab(value.graphId, {
+                    graphId: value.graphId,
+                    message: JSON.stringify(value),
+                    type: 'error',
+                    timestamp: moment.now(),
+                });
             }
 
             if (this.timeout) {
@@ -158,6 +165,7 @@ export class SandboxHeaderStore extends Store<
     public runGraph = () => {
         if (!this.ctx.tabsStore.hasActiveTab) {
             appStore.toast('Must select a graph', 'error');
+            return;
         }
 
         const { selectedBridge, hasSelectedBridge } = this;

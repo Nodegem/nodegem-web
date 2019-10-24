@@ -4,6 +4,7 @@ type TabData = {
     isDirty: boolean;
     definitions: NodeCache;
     logs: LogData[];
+    hasUnread: boolean;
 };
 
 type NodeCache = {

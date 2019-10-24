@@ -5,12 +5,14 @@ import { SandboxStore } from '.';
 interface ITabsState {
     tabs: TabData[];
     activeTabId: string;
+    hasUnread: boolean;
 }
 
 export class TabsStore extends Store<ITabsState, SandboxStore> {
     public state: ITabsState = {
         tabs: [],
         activeTabId: '',
+        hasUnread: false,
     };
 
     public get activeTabLogs(): LogData[] {
@@ -54,6 +56,7 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         }
 
         await this.setState({ activeTabId: id });
+        await this.setState({ hasUnread: this.activeTab.hasUnread });
 
         if (id) {
             this.ctx.load(this.activeTab.graph);
@@ -70,7 +73,13 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         this.setState({
             tabs: [
                 ...this.state.tabs,
-                { graph, isDirty: false, definitions: {} as any, logs: [] },
+                {
+                    graph,
+                    isDirty: false,
+                    definitions: {} as any,
+                    logs: [],
+                    hasUnread: false,
+                },
             ],
         });
 
@@ -88,22 +97,43 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         }
     };
 
-    public addLogsToCurrentTab = (logs: LogData[]) => {
+    public addLogsToCurrentTab = (logs: LogData | LogData[]) => {
         if (!this.hasActiveTab) {
             return;
         }
 
+        this.addLogsToTab(this.activeTab.graph.id, logs);
+    };
+
+    public addLogsToTab = (graphId: string, logs: LogData | LogData[]) => {
+        if (!Array.isArray(logs)) {
+            logs = [logs];
+        }
+
         const { tabs } = this.state;
-        const { activeTab } = this;
-        const currentTabLogs = activeTab.logs;
+        const tab = tabs.firstOrDefault(t => t.graph.id === graphId);
+
+        if (!tab) {
+            console.error(
+                `Couldn't find the graph to assign logs too. Graph ID: ${graphId}`
+            );
+            return;
+        }
+
+        const activeGraphId = this.state.activeTabId;
+        const hasUnread =
+            activeGraphId !== graphId ||
+            (activeGraphId === graphId && !this.ctx.logsStore.state.isOpen);
 
         tabs.addOrUpdate(
-            { ...activeTab, logs: [...currentTabLogs, ...logs] },
-            t => t.graph.id === activeTab.graph.id
+            { ...tab, logs: [...tab.logs, ...logs], hasUnread },
+            t => t.graph.id === graphId
         );
 
         this.setState({
             tabs: [...tabs],
+            hasUnread:
+                activeGraphId === graphId && !this.ctx.logsStore.state.isOpen,
         });
     };
 
@@ -135,6 +165,17 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
 
     public setTabs = (tabs: TabData[]) => {
         this.setState({ tabs });
+    };
+
+    public markAsRead = () => {
+        if (this.hasActiveTab) {
+            const { tabs } = this.state;
+            tabs.addOrUpdate(
+                { ...this.activeTab, hasUnread: false },
+                x => x.graph.id === this.activeTab.graph.id
+            );
+            this.setState({ tabs: [...tabs], hasUnread: false });
+        }
     };
 
     public clearTabs = () => {

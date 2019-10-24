@@ -7,7 +7,6 @@ import { appStore } from './../../../app-state-store';
 interface ILogState {
     isOpen: boolean;
     isLoading: boolean;
-    hasUnread: boolean;
     connected: boolean;
     connecting: boolean;
 }
@@ -16,7 +15,6 @@ export class LogsStore extends Store<ILogState, SandboxStore> {
     public state: ILogState = {
         isOpen: false,
         isLoading: false,
-        hasUnread: false,
         connected: false,
         connecting: false,
     };
@@ -43,16 +41,10 @@ export class LogsStore extends Store<ILogState, SandboxStore> {
         });
 
         this.terminalHub.log.subscribe(data => {
-            if (this.ctx.tabsStore.hasActiveTab) {
-                this.ctx.tabsStore.addLogsToCurrentTab([
-                    {
-                        ...data,
-                        timestamp: moment.now(),
-                    },
-                ]);
-
-                this.toggleHasUnread(!this.state.isOpen);
-            }
+            this.ctx.tabsStore.addLogsToTab(data.graphId, {
+                ...data,
+                timestamp: moment.now(),
+            });
         });
 
         this.terminalHub.onDisconnected.subscribe(() => {
@@ -69,12 +61,9 @@ export class LogsStore extends Store<ILogState, SandboxStore> {
 
     public toggleOpen = (value?: boolean) => {
         this.setState({ isOpen: this.state.isOpen.toggle(value) });
-        if (value) {
-            this.toggleHasUnread(false);
-        }
-    };
 
-    public toggleHasUnread = (value?: boolean) => {
-        this.setState({ hasUnread: this.state.hasUnread.toggle(value) });
+        if (value) {
+            this.ctx.tabsStore.markAsRead();
+        }
     };
 }

@@ -9,8 +9,10 @@ class TerminalHub extends BaseHub {
 
         this.log = new SimpleObservable<LogData>();
 
-        this.on('ReceiveLogAsync', (message: string, type: LogType) =>
-            this.log.execute({ message, type })
+        this.on(
+            'ReceiveLogAsync',
+            (graphId: string, message: string, type: LogType) =>
+                this.log.execute({ graphId, message, type })
         );
     }
 

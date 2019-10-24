@@ -36,7 +36,7 @@ export const SandboxView = () => {
         nodeSelectStore: app.nodeSelectStore,
         isLoading: app.state.isLoading,
         logsStore: app.logsStore,
-        hasUnreadLogs: app.logsStore.state.hasUnread,
+        hasUnreadLogs: app.tabsStore.state.hasUnread,
     }));
 
     useEffect(() => {
@@ -46,6 +46,8 @@ export const SandboxView = () => {
             sandboxStore.dispose();
         };
     }, []);
+
+    console.log(hasUnreadLogs);
 
     return (
         <>

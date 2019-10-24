@@ -1,8 +1,8 @@
 type LogType = 'log' | 'debug' | 'warn' | 'error';
 
 interface LogData {
+    graphId: string;
     message: string;
     type: LogType;
-    unread?: boolean;
     timestamp?: number;
 }
