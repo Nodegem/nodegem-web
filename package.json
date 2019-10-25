@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "@ant-design/dark-theme": "^1.0.3",
         "@juggle/resize-observer": "^2.3.0",
         "@microsoft/signalr": "^3.0.0",
         "antd": "^3.22.2",
