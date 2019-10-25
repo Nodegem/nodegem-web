@@ -47,8 +47,6 @@ export const SandboxView = () => {
         };
     }, []);
 
-    console.log(hasUnreadLogs);
-
     return (
         <>
             <FlexColumn className="sandbox-view-container">

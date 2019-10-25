@@ -56,10 +56,14 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         }
 
         await this.setState({ activeTabId: id });
-        await this.setState({ hasUnread: this.activeTab.hasUnread });
+        await this.setState({
+            hasUnread: this.hasActiveTab && this.activeTab.hasUnread,
+        });
 
         if (id) {
             this.ctx.load(this.activeTab.graph);
+        } else {
+            this.ctx.sandboxHeaderStore.onTabUnloaded();
         }
     };
 
