@@ -6,7 +6,9 @@ import * as React from 'react';
 import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
 
 import { Header } from 'components/Header/Header';
+import { GraphForm } from 'components/Modals/GraphModal/GraphForm';
 import { SandboxView } from 'features/Sandbox/SandboxView';
+import moment from 'moment';
 import { AuthorizedRoute } from './components/AuthorizedRoute/AuthorizedRoute';
 import { PublicRoute } from './components/PublicRoute/AuthorizedRoute';
 import LoginView from './features/Account/Login/LoginFormView';
@@ -22,6 +24,19 @@ const ForgotPassword = () => <div>Welp, that sucks duude</div>;
 interface IAppProps {
     userStore?: UserStore;
 }
+
+const Test = () => (
+    <GraphForm
+        graph={
+            {
+                name: 'test',
+                createdOn: moment()
+                    .add(-1, 'days')
+                    .toDate(),
+            } as any
+        }
+    />
+);
 
 @inject('userStore')
 @observer
@@ -46,6 +61,15 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
                         <AuthorizedRoute
                             path="/profile"
                             component={ProfileView}
+                        />
+                        <AuthorizedRoute
+                            path="/graph-form"
+                            // component={
+                            //     <div>
+                            //         <GraphForm name="test" />
+                            //     </div>
+                            // }
+                            component={Test}
                         />
                         <PublicRoute path="/login" component={LoginView} />
                         <PublicRoute

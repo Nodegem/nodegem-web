@@ -65,7 +65,7 @@ export class SandboxHeaderStore extends Store<
         this.graphHub.onGraphCompleted.subscribe(value => {
             if (value) {
                 appStore.toast(
-                    'An exception occurred while executing graph',
+                    'An exception occurred while executing graph. Open logs for more details.',
                     'error'
                 );
                 console.error(value);
@@ -75,6 +75,8 @@ export class SandboxHeaderStore extends Store<
                     type: 'error',
                     timestamp: moment.now(),
                 });
+            } else {
+                appStore.toast('Graph ran successfully!');
             }
 
             if (this.timeout) {

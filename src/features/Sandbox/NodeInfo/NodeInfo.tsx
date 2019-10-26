@@ -1,26 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-import {
-    Button,
-    DatePicker,
-    Divider,
-    Form,
-    Input,
-    InputNumber,
-    Select,
-    Switch,
-    TimePicker,
-} from 'antd';
-import TextArea from 'antd/lib/input/TextArea';
+import { Button, Divider, Form } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import classNames from 'classnames';
-import { PhoneInput } from 'components/PhoneInput/PhoneInput';
+import { ValueTypeControl } from 'components/ValueTypeControl/ValueTypeControl';
 import _ from 'lodash';
 import { toJS } from 'mobx';
-import moment from 'moment';
 import './NodeInfo.less';
-
-const { Option } = Select;
 
 interface INodeInfoProps {
     selectedNode: INodeUIData;
@@ -49,13 +35,17 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
                 <p className="header underline">Description:</p>
                 <Paragraph>{selectedNode.description || 'N/A'}</Paragraph>
             </div>
-            <Divider />
-            <div className="node-info-properties">
-                <NodeInfoForm
-                    valueInputs={selectedNode.valueInputs}
-                    onUpdate={handleUpdate}
-                />
-            </div>
+            {selectedNode.valueInputs && selectedNode.valueInputs.any() && (
+                <>
+                    <Divider />
+                    <div className="node-info-properties">
+                        <NodeInfoForm
+                            valueInputs={selectedNode.valueInputs}
+                            onUpdate={handleUpdate}
+                        />
+                    </div>
+                </>
+            )}
         </div>
     );
 };
@@ -65,126 +55,27 @@ interface IPropertyGroupProps {
     onFieldChange: (port: IPortUIData) => void;
 }
 
-const selectBefore = (value: string, isDisabled: boolean | undefined) => (
-    <Select
-        disabled={isDisabled}
-        value={
-            value && value.toLowerCase().includes('http://')
-                ? 'Http://'
-                : 'Https://'
-        }
-        style={{ width: 90 }}
-    >
-        <Option value="Http://">Http://</Option>
-        <Option value="Https://">Https://</Option>
-    </Select>
-);
-
 const PropertyGroup: React.FC<IPropertyGroupProps> = ({
     portList,
     onFieldChange,
 }) => {
-    const renderInput = (port: IPortUIData) => {
-        const { value, defaultValue, connected, name } = port;
-
-        const handleChange = v => {
-            port.value = v;
-            onFieldChange(port);
-        };
-
-        switch (port.valueType) {
-            case 'boolean':
-                return (
-                    <Switch
-                        checked={value || defaultValue}
-                        disabled={connected}
-                        onChange={handleChange}
-                    />
-                );
-            case 'number':
-                return (
-                    <InputNumber
-                        value={value || defaultValue}
-                        disabled={connected}
-                        onChange={handleChange}
-                    />
-                );
-            case 'url':
-                return (
-                    <Input
-                        addonBefore={selectBefore(
-                            value && value.toString(),
-                            connected
-                        )}
-                        value={value || defaultValue}
-                        disabled={connected}
-                        onChange={event => handleChange(event.target.value)}
-                    />
-                );
-            case 'phonenumber':
-                return (
-                    <PhoneInput
-                        value={value || defaultValue}
-                        disabled={connected}
-                        onChange={handleChange}
-                    />
-                );
-            case 'date':
-                return (
-                    <DatePicker
-                        value={moment(value) || moment(defaultValue)}
-                        disabled={connected}
-                        onChange={handleChange}
-                    />
-                );
-
-            case 'datetime':
-                return (
-                    <DatePicker
-                        value={moment(value) || moment(defaultValue)}
-                        disabled={connected}
-                        allowClear
-                        showTime
-                        format="YYYY-MM-DD HH:mm:ss"
-                        onChange={handleChange}
-                    />
-                );
-            case 'time':
-                return (
-                    <TimePicker
-                        value={moment(value) || moment(defaultValue)}
-                        disabled={connected}
-                        allowClear
-                        use12Hours={navigator.language.startsWith('en-US')}
-                        onChange={handleChange}
-                    />
-                );
-            case 'textarea':
-                return (
-                    <TextArea
-                        value={value || defaultValue}
-                        disabled={connected}
-                        autosize={{ minRows: 2 }}
-                        onChange={event => handleChange(event.target.value)}
-                    />
-                );
-            default:
-                return (
-                    <Input
-                        placeholder={name}
-                        disabled={connected}
-                        value={value || defaultValue}
-                        onChange={event => handleChange(event.target.value)}
-                    />
-                );
-        }
+    const handleChange = (port: IPortUIData, value: any) => {
+        port.value = value;
+        onFieldChange(port);
     };
 
     return (
         <>
             {portList.map(p => (
                 <Form.Item key={p.id} label={p.name}>
-                    {renderInput(p)}
+                    <ValueTypeControl
+                        valueType={p.valueType}
+                        name={p.name}
+                        disabled={p.connected}
+                        defaultValue={p.defaultValue}
+                        value={p.value}
+                        onChange={value => handleChange(p, value)}
+                    />
                 </Form.Item>
             ))}
         </>
