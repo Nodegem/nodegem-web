@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import logoPath from '../../logo.svg';
 
 import { authStore, commonStore, userStore } from 'stores';
+import { get_gravatar } from 'utils';
 import './Header.less';
 
 const AntHeader = Layout.Header;
@@ -70,7 +71,17 @@ export const Header: React.FC = observer(() => {
                                     {userStore.isLoggedIn && userStore.username}
                                     <Icon type="caret-down" />
                                 </span>
-                                <Avatar size={35} icon="user" />
+                                <Avatar
+                                    size={35}
+                                    icon="user"
+                                    src={
+                                        (userStore.isLoggedIn &&
+                                            get_gravatar(
+                                                userStore.user!.avatarUrl
+                                            )) ||
+                                        ''
+                                    }
+                                />
                             </div>
                         </Dropdown>
                     </div>

@@ -50,6 +50,10 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         }
     };
 
+    public refreshActiveTab = () => {
+        this.setActiveTab(this.activeTab.graph.id, true);
+    };
+
     public setActiveTab = async (id: string, forceReload: boolean = false) => {
         if (!forceReload && this.state.activeTabId === id) {
             return;

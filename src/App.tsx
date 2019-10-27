@@ -7,6 +7,7 @@ import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
 
 import { Header } from 'components/Header/Header';
 import { GraphForm } from 'components/Modals/GraphModal/GraphForm';
+import { RegisterExternal } from 'features/Account/RegisterExternal/RegisterExternal';
 import { SandboxView } from 'features/Sandbox/SandboxView';
 import moment from 'moment';
 import { AuthorizedRoute } from './components/AuthorizedRoute/AuthorizedRoute';
@@ -73,12 +74,16 @@ class App extends React.Component<IAppProps & RouteComponentProps<any>> {
                         />
                         <PublicRoute path="/login" component={LoginView} />
                         <PublicRoute
-                            path="/register"
-                            component={RegisterView}
-                        />
-                        <PublicRoute
                             path="/forgot-password"
                             component={ForgotPassword}
+                        />
+                        <PublicRoute
+                            path="/register/external"
+                            component={RegisterExternal}
+                        />
+                        <PublicRoute
+                            path="/register"
+                            component={RegisterView}
                         />
                         <Route component={NotFoundView} />
                     </Switch>

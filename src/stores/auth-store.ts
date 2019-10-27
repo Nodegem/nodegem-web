@@ -22,8 +22,34 @@ class AuthStore {
         this.setLoading(true);
         try {
             const response = await AuthService.login(userName, password);
-            userStore.setUser(response.user);
-            userStore.setToken(response.token);
+            userStore.setToken(response);
+
+            routerHistory.push('/');
+        } catch (e) {
+            let errorMessage = 'Unable to connect to service.';
+            if (e.status) {
+                // tslint:disable-next-line: prefer-conditional-expression
+                if (e.status === 400 || e.status === 401) {
+                    errorMessage = 'Invalid username or password.';
+                } else {
+                    errorMessage = 'An unknown error has occurred.';
+                }
+            }
+
+            notification.error({
+                message: 'Unable to login',
+                description: errorMessage,
+            });
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+    @action public async loginWithToken(token: string) {
+        this.setLoading(true);
+        try {
+            const response = await AuthService.loginWithToken(token);
+            userStore.setToken(response);
 
             routerHistory.push('/');
         } catch (e) {
@@ -50,8 +76,7 @@ class AuthStore {
         this.setLoading(true);
         try {
             const response = await AuthService.register(registerRequest);
-            userStore.setUser(response.user);
-            userStore.setToken(response.token);
+            userStore.setToken(response);
             routerHistory.push('/');
         } catch (e) {
             let errorMessage = 'Unable to connect to service.';

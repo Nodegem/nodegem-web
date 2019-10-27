@@ -1,12 +1,14 @@
 import './Login.less';
 
-import { Button, Card, Checkbox, Form, Icon, Input, Row } from 'antd';
+import { Button, Card, Checkbox, Divider, Form, Icon, Input, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import FormItem from 'antd/lib/form/FormItem';
+import { FlexColumn, FlexRow } from 'components';
 import PasswordInput from 'components/PasswordInput/PasswordInput';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { AuthService } from 'services';
 import { AuthStore } from 'stores/auth-store';
 
 interface ILoginFormProps extends FormComponentProps {
@@ -113,7 +115,15 @@ const LoginFormView = Form.create()(LoginForm);
 const LoginView = () => (
     <div className="login-form-container">
         <Card className="login-card-container" title="Login">
-            <LoginFormView />
+            <FlexRow gap={10}>
+                <FlexColumn>
+                    <LoginFormView />
+                </FlexColumn>
+                <FlexColumn>
+                    <a href={AuthService.loginGoogle()}>Google</a>
+                    <a href={AuthService.loginGitHub()}>GitHub</a>
+                </FlexColumn>
+            </FlexRow>
         </Card>
     </div>
 );

@@ -46,11 +46,23 @@ export class SandboxStore
         isLoading: false,
     };
 
+    constructor() {
+        super();
+    }
+
     public initialize() {
         if (appStore.hasSelectedGraph) {
             this.tabsStore.addTab(appStore.state.selectedGraph!);
+            appStore.setState({ selectedGraph: undefined });
         } else {
             this.tryLoadLocalState();
+        }
+
+        this.sandboxHeaderStore.graphHub.start();
+        this.logsStore.terminalHub.start();
+
+        if (this.tabsStore.hasActiveTab) {
+            this.tabsStore.refreshActiveTab();
         }
     }
 
@@ -149,7 +161,7 @@ export class SandboxStore
             };
         });
 
-        this.canvasStore.load(uiNodes, uiLinks);
+        await this.canvasStore.load(uiNodes, uiLinks);
 
         this.nodeSelectStore.setNodeOptions(definitions);
         this.nodeSelectStore.toggleOpen(true);
@@ -160,12 +172,16 @@ export class SandboxStore
     };
 
     public saveStateLocally = async () => {
+        if (!userStore.isLoggedIn) {
+            return;
+        }
+
         const { tabs } = this.tabsStore.state;
         const graphInfo = tabs.map(x => ({
             id: x.graph.id,
             type: getGraphType(x.graph),
         }));
-        await localforage.setItem('openedTabs', graphInfo);
+        await localforage.setItem(`${userStore.user!.id}-openTabs`, graphInfo);
     };
 
     public tryLoadLocalState = async () => {
@@ -174,7 +190,7 @@ export class SandboxStore
                 id: string;
                 type: GraphType;
             }[]
-        >('openedTabs');
+        >(`${userStore.user!.id}-openTabs`);
 
         if (graphInfo && graphInfo.any()) {
             this.suspend();
@@ -185,11 +201,13 @@ export class SandboxStore
                     this.tabsStore.addTab(await MacroService.get(graph.id));
                 }
             }
-            this.unsuspend();
             this.tabsStore.setActiveTab(graphInfo.firstOrDefault()!.id);
+            this.unsuspend();
         } else {
             this.introStore.toggleStartPrompt(true);
         }
+
+        await localforage.setItem(`${userStore.user!.id}-openTabs`, []);
     };
 
     private listenToKeyDown = (event: KeyboardEvent) => {
@@ -260,5 +278,8 @@ export class SandboxStore
     public dispose() {
         this.saveStateLocally();
         this.disposeEvents();
+
+        this.sandboxHeaderStore.graphHub.disconnect();
+        this.logsStore.terminalHub.disconnect();
     }
 }

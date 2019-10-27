@@ -24,12 +24,12 @@ interface INotifyOptions {
 }
 
 interface IAppChildren {
-    userStore: UserStore;
+    // userStore: UserStore;
     graphManagerStore: GraphManagerStore;
 }
 
 @compose({
-    userStore: UserStore,
+    // userStore: UserStore,
     graphManagerStore: GraphManagerStore,
 })
 export class AppStore extends Store<IAppState, undefined, IAppChildren> {
@@ -56,7 +56,7 @@ export class AppStore extends Store<IAppState, undefined, IAppChildren> {
         type = 'info',
         onClick,
         duration = 4.5,
-        placement = 'bottomRight',
+        placement = 'topLeft',
         closeBtn,
         icon,
     }: INotifyOptions) => {

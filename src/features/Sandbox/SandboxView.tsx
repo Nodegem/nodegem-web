@@ -8,6 +8,7 @@ import { NodeInfoSection } from './NodeInfoSection';
 import { NodeSelectSection } from './NodeSelectSection';
 
 import { useStore } from 'overstated';
+import routerHistory from 'utils/history';
 import { IntroPrompts } from './IntroPrompts';
 import { LogsView } from './LogView';
 import { SandboxHeader } from './SandboxHeader';
@@ -42,8 +43,14 @@ export const SandboxView = () => {
     useEffect(() => {
         sandboxStore.registerEvents();
         sandboxStore.initialize();
+
+        const unregister = routerHistory.listen((location, action) => {
+            sandboxStore.saveStateLocally();
+        });
+
         return () => {
             sandboxStore.dispose();
+            unregister();
         };
     }, []);
 

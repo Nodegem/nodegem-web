@@ -33,117 +33,117 @@ export class GraphManagerStore extends Store<IGraphManagerState, AppStore> {
         return this.graphs.any();
     }
 
-    public async fetchAll() {
-        this.fetchGraphs();
-        this.fetchMacros();
-    }
+    // public async fetchAll() {
+    //     this.fetchGraphs();
+    //     this.fetchMacros();
+    // }
 
-    public fetchGraphs = async () => {
-        return this.fetch('graph', GraphService);
-    };
+    // public fetchGraphs = async () => {
+    //     return this.fetch('graph', GraphService);
+    // };
 
-    public fetchMacros = async () => {
-        return this.fetch('macro', MacroService);
-    };
+    // public fetchMacros = async () => {
+    //     return this.fetch('macro', MacroService);
+    // };
 
-    public fetch = async (
-        type: GraphType,
-        service: { getAll: () => Promise<Graph[] | Macro[]> }
-    ) => {
-        this.updateLoadingStatus(type, true);
-        try {
-            const newMacros = await service.getAll();
-            const current = type === 'graph' ? this.graphs : this.macros;
-            this.setState({
-                graphs: [
-                    ...this.state.graphs.filter(
-                        g => !current.any(m => m.id === g.id)
-                    ),
-                    ...newMacros,
-                ],
-            });
-        } catch (e) {
-            this.ctx.toast(`Unable to retrieve ${type}`, 'error');
-            console.error(e);
-        } finally {
-            this.updateLoadingStatus(type, false);
-        }
-    };
+    // public fetch = async (
+    //     type: GraphType,
+    //     service: { getAll: () => Promise<Graph[] | Macro[]> }
+    // ) => {
+    //     this.updateLoadingStatus(type, true);
+    //     try {
+    //         const newMacros = await service.getAll();
+    //         const current = type === 'graph' ? this.graphs : this.macros;
+    //         this.setState({
+    //             graphs: [
+    //                 ...this.state.graphs.filter(
+    //                     g => !current.any(m => m.id === g.id)
+    //                 ),
+    //                 ...newMacros,
+    //             ],
+    //         });
+    //     } catch (e) {
+    //         this.ctx.toast(`Unable to retrieve ${type}`, 'error');
+    //         console.error(e);
+    //     } finally {
+    //         this.updateLoadingStatus(type, false);
+    //     }
+    // };
 
-    public async createMacro(macro: CreateMacro): Promise<Macro | undefined> {
-        return this.create(macro);
-    }
+    // public async createMacro(macro: CreateMacro): Promise<Macro | undefined> {
+    //     return this.create(macro);
+    // }
 
-    public async createGraph(graph: CreateGraph): Promise<Graph | undefined> {
-        return this.create(graph);
-    }
+    // public async createGraph(graph: CreateGraph): Promise<Graph | undefined> {
+    //     return this.create(graph);
+    // }
 
-    public create = async (graph: CreateGraph | CreateMacro) => {
-        const type = getGraphType(graph);
-        this.updateLoadingStatus(type, true);
-        let newGraph;
-        try {
-            const userId = this.ctx.userStore.user.id;
+    // public create = async (graph: CreateGraph | CreateMacro) => {
+    //     const type = getGraphType(graph);
+    //     this.updateLoadingStatus(type, true);
+    //     let newGraph;
+    //     try {
+    //         const userId = this.ctx.userStore.user.id;
 
-            if (type === 'graph') {
-                newGraph = await GraphService.create({
-                    ...(graph as CreateGraph),
-                    userId,
-                });
-            } else {
-                newGraph = await MacroService.create({
-                    ...graph,
-                    userId,
-                });
-            }
+    //         if (type === 'graph') {
+    //             newGraph = await GraphService.create({
+    //                 ...(graph as CreateGraph),
+    //                 userId,
+    //             });
+    //         } else {
+    //             newGraph = await MacroService.create({
+    //                 ...graph,
+    //                 userId,
+    //             });
+    //         }
 
-            this.setState({ graphs: [...this.state.graphs, newGraph] });
-        } catch (e) {
-            this.ctx.toast(`Unable to create ${type}`, 'error');
-            console.error(e);
-        } finally {
-            this.updateLoadingStatus(type, false);
-        }
-        return newGraph;
-    };
+    //         this.setState({ graphs: [...this.state.graphs, newGraph] });
+    //     } catch (e) {
+    //         this.ctx.toast(`Unable to create ${type}`, 'error');
+    //         console.error(e);
+    //     } finally {
+    //         this.updateLoadingStatus(type, false);
+    //     }
+    //     return newGraph;
+    // };
 
-    public async updateGraph(graph: Graph): Promise<Graph | undefined> {
-        return this.update(graph);
-    }
+    // public async updateGraph(graph: Graph): Promise<Graph | undefined> {
+    //     return this.update(graph);
+    // }
 
-    public async updateMacro(macro: Macro): Promise<Macro | undefined> {
-        return this.update(macro);
-    }
+    // public async updateMacro(macro: Macro): Promise<Macro | undefined> {
+    //     return this.update(macro);
+    // }
 
-    public update = async (graph: Graph | Macro) => {
-        const type = getGraphType(graph);
-        this.updateLoadingStatus(type, true);
-        let updated;
-        try {
-            const userId = this.ctx.userStore.user.id;
-            if (type === 'graph') {
-                updated = await GraphService.update({
-                    ...graph,
-                    userId,
-                });
-            } else {
-                updated = await MacroService.update({
-                    ...(graph as Macro),
-                    userId,
-                });
-            }
+    // public update = async (graph: Graph | Macro) => {
+    //     const type = getGraphType(graph);
+    //     this.updateLoadingStatus(type, true);
+    //     let updated;
+    //     try {
+    //         const userId = this.ctx.userStore.user.id;
+    //         if (type === 'graph') {
+    //             updated = await GraphService.update({
+    //                 ...graph,
+    //                 userId,
+    //             });
+    //         } else {
+    //             updated = await MacroService.update({
+    //                 ...(graph as Macro),
+    //                 userId,
+    //             });
+    //         }
 
-            const { graphs } = this.state;
-            graphs.addOrUpdate(updated, x => x.id === updated.id);
-            this.setState({ graphs: [...graphs] });
-        } catch (e) {
-            this.ctx.toast(`Unable to update ${type}`, 'error');
-            console.error(e);
-        } finally {
-            this.updateLoadingStatus(type, false);
-        }
-        return updated;
-    };
+    //         const { graphs } = this.state;
+    //         graphs.addOrUpdate(updated, x => x.id === updated.id);
+    //         this.setState({ graphs: [...graphs] });
+    //     } catch (e) {
+    //         this.ctx.toast(`Unable to update ${type}`, 'error');
+    //         console.error(e);
+    //     } finally {
+    //         this.updateLoadingStatus(type, false);
+    //     }
+    //     return updated;
+    // };
 
     public async deleteGraph(graph: Graph) {
         await this.delete(getGraphType(graph), graph.id, GraphService);

@@ -19,7 +19,7 @@ export class LogsStore extends Store<ILogState, SandboxStore> {
         connecting: false,
     };
 
-    private terminalHub: TerminalHub = new TerminalHub();
+    public terminalHub: TerminalHub = new TerminalHub();
 
     constructor() {
         super();
