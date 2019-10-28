@@ -1,4 +1,4 @@
-import { Avatar, Col, Dropdown, Icon, Layout, Menu, Row } from 'antd';
+import { Avatar, Dropdown, Icon, Layout, Menu } from 'antd';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 
@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import logoPath from '../../logo.svg';
 
 import { authStore, commonStore, userStore } from 'stores';
-import { get_gravatar } from 'utils';
 import './Header.less';
 
 const AntHeader = Layout.Header;
@@ -46,6 +45,9 @@ const menu = (theme: SiderTheme, logout: () => void) => (
 
 export const Header: React.FC = observer(() => {
     const headerHeight = `${commonStore.headerHeight}px`;
+
+    const { isLoggedIn, user } = userStore;
+
     return (
         <AntHeader
             className="app-header"
@@ -72,15 +74,10 @@ export const Header: React.FC = observer(() => {
                                     <Icon type="caret-down" />
                                 </span>
                                 <Avatar
-                                    size={35}
+                                    size={45}
                                     icon="user"
-                                    src={
-                                        (userStore.isLoggedIn &&
-                                            get_gravatar(
-                                                userStore.user!.avatarUrl
-                                            )) ||
-                                        ''
-                                    }
+                                    shape="square"
+                                    src={(isLoggedIn && user!.avatarUrl) || ''}
                                 />
                             </div>
                         </Dropdown>

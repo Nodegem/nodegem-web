@@ -9,8 +9,11 @@ export const RegisterExternal: React.FC = () => {
     const location = useLocation();
 
     useEffect(() => {
-        const queryValues = qs.parse(location.search);
-        if (!!queryValues.token) {
+        const queryValues = qs.parse(location.search, {
+            parseBooleans: true,
+            parseNumbers: true,
+        });
+        if (!!queryValues.token && queryValues.success) {
             // Make a login request
             authStore.loginWithToken(queryValues.token as string);
             appStore.openNotification({
@@ -19,12 +22,12 @@ export const RegisterExternal: React.FC = () => {
                 type: 'success',
             });
         } else {
-            routerHistory.push('/login');
             appStore.openNotification({
                 title: 'Unable to sign-in',
                 description: queryValues.message as string,
                 type: 'error',
             });
+            routerHistory.push('/login');
         }
     }, []);
 

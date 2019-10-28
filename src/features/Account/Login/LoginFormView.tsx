@@ -8,6 +8,10 @@ import PasswordInput from 'components/PasswordInput/PasswordInput';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import {
+    GithubLoginButton,
+    GoogleLoginButton,
+} from 'react-social-login-buttons';
 import { AuthService } from 'services';
 import { AuthStore } from 'stores/auth-store';
 
@@ -119,9 +123,13 @@ const LoginView = () => (
                 <FlexColumn>
                     <LoginFormView />
                 </FlexColumn>
-                <FlexColumn>
-                    <a href={AuthService.loginGoogle()}>Google</a>
-                    <a href={AuthService.loginGitHub()}>GitHub</a>
+                <FlexColumn className="social-logins">
+                    <a href={AuthService.loginGoogle()}>
+                        <GoogleLoginButton />
+                    </a>
+                    <a href={AuthService.loginGitHub()}>
+                        <GithubLoginButton />
+                    </a>
                 </FlexColumn>
             </FlexRow>
         </Card>

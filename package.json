@@ -11,6 +11,7 @@
         "classnames": "^2.2.6",
         "formik": "^1.5.8",
         "fuse.js": "^3.3.0",
+        "gravatar": "^1.8.0",
         "libphonenumber-js": "^1.7.24",
         "localforage": "^1.7.3",
         "lodash": "^4.17.14",
@@ -28,6 +29,7 @@
         "react-draggable": "^4.0.3",
         "react-json-tree": "^0.11.2",
         "react-router-dom": "^5.0.1",
+        "react-social-login-buttons": "^3.0.0",
         "shortid": "^2.2.13",
         "superagent": "^5.1.0",
         "yup": "^0.27.0"
@@ -35,6 +37,7 @@
     "devDependencies": {
         "@babel/plugin-proposal-optional-chaining": "^7.6.0",
         "@types/classnames": "^2.2.9",
+        "@types/gravatar": "^1.8.0",
         "@types/jest": "24.0.18",
         "@types/lodash": "^4.14.138",
         "@types/node": "12.7.12",
