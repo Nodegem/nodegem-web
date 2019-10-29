@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Draggable, Droppable } from 'react-beautiful-dnd';
+import { Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 
 import { Button, Col, Icon, Input, List, Row, Tabs, Tooltip } from 'antd';
 
@@ -102,6 +102,39 @@ const DefinitionItem: React.FC<IDefinitionItemProps> = React.memo(
     )
 );
 
+interface INodeCategoryProps {
+    provided: DroppableProvided;
+    title: string;
+    definitions: NodeDefinition[];
+    addNode: (definition: NodeDefinition) => void;
+}
+
+const NodeCategory: React.FC<INodeCategoryProps> = React.memo(
+    ({ provided, title, definitions, addNode }) => (
+        <div
+            className="node-category"
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+        >
+            <p className="definition-header">{title}</p>
+
+            <List
+                bordered
+                itemLayout="vertical"
+                dataSource={definitions}
+                renderItem={(item: NodeDefinition, itemIndex) => (
+                    <DefinitionItem
+                        item={item}
+                        i={itemIndex}
+                        addNode={addNode}
+                    />
+                )}
+            />
+            {provided.placeholder}
+        </div>
+    )
+);
+
 interface INodeSelectProps {
     nodeOptions?: SelectFriendly<NodeDefinition>;
     loading: boolean;
@@ -124,108 +157,60 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
     };
 
     return (
-        <>
-            <div className="node-select-container">
-                {loading ? (
-                    <Loader textSize={0.7} />
-                ) : (
-                    <>
-                        {nodeOptions && (
-                            <Tabs
-                                activeKey={tabIndex}
-                                onChange={handleTabClick}
-                            >
-                                {Object.keys(nodeOptions).map((k, index) => (
-                                    <TabPane tab={k} key={index.toString()}>
-                                        <div className="node-definition-container">
-                                            {Object.keys(nodeOptions[k])
-                                                .filter(optionKey =>
-                                                    nodeOptions[k][
-                                                        optionKey
-                                                    ].any()
-                                                )
-                                                .map(
-                                                    (itemListKey, subIndex) => (
-                                                        <Droppable
-                                                            isDropDisabled={
-                                                                true
+        <div className="node-select-container">
+            {loading ? (
+                <Loader textSize={0.7} />
+            ) : (
+                <>
+                    {nodeOptions && (
+                        <Tabs activeKey={tabIndex} onChange={handleTabClick}>
+                            {Object.keys(nodeOptions).map((k, index) => (
+                                <TabPane tab={k} key={index.toString()}>
+                                    <div className="node-definition-container">
+                                        {Object.keys(nodeOptions[k])
+                                            .filter(optionKey =>
+                                                nodeOptions[k][optionKey].any()
+                                            )
+                                            .map((itemListKey, subIndex) => (
+                                                <Droppable
+                                                    isDropDisabled={true}
+                                                    direction="vertical"
+                                                    droppableId={`${nodeSelectDroppableId}-${_.uniqueId()}-${subIndex}`}
+                                                    ignoreContainerClipping
+                                                    key={subIndex}
+                                                >
+                                                    {provided => (
+                                                        <NodeCategory
+                                                            addNode={addNode}
+                                                            definitions={
+                                                                nodeOptions[k][
+                                                                    itemListKey
+                                                                ]
                                                             }
-                                                            direction="vertical"
-                                                            droppableId={`${nodeSelectDroppableId}-${_.uniqueId()}-${subIndex}`}
-                                                            ignoreContainerClipping
-                                                            key={subIndex}
-                                                        >
-                                                            {provided => (
-                                                                <div
-                                                                    className="node-category"
-                                                                    ref={
-                                                                        provided.innerRef
-                                                                    }
-                                                                    {...provided.droppableProps}
-                                                                >
-                                                                    <p className="definition-header">
-                                                                        {
-                                                                            itemListKey
-                                                                        }
-                                                                    </p>
-
-                                                                    <List
-                                                                        bordered
-                                                                        itemLayout="vertical"
-                                                                        dataSource={
-                                                                            nodeOptions[
-                                                                                k
-                                                                            ][
-                                                                                itemListKey
-                                                                            ]
-                                                                        }
-                                                                        renderItem={(
-                                                                            item: NodeDefinition,
-                                                                            itemIndex
-                                                                        ) => (
-                                                                            <DefinitionItem
-                                                                                item={
-                                                                                    item
-                                                                                }
-                                                                                i={
-                                                                                    itemIndex
-                                                                                }
-                                                                                addNode={
-                                                                                    addNode
-                                                                                }
-                                                                            />
-                                                                        )}
-                                                                    />
-
-                                                                    {
-                                                                        provided.placeholder
-                                                                    }
-                                                                </div>
-                                                            )}
-                                                        </Droppable>
-                                                    )
-                                                )}
-                                        </div>
-                                    </TabPane>
-                                ))}
-                            </Tabs>
-                        )}
-                        <FlexFill />
-                        {nodeOptions && (
-                            <div className="filter">
-                                <Input
-                                    onChange={event =>
-                                        onFilter(event.target.value)
-                                    }
-                                    prefix={<Icon type="search" />}
-                                    allowClear
-                                    placeholder="Filter Nodes"
-                                />
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
-        </>
+                                                            provided={provided}
+                                                            title={itemListKey}
+                                                        />
+                                                    )}
+                                                </Droppable>
+                                            ))}
+                                    </div>
+                                </TabPane>
+                            ))}
+                        </Tabs>
+                    )}
+                    <FlexFill />
+                    {nodeOptions && (
+                        <div className="filter">
+                            <Input
+                                onChange={event => onFilter(event.target.value)}
+                                prefix={<Icon type="search" />}
+                                allowClear
+                                placeholder="Filter Nodes"
+                            />
+                        </div>
+                    )}
+                </>
+            )}
+        </div>
     );
 };
