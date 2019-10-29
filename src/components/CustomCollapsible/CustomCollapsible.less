@@ -105,7 +105,7 @@
         svg {
             transition: transform 300ms ease-out;
             will-change: transform;
-            transform: rotate(0deg);
+            transform: rotate(-180deg);
         }
 
         .tab-trigger-container {
@@ -118,7 +118,7 @@
         .tab-trigger {
             left: -32px;
             svg {
-                transform: rotate(-180deg);
+                transform: rotate(0deg);
             }
         }
     }
@@ -126,13 +126,13 @@
     &.collapsed {
         .tab-trigger {
             svg {
-                transform: rotate(180deg) !important;
+                transform: rotate(0) !important;
             }
         }
 
         &.tab-reverse {
             svg {
-                transform: rotate(0) !important;
+                transform: rotate(-180deg) !important;
             }
         }
     }
