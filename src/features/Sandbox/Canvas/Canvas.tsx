@@ -167,43 +167,45 @@ export const Canvas: React.FC<ISandboxProps> = ({
                 >
                     <CanvasLinksNodes {...storeData} />
                 </div>
-                <div className="footer bottom-left-footer">
-                    <Input
-                        prefix={<Icon type="search" />}
-                        onChange={event => {}}
-                        allowClear
-                        placeholder="Search Nodes"
-                    />
-                    <Badge count={hasUnreadLogs ? 1 : 0} dot>
-                        <Button
-                            disabled={!canToggleConsole}
-                            shape="circle"
-                            type="primary"
-                            icon="code"
-                            loading={isConsoleLoading}
-                            onClick={() => toggleLogView(true)}
+                <div className="footer">
+                    <div className="bottom-left-footer">
+                        <Input
+                            prefix={<Icon type="search" />}
+                            onChange={event => {}}
+                            allowClear
+                            placeholder="Search Nodes"
                         />
-                    </Badge>
-                </div>
-                <div className="footer bottom-right-footer">
-                    <Button
-                        type="primary"
-                        shape="circle"
-                        icon="minus"
-                        // onClick={() => sandboxManager.magnify(-0.15)}
-                    />
-                    <Button
-                        type="primary"
-                        shape="circle"
-                        icon="block"
-                        onClick={resetView}
-                    />
-                    <Button
-                        type="primary"
-                        shape="circle"
-                        icon="plus"
-                        // onClick={() => sandboxManager.magnify(0.15)}
-                    />
+                        <Badge count={hasUnreadLogs ? 1 : 0} dot>
+                            <Button
+                                disabled={!canToggleConsole}
+                                shape="circle"
+                                type="primary"
+                                icon="code"
+                                loading={isConsoleLoading}
+                                onClick={() => toggleLogView(true)}
+                            />
+                        </Badge>
+                    </div>
+                    <div className="bottom-right-footer">
+                        <Button
+                            type="primary"
+                            shape="circle"
+                            icon="minus"
+                            // onClick={() => sandboxManager.magnify(-0.15)}
+                        />
+                        <Button
+                            type="primary"
+                            shape="circle"
+                            icon="block"
+                            onClick={resetView}
+                        />
+                        <Button
+                            type="primary"
+                            shape="circle"
+                            icon="plus"
+                            // onClick={() => sandboxManager.magnify(0.15)}
+                        />
+                    </div>
                 </div>
             </div>
             <ContextMenu trigger="data-node">

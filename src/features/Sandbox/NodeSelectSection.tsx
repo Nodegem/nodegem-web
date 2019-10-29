@@ -12,20 +12,23 @@ interface INodeSelectProps {
 export const NodeSelectSection: React.FC<INodeSelectProps> = ({
     nodeSelectStore,
 }) => {
-    const { isOpen, nodeOptions, isLoadingDefinitions, addNode } = useStore(
-        nodeSelectStore,
-        store => ({
-            addNode: store.addNode,
-            ...store.state,
-        })
-    );
+    const {
+        isOpen,
+        nodeOptions,
+        isLoadingDefinitions,
+        toggle,
+        addNode,
+    } = useStore(nodeSelectStore, store => ({
+        toggle: store.toggleOpen,
+        addNode: store.addNode,
+        ...store.state,
+    }));
 
     return (
         <CustomCollapsible
             size="15vw"
             minSize="325px"
-            onTabClick={() => {}}
-            tabContent="Nodes"
+            onTabClick={() => toggle()}
             collapsed={!isOpen}
             className="node-select-collapsible"
         >

@@ -82,8 +82,22 @@
 
 @searchFontColor: lighten(black, 15%);
 
+.footer {
+    position: relative;
+    width: 0;
+    height: 0;
+    left: -100%;
+    top: 100%;
+    overflow: visible;
+
+    button {
+        margin-left: 10px;
+    }
+}
+
 .bottom-left-footer {
-    bottom: 0px;
+    bottom: 0;
+    width: 250px;
     position: absolute;
     margin: 15px 20px;
     display: inline-flex;
@@ -96,7 +110,7 @@
 
     input {
         border-radius: 30px;
-        background-color: @control-bg-color;
+        background-color: #1890ff;
         border: none;
 
         &::placeholder {
@@ -106,17 +120,10 @@
     }
 }
 
-.footer {
-    button {
-        margin-left: 10px;
-        border-color: @control-bg-color;
-        background-color: @control-bg-color;
-    }
-}
-
 .bottom-right-footer {
+    display: inline-flex;
     bottom: 0px;
-    right: 0px;
     position: absolute;
     margin: 15px 20px;
+    left: calc(var(--canvas-width) - 160px);
 }

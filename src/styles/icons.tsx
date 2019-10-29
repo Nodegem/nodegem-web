@@ -9,4 +9,14 @@ const DebugSvg = () => (
     </svg>
 );
 
+const ArrowSvg = () => (
+    <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 11.6 12.9">
+        <path
+            d="M11.5,6.3L3.9,0v0.1v1.3V5c0,0.1-0.1,0.2-0.2,0.2H0.2C0.1,5.1,0,5.2,0,5.4v2.1c0,0.1,0.1,0.2,0.2,0.2h3.5
+	c0.1,0,0.2,0.1,0.2,0.2v5l7.6-6.3C11.6,6.5,11.6,6.4,11.5,6.3z"
+        />
+    </svg>
+);
+
 export const DebugIcon = props => <Icon component={DebugSvg} {...props} />;
+export const ArrowIcon = props => <Icon component={ArrowSvg} {...props} />;

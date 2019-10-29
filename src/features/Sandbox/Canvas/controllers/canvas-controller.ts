@@ -162,6 +162,10 @@ class CanvasController implements IDisposable {
             y: offset.y + y,
         };
         this.canvas.style.transform = `translate(${newTransform.x}px, ${newTransform.y}px) scale(${scale})`;
+        this.canvas.parentElement!.style.setProperty(
+            '--canvas-width',
+            `${this.elementDimensions.width}px`
+        );
     }
 
     private onTranslate = (delta: Vector2, e: MouseEvent) => {

@@ -12,9 +12,10 @@ interface INodeInfoProps {
 export const NodeInfoSection: React.FC<INodeInfoProps> = ({
     nodeInfoStore,
 }) => {
-    const { isOpen, selectedNode, updatePortData } = useStore(
+    const { isOpen, selectedNode, updatePortData, toggle } = useStore(
         nodeInfoStore,
         store => ({
+            toggle: store.toggleOpen,
             updatePortData: store.updatePortData,
             ...store.state,
         })
@@ -24,9 +25,8 @@ export const NodeInfoSection: React.FC<INodeInfoProps> = ({
         <CustomCollapsible
             size="18vw"
             minSize="325px"
-            onTabClick={() => {}}
+            onTabClick={() => toggle()}
             direction="left"
-            tabContent="Node Info"
             collapsed={!isOpen}
             className="node-info-collapsible"
         >

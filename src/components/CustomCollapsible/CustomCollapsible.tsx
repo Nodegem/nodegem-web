@@ -1,6 +1,8 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
 
+import { Button } from 'antd';
+import { ArrowIcon } from 'styles/icons';
 import './CustomCollapsible.less';
 
 type TDirection = 'left' | 'right' | 'top' | 'bottom';
@@ -12,7 +14,6 @@ interface IVerticalCollapsibleProps {
     direction?: TDirection;
     collapsed: boolean;
     onTabClick?: () => void;
-    tabContent?: React.ReactNode;
     transitionSpeed?: number;
     children: React.ReactNode;
     className?: string;
@@ -24,7 +25,6 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
     tabSize = 0,
     direction = 'right',
     collapsed,
-    tabContent,
     onTabClick = () => {},
     transitionSpeed,
     className,
@@ -56,11 +56,6 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
         collapsed: fullyCollapsed,
     });
 
-    const handleTabClick = () => {
-        setCollapsing(true);
-        onTabClick();
-    };
-
     const actualSize = size;
     size = collapsed ? tabSize : size;
 
@@ -69,8 +64,6 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
             className={containerClass}
             style={
                 {
-                    minHeight: collapsed ? tabSize : minSize,
-                    height: size,
                     '--transition-speed':
                         transitionSpeed && `${transitionSpeed}ms`,
                     '--content-size': actualSize,
@@ -80,14 +73,15 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
             onTransitionEnd={() => setCollapsing(false)}
         >
             <div className={collapseClass}>{children}</div>
+            <div className="tab-trigger" onMouseUp={onTabClick}>
+                <ArrowIcon />
+            </div>
         </div>
     ) : (
         <div
             className={containerClass}
             style={
                 {
-                    minWidth: collapsed ? tabSize : minSize,
-                    width: size,
                     '--transition-speed':
                         transitionSpeed && `${transitionSpeed}ms`,
                     '--content-size': actualSize,
@@ -97,6 +91,11 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
             onTransitionEnd={() => setCollapsing(false)}
         >
             <div className={collapseClass}>{children}</div>
+            <div className="tab-trigger" onMouseUp={onTabClick}>
+                <div className="tab-trigger-container">
+                    <Button type="primary" icon="double-right" />
+                </div>
+            </div>
         </div>
     );
 };

@@ -215,19 +215,7 @@ export class SandboxStore
             switch (event.keyCode) {
                 case 83:
                     event.preventDefault();
-                    // this.saveGraph();
-                    break;
-                case 90:
-                    event.preventDefault();
-                    this.nodeSelectStore.toggleOpen();
-                    break;
-                case 88:
-                    event.preventDefault();
-                    this.nodeInfoStore.toggleOpen();
-                    break;
-                case 67:
-                    event.preventDefault();
-                    this.logsStore.toggleOpen();
+                    this.saveGraph();
                     break;
                 case 32:
                     this.canvasStore.resetView();
