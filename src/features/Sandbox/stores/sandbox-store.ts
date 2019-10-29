@@ -226,6 +226,9 @@ export class SandboxStore
                 case 27:
                     this.canvasStore.drawLinkStore.stopDraw();
                     break;
+                case 46:
+                    this.canvasStore.deleteSelectedNodes();
+                    break;
             }
         }
     };

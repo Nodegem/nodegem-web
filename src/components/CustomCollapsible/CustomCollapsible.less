@@ -1,6 +1,6 @@
 @import '../../styles/vars.less';
 
-@animationSpeed: var(--transition-speed, 350ms);
+@animationSpeed: var(--transition-speed, 300ms);
 @fadeOutSpeed: calc(@animationSpeed / 2.5);
 @tab-width: 25px;
 
@@ -13,8 +13,8 @@
     &.horizontal {
         flex-direction: row;
         min-height: 100%;
-        transition: width @animationSpeed ease-in-out,
-            min-width @animationSpeed ease-in-out;
+        transition: width @animationSpeed ease-out,
+            min-width @animationSpeed ease-out;
         will-change: min-width, width;
         width: var(--content-size, 15vw);
         min-width: var(--content-size, 15vw);
@@ -35,8 +35,8 @@
         width: 100%;
         max-width: 100%;
         flex-direction: column;
-        transition: height @animationSpeed ease-in-out,
-            min-height @animationSpeed ease-in-out;
+        transition: height @animationSpeed ease-out,
+            min-height @animationSpeed ease-out;
         will-change: min-height, height;
         min-height: var(--content-min-size, 15vw);
     }
@@ -110,7 +110,7 @@
         z-index: 999;
 
         svg {
-            transition: transform 300ms ease-out;
+            transition: transform 250ms ease-out;
             will-change: transform;
             transform: rotate(-180deg);
         }
@@ -131,7 +131,10 @@
     }
 
     &.collapsed {
+        pointer-events: none;
+
         .tab-trigger {
+            pointer-events: auto;
             svg {
                 transform: rotate(0) !important;
             }

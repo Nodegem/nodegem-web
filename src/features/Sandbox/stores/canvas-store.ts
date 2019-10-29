@@ -326,7 +326,7 @@ export class CanvasStore extends Store<
 
     public removeNode = async (nodeId: string) => {
         const node = this.getNode(nodeId);
-        if (node) {
+        if (node && !node.permanent) {
             this.suspend();
             const linkIds = [...node.links];
 
@@ -393,6 +393,18 @@ export class CanvasStore extends Store<
         this.setState({
             openContext: { id: nodeId, canDelete: !node.permanent },
         });
+    };
+
+    public deleteSelectedNodes = () => {
+        const { nodes } = this.state;
+
+        this.suspend();
+        [...nodes]
+            .filter(x => x.selected)
+            .forEach(n => {
+                this.removeNode(n.id);
+            });
+        this.unsuspend();
     };
 
     public updateNode = async (
@@ -480,7 +492,25 @@ export class CanvasStore extends Store<
         return this.canvasController.convertCoordinates(coords);
     };
 
-    private handleSelection = (bounds: Bounds) => {};
+    private handleSelection = (bounds: Bounds) => {
+        const { nodes } = this.state;
+        const { left, top, width, height } = bounds;
+        const selectedNodes = nodes.filter(node => {
+            const { x, y } = node.position;
+            return (
+                x >= left && y >= top && x < left + width && y < top + height
+            );
+        });
+
+        this.suspend();
+        nodes.forEach(n => {
+            this.updateNode(n.id, _ => ({ selected: false }));
+        });
+        selectedNodes.forEach(selectedNode => {
+            this.updateNode(selectedNode.id, _ => ({ selected: true }));
+        });
+        this.unsuspend();
+    };
 
     public onPortAdd = (data: IPortUIData) => {
         const fullId = `${data.name.toLowerCase()}|${uuid().replace(/-/g, '')}`;

@@ -34,6 +34,7 @@ class SelectionController {
     }
 
     public startSelect(pos: Vector2) {
+        this.canvasContainer.toggleDragging(false);
         this.selectElement.style.display = 'block';
         this.selectElement.classList.add(selectingClass);
         this.start = pos;
@@ -75,6 +76,7 @@ class SelectionController {
 
     private onMouseUp = (event: MouseEvent) => {
         this.stopSelect(this.canvasContainer.mousePos);
+        this.canvasContainer.toggleDragging(true);
     };
 
     public stopSelect(pos: Vector2) {
