@@ -9,7 +9,6 @@ type TDirection = 'left' | 'right' | 'top' | 'bottom';
 
 interface IVerticalCollapsibleProps {
     size?: string | number;
-    minSize?: string | number;
     tabSize?: string | number;
     direction?: TDirection;
     collapsed: boolean;
@@ -20,8 +19,7 @@ interface IVerticalCollapsibleProps {
 }
 
 export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
-    size = '15vw',
-    minSize,
+    size = '350px',
     tabSize = 0,
     direction = 'right',
     collapsed,
@@ -56,6 +54,11 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
         collapsed: fullyCollapsed,
     });
 
+    const handleTabClick = () => {
+        setCollapsing(true);
+        onTabClick();
+    };
+
     const actualSize = size;
     size = collapsed ? tabSize : size;
 
@@ -67,13 +70,12 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
                     '--transition-speed':
                         transitionSpeed && `${transitionSpeed}ms`,
                     '--content-size': actualSize,
-                    '--content-min-size': minSize,
                 } as any
             }
             onTransitionEnd={() => setCollapsing(false)}
         >
             <div className={collapseClass}>{children}</div>
-            <div className="tab-trigger" onMouseUp={onTabClick}>
+            <div className="tab-trigger" onMouseUp={handleTabClick}>
                 <ArrowIcon />
             </div>
         </div>
@@ -85,13 +87,12 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
                     '--transition-speed':
                         transitionSpeed && `${transitionSpeed}ms`,
                     '--content-size': actualSize,
-                    '--content-min-size': minSize,
                 } as any
             }
             onTransitionEnd={() => setCollapsing(false)}
         >
             <div className={collapseClass}>{children}</div>
-            <div className="tab-trigger" onMouseUp={onTabClick}>
+            <div className="tab-trigger" onMouseUp={handleTabClick}>
                 <div className="tab-trigger-container">
                     <Button type="primary" icon="double-right" />
                 </div>

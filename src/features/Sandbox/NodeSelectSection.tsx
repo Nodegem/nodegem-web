@@ -26,8 +26,7 @@ export const NodeSelectSection: React.FC<INodeSelectProps> = ({
 
     return (
         <CustomCollapsible
-            size="15vw"
-            minSize="325px"
+            size="340px"
             onTabClick={() => toggle()}
             collapsed={!isOpen}
             className="node-select-collapsible"

@@ -23,8 +23,7 @@ export const NodeInfoSection: React.FC<INodeInfoProps> = ({
 
     return (
         <CustomCollapsible
-            size="18vw"
-            minSize="325px"
+            size="375px"
             onTabClick={() => toggle()}
             direction="left"
             collapsed={!isOpen}

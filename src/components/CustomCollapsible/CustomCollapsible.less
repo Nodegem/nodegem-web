@@ -1,7 +1,7 @@
 @import '../../styles/vars.less';
 
 @animationSpeed: var(--transition-speed, 350ms);
-@fadeOutSpeed: calc(@animationSpeed / 1.5);
+@fadeOutSpeed: calc(@animationSpeed / 2.5);
 @tab-width: 25px;
 
 .collapse-container {
@@ -16,9 +16,16 @@
         transition: width @animationSpeed ease-in-out,
             min-width @animationSpeed ease-in-out;
         will-change: min-width, width;
+        width: var(--content-size, 15vw);
         min-width: var(--content-size, 15vw);
 
+        &.closing,
+        &.opening {
+            min-width: 0 !important;
+        }
+
         &.collapsed {
+            width: 0;
             min-width: 0;
             max-width: 0;
         }
@@ -31,7 +38,7 @@
         transition: height @animationSpeed ease-in-out,
             min-height @animationSpeed ease-in-out;
         will-change: min-height, height;
-        min-height: var(--content-size, 15vw);
+        min-height: var(--content-min-size, 15vw);
     }
 
     &.horizontal {
@@ -131,8 +138,10 @@
         }
 
         &.tab-reverse {
-            svg {
-                transform: rotate(-180deg) !important;
+            .tab-trigger {
+                svg {
+                    transform: rotate(-180deg) !important;
+                }
             }
         }
     }
