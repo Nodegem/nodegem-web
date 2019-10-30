@@ -8,8 +8,8 @@ interface Graph {
     recurringOptions: RecurringOptions;
     nodes: Array<NodeData>;
     links: Array<LinkData>;
-    createdOn?: Date;
-    lastUpdated?: Date;
+    createdOn?: Date | moment;
+    lastUpdated?: Date | moment;
     userId: string;
     constants: Array<ConstantData>;
 }

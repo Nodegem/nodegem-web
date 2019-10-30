@@ -7,16 +7,11 @@ import { userStore } from '.';
 class MacroStore implements IDisposableStore {
     @observable public macros: Array<Macro> = [];
 
-    
     @observable
     public loadingMacros: boolean = false;
 
     @action
     public async fetchMacros(force: boolean = false) {
-        if (!force && this.macros && !this.macros.empty()) {
-            return;
-        }
-
         this.loadingMacros = true;
         try {
             const macros = await MacroService.getAll();

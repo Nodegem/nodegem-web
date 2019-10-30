@@ -3,8 +3,9 @@ const {
     fixBabelImports,
     addLessLoader,
     disableEsLint,
+    useBabelRc,
 } = require('customize-cra');
-const theme = require('./theme');
+const darkTheme = require('@ant-design/dark-theme');
 
 module.exports = override(
     disableEsLint(),
@@ -13,8 +14,9 @@ module.exports = override(
         libraryDirectory: 'es',
         style: true,
     }),
+    useBabelRc(),
     addLessLoader({
         javascriptEnabled: true,
-        modifyVars: theme,
+        modifyVars: darkTheme,
     })
 );

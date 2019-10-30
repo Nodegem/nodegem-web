@@ -79,10 +79,6 @@ class GraphStore implements IDisposableStore {
 
     @action
     public async fetchGraphs(force: boolean = false) {
-        if (!force && this.graphs && !this.graphs.empty()) {
-            return;
-        }
-
         this.loadingGraphs = true;
 
         try {

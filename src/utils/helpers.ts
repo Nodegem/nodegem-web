@@ -1,5 +1,40 @@
-import { timeout } from 'q';
+import gravatar from 'gravatar';
 import { isMacro } from './typeguards';
+
+export const parseJwt = (token: string) => {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+        atob(base64)
+            .split('')
+            .map(c => {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join('')
+    );
+
+    return JSON.parse(jsonPayload);
+};
+
+export const jwtToUser = (jwt: any): User => {
+    return {
+        id: jwt.nameid,
+        userName: jwt.unique_name,
+        email: jwt.sub,
+        constants: jwt.constantData,
+        avatarUrl:
+            jwt.avatarUrl ||
+            gravatar.url(
+                jwt.sub,
+                {
+                    s: '100',
+                    r: 'pg',
+                    d: 'retro',
+                },
+                true
+            ),
+    };
+};
 
 export const isInput = (target: Element): boolean => {
     return (

@@ -1,30 +1,28 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
 
+import { Button } from 'antd';
+import { ArrowIcon } from 'styles/icons';
 import './CustomCollapsible.less';
 
 type TDirection = 'left' | 'right' | 'top' | 'bottom';
 
 interface IVerticalCollapsibleProps {
     size?: string | number;
-    minSize?: string | number;
     tabSize?: string | number;
     direction?: TDirection;
     collapsed: boolean;
     onTabClick?: () => void;
-    tabContent?: React.ReactNode;
     transitionSpeed?: number;
     children: React.ReactNode;
     className?: string;
 }
 
 export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
-    size = '15vw',
-    minSize,
+    size = '350px',
     tabSize = 0,
     direction = 'right',
     collapsed,
-    tabContent,
     onTabClick = () => {},
     transitionSpeed,
     className,
@@ -69,34 +67,36 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
             className={containerClass}
             style={
                 {
-                    minHeight: collapsed ? tabSize : minSize,
-                    height: size,
                     '--transition-speed':
                         transitionSpeed && `${transitionSpeed}ms`,
                     '--content-size': actualSize,
-                    '--content-min-size': minSize,
                 } as any
             }
             onTransitionEnd={() => setCollapsing(false)}
         >
             <div className={collapseClass}>{children}</div>
+            <div className="tab-trigger" onMouseUp={handleTabClick}>
+                <ArrowIcon />
+            </div>
         </div>
     ) : (
         <div
             className={containerClass}
             style={
                 {
-                    minWidth: collapsed ? tabSize : minSize,
-                    width: size,
                     '--transition-speed':
                         transitionSpeed && `${transitionSpeed}ms`,
                     '--content-size': actualSize,
-                    '--content-min-size': minSize,
                 } as any
             }
             onTransitionEnd={() => setCollapsing(false)}
         >
             <div className={collapseClass}>{children}</div>
+            <div className="tab-trigger" onMouseUp={handleTabClick}>
+                <div className="tab-trigger-container">
+                    <Button type="primary" icon="double-right" />
+                </div>
+            </div>
         </div>
     );
 };

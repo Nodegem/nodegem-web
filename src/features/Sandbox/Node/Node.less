@@ -6,13 +6,21 @@
 @valueWidth: 15px;
 
 .node-container {
-    cursor: grab;
+    cursor: default;
     min-width: 150px;
     min-height: 50px;
     border: @borderSize solid @borderColor;
     border-radius: 30px;
     display: flex;
     flex-direction: column;
+
+    &:hover {
+        box-shadow: 0px 0px 10px 2px #ffffffaa;
+    }
+
+    &.selected {
+        box-shadow: 0px 0px 10px 2px red;
+    }
 }
 
 .title {

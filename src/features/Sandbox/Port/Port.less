@@ -27,21 +27,19 @@
     justify-content: center;
     align-items: center;
 
-    &.sandbox-mode {
-        &:hover::after {
-            content: '';
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-        }
+    &:hover::after {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+    }
 
-        &.connected::after,
-        &.connecting::after {
-            content: '';
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-        }
+    &.connected::after,
+    &.connecting::after {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
     }
 }
 

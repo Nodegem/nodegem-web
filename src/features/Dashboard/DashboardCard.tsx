@@ -15,12 +15,12 @@ class DashboardCard extends React.Component<IDashboardCardProps> {
         onDelete(item, type);
     };
 
-    public onEdit = () => {
+    public onSettings = () => {
         const { item, onEdit, type } = this.props;
         onEdit(item, type);
     };
 
-    public onBuild = () => {
+    public onEdit = () => {
         const { item, onBuild, type } = this.props;
         onBuild(item, type);
     };
@@ -35,7 +35,7 @@ class DashboardCard extends React.Component<IDashboardCardProps> {
                 title={item.name}
                 actions={[
                     <Tooltip title="Edit">
-                        <div onClick={this.onBuild}>
+                        <div onClick={this.onEdit}>
                             <Icon
                                 type="tool"
                                 theme="filled"
@@ -44,7 +44,7 @@ class DashboardCard extends React.Component<IDashboardCardProps> {
                         </div>
                     </Tooltip>,
                     <Tooltip title="Settings">
-                        <div onClick={this.onEdit}>
+                        <div onClick={this.onSettings}>
                             <Icon
                                 type="setting"
                                 theme="filled"
