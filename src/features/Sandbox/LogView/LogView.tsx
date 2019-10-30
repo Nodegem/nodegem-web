@@ -5,7 +5,10 @@ import React from 'react';
 
 import JSONTree from 'react-json-tree';
 
+import { Modal } from 'antd';
+import { useStore } from 'overstated';
 import { isJSON } from 'utils';
+import { LogsStore } from '../stores';
 import './LogView.less';
 
 interface ILogLineProps {
@@ -61,18 +64,34 @@ const LogLine: React.FC<ILogLineProps> = ({ log }) => {
 };
 
 interface ILogViewProps {
-    logs: LogData[];
-    clearLogs: () => void;
+    logStore: LogsStore;
 }
 
-export const LogView: React.FC<ILogViewProps> = ({ logs, clearLogs }) => {
+export const LogsView: React.FC<ILogViewProps> = ({ logStore }) => {
+    const { logs, toggleLogs, isOpen } = useStore(logStore, store => ({
+        isOpen: store.state.isOpen,
+        toggleLogs: store.toggleOpen,
+        logs: store.ctx.tabsStore.activeTabLogs,
+    }));
+
     return (
-        <FlexColumn className="logs-container">
-            <FlexColumn className="logs">
-                {logs.map((l, i) => (
-                    <LogLine key={i} log={l} />
-                ))}
+        <Modal
+            className="sandbox-modal log-view-modal"
+            title="Console"
+            maskClosable
+            visible={isOpen}
+            style={{ minHeight: '80vh', maxHeight: '80vh' }}
+            footer={null}
+            onCancel={() => toggleLogs(false)}
+            centered
+        >
+            <FlexColumn className="logs-container">
+                <FlexColumn className="logs">
+                    {logs.map((l, i) => (
+                        <LogLine key={i} log={l} />
+                    ))}
+                </FlexColumn>
             </FlexColumn>
-        </FlexColumn>
+        </Modal>
     );
 };

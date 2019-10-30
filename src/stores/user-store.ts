@@ -1,9 +1,14 @@
 import { action, computed, observable } from 'mobx';
 import { deleteFromStorage, getFromStorage, saveToStorage } from 'utils';
+import { jwtToUser, parseJwt } from './../utils/helpers';
 
 class UserStore implements IDisposableStore {
-    @observable public user?: User;
     @observable public token?: TokenData;
+
+    @computed
+    public get user(): User | undefined {
+        return this.token && jwtToUser(parseJwt(this.token.accessToken));
+    }
 
     @computed
     public get username(): string {
@@ -20,7 +25,6 @@ class UserStore implements IDisposableStore {
 
     @action
     public init() {
-        this.user = getFromStorage<User>('user')!;
         this.token = getFromStorage<TokenData>('token')!;
     }
 
@@ -29,15 +33,9 @@ class UserStore implements IDisposableStore {
         saveToStorage('token', token);
     }
 
-    @action public setUser(user?: User) {
-        this.user = user;
-        saveToStorage('user', user);
-    }
-
     @action public dispose() {
         deleteFromStorage('user', 'token');
         this.token = undefined;
-        this.user = undefined;
     }
 }
 

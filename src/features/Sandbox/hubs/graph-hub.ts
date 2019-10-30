@@ -1,7 +1,6 @@
 import { BaseHub } from 'hubs/base-hub';
 import { SimpleObservable } from 'utils';
 
-const graphHubPath = process.env.REACT_APP_GRAPH_HUB as string;
 class GraphHub extends BaseHub {
     public bridgeEstablished: SimpleObservable<IBridgeInfo>;
     public bridgeInfo: SimpleObservable<IBridgeInfo[]>;
@@ -9,7 +8,7 @@ class GraphHub extends BaseHub {
     public onGraphCompleted: SimpleObservable<IExecutionError>;
 
     constructor() {
-        super(graphHubPath);
+        super('graphHub');
 
         this.bridgeInfo = new SimpleObservable();
         this.lostBridge = new SimpleObservable();

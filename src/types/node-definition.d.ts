@@ -14,6 +14,7 @@ interface NodeDefinition {
 interface FieldDefinition {
     key: string;
     label: string;
+    indefinite: boolean;
 }
 
 interface FlowInputDefinition extends FieldDefinition {}
@@ -23,7 +24,6 @@ interface FlowOutputDefinition extends FieldDefinition {}
 interface ValueInputDefinition extends FieldDefinition {
     defaultValue: any;
     valueType: ValueType;
-    indefinite: boolean;
 }
 
 interface ValueOutputDefinition extends FieldDefinition {

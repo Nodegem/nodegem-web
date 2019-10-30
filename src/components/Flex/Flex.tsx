@@ -38,7 +38,6 @@ export const Flex: React.FC<IFlexProps> = ({
             })}
             style={
                 {
-                    '--flex-gap': `${gap}px`,
                     display: 'flex',
                     flex: typeof flex === 'number' ? `1 1 ${flex}%` : flex,
                     flexDirection: direction,
@@ -59,7 +58,16 @@ export const Flex: React.FC<IFlexProps> = ({
                 } as any
             }
         >
-            {children}
+            {React.Children.map(children, child =>
+                React.cloneElement(child as any, {
+                    style: {
+                        marginRight:
+                            direction === 'row' ? `${gap}px` : undefined,
+                        marginBottom:
+                            direction === 'column' ? `${gap}px` : undefined,
+                    },
+                })
+            )}
         </div>
     );
 };

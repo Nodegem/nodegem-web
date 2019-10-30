@@ -1,256 +1,183 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
-import { Button, Tooltip } from 'antd';
+import classNames from 'classnames';
+import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { Socket as Port } from '../Port/Port';
 import './Node.less';
 
 interface INodeProps {
-    data: INodeUIData;
-    sandboxMode?: boolean;
-    editNode?: (nodeData: INodeUIData) => void;
-    removeNode?: (id: string) => void;
-    getRef?: (instance: HTMLDivElement) => void;
-    getPortRef?: (port: IPortUIData, element: HTMLElement) => void;
-    removePortRef?: (id: string) => void;
-    onPortAdd?: (port: IPortUIData) => void;
-    onPortRemove?: (port: IPortUIData) => void;
-    onPortEvent?: (
+    nodeId: string;
+    scale: number;
+    selected: boolean;
+    title: string;
+    initialPosition: Vector2;
+    flowInputs: IPortUIData[];
+    flowOutputs: IPortUIData[];
+    valueInputs: IPortUIData[];
+    valueOutputs: IPortUIData[];
+    hidePortActions: boolean;
+    onDblClick: (event: MouseEvent, nodeId: string) => void;
+    onClick: (event: MouseEvent, nodeId: string) => void;
+    onRightClick: (event: MouseEvent, nodeId: string) => void;
+    onDrag: (id: string) => void;
+    onDragStop: (id: string, position: Vector2) => void;
+    onPortEvent: (
         event: PortEvent,
         element: HTMLElement,
-        data: IPortUIData
+        data: IPortUIData,
+        nodeId: string
     ) => void;
-    hidePortActions?: boolean;
+    onPortAdd: (port: IPortUIData) => void;
+    onPortRemove: (port: IPortUIData) => void;
 }
 
-const ToolbarContents: React.FC<IToolbarProps> = ({
-    nodeData,
-    edit,
-    remove,
-    forceClose,
-}) => {
-    return (
-        <span className="toolbar">
-            <Button
-                onClick={() => {
-                    edit(nodeData);
-                    forceClose();
-                }}
-                type="primary"
-                icon="edit"
-            />
-            {!nodeData.permanent && (
-                <Button
-                    onClick={() => remove(nodeData.id)}
-                    type="danger"
-                    icon="delete"
-                />
-            )}
-        </span>
-    );
-};
+export const Node: React.FC<INodeProps> = React.memo(
+    ({
+        nodeId,
+        scale,
+        selected,
+        title,
+        initialPosition,
+        flowInputs,
+        flowOutputs,
+        valueInputs,
+        valueOutputs,
+        hidePortActions,
+        onClick,
+        onDblClick,
+        onRightClick,
+        onPortEvent,
+        onPortAdd,
+        onPortRemove,
+        onDrag,
+        onDragStop,
+    }: INodeProps) => {
+        const [position, setPosition] = useState(initialPosition);
 
-interface IToolbarProps {
-    visible?: boolean;
-    sandboxMode?: boolean;
-    nodeData: INodeUIData;
-    edit: (data: INodeUIData) => void;
-    remove: (id: string) => void;
-    forceClose: () => void;
-}
+        const handleDrag = useCallback(
+            (e: DraggableEvent, data: DraggableData) => {
+                onDrag(nodeId);
+            },
+            [onDrag, nodeId]
+        );
 
-const Toolbar: React.FC<IToolbarProps> = ({
-    visible,
-    remove,
-    edit,
-    forceClose,
-    nodeData,
-    sandboxMode,
-    children,
-}) => {
-    return sandboxMode ? (
-        <Tooltip
-            visible={visible}
-            className="toolbar-tooltip"
-            title={
-                <ToolbarContents
-                    edit={edit}
-                    remove={remove}
-                    nodeData={nodeData}
-                    forceClose={forceClose}
-                />
-            }
-        >
-            {children}
-        </Tooltip>
-    ) : (
-        <>{children}</>
-    );
-};
+        const handleDragStop = useCallback(
+            (e: DraggableEvent, data: DraggableData) => {
+                setPosition(data);
+                onDragStop(nodeId, { x: data.x, y: data.y });
+            },
+            [nodeId, onDragStop]
+        );
 
-export const Node: React.FC<INodeProps> = ({
-    getRef,
-    data,
-    editNode = () => {},
-    removeNode = () => {},
-    onPortAdd = () => {},
-    onPortRemove = () => {},
-    getPortRef,
-    removePortRef,
-    sandboxMode,
-    onPortEvent,
-    hidePortActions,
-    ...rest
-}: INodeProps) => {
-    const { portData, title } = data;
-    const { flowInputs, flowOutputs, valueInputs, valueOutputs } = portData;
-    const container = useRef<HTMLDivElement>(null);
-    const [visibleToolbar, setVisible] = useState(false);
-    const [portCount, setPortCount] = useState(0); // Just a hack to forceUpdate
+        const handleDblClick = useCallback(
+            (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                onDblClick(event.nativeEvent, nodeId);
+            },
+            [nodeId, onDblClick]
+        );
 
-    useEffect(() => {
-        if (getRef) {
-            getRef(container.current!);
-        }
+        const handleClick = useCallback(
+            (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                onClick(event.nativeEvent, nodeId);
+            },
+            [nodeId, onClick]
+        );
 
-        if (!sandboxMode) {
-            return;
-        }
+        const handleRightClick = useCallback(
+            (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                onRightClick(event.nativeEvent, nodeId);
+            },
+            [nodeId, onRightClick]
+        );
 
-        const preventDefault = (event: MouseEvent) => {
-            event.preventDefault();
-            event.stopPropagation();
-        };
+        const classes = classNames({
+            'node-container': true,
+            selected,
+        });
 
-        const disable = (event: MouseEvent) => {
-            if (event.button === 2) {
-                event.stopPropagation();
-                event.preventDefault();
-                setVisible(!visibleToolbar);
-            } else {
-                setVisible(false);
-            }
-        };
-
-        const outsideClick = (event: MouseEvent) => {
-            if (visibleToolbar) {
-                event.preventDefault();
-                event.stopPropagation();
-                setVisible(false);
-            }
-        };
-
-        window.addEventListener('contextmenu', outsideClick);
-        container.current!.addEventListener('mousedown', disable);
-        container.current!.addEventListener('contextmenu', preventDefault);
-        return () => {
-            if (!sandboxMode) {
-                return;
-            }
-
-            window.removeEventListener('contextmenu', outsideClick);
-            container.current!.removeEventListener('mousedown', disable);
-            container.current!.removeEventListener(
-                'contextmenu',
-                preventDefault
-            );
-        };
-    }, [container, visibleToolbar, portCount]);
-
-    const closeToolbar = () => setVisible(false);
-
-    const handlePortAdd = (port: IPortUIData) => {
-        onPortAdd(port);
-        setPortCount(portCount + 1);
-    };
-
-    const handlePortRemove = (port: IPortUIData) => {
-        onPortRemove(port);
-        setPortCount(portCount - 1);
-    };
-
-    return (
-        <Toolbar
-            forceClose={closeToolbar}
-            visible={visibleToolbar}
-            edit={editNode}
-            remove={removeNode}
-            nodeData={data}
-            sandboxMode={sandboxMode}
-        >
-            <div ref={container} className="node-container" {...rest}>
-                <div className="flow flow-inputs">
-                    {flowInputs.map((fi, i) => (
-                        <Port
-                            getPortRef={getPortRef}
-                            removePortRef={removePortRef}
-                            key={fi.id}
-                            data={fi}
-                            onPortEvent={onPortEvent}
-                            sandboxMode={sandboxMode}
-                            onAddPort={onPortAdd}
-                            lastPort={i === flowInputs.length - 1}
-                            hidePortActions={hidePortActions}
-                        />
-                    ))}
-                </div>
-                <div className="inner">
-                    <div className="value value-inputs">
-                        {valueInputs.map((vi, i) => (
+        return (
+            <Draggable
+                position={position}
+                onDrag={handleDrag}
+                onStop={handleDragStop}
+                scale={scale}
+            >
+                <div
+                    data-node
+                    id={nodeId}
+                    style={{ position: 'absolute' }}
+                    className={classes}
+                    onDoubleClick={handleDblClick}
+                    onContextMenu={handleRightClick}
+                    onClick={handleClick}
+                >
+                    <div className="flow flow-inputs">
+                        {flowInputs.map((fi, i) => (
                             <Port
-                                getPortRef={getPortRef}
-                                removePortRef={removePortRef}
-                                key={vi.id}
-                                data={vi}
+                                key={fi.id}
                                 onPortEvent={onPortEvent}
-                                sandboxMode={sandboxMode}
-                                onAddPort={handlePortAdd}
-                                onRemovePort={handlePortRemove}
+                                onAddPort={onPortAdd}
+                                onRemovePort={onPortRemove}
                                 lastPort={i === valueInputs.length - 1}
                                 hidePortActions={hidePortActions}
+                                nodeId={nodeId}
+                                portId={fi.id}
+                                {...fi}
                             />
                         ))}
                     </div>
-                    <span className="title">{title}</span>
-                    <div className="value value-outputs">
-                        {valueOutputs.map((vo, i) => (
+                    <div data-node className="inner">
+                        <div className="value value-inputs">
+                            {valueInputs.map((vi, i) => (
+                                <Port
+                                    key={vi.id}
+                                    onPortEvent={onPortEvent}
+                                    onAddPort={onPortAdd}
+                                    onRemovePort={onPortRemove}
+                                    lastPort={i === valueInputs.length - 1}
+                                    hidePortActions={hidePortActions}
+                                    nodeId={nodeId}
+                                    portId={vi.id}
+                                    {...vi}
+                                />
+                            ))}
+                        </div>
+                        <span data-node className="title">
+                            {title}
+                        </span>
+                        <div className="value value-outputs">
+                            {valueOutputs.map((vo, i) => (
+                                <Port
+                                    key={vo.id}
+                                    onPortEvent={onPortEvent}
+                                    onAddPort={onPortAdd}
+                                    onRemovePort={onPortRemove}
+                                    lastPort={i === valueInputs.length - 1}
+                                    hidePortActions={hidePortActions}
+                                    nodeId={nodeId}
+                                    portId={vo.id}
+                                    {...vo}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flow flow-outputs">
+                        {flowOutputs.map((fo, i) => (
                             <Port
-                                getPortRef={getPortRef}
-                                removePortRef={removePortRef}
-                                key={vo.id}
-                                data={vo}
+                                key={fo.id}
                                 onPortEvent={onPortEvent}
-                                sandboxMode={sandboxMode}
-                                lastPort={i === valueOutputs.length - 1}
                                 onAddPort={onPortAdd}
+                                onRemovePort={onPortRemove}
+                                lastPort={i === valueInputs.length - 1}
                                 hidePortActions={hidePortActions}
+                                nodeId={nodeId}
+                                portId={fo.id}
+                                {...fo}
                             />
                         ))}
                     </div>
                 </div>
-                <div className="flow flow-outputs">
-                    {flowOutputs.map((fo, i) => (
-                        <Port
-                            getPortRef={getPortRef}
-                            removePortRef={removePortRef}
-                            key={fo.id}
-                            data={fo}
-                            onPortEvent={onPortEvent}
-                            sandboxMode={sandboxMode}
-                            onAddPort={onPortAdd}
-                            lastPort={i === flowOutputs.length - 1}
-                            hidePortActions={hidePortActions}
-                        />
-                    ))}
-                </div>
-            </div>
-        </Toolbar>
-    );
-};
-
-export const SandboxNode: React.FC<INodeProps> = props => {
-    const style: React.CSSProperties = {
-        position: 'absolute',
-        visibility: 'hidden', // hack for jitter
-    };
-    return React.cloneElement(<Node {...props} sandboxMode />, { style });
-};
+            </Draggable>
+        );
+    }
+);

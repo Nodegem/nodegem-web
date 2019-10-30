@@ -96,13 +96,13 @@ abstract class BaseHub {
 
     public async start() {
         try {
+            this.onConnecting.execute();
             this.forceClosed = false;
             await this.connection.start();
             this.onConnected.execute();
         } catch (err) {
             console.warn(err);
             this.onException.execute(err);
-            setTimeout(() => this.start(), 5000);
         }
     }
 }
