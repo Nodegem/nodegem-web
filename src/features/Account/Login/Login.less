@@ -8,9 +8,7 @@
     transition: width 175ms ease;
 
     .login-card-container {
-        width: 40vw;
-
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 1024px) {
             width: 100%;
         }
     }
@@ -25,7 +23,11 @@
         float: right;
     }
 
-    .login-form-button {
-        width: 100%;
+    .login-form {
+        min-width: 350px;
+
+        .other {
+            justify-content: space-between;
+        }
     }
 }

@@ -7,7 +7,6 @@ export * from './Flex';
 export * from './Header';
 export * from './Loader';
 export * from './Modals';
-export * from './PasswordInput';
 export * from './PhoneInput';
 export * from './PortFields';
 export * from './PublicRoute';

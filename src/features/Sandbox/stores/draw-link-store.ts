@@ -1,6 +1,6 @@
-import { appStore } from 'app-state-store';
 import _ from 'lodash';
 import { Store } from 'overstated';
+import { appStore } from 'stores';
 import { getCenterCoordinates } from 'utils';
 import { CanvasStore } from '.';
 import { flowPath, valuePath } from '..';

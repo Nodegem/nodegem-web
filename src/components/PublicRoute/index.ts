@@ -1,1 +1,1 @@
-export * from './AuthorizedRoute';
+export * from './PublicRoute';

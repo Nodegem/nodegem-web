@@ -1,4 +1,4 @@
-import { userStore } from 'stores';
+import { appStore } from 'stores';
 import superagent, { SuperAgentRequest } from 'superagent';
 
 const ROOT_URL = process.env.REACT_APP_API_BASE_URL;
@@ -6,8 +6,9 @@ const ROOT_URL = process.env.REACT_APP_API_BASE_URL;
 export const combinePath = url => `${ROOT_URL}/api${url}`;
 
 const tokenPlugin = (req: SuperAgentRequest) => {
-    if (userStore && userStore.token) {
-        req.set('Authorization', `Bearer ${userStore.token.accessToken}`);
+    const { isLoggedIn, state } = appStore.userStore;
+    if (isLoggedIn) {
+        req.set('Authorization', `Bearer ${state.token.accessToken}`);
     }
 };
 
@@ -22,7 +23,7 @@ const handleErrors = err => {
         // logout
     }
 
-    throw err;
+    throw err.response;
 };
 
 const requests = {

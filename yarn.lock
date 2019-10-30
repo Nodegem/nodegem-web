@@ -1489,6 +1489,11 @@
   dependencies:
     "@types/yargs-parser" "*"
 
+"@types/yup@^0.26.24":
+  version "0.26.24"
+  resolved "https://registry.yarnpkg.com/@types/yup/-/yup-0.26.24.tgz#c24170b3a5c867b4fabd49fcc42fe45f780cb153"
+  integrity sha512-x0bhHnYjH5mZit4HivUYbTMO4LouOTGwp/LLxSL1mbJYVwNJtHYESH0ed2bwM1lkI2yDmsoCDYJnWEgHeJDACg==
+
 "@typescript-eslint/eslint-plugin@^2.2.0":
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-2.3.3.tgz#71e06c6887650301e02105c99b4c8f67454157e3"
@@ -4941,6 +4946,11 @@ formidable@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.2.1.tgz#70fb7ca0290ee6ff961090415f4b3df3d2082659"
   integrity sha512-Fs9VRguL0gqGHkXS5GQiMCr1VhZBxz0JnJs4JmMp/2jL18Fmbzvv7vOFRU+U8TBkHEE/CX1qDXzJplVULgsLeg==
+
+formik-antd@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/formik-antd/-/formik-antd-1.6.0.tgz#1a58b6d76ee07423c6fbdf7ba5af1f2cabfd0554"
+  integrity sha512-sEaf5glPWKvHm0/OSoR4qVzUcztu0pQo4mYULKFLu0XgP2eMBDSo/9cbgH+eZkH6seIgyBepK1D8Lo0w30Uq+g==
 
 formik@^1.5.8:
   version "1.5.8"

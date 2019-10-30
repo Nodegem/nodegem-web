@@ -26,13 +26,13 @@ localforage.config({
 });
 
 ReactDOM.render(
-    <Provider {...legacyStore}>
-        <OverstatedProvider>
+    <OverstatedProvider>
+        <Provider {...legacyStore}>
             <Router history={routerHistory}>
                 <App />
             </Router>
-        </OverstatedProvider>
-    </Provider>,
+        </Provider>
+    </OverstatedProvider>,
     document.getElementById('root') as HTMLElement
 );
 

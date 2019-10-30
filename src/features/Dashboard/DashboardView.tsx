@@ -13,7 +13,7 @@ import { GraphStore } from 'stores/graph-store';
 import { MacroStore } from 'stores/macro-store';
 import routerHistory from '../../utils/history';
 
-import { appStore } from 'app-state-store';
+import { appStore } from 'stores';
 import DashboardCard from './DashboardCard';
 
 interface IDashboardProps {

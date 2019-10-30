@@ -10,6 +10,7 @@
         "between.js": "^0.1.2-fix.2",
         "classnames": "^2.2.6",
         "formik": "^1.5.8",
+        "formik-antd": "^1.6.0",
         "fuse.js": "^3.3.0",
         "gravatar": "^1.8.0",
         "libphonenumber-js": "^1.7.24",
@@ -35,6 +36,7 @@
         "yup": "^0.27.0"
     },
     "devDependencies": {
+        "@types/yup": "^0.26.24",
         "@babel/plugin-proposal-optional-chaining": "^7.6.0",
         "@types/classnames": "^2.2.9",
         "@types/gravatar": "^1.8.0",

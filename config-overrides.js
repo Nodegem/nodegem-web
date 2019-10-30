@@ -14,6 +14,11 @@ module.exports = override(
         libraryDirectory: 'es',
         style: true,
     }),
+    fixBabelImports('formik-antd', {
+        libraryName: 'formik-antd',
+        libraryDirectory: 'es',
+        style: true,
+    }),
     useBabelRc(),
     addLessLoader({
         javascriptEnabled: true,

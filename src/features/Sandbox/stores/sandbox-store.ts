@@ -1,8 +1,7 @@
-import { appStore } from 'app-state-store';
 import localforage from 'localforage';
 import { compose, Store } from 'overstated';
 import { GraphService, MacroService, NodeService } from 'services';
-import { userStore } from 'stores';
+import { appStore } from 'stores';
 import { getGraphType, isMacro } from 'utils';
 import { convertToSelectFriendly, flatten, getPort } from '../utils';
 import { nodeDataToUINodeData } from './../utils';
@@ -172,7 +171,7 @@ export class SandboxStore
     };
 
     public saveStateLocally = async () => {
-        if (!userStore.isLoggedIn) {
+        if (!appStore.userStore.isLoggedIn) {
             return;
         }
 
@@ -181,7 +180,10 @@ export class SandboxStore
             id: x.graph.id,
             type: getGraphType(x.graph),
         }));
-        await localforage.setItem(`${userStore.user!.id}-openTabs`, graphInfo);
+        await localforage.setItem(
+            `${appStore.userStore.user.id}-openTabs`,
+            graphInfo
+        );
     };
 
     public tryLoadLocalState = async () => {
@@ -190,7 +192,7 @@ export class SandboxStore
                 id: string;
                 type: GraphType;
             }[]
-        >(`${userStore.user!.id}-openTabs`);
+        >(`${appStore.userStore.user.id}-openTabs`);
 
         if (graphInfo && graphInfo.any()) {
             this.suspend();
@@ -207,7 +209,7 @@ export class SandboxStore
             this.introStore.toggleStartPrompt(true);
         }
 
-        await localforage.setItem(`${userStore.user!.id}-openTabs`, []);
+        await localforage.setItem(`${appStore.userStore.user.id}-openTabs`, []);
     };
 
     private listenToKeyDown = (event: KeyboardEvent) => {
@@ -256,7 +258,7 @@ export class SandboxStore
         }));
 
         const { graph } = this.tabsStore.activeTab;
-        const { user } = userStore;
+        const { user } = appStore.userStore;
 
         return {
             ...graph,

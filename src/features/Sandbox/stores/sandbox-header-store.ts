@@ -1,10 +1,9 @@
 import moment from 'moment';
 import { Store } from 'overstated';
-import { graphModalStore, macroModalStore } from 'stores';
+import { appStore, graphModalStore, macroModalStore } from 'stores';
 import { isMacro } from 'utils';
 import { SandboxStore } from '.';
 import GraphHub from '../hubs/graph-hub';
-import { appStore } from './../../../app-state-store';
 
 interface ISandboxHeaderState {
     isSavingGraph: boolean;

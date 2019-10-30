@@ -1,8 +1,8 @@
 import moment from 'moment';
 import { Store } from 'overstated';
+import { appStore } from 'stores';
 import { SandboxStore } from '.';
 import TerminalHub from '../hubs/terminal-hub';
-import { appStore } from './../../../app-state-store';
 
 interface ILogState {
     isOpen: boolean;

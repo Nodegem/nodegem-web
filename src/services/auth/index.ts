@@ -11,7 +11,12 @@ const AuthService = {
                 request.set('Authorization', `Basic ${encoded}`);
                 request.withCredentials();
             })
-            .then(res => res.body);
+            .then(
+                res => res.body,
+                err => {
+                    throw err.response;
+                }
+            );
     },
     loginWithToken: (token: string): Promise<TokenData> => {
         return superagent

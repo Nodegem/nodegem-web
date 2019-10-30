@@ -1,32 +1,30 @@
 import './Profile.less';
 
-import { Avatar, Divider } from 'antd';
-import { inject, observer } from 'mobx-react';
+import { Avatar } from 'antd';
+import { useStore } from 'overstated';
 import * as React from 'react';
-import { UserStore } from 'stores/user-store';
+import { appStore } from 'stores';
 
-interface IProfileViewProps {
-    userStore?: UserStore;
-}
+const ProfileView = () => {
+    const { user } = useStore(appStore.userStore, store => ({
+        user: store.user,
+    }));
 
-@inject('userStore')
-@observer
-class ProfileView extends React.Component<IProfileViewProps> {
-    public render() {
-        const { user } = this.props.userStore!;
-        const { userName } = user!;
-
-        return (
-            <div className="profile">
-                <div className="profile-meta">
-                    <span id="icon">
-                        <Avatar size={96} icon="user" />
-                    </span>
-                    <span id="username">{userName}</span>
-                </div>
+    return (
+        <div className="profile">
+            <div className="profile-meta">
+                <span id="icon">
+                    <Avatar
+                        size={128}
+                        shape="square"
+                        icon="user"
+                        src={user.avatarUrl}
+                    />
+                </span>
+                <span id="username">{user.userName}</span>
             </div>
-        );
-    }
-}
+        </div>
+    );
+};
 
 export default ProfileView;

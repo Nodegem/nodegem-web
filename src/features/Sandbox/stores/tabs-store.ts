@@ -1,5 +1,5 @@
-import { appStore } from 'app-state-store';
 import { Store } from 'overstated';
+import { appStore } from 'stores';
 import { SandboxStore } from '.';
 
 interface ITabsState {

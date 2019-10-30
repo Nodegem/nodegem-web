@@ -8,7 +8,8 @@ import { Link } from 'react-router-dom';
 
 import logoPath from '../../logo.svg';
 
-import { authStore, commonStore, userStore } from 'stores';
+import { useStore } from 'overstated';
+import { appStore, authStore, commonStore, userStore } from 'stores';
 import './Header.less';
 
 const AntHeader = Layout.Header;
@@ -43,10 +44,12 @@ const menu = (theme: SiderTheme, logout: () => void) => (
     </Menu>
 );
 
-export const Header: React.FC = observer(() => {
-    const headerHeight = `${commonStore.headerHeight}px`;
+export const Header: React.FC = () => {
+    const { user } = useStore(appStore.userStore, store => ({
+        user: store.user,
+    }));
 
-    const { isLoggedIn, user } = userStore;
+    const headerHeight = `${commonStore.headerHeight}px`;
 
     return (
         <AntHeader
@@ -70,14 +73,14 @@ export const Header: React.FC = observer(() => {
                         >
                             <div>
                                 <span className="username">
-                                    {userStore.isLoggedIn && userStore.username}
+                                    {user.userName}
                                     <Icon type="caret-down" />
                                 </span>
                                 <Avatar
                                     size={45}
                                     icon="user"
                                     shape="square"
-                                    src={(isLoggedIn && user!.avatarUrl) || ''}
+                                    src={user.avatarUrl || ''}
                                 />
                             </div>
                         </Dropdown>
@@ -86,4 +89,4 @@ export const Header: React.FC = observer(() => {
             </FlexRow>
         </AntHeader>
     );
-});
+};

@@ -3,7 +3,6 @@ import './Register.less';
 import { Button, Card, Form, Icon, Input, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import FormItem from 'antd/lib/form/FormItem';
-import PasswordInput from 'components/PasswordInput/PasswordInput';
 import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
@@ -150,17 +149,17 @@ class RegisterForm extends React.Component<
                         )}
                     </FormItem>
                     <FormItem label="Password" hasFeedback required>
-                        {getFieldDecorator('password', {
+                        {/* {getFieldDecorator('password', {
                             rules: [
                                 {
                                     min: 8,
                                     validator: this.validateWithConfirm,
                                 },
                             ],
-                        })(<PasswordInput />)}
+                        })(<PasswordInput />)} */}
                     </FormItem>
                     <FormItem label="Confirm Password" hasFeedback required>
-                        {getFieldDecorator('confirmPassword', {
+                        {/* {getFieldDecorator('confirmPassword', {
                             rules: [
                                 {
                                     min: 8,
@@ -172,7 +171,7 @@ class RegisterForm extends React.Component<
                                 onBlur={this.handleBlur}
                                 placeholder="Confirm Password"
                             />
-                        )}
+                        )} */}
                     </FormItem>
                     <Button
                         loading={loading}

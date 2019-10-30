@@ -3,7 +3,7 @@ import { MenuTheme } from 'antd/lib/menu/MenuContext';
 import { ArgsProps, NotificationPlacement } from 'antd/lib/notification';
 import { compose, Store } from 'overstated';
 import { GraphManagerStore } from './graph-manager-store';
-import { UserStore } from './user-store';
+import { UserStoreNew } from './user-store';
 
 interface IAppState {
     selectedGraph?: Graph | Macro;
@@ -24,12 +24,12 @@ interface INotifyOptions {
 }
 
 interface IAppChildren {
-    // userStore: UserStore;
+    userStore: UserStoreNew;
     graphManagerStore: GraphManagerStore;
 }
 
 @compose({
-    // userStore: UserStore,
+    userStore: UserStoreNew,
     graphManagerStore: GraphManagerStore,
 })
 export class AppStore extends Store<IAppState, undefined, IAppChildren> {
