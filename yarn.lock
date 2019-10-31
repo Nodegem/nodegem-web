@@ -1419,6 +1419,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-responsive@^8.0.1":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@types/react-responsive/-/react-responsive-8.0.1.tgz#3005c4182ebca5316ecb035a139ce891fce9a137"
+  integrity sha512-c4rWRZT0n90RwoK3MUZgkEfdfLClXNnUExZeKx5aUqqGcT4sJ4vV7OB5X59xxCtmN3vMMR72SiMXDGSYZOMqmA==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-router-dom@^5.1.0":
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-5.1.0.tgz#8baa84a7fa8c8e7797fb3650ca51f93038cb4caf"

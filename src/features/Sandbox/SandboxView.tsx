@@ -10,7 +10,7 @@ import { NodeSelectSection } from './NodeSelectSection';
 
 import { Button, Empty } from 'antd';
 import { useStore } from 'overstated';
-import MediaQuery from 'react-responsive';
+import MediaQuery, { useMediaQuery } from 'react-responsive';
 import routerHistory from 'utils/history';
 import { IntroPrompts } from './IntroPrompts';
 import { LogsView } from './LogView';
@@ -43,19 +43,27 @@ export const SandboxView = () => {
         hasUnreadLogs: app.tabsStore.state.hasUnread,
     }));
 
+    const isDesktop = useMediaQuery({
+        query: '(min-device-width: 1024px)',
+    });
+
     useEffect(() => {
-        sandboxStore.registerEvents();
-        sandboxStore.initialize();
+        if (isDesktop) {
+            sandboxStore.registerEvents();
+            sandboxStore.initialize();
 
-        const unregister = routerHistory.listen((location, action) => {
-            sandboxStore.saveStateLocally();
-        });
+            const unregister = routerHistory.listen((location, action) => {
+                sandboxStore.saveStateLocally();
+            });
 
-        return () => {
-            sandboxStore.dispose();
-            unregister();
-        };
-    }, []);
+            return () => {
+                sandboxStore.dispose();
+                unregister();
+            };
+        }
+
+        return () => {};
+    }, [isDesktop]);
 
     return (
         <>
