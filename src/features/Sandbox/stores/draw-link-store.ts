@@ -111,7 +111,11 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
                     node: this.ctx.getNode(destinationPort.nodeId)!,
                 };
                 if (isValidConnection(port, destinationPort)) {
-                    this.ctx.addLink(source, destination);
+                    if (port.io === 'input') {
+                        this.ctx.addLink(destination, source);
+                    } else {
+                        this.ctx.addLink(source, destination);
+                    }
                 } else {
                     appStore.toast('Invalid connection', 'warn');
                     this.clearConnections(port);
@@ -151,7 +155,7 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
     private getLinkElement = () => {
         if (!this.linkElement) {
             this.linkElement = document.getElementById(
-                drawLinkElementId
+                `${drawLinkElementId}-path`
             ) as any;
         }
         return this.linkElement;

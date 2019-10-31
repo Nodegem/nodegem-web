@@ -1,13 +1,13 @@
 import { Icon } from 'antd';
 import classNames from 'classnames';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import './Link.less';
 
 interface ILinkProps {
     linkId: string;
     visible: boolean;
     type: PortType;
-    iconData?: { source: Vector2; destination: Vector2 };
+    showIcons?: boolean;
 }
 
 const areEqual = (prev: ILinkProps, cur: ILinkProps) => {
@@ -15,30 +15,61 @@ const areEqual = (prev: ILinkProps, cur: ILinkProps) => {
 };
 
 export const Link: React.FC<ILinkProps> = React.memo(
-    ({ visible, type, linkId, iconData }) => {
-        console.log(iconData);
-        return !iconData ? (
-            <svg
-                className={classNames({
-                    link: true,
-                    value: type === 'value',
-                    flow: type === 'flow',
-                })}
-                style={{ position: 'absolute', opacity: visible ? 1 : 0 }}
-            >
-                <path id={linkId} />
-            </svg>
-        ) : (
+    ({ visible, type, linkId, showIcons = true }) => {
+        const [isHovering, setIsHovering] = useState(false);
+
+        const mouseEnter = useCallback(() => setIsHovering(true), []);
+        const mouseLeave = useCallback(() => setIsHovering(false), []);
+
+        return (
             <>
-                <span>
-                    <Icon
-                        type="link"
+                <svg
+                    id={`${linkId}-svg`}
+                    className={classNames({
+                        link: true,
+                        value: type === 'value',
+                        flow: type === 'flow',
+                    })}
+                    style={{ position: 'absolute', opacity: visible ? 1 : 0 }}
+                >
+                    <path id={`${linkId}-path`} />
+                </svg>
+                {showIcons && (
+                    <span
+                        className={classNames({
+                            'link-icons': true,
+                            value: type === 'value',
+                            flow: type === 'flow',
+                            hovering: isHovering,
+                        })}
+                        id={`${linkId}-span`}
                         style={{
                             position: 'absolute',
-                            transform: `translate(${iconData.source.x}px, ${iconData.destination.y}px)`,
+                            opacity: visible ? 1 : 0,
                         }}
-                    />
-                </span>
+                    >
+                        <span
+                            className="link-icon"
+                            id={`${linkId}-icon-source`}
+                            onMouseEnter={mouseEnter}
+                            onMouseLeave={mouseLeave}
+                            style={{ '--offset-x': 5, '--offset-y': 15 } as any}
+                        >
+                            <Icon type={isHovering ? 'disconnect' : 'link'} />
+                        </span>
+                        <span
+                            className="link-icon"
+                            id={`${linkId}-icon-destination`}
+                            onMouseEnter={mouseEnter}
+                            onMouseLeave={mouseLeave}
+                            style={
+                                { '--offset-x': 40, '--offset-y': 15 } as any
+                            }
+                        >
+                            <Icon type={isHovering ? 'disconnect' : 'link'} />
+                        </span>
+                    </span>
+                )}
             </>
         );
     },

@@ -13,7 +13,7 @@ export const LoadedStateGate: React.FC = ({ children }) => {
             .catch(err => {
                 console.error(err);
             });
-    });
+    }, [hasLoadedState]);
 
     return hasLoadedState ? <>{children}</> : <></>;
 };

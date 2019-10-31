@@ -182,6 +182,8 @@ export class CanvasStore extends Store<
             destinationNodeId: destination.node.id,
             type: source.data.type,
             element: null as any,
+            sourceIconElement: null as any,
+            destinationIconElement: null as any,
         };
 
         this._links.set(linkId, linkData);
@@ -190,9 +192,20 @@ export class CanvasStore extends Store<
         this.togglePortConnected(destination.data, true);
         await this.setState({ links: Array.from(this._links.values()) });
 
-        const element = document.getElementById(linkId) as any;
+        const element = document.getElementById(`${linkId}-path`) as any;
+        const sourceElement = document.getElementById(
+            `${linkId}-icon-source`
+        ) as any;
+        const destinationElement = document.getElementById(
+            `${linkId}-icon-destination`
+        ) as any;
 
-        const linkDataWithElement = { ...linkData, element };
+        const linkDataWithElement = {
+            ...linkData,
+            element,
+            sourceIconElement: sourceElement,
+            destinationIconElement: destinationElement,
+        };
         this._links.set(linkId, linkDataWithElement);
 
         const sourceNode = this._nodes.get(source.node.id);
@@ -600,7 +613,6 @@ export class CanvasStore extends Store<
     };
 
     private updateLinkPaths = (links: ILinkUIData[]) => {
-        this.suspend();
         links.forEach(x => {
             const sourceCoords = this.convertCoordinates(
                 getCenterCoordinates(x.source)
@@ -609,26 +621,13 @@ export class CanvasStore extends Store<
                 getCenterCoordinates(x.destination)
             );
 
-            if (x.type === 'value' && destinationCoords.x < sourceCoords.x) {
-                const newLink = {
-                    ...x,
-                    iconData: {
-                        source: sourceCoords,
-                        destination: destinationCoords,
-                    },
-                } as ILinkUIData;
-                this._links.set(x.id, newLink);
-                this.setState({
-                    links: Array.from(this._links.values()),
-                });
-                console.log(newLink);
-            } else {
-                updateLinkPath(x, element =>
-                    this.convertCoordinates(getCenterCoordinates(element))
-                );
-            }
+            updateLinkPath(
+                x,
+                element =>
+                    this.convertCoordinates(getCenterCoordinates(element)),
+                x.type === 'value' && destinationCoords.x < sourceCoords.x
+            );
         });
-        this.unsuspend();
     };
 
     //#endregion
