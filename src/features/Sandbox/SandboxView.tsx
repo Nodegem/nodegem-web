@@ -94,7 +94,7 @@ export const SandboxView = () => {
                 <div className="mobile-restriction">
                     <Empty
                         image="https://42f2671d685f51e10fc6-b9fcecea3e50b3b59bdc28dead054ebc.ssl.cf5.rackcdn.com/illustrations/chore_list_iof3.svg"
-                        description="Sandbox only supports higher resolution devices but we do hope to support it soon. Sorry for the inconvenience!"
+                        description="Sandbox only supports higher resolution devices but we do hope to support mobile soon. Sorry for the inconvenience!"
                     >
                         <Button
                             type="primary"
