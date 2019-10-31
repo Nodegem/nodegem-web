@@ -600,11 +600,35 @@ export class CanvasStore extends Store<
     };
 
     private updateLinkPaths = (links: ILinkUIData[]) => {
+        this.suspend();
         links.forEach(x => {
-            updateLinkPath(x, element =>
-                this.convertCoordinates(getCenterCoordinates(element))
+            const sourceCoords = this.convertCoordinates(
+                getCenterCoordinates(x.source)
             );
+            const destinationCoords = this.convertCoordinates(
+                getCenterCoordinates(x.destination)
+            );
+
+            if (x.type === 'value' && destinationCoords.x < sourceCoords.x) {
+                const newLink = {
+                    ...x,
+                    iconData: {
+                        source: sourceCoords,
+                        destination: destinationCoords,
+                    },
+                } as ILinkUIData;
+                this._links.set(x.id, newLink);
+                this.setState({
+                    links: Array.from(this._links.values()),
+                });
+                console.log(newLink);
+            } else {
+                updateLinkPath(x, element =>
+                    this.convertCoordinates(getCenterCoordinates(element))
+                );
+            }
         });
+        this.unsuspend();
     };
 
     //#endregion

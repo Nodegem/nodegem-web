@@ -63,6 +63,7 @@ interface ILinkUIData {
     destinationData: IPortUIData;
     type: PortType;
     element: SVGPathElement;
+    iconData?: { source: Vector2; destination: Vector2 };
 }
 
 interface ILinkInitializeData {

@@ -45,10 +45,6 @@ export class SandboxStore
         isLoading: false,
     };
 
-    constructor() {
-        super();
-    }
-
     public initialize() {
         if (appStore.hasSelectedGraph) {
             this.tabsStore.addTab(appStore.state.selectedGraph!);

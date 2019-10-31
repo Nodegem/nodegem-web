@@ -196,6 +196,7 @@ const LoginView = () => {
             );
 
             appStore.userStore.setToken(result);
+            routerHistory.push('/');
         } catch (e) {
             const commonParams = {
                 title: 'Unable to login',

@@ -1,6 +1,7 @@
 import localforage from 'localforage';
 import { action, computed, observable } from 'mobx';
 import { Store } from 'overstated';
+import { AuthService } from 'services';
 import { deleteFromStorage, getFromStorage, saveToStorage } from 'utils';
 import routerHistory from 'utils/history';
 import { jwtToUser, parseJwt } from './../utils/helpers';
@@ -53,7 +54,11 @@ interface IUserStoreState {
 
 export class UserStoreNew extends Store<IUserStoreState, AppStore> {
     public get user(): User {
-        return jwtToUser(parseJwt(this.state.token.accessToken));
+        return (
+            (this.isLoggedIn &&
+                jwtToUser(parseJwt(this.state.token.accessToken))) ||
+            ({} as User)
+        );
     }
 
     public get isLoggedIn(): boolean {
@@ -65,28 +70,60 @@ export class UserStoreNew extends Store<IUserStoreState, AppStore> {
         token: undefined as any,
     };
 
-    constructor() {
-        super();
-        this.loadTokenFromStorage();
-    }
-
-    private loadTokenFromStorage = async () => {
+    public loadStateFromStorage = async () => {
         const token = await localforage.getItem<TokenData>('session');
         await this.setToken(token);
     };
 
     public setToken = async (token: TokenData) => {
-        this.setState({
+        await this.setState({
             token,
             isLoggedIn: !!token && !!token.accessToken,
         });
-        if (token) {
+
+        if (!token) {
+            await localforage.removeItem('session');
+        } else {
             await localforage.setItem('session', token);
-            routerHistory.push('/');
         }
     };
 
-    public logout = () => {
-        this.setToken(undefined as any);
+    public loginWithToken = async (token: string) => {
+        try {
+            const response = await AuthService.loginWithToken(token);
+            this.setToken(response);
+
+            routerHistory.push('/');
+        } catch (e) {
+            let errorMessage = 'Unable to connect to service.';
+            if (e.status) {
+                // tslint:disable-next-line: prefer-conditional-expression
+                if (e.status === 400 || e.status === 401) {
+                    errorMessage = 'Invalid username or password.';
+                } else {
+                    errorMessage = 'An unknown error has occurred.';
+                }
+            }
+
+            this.ctx.openNotification({
+                title: 'Unable to login',
+                description: errorMessage,
+            });
+        }
+    };
+
+    public logout = async () => {
+        try {
+            await AuthService.logout();
+            await this.setToken(undefined as any);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            this.ctx.openNotification({
+                title: 'Logged out!',
+                description: '',
+                type: 'success',
+            });
+        }
     };
 }

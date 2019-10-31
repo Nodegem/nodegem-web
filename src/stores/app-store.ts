@@ -37,6 +37,10 @@ export class AppStore extends Store<IAppState, undefined, IAppChildren> {
         theme: 'dark',
     };
 
+    public loadStateFromStorage = async () => {
+        await this.userStore.loadStateFromStorage();
+    };
+
     public get hasSelectedGraph(): boolean {
         return !!this.state.selectedGraph;
     }

@@ -11,6 +11,7 @@ import App from './App';
 import * as servicerWorker from './serviceWorker';
 import routerHistory from './utils/history';
 
+import { LoadedStateGate } from 'components/LoadedStateGate/LoadedStateGate';
 import ReactDOM from 'react-dom';
 import { legacyStore } from './stores';
 
@@ -27,11 +28,13 @@ localforage.config({
 
 ReactDOM.render(
     <OverstatedProvider>
-        <Provider {...legacyStore}>
-            <Router history={routerHistory}>
-                <App />
-            </Router>
-        </Provider>
+        <LoadedStateGate>
+            <Provider {...legacyStore}>
+                <Router history={routerHistory}>
+                    <App />
+                </Router>
+            </Provider>
+        </LoadedStateGate>
     </OverstatedProvider>,
     document.getElementById('root') as HTMLElement
 );

@@ -2,6 +2,7 @@ import { FlexColumn, FlexRow } from 'components';
 import _ from 'lodash';
 import React, { useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
+import Fullscreen from 'react-full-screen';
 import { Canvas } from './Canvas';
 import { GraphTabsSection } from './GraphTabsSection';
 import { NodeInfoSection } from './NodeInfoSection';

@@ -68,7 +68,10 @@ export const Header: React.FC = () => {
                         <Dropdown
                             className="avatar-menu"
                             placement="bottomRight"
-                            overlay={menu(commonStore.theme, authStore.logout)}
+                            overlay={menu(
+                                commonStore.theme,
+                                appStore.userStore.logout
+                            )}
                             trigger={['click']}
                         >
                             <div>

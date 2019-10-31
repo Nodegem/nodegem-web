@@ -5,7 +5,7 @@ import { inject, observer } from 'mobx-react';
 import * as React from 'react';
 import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
 
-import { PublicRoute } from 'components';
+import { AnonymousOnlyRoute, PublicRoute } from 'components';
 import { Header } from 'components/Header/Header';
 import { GraphForm } from 'components/Modals/GraphModal/GraphForm';
 import { RegisterExternal } from 'features/Account/RegisterExternal/RegisterExternal';
@@ -63,8 +63,8 @@ const App = () => {
                         // }
                         component={Test}
                     />
-                    <PublicRoute path="/login" component={LoginView} />
-                    <PublicRoute
+                    <AnonymousOnlyRoute path="/login" component={LoginView} />
+                    <AnonymousOnlyRoute
                         path="/forgot-password"
                         component={ForgotPassword}
                     />
@@ -72,7 +72,10 @@ const App = () => {
                         path="/register/external"
                         component={RegisterExternal}
                     />
-                    <PublicRoute path="/register" component={RegisterView} />
+                    <AnonymousOnlyRoute
+                        path="/register"
+                        component={RegisterView}
+                    />
                     <Route component={NotFoundView} />
                 </Switch>
             </Content>

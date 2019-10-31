@@ -1,3 +1,4 @@
+import { Icon } from 'antd';
 import classNames from 'classnames';
 import React from 'react';
 import './Link.less';
@@ -6,6 +7,7 @@ interface ILinkProps {
     linkId: string;
     visible: boolean;
     type: PortType;
+    iconData?: { source: Vector2; destination: Vector2 };
 }
 
 const areEqual = (prev: ILinkProps, cur: ILinkProps) => {
@@ -13,8 +15,9 @@ const areEqual = (prev: ILinkProps, cur: ILinkProps) => {
 };
 
 export const Link: React.FC<ILinkProps> = React.memo(
-    ({ visible, type, linkId }) => {
-        return (
+    ({ visible, type, linkId, iconData }) => {
+        console.log(iconData);
+        return !iconData ? (
             <svg
                 className={classNames({
                     link: true,
@@ -25,6 +28,18 @@ export const Link: React.FC<ILinkProps> = React.memo(
             >
                 <path id={linkId} />
             </svg>
+        ) : (
+            <>
+                <span>
+                    <Icon
+                        type="link"
+                        style={{
+                            position: 'absolute',
+                            transform: `translate(${iconData.source.x}px, ${iconData.destination.y}px)`,
+                        }}
+                    />
+                </span>
+            </>
         );
     },
     areEqual
