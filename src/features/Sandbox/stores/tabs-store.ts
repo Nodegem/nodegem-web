@@ -65,6 +65,7 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         });
 
         if (id) {
+            this.ctx.logsStore.setLogs(this.activeTab.logs);
             this.ctx.load(this.activeTab.graph);
         } else {
             this.ctx.sandboxHeaderStore.onTabUnloaded();
@@ -133,8 +134,10 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
             activeGraphId !== graphId ||
             (activeGraphId === graphId && !this.ctx.logsStore.state.isOpen);
 
+        const newLogs = [...tab.logs, ...logs];
+        this.ctx.logsStore.setLogs(newLogs);
         tabs.addOrUpdate(
-            { ...tab, logs: [...tab.logs, ...logs], hasUnread },
+            { ...tab, logs: newLogs, hasUnread },
             t => t.graph.id === graphId
         );
 

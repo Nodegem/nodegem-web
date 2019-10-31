@@ -71,7 +71,7 @@ export const LogsView: React.FC<ILogViewProps> = ({ logStore }) => {
     const { logs, toggleLogs, isOpen } = useStore(logStore, store => ({
         isOpen: store.state.isOpen,
         toggleLogs: store.toggleOpen,
-        logs: store.ctx.tabsStore.activeTabLogs,
+        logs: store.state.logs,
     }));
 
     return (
