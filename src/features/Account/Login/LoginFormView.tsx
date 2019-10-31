@@ -204,16 +204,24 @@ const LoginView = () => {
                 closeBtn: true,
                 duration: 1.5,
             };
-            if (e.status === 400) {
+
+            if (!e) {
                 appStore.openNotification({
                     ...commonParams,
-                    description: e.text,
+                    description: 'Oops, something went wrong',
                 });
-            } else if (e.status === 401) {
-                appStore.openNotification({
-                    ...commonParams,
-                    description: 'Invalid username or password',
-                });
+            } else {
+                if (e.status === 400) {
+                    appStore.openNotification({
+                        ...commonParams,
+                        description: e.text,
+                    });
+                } else if (e.status === 401) {
+                    appStore.openNotification({
+                        ...commonParams,
+                        description: 'Invalid username or password',
+                    });
+                }
             }
         } finally {
             actions.setSubmitting(false);

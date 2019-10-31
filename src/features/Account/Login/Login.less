@@ -7,12 +7,6 @@
 
     transition: width 175ms ease;
 
-    .login-card-container {
-        @media screen and (max-width: 1024px) {
-            width: 100%;
-        }
-    }
-
     .social-logins {
         border-left: 1px solid #33333333;
         padding-left: 20px;
@@ -28,6 +22,22 @@
 
         .other {
             justify-content: space-between;
+        }
+    }
+
+    @media screen and (max-width: 1024px) {
+        .login-card-container {
+            width: 100%;
+        }
+
+        .ant-card-body > .flex-container {
+            flex-direction: column !important;
+        }
+
+        .social-logins {
+            padding-top: 10px;
+            border-left: none;
+            border-top: 1px solid #33333333;
         }
     }
 }
