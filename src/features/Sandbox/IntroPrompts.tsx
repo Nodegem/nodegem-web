@@ -33,10 +33,10 @@ export const IntroPrompts: React.FC<IIntroPromptsProps> = ({ introStore }) => {
 
     return (
         <>
-            <GraphModalFormController
+            {/* <GraphModalFormController
                 onSave={graphModifyOrCreate}
                 onGoBack={goBack}
-            />
+            /> */}
             <MacroModalFormController
                 onSave={graphModifyOrCreate}
                 onGoBack={goBack}

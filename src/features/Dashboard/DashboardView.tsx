@@ -1,9 +1,8 @@
 import 'utils/extensions';
 import './Dashboard.less';
 
-import { Button, Card, List, Spin, Tooltip } from 'antd';
+import { Button, Card, List, Modal, Spin, Tooltip } from 'antd';
 import { GraphModalStore } from 'components/Modals/GraphModal/graph-modal-store';
-import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
 import { MacroModalStore } from 'components/Modals/MacroModal/macro-modal-store';
 import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
 import { inject, observer } from 'mobx-react';
@@ -13,6 +12,7 @@ import { GraphStore } from 'stores/graph-store';
 import { MacroStore } from 'stores/macro-store';
 import routerHistory from '../../utils/history';
 
+import { GraphForm } from 'components/Modals/GraphModal/GraphModalForm';
 import { appStore } from 'stores';
 import DashboardCard from './DashboardCard';
 
@@ -140,7 +140,10 @@ class DashboardView extends React.Component<
                         </Card>
                     </div>
                 ))}
-                <GraphModalFormController />
+                <Modal visible={true}>
+                    <GraphForm handleSubmit={() => {}} />
+                </Modal>
+                {/* <GraphModalFormController /> */}
                 <MacroModalFormController />
             </div>
         );
