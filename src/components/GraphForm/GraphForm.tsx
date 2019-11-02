@@ -84,8 +84,8 @@ const validationSchema = Yup.object().shape<IGraphFormValues>({
     ),
     recurringOptions: Yup.object().shape<IFormRecurringOptions>({
         every: Yup.number()
-            .min(1)
-            .required(),
+            .min(1, 'Must be >= 1')
+            .required('Value is required'),
         frequency: Yup.mixed()
             .oneOf(Object.keys(repeatOptionMap))
             .notRequired(),
@@ -106,6 +106,7 @@ export const GraphForm: React.FC<IGraphFormProps> = ({
 }) => {
     return (
         <Formik
+            enableReinitialize
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
             initialValues={
@@ -185,7 +186,11 @@ const GraphRecurringForm: React.FC = () => (
                 </Select>
             </FormItem>
             <FormItem name="recurringOptions.every">
-                <InputNumber name="recurringOptions.every" min={1} />
+                <InputNumber
+                    name="recurringOptions.every"
+                    min={1}
+                    defaultValue={1}
+                />
             </FormItem>
         </FlexRow>
     </>

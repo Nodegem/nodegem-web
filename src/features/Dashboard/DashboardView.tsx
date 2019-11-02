@@ -59,8 +59,6 @@ export const DashboardView: React.FC = () => {
     const [graphs, setGraphs] = useState<Graph[]>([]);
     const [macros, setMacros] = useState<Macro[]>([]);
 
-    const isEdit = !!graphToEdit;
-
     const fetchGraphs = async () => {
         setLoadingGraphs(true);
         const fetchedGraphs = await GraphService.getAll();
@@ -88,7 +86,7 @@ export const DashboardView: React.FC = () => {
         actions: FormikActions<IGraphFormValues>
     ) => {
         try {
-            if (isEdit) {
+            if (graphToEdit !== undefined) {
                 const editedGraph = await GraphService.update({
                     ...graphToEdit!,
                     ...values,
@@ -116,19 +114,19 @@ export const DashboardView: React.FC = () => {
             }
             setGraphModalVisible(false);
         } catch (e) {
-            if (isEdit) {
-                appStore.openNotification({
-                    title: 'Unable to edit graph',
-                    description: `An error occurred while editing ${values.name}`,
-                    type: 'error',
-                });
-            } else {
-                appStore.openNotification({
-                    title: 'Unable to create graph',
-                    description: `An error occurred while creating ${values.name}`,
-                    type: 'error',
-                });
-            }
+            // // if (isEdit) {
+            //     appStore.openNotification({
+            //         title: 'Unable to edit graph',
+            //         description: `An error occurred while editing ${values.name}`,
+            //         type: 'error',
+            //     });
+            // } else {
+            appStore.openNotification({
+                title: 'Unable to create graph',
+                description: `An error occurred while creating ${values.name}`,
+                type: 'error',
+            });
+            // }
         } finally {
             actions.setSubmitting(false);
         }
@@ -236,7 +234,10 @@ export const DashboardView: React.FC = () => {
                 className="graph-form-modal"
                 visible={graphModalVisible}
                 footer={null}
-                onCancel={() => setGraphModalVisible(false)}
+                onCancel={() => {
+                    setGraphModalVisible(false);
+                    setGraphToEdit(undefined);
+                }}
             >
                 <GraphForm
                     initialValue={graphToEdit}
