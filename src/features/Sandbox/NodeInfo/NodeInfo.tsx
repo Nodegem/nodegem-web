@@ -72,7 +72,6 @@ const PropertyGroup: React.FC<IPropertyGroupProps> = ({
                         valueType={p.valueType}
                         name={p.name}
                         disabled={p.connected}
-                        defaultValue={p.defaultValue}
                         value={p.value}
                         onChange={value => handleChange(p, value)}
                     />

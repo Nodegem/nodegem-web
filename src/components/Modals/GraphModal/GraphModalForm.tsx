@@ -108,99 +108,99 @@ import * as Yup from 'yup';
 // //     }
 // // );
 
-interface IFormValues {
-    name: string;
-    description?: string;
-    type: ExecutionType;
-    constants: IFormConstantData[];
-}
+// interface IFormValues {
+//     name: string;
+//     description?: string;
+//     type: ExecutionType;
+//     constants: IFormConstantData[];
+// }
 
-interface IFormConstantData {
-    label: string;
-    type: ValueType;
-    value: any;
-    isSecret: boolean;
-}
+// interface IFormConstantData {
+//     label: string;
+//     type: ValueType;
+//     value: any;
+//     isSecret: boolean;
+// }
 
-const validationSchema = Yup.object().shape<IFormValues>({
-    name: Yup.string().required('Name is required'),
-    description: Yup.string().notRequired(),
-    type: Yup.mixed<ExecutionType>().oneOf(
-        ['manual', 'listener', 'recurring'],
-        'Must select an execution type'
-    ),
-    constants: Yup.array().of(
-        Yup.object().shape<IFormConstantData>({
-            label: Yup.string().required('Label is required'),
-            type: Yup.mixed<ValueType>()
-                .oneOf([
-                    'any',
-                    'text',
-                    'textarea',
-                    'boolean',
-                    'number',
-                    'time',
-                    'date',
-                    'datetime',
-                    'phonenumber',
-                    'url',
-                ])
-                .required('A value type is required'),
-            isSecret: Yup.boolean(),
-            value: Yup.mixed().required(),
-        })
-    ),
-});
+// const validationSchema = Yup.object().shape<IFormValues>({
+//     name: Yup.string().required('Name is required'),
+//     description: Yup.string().notRequired(),
+//     type: Yup.mixed<ExecutionType>().oneOf(
+//         ['manual', 'listener', 'recurring'],
+//         'Must select an execution type'
+//     ),
+//     constants: Yup.array().of(
+//         Yup.object().shape<IFormConstantData>({
+//             label: Yup.string().required('Label is required'),
+//             type: Yup.mixed<ValueType>()
+//                 .oneOf([
+//                     'any',
+//                     'text',
+//                     'textarea',
+//                     'boolean',
+//                     'number',
+//                     'time',
+//                     'date',
+//                     'datetime',
+//                     'phonenumber',
+//                     'url',
+//                 ])
+//                 .required('A value type is required'),
+//             isSecret: Yup.boolean(),
+//             value: Yup.mixed().required(),
+//         })
+//     ),
+// });
 
-interface IGraphFormProps {
-    handleSubmit: (
-        values: IFormValues,
-        actions: FormikActions<IFormValues>
-    ) => void;
-}
+// interface IGraphFormProps {
+//     handleSubmit: (
+//         values: IFormValues,
+//         actions: FormikActions<IFormValues>
+//     ) => void;
+// }
 
-export const GraphForm: React.FC<IGraphFormProps> = ({ handleSubmit }) => {
-    return (
-        <Formik
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-            initialValues={{
-                name: '',
-                description: '',
-                type: 'manual',
-                constants: [],
-            }}
-            render={({ isSubmitting }) => (
-                <Form>
-                    <FlexColumn className="graph-form" gap={15}>
-                        <FormItem name="name" label="Name" required>
-                            <Input name="name" placeholder="Name" />
-                        </FormItem>
-                        <FormItem name="description" label="Description">
-                            <Input.TextArea
-                                name="description"
-                                placeholder="Description"
-                            />
-                        </FormItem>
-                        <FormItem name="type" label="Execution Type">
-                            <Radio.Group
-                                name="type"
-                                options={[
-                                    { label: 'Manual', value: 'manual' },
-                                    { label: 'Listener', value: 'listener' },
-                                    { label: 'Recurring', value: 'recurring' },
-                                ]}
-                            />
-                        </FormItem>
-                        <SubmitButton type="primary" disabled={false}>
-                            {isSubmitting ? 'Saving...' : 'Save'}
-                        </SubmitButton>
-                    </FlexColumn>
-                </Form>
-            )}
-        />
-    );
-};
+// export const GraphForm: React.FC<IGraphFormProps> = ({ handleSubmit }) => {
+//     return (
+//         <Formik
+//             validationSchema={validationSchema}
+//             onSubmit={handleSubmit}
+//             initialValues={{
+//                 name: '',
+//                 description: '',
+//                 type: 'manual',
+//                 constants: [],
+//             }}
+//             render={({ isSubmitting }) => (
+//                 <Form>
+//                     <FlexColumn className="graph-form" gap={15}>
+//                         <FormItem name="name" label="Name" required>
+//                             <Input name="name" placeholder="Name" />
+//                         </FormItem>
+//                         <FormItem name="description" label="Description">
+//                             <Input.TextArea
+//                                 name="description"
+//                                 placeholder="Description"
+//                             />
+//                         </FormItem>
+//                         <FormItem name="type" label="Execution Type">
+//                             <Radio.Group
+//                                 name="type"
+//                                 options={[
+//                                     { label: 'Manual', value: 'manual' },
+//                                     { label: 'Listener', value: 'listener' },
+//                                     { label: 'Recurring', value: 'recurring' },
+//                                 ]}
+//                             />
+//                         </FormItem>
+//                         <SubmitButton type="primary" disabled={false}>
+//                             {isSubmitting ? 'Saving...' : 'Save'}
+//                         </SubmitButton>
+//                     </FlexColumn>
+//                 </Form>
+//             )}
+//         />
+//     );
+// };
 
 // interface IHeaderProps {
 //     text: string;

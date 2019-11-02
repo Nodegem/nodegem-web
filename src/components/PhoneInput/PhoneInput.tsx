@@ -1,8 +1,8 @@
 import { Select } from 'antd';
-import Input, { InputProps } from 'antd/lib/input';
+import { Input, InputProps } from 'formik-antd';
 import metadata from 'libphonenumber-js/metadata.min.json';
 import { AsYouType, CountryCode } from 'libphonenumber-js/min';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 const { Option } = Select;
 

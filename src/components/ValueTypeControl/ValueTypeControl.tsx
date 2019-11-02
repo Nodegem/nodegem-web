@@ -1,20 +1,18 @@
+import { Select as $Select } from 'antd';
+import { PhoneInput } from 'components';
 import {
     DatePicker,
     Input,
     InputNumber,
-    Select,
     Switch,
     TimePicker,
-} from 'antd';
-import TextArea from 'antd/lib/input/TextArea';
-import { PhoneInput } from 'components';
-import moment from 'moment';
+} from 'formik-antd';
 import React from 'react';
 
-const Option = Select.Option;
+const Option = $Select.Option;
 
 const selectBefore = (value: string, isDisabled: boolean | undefined) => (
-    <Select
+    <$Select
         disabled={isDisabled}
         value={
             value && value.toLowerCase().includes('http://')
@@ -25,109 +23,110 @@ const selectBefore = (value: string, isDisabled: boolean | undefined) => (
     >
         <Option value="Http://">Http://</Option>
         <Option value="Https://">Https://</Option>
-    </Select>
+    </$Select>
 );
 
 interface IValueTypeControlProps {
     name: string;
     value?: any;
-    defaultValue?: any;
+    placeHolder?: string;
     valueType?: ValueType;
     disabled: boolean;
-    onChange: (value: any) => void;
+    onChange?: (value: any) => void;
 }
 
 export const ValueTypeControl: React.FC<IValueTypeControlProps> = ({
     value,
-    defaultValue,
     name,
+    placeHolder,
     disabled,
     onChange,
     valueType,
 }) => {
+    const handleChange = newValue => onChange && onChange(newValue);
     switch (valueType) {
         case 'boolean':
             return (
                 <Switch
-                    checked={value || defaultValue}
+                    name={name}
                     disabled={disabled}
-                    onChange={onChange}
+                    onChange={handleChange}
                 />
             );
         case 'number':
             return (
                 <InputNumber
-                    value={value || defaultValue}
+                    name={name}
                     disabled={disabled}
-                    onChange={onChange}
+                    onChange={handleChange}
                 />
             );
         case 'url':
             return (
                 <Input
+                    name={name}
                     addonBefore={selectBefore(
                         value && value.toString(),
                         disabled
                     )}
-                    value={value || defaultValue}
                     disabled={disabled}
-                    onChange={event => onChange(event.target.value)}
+                    onChange={event => handleChange(event.target.value)}
                 />
             );
         case 'phonenumber':
             return (
                 <PhoneInput
-                    value={value || defaultValue}
+                    name={name}
                     disabled={disabled}
-                    onChange={onChange}
+                    onChange={handleChange}
                 />
             );
         case 'date':
             return (
                 <DatePicker
-                    value={moment(value) || moment(defaultValue)}
+                    name={name}
                     disabled={disabled}
-                    onChange={onChange}
+                    onChange={handleChange}
                 />
             );
 
         case 'datetime':
             return (
                 <DatePicker
-                    value={moment(value) || moment(defaultValue)}
+                    name={name}
                     disabled={disabled}
                     allowClear
                     showTime
                     format="YYYY-MM-DD HH:mm:ss"
-                    onChange={onChange}
+                    onChange={handleChange}
                 />
             );
         case 'time':
             return (
                 <TimePicker
-                    value={moment(value) || moment(defaultValue)}
+                    name={name}
                     disabled={disabled}
                     allowClear
                     use12Hours={navigator.language.startsWith('en-US')}
-                    onChange={onChange}
+                    onChange={handleChange}
                 />
             );
         case 'textarea':
             return (
-                <TextArea
-                    value={value || defaultValue}
+                <Input.TextArea
+                    name={name}
                     disabled={disabled}
                     autosize={{ minRows: 2 }}
-                    onChange={event => onChange(event.target.value)}
+                    onChange={event => handleChange(event.target.value)}
                 />
             );
         default:
             return (
                 <Input
-                    placeholder={name}
+                    name={name}
+                    placeholder={placeHolder}
                     disabled={disabled}
-                    value={value || defaultValue}
-                    onChange={event => onChange(event.target.value)}
+                    onChange={event => handleChange(event.target.value)}
                 />
             );
     }

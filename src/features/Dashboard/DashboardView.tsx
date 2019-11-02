@@ -2,201 +2,249 @@ import 'utils/extensions';
 import './Dashboard.less';
 
 import { Button, Card, List, Modal, Spin, Tooltip } from 'antd';
-import { GraphModalStore } from 'components/Modals/GraphModal/graph-modal-store';
-import { MacroModalStore } from 'components/Modals/MacroModal/macro-modal-store';
-import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
-import { inject, observer } from 'mobx-react';
-import * as React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
-import { GraphStore } from 'stores/graph-store';
-import { MacroStore } from 'stores/macro-store';
+import React, { useEffect, useState } from 'react';
 import routerHistory from '../../utils/history';
 
-import { GraphForm } from 'components/Modals/GraphModal/GraphModalForm';
+import { GraphForm, IGraphFormValues } from 'components';
+import { FormikActions } from 'formik';
+import { GraphService, MacroService } from 'services';
 import { appStore } from 'stores';
 import DashboardCard from './DashboardCard';
-
-interface IDashboardProps {
-    graphStore?: GraphStore;
-    graphModalStore?: GraphModalStore;
-    macroStore?: MacroStore;
-    macroModalStore?: MacroModalStore;
-}
-
-@inject('macroStore', 'graphStore', 'macroModalStore', 'graphModalStore')
-@(withRouter as any)
-@observer
-class DashboardView extends React.Component<
-    IDashboardProps & RouteComponentProps<any>
-> {
-    private modals = {
-        graph: this.props.graphModalStore!,
-        macro: this.props.macroModalStore!,
-    };
-
-    public async componentDidMount() {
-        this.props.graphStore!.fetchGraphs();
-        this.props.macroStore!.fetchMacros();
-    }
-
-    public onAdd = (type: GraphType) => {
-        this.modals[type].openModal();
-    };
-
-    public onRefresh = async (type: GraphType) => {
-        if (type === 'graph') {
-            await this.props.graphStore!.fetchGraphs(true);
-        } else {
-            await this.props.macroStore!.fetchMacros(true);
-        }
-    };
-
-    public onDelete = async (item: any, type: GraphType) => {
-        if (type === 'graph') {
-            await this.props.graphStore!.deleteGraph(item);
-        } else {
-            await this.props.macroStore!.deleteMacro(item);
-        }
-    };
-
-    public onSettings = (item: any, type: GraphType) => {
-        this.modals[type]!.openModal(item, true);
-    };
-
-    public onEdit = (item: Graph | Macro) => {
-        appStore.setSelectedGraph(item);
-        routerHistory.push('/sandbox');
-    };
-
-    public render() {
-        const { graphs, loadingGraphs } = this.props.graphStore!;
-        const { macros, loadingMacros } = this.props.macroStore!;
-
-        const combined = [
-            {
-                key: 'graph' as GraphType,
-                name: 'Graphs',
-                collection: graphs,
-                loading: loadingGraphs,
-                message: 'Fetching Graphs...',
-            },
-            {
-                key: 'macro' as GraphType,
-                name: 'Macros',
-                collection: macros,
-                loading: loadingMacros,
-                message: 'Fetching Macros...',
-            },
-        ];
-
-        return (
-            <div className="dashboard">
-                {combined.map((x, index) => (
-                    <div key={index}>
-                        <Card
-                            title={x.name}
-                            extra={
-                                <div className="additional-actions">
-                                    <AddButton
-                                        type={x.key}
-                                        onClick={this.onAdd}
-                                    />
-                                    <RefreshButton
-                                        loading={x.loading}
-                                        type={x.key}
-                                        onClick={this.onRefresh}
-                                    />
-                                </div>
-                            }
-                        >
-                            <Spin
-                                spinning={x.loading}
-                                tip={x.message}
-                                delay={500}
-                            >
-                                <List
-                                    grid={{
-                                        gutter: 16,
-                                        xs: 1,
-                                        sm: 2,
-                                        md: 4,
-                                        lg: 4,
-                                        xl: 6,
-                                    }}
-                                    dataSource={x.collection}
-                                    renderItem={(item: Graph) => (
-                                        <List.Item key={item.id}>
-                                            <DashboardCard
-                                                item={item}
-                                                type={x.key}
-                                                onDelete={this.onDelete}
-                                                onEdit={this.onSettings}
-                                                onBuild={this.onEdit}
-                                            />
-                                        </List.Item>
-                                    )}
-                                />
-                            </Spin>
-                        </Card>
-                    </div>
-                ))}
-                <Modal visible={true}>
-                    <GraphForm handleSubmit={() => {}} />
-                </Modal>
-                {/* <GraphModalFormController /> */}
-                <MacroModalFormController />
-            </div>
-        );
-    }
-}
 
 interface IButtonProps {
     onClick: (type: GraphType) => void;
     type: GraphType;
 }
 
-class AddButton extends React.Component<IButtonProps> {
-    public handleClick = () => {
-        this.props.onClick(this.props.type);
-    };
-
-    public render() {
-        return (
-            <Tooltip title="Add">
-                <Button
-                    icon="plus"
-                    shape="circle"
-                    type="primary"
-                    onClick={this.handleClick}
-                />
-            </Tooltip>
-        );
-    }
-}
+const AddButton: React.FC<IButtonProps> = ({ onClick, type }) => (
+    <Tooltip title="Add">
+        <Button
+            icon="plus"
+            shape="circle"
+            type="primary"
+            onClick={() => onClick(type)}
+        />
+    </Tooltip>
+);
 
 interface IRefreshButtonProps extends IButtonProps {
     loading: boolean;
 }
 
-class RefreshButton extends React.Component<IRefreshButtonProps> {
-    public refreshClick = () => {
-        this.props.onClick(this.props.type);
+const RefreshButton: React.FC<IRefreshButtonProps> = ({
+    loading,
+    onClick,
+    type,
+}) => (
+    <Tooltip title="Refresh">
+        <Button
+            loading={loading}
+            icon="sync"
+            shape="circle"
+            type="primary"
+            ghost
+            onClick={() => onClick(type)}
+        />
+    </Tooltip>
+);
+
+export const DashboardView: React.FC = () => {
+    const [loadingGraphs, setLoadingGraphs] = useState(false);
+    const [loadingMacros, setLoadingMacros] = useState(false);
+    const [graphModalVisible, setGraphModalVisible] = useState(false);
+    const [macroModalVisible, setMacroModalVisible] = useState(false);
+    const [graphToEdit, setGraphToEdit] = useState<Graph | Macro | undefined>(
+        undefined
+    );
+    const [graphs, setGraphs] = useState<Graph[]>([]);
+    const [macros, setMacros] = useState<Macro[]>([]);
+
+    const isEdit = !!graphToEdit;
+
+    const fetchGraphs = async () => {
+        setLoadingGraphs(true);
+        const fetchedGraphs = await GraphService.getAll();
+        setLoadingGraphs(false);
+        setGraphs(fetchedGraphs);
     };
 
-    public render() {
-        return (
-            <Tooltip title="Refresh">
-                <Button
-                    loading={this.props.loading}
-                    icon="sync"
-                    shape="circle"
-                    type="primary"
-                    ghost
-                    onClick={this.refreshClick}
+    const fetchMacros = async () => {
+        setLoadingMacros(true);
+        const fetchedMacros = await MacroService.getAll();
+        setLoadingMacros(false);
+        setMacros(fetchedMacros);
+    };
+
+    const onAdd = (type: GraphType) => {
+        if (type === 'graph') {
+            setGraphModalVisible(true);
+        } else {
+            setMacroModalVisible(true);
+        }
+    };
+
+    const handleSaveGraph = async (
+        values: IGraphFormValues,
+        actions: FormikActions<IGraphFormValues>
+    ) => {
+        try {
+            if (isEdit) {
+                const editedGraph = await GraphService.update({
+                    ...graphToEdit!,
+                    ...values,
+                });
+                graphs.addOrUpdate(editedGraph, x => x.id === editedGraph.id);
+                setGraphs([...graphs]);
+                setGraphModalVisible(false);
+                appStore.openNotification({
+                    title: `Successfully edited ${values.name}!`,
+                    description: '',
+                    type: 'success',
+                });
+                setGraphToEdit(undefined);
+            } else {
+                const newGraph = await GraphService.create({
+                    ...values,
+                    userId: appStore.userStore.user.id,
+                });
+                setGraphs([...graphs, newGraph]);
+                appStore.openNotification({
+                    title: `Successfully created ${values.name}!`,
+                    description: '',
+                    type: 'success',
+                });
+            }
+            setGraphModalVisible(false);
+        } catch (e) {
+            if (isEdit) {
+                appStore.openNotification({
+                    title: 'Unable to edit graph',
+                    description: `An error occurred while editing ${values.name}`,
+                    type: 'error',
+                });
+            } else {
+                appStore.openNotification({
+                    title: 'Unable to create graph',
+                    description: `An error occurred while creating ${values.name}`,
+                    type: 'error',
+                });
+            }
+        } finally {
+            actions.setSubmitting(false);
+        }
+    };
+
+    const onRefresh = (type: GraphType) => {
+        if (type === 'graph') {
+            fetchGraphs();
+        } else {
+            fetchMacros();
+        }
+    };
+
+    const onDelete = async (item: Graph | Macro, type: GraphType) => {
+        if (type === 'graph') {
+            await GraphService.delete(item.id);
+            setGraphs(graphs.filter(x => x.id !== item.id));
+        } else {
+            await MacroService.delete(item.id);
+            setMacros(macros.filter(x => x.id !== item.id));
+        }
+    };
+
+    const onEditSettings = (item: Graph | Macro) => {
+        setGraphToEdit(item);
+        setGraphModalVisible(true);
+    };
+
+    const onEdit = (item: Graph | Macro) => {
+        appStore.setSelectedGraph(item);
+        routerHistory.push('/sandbox');
+    };
+
+    useEffect(() => {
+        try {
+            fetchGraphs();
+            fetchMacros();
+        } catch (e) {
+            console.error(e);
+            appStore.toast('Unable to retrieve graphs and/or macros', 'error');
+        }
+    }, []);
+
+    const combined = [
+        {
+            key: 'graph' as GraphType,
+            name: 'Graphs',
+            collection: graphs,
+            loading: loadingGraphs,
+            message: 'Fetching Graphs...',
+        },
+        {
+            key: 'macro' as GraphType,
+            name: 'Macros',
+            collection: macros,
+            loading: loadingMacros,
+            message: 'Fetching Macros...',
+        },
+    ];
+    return (
+        <div className="dashboard">
+            {combined.map((x, index) => (
+                <div key={index}>
+                    <Card
+                        title={x.name}
+                        extra={
+                            <div className="additional-actions">
+                                <AddButton type={x.key} onClick={onAdd} />
+                                <RefreshButton
+                                    loading={x.loading}
+                                    type={x.key}
+                                    onClick={onRefresh}
+                                />
+                            </div>
+                        }
+                    >
+                        <Spin spinning={x.loading} tip={x.message} delay={500}>
+                            <List
+                                grid={{
+                                    gutter: 16,
+                                    xs: 1,
+                                    sm: 2,
+                                    md: 4,
+                                    lg: 4,
+                                    xl: 6,
+                                }}
+                                dataSource={x.collection}
+                                renderItem={(item: Graph) => (
+                                    <List.Item key={item.id}>
+                                        <DashboardCard
+                                            item={item}
+                                            type={x.key}
+                                            onDelete={onDelete}
+                                            onEdit={onEditSettings}
+                                            onBuild={onEdit}
+                                        />
+                                    </List.Item>
+                                )}
+                            />
+                        </Spin>
+                    </Card>
+                </div>
+            ))}
+            <Modal
+                className="graph-form-modal"
+                visible={graphModalVisible}
+                footer={null}
+                onCancel={() => setGraphModalVisible(false)}
+            >
+                <GraphForm
+                    initialValue={graphToEdit}
+                    handleSubmit={handleSaveGraph}
                 />
-            </Tooltip>
-        );
-    }
-}
+            </Modal>
+        </div>
+    );
+};
 
 export default DashboardView;
