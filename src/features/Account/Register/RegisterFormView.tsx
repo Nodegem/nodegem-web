@@ -167,7 +167,7 @@ const RegisterView = () => {
                     description: 'Oops, something went wrong',
                 });
             } else {
-                if (e.status === 400) {
+                if (e.status === 400 && e.body) {
                     appStore.openNotification({
                         ...commonParams,
                         description: e.body.map(x => x.description).join(', '),

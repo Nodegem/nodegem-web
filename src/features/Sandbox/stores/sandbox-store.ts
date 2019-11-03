@@ -97,7 +97,9 @@ export class SandboxStore
             if (!this.introStore.state.graphToEdit) {
                 this.tabsStore.addTab(graph);
             } else {
-                this.tabsStore.updateTabData(graph);
+                const { graphToEdit } = this.introStore.state;
+                const updatedGraph = { ...graph, nodes: graphToEdit.nodes, links: graphToEdit.links };
+                this.tabsStore.updateTabData(updatedGraph);
             }
         }
 

@@ -6,6 +6,7 @@ import { Route, Switch, withRouter } from 'react-router';
 
 import { AnonymousOnlyRoute, PublicRoute } from 'components';
 import { Header } from 'components/Header/Header';
+import { EmailConfirmationView } from 'features/Account/EmailConfirmation/EmailConfirmation';
 import { RegisterExternal } from 'features/Account/RegisterExternal/RegisterExternal';
 import { SandboxView } from 'features/Sandbox/SandboxView';
 import { useStore } from 'overstated';
@@ -41,6 +42,10 @@ const App = () => {
                     <PublicRoute
                         path="/register/external"
                         component={RegisterExternal}
+                    />
+                    <PublicRoute
+                        path="/email-confirmation"
+                        component={EmailConfirmationView}
                     />
                     <AnonymousOnlyRoute
                         path="/register"

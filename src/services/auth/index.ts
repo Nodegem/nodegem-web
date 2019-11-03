@@ -43,6 +43,22 @@ const AuthService = {
     logout: (): Promise<void> => requests.get('/account/logout'),
     register: (data: RegisterRequestData): Promise<TokenData> =>
         requests.post('/account/register', data),
+    updateUser: (data: User): Promise<User> =>
+        requests.post('/account/update', data),
+    forgotPassword: (email: string): Promise<void> =>
+        requests.post('/account/forgot-password', { email }),
+    resetPassword: (
+        currentPassword: string,
+        newPassword: string
+    ): Promise<void> =>
+        requests.post('/account/reset-password', {
+            currentPassword,
+            newPassword,
+        }),
+    emailConfirmation: (userId: string, token: string): Promise<void> =>
+        requests.get(
+            `/account/email-confirmation?userId=${userId}&token=${token}`
+        ),
 };
 
 export { AuthService };

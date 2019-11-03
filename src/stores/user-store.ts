@@ -72,7 +72,9 @@ export class UserStoreNew extends Store<IUserStoreState, AppStore> {
 
     public logout = async () => {
         try {
-            await AuthService.logout();
+            if (this.state.isLoggedIn) {
+                await AuthService.logout();
+            }
             await this.setToken(undefined as any);
         } catch (e) {
             console.error(e);
