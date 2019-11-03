@@ -1,5 +1,4 @@
 import { Avatar, Dropdown, Icon, Layout, Menu } from 'antd';
-import { observer } from 'mobx-react-lite';
 import React from 'react';
 
 import { SiderTheme } from 'antd/lib/layout/Sider';
@@ -9,7 +8,7 @@ import { Link } from 'react-router-dom';
 import logoPath from '../../logo.svg';
 
 import { useStore } from 'overstated';
-import { appStore, authStore, commonStore, userStore } from 'stores';
+import { appStore } from 'stores';
 import './Header.less';
 
 const AntHeader = Layout.Header;
@@ -45,17 +44,16 @@ const menu = (theme: SiderTheme, logout: () => void) => (
 );
 
 export const Header: React.FC = () => {
+    const { theme } = useStore(appStore, store => ({
+        theme: store.state.theme,
+    }));
+
     const { user } = useStore(appStore.userStore, store => ({
         user: store.user,
     }));
 
-    const headerHeight = `${commonStore.headerHeight}px`;
-
     return (
-        <AntHeader
-            className="app-header"
-            style={{ height: headerHeight, lineHeight: headerHeight }}
-        >
+        <AntHeader className="app-header">
             <FlexRow>
                 <FlexRow className="header-logo">
                     <Link to="/">
@@ -68,10 +66,7 @@ export const Header: React.FC = () => {
                         <Dropdown
                             className="avatar-menu"
                             placement="bottomRight"
-                            overlay={menu(
-                                commonStore.theme,
-                                appStore.userStore.logout
-                            )}
+                            overlay={menu(theme, appStore.userStore.logout)}
                             trigger={['click']}
                         >
                             <div>

@@ -1,11 +1,10 @@
 import './Login.less';
 
-import { Card, Icon } from 'antd';
+import { Button, Card, Icon } from 'antd';
 import { FlexColumn, FlexRow } from 'components';
-import { Formik, FormikActions } from 'formik';
+import { Formik, FormikHelpers } from 'formik';
 import { Checkbox, Form, FormItem, Input, SubmitButton } from 'formik-antd';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import {
     GithubLoginButton,
     GoogleLoginButton,
@@ -14,107 +13,6 @@ import { AuthService } from 'services';
 import { appStore } from 'stores/app-store';
 import routerHistory from 'utils/history';
 import * as Yup from 'yup';
-
-// interface ILoginFormProps extends FormComponentProps {
-//     authStore?: AuthStore;
-// }
-
-// @inject('authStore')
-// @observer
-// class LoginForm extends React.Component<ILoginFormProps> {
-//     private handleSubmit = (e: React.FormEvent) => {
-//         e.preventDefault();
-
-//         const { form, authStore } = this.props;
-//         form.validateFields(async (err, values) => {
-//             if (err) {
-//                 return;
-//             }
-
-//             try {
-//                 const { rememberMe, userName } = values;
-//                 authStore!.setRememberMe(rememberMe, userName);
-//                 await authStore!.login(values);
-//             } catch (e) {
-//                 console.log(e);
-//                 console.log(e.response);
-//             }
-//         });
-//     };
-
-//     public render() {
-//         const { authStore } = this.props;
-//         const { getFieldDecorator } = this.props.form;
-//         const { loading } = this.props.authStore!;
-
-//         const { rememberMe, savedUsername } = authStore!;
-
-//         const buttonText = loading ? 'Logging in' : 'Log in';
-
-//         return (
-//             <Row>
-//                 <Form onSubmit={this.handleSubmit} className="login-form">
-//                     <FormItem>
-//                         {getFieldDecorator('userName', {
-//                             initialValue: savedUsername,
-//                             rules: [
-//                                 {
-//                                     required: true,
-//                                     message: 'Please input your username.',
-//                                 },
-//                             ],
-//                         })(
-//                             <Input
-//                                 prefix={
-//                                     <Icon
-//                                         type="user"
-//                                         style={{ color: 'rgba(0,0,0,.25)' }}
-//                                     />
-//                                 }
-//                                 placeholder="Username"
-//                             />
-//                         )}
-//                     </FormItem>
-//                     <FormItem>
-//                         {getFieldDecorator('password', {
-//                             rules: [
-//                                 {
-//                                     required: true,
-//                                     message: 'Please input your password.',
-//                                 },
-//                             ],
-//                         })(<PasswordInput />)}
-//                     </FormItem>
-//                     <FormItem>
-//                         {getFieldDecorator('rememberMe', {
-//                             valuePropName: 'checked',
-//                             initialValue: rememberMe,
-//                         })(<Checkbox>Remember me</Checkbox>)}
-//                         <Link
-//                             to="forgot-password"
-//                             className="login-form-forgot"
-//                         >
-//                             Forgot Password?
-//                         </Link>
-//                         <Button
-//                             type="primary"
-//                             htmlType="submit"
-//                             className="login-form-button"
-//                             loading={loading}
-//                         >
-//                             {buttonText}
-//                         </Button>
-//                         <span className="login-register-now">
-//                             Or <Link to="/register">Register now!</Link>
-//                         </span>
-//                     </FormItem>
-//                 </Form>
-//             </Row>
-//         );
-//     }
-// }
-
-// const LoginFormView = Form.create()(LoginForm);
 
 const formValidation = Yup.object().shape({
     username: Yup.string().required('Username required'),
@@ -130,7 +28,7 @@ interface IFormValues {
 interface ILoginFormProps {
     handleSubmit: (
         values: IFormValues,
-        actions: FormikActions<IFormValues>
+        actions: FormikHelpers<IFormValues>
     ) => void;
 }
 const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
@@ -172,11 +70,21 @@ const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
                         </FormItem>
                         <FlexRow className="other">
                             <Checkbox name="rememberMe">Remember Me?</Checkbox>
-                            <Link to="/register">Or Signup</Link>
                         </FlexRow>
-                        <SubmitButton type="primary" disabled={false}>
+                        <SubmitButton
+                            type="primary"
+                            icon="login"
+                            disabled={false}
+                        >
                             {isSubmitting ? 'Logging in...' : 'Login'}
                         </SubmitButton>
+                        <Button
+                            type="default"
+                            icon="solution"
+                            onClick={() => routerHistory.push('/register')}
+                        >
+                            Sign Up
+                        </Button>
                     </FlexColumn>
                 </Form>
             )}
@@ -187,7 +95,7 @@ const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
 const LoginView = () => {
     const handleSubmit = async (
         values: IFormValues,
-        actions: FormikActions<IFormValues>
+        actions: FormikHelpers<IFormValues>
     ) => {
         try {
             const result = await AuthService.login(

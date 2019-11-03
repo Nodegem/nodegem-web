@@ -2,7 +2,6 @@ import { message, notification } from 'antd';
 import { MenuTheme } from 'antd/lib/menu/MenuContext';
 import { ArgsProps, NotificationPlacement } from 'antd/lib/notification';
 import { compose, Store } from 'overstated';
-import { GraphManagerStore } from './graph-manager-store';
 import { UserStoreNew } from './user-store';
 
 interface IAppState {
@@ -25,12 +24,10 @@ interface INotifyOptions {
 
 interface IAppChildren {
     userStore: UserStoreNew;
-    graphManagerStore: GraphManagerStore;
 }
 
 @compose({
     userStore: UserStoreNew,
-    graphManagerStore: GraphManagerStore,
 })
 export class AppStore extends Store<IAppState, undefined, IAppChildren> {
     public state: IAppState = {

@@ -1,5 +1,5 @@
 import * as signalR from '@microsoft/signalr';
-import { appStore, userStore } from 'stores';
+import { appStore } from 'stores';
 import { getBaseApiUrl } from 'utils';
 import { SimpleObservable } from '../utils/simple-observable';
 

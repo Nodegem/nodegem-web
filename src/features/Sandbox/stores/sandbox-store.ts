@@ -92,16 +92,20 @@ export class SandboxStore
         return definitionObject;
     };
 
-    public graphModifyOrCreate = (graph?: Graph | Macro, edit?: boolean) => {
+    public graphModifiedOrCreated = (graph?: Graph | Macro) => {
         if (graph) {
-            if (!edit) {
+            if (!this.introStore.state.graphToEdit) {
                 this.tabsStore.addTab(graph);
             } else {
                 this.tabsStore.updateTabData(graph);
             }
         }
 
-        this.sandboxHeaderStore.setState({ modifyingGraphSettings: false });
+        this.introStore.setState({
+            graphToEdit: undefined,
+            isGraphModalOpen: false,
+            isMacroModalOpen: false,
+        });
     };
 
     public saveGraph = async () => {
@@ -115,13 +119,13 @@ export class SandboxStore
             const data = this.getConvertedGraphData();
             if (isMacro(data)) {
                 await MacroService.update(data);
+                appStore.toast('Macro saved successfully!', 'success');
             } else {
                 await GraphService.update(data);
+                appStore.toast('Graph saved successfully!', 'success');
             }
-
-            appStore.toast('Graph saved successfully!', 'success');
         } catch (e) {
-            appStore.toast('Unable to save graph', 'error');
+            appStore.toast('Unable to save graph/macro', 'error');
             console.error(e);
         }
 
@@ -161,7 +165,6 @@ export class SandboxStore
         this.nodeSelectStore.setNodeOptions(definitions);
         this.nodeSelectStore.toggleOpen(true);
 
-        // this.hubManager.initialize();
         this.setState({ isLoading: false });
         this.sandboxHeaderStore.onTabLoaded();
     };

@@ -1,15 +1,21 @@
 import { Store } from 'overstated';
-import { graphModalStore, macroModalStore } from 'stores';
 import { SandboxStore } from '.';
 interface IIntroState {
     isInStartPrompt: boolean;
     isChoosingGraphState: boolean;
+    isGraphModalOpen: boolean;
+    isMacroModalOpen: boolean;
+    isMacroRunModalOpened: boolean;
+    graphToEdit?: Graph | Macro;
 }
 
 export class IntroStore extends Store<IIntroState, SandboxStore> {
     public state: IIntroState = {
         isInStartPrompt: false,
         isChoosingGraphState: false,
+        isGraphModalOpen: false,
+        isMacroModalOpen: false,
+        isMacroRunModalOpened: false,
     };
 
     public toggleStartPrompt = (value?: boolean) => {
@@ -24,17 +30,26 @@ export class IntroStore extends Store<IIntroState, SandboxStore> {
         });
     };
 
+    public toggleMacroRunModal = (value?: boolean) => {
+        this.setState({
+            isMacroRunModalOpened: this.state.isMacroRunModalOpened.toggle(
+                value
+            ),
+        });
+    };
+
     public goBack = () => {
-        if (!this.ctx.sandboxHeaderStore.state.modifyingGraphSettings) {
+        if (!this.state.graphToEdit) {
             this.suspend();
             this.toggleChoosingGraphState(false);
             this.toggleStartPrompt();
             this.unsuspend();
-        } else {
-            this.ctx.sandboxHeaderStore.setState({
-                modifyingGraphSettings: false,
-            });
         }
+
+        this.setState({
+            isGraphModalOpen: false,
+            isMacroModalOpen: false,
+        });
     };
 
     public onGraphSelect = () => {
@@ -51,9 +66,9 @@ export class IntroStore extends Store<IIntroState, SandboxStore> {
         this.unsuspend();
 
         if (type === 'graph') {
-            graphModalStore.openModal({ isActive: true });
+            this.setState({ isGraphModalOpen: true });
         } else {
-            macroModalStore.openModal();
+            this.setState({ isMacroModalOpen: true });
         }
     };
 

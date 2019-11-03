@@ -1,5 +1,6 @@
 type SelectFriendly<T> = { [title: string]: T[] | SelectFriendly<T> };
 type TabData = {
+    initial: Graph | Macro;
     graph: Graph | Macro;
     isDirty: boolean;
     definitions: NodeCache;

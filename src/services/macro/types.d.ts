@@ -7,6 +7,6 @@ interface Macro extends Graph {
 
 interface CreateMacro {
     name: string;
-    description: string;
+    description?: string;
     userId: string;
 }

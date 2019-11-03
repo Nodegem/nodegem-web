@@ -58,15 +58,18 @@ export const Flex: React.FC<IFlexProps> = ({
                 } as any
             }
         >
-            {React.Children.map(children, child =>
-                React.cloneElement(child as any, {
-                    style: {
-                        marginRight:
-                            direction === 'row' ? `${gap}px` : undefined,
-                        marginBottom:
-                            direction === 'column' ? `${gap}px` : undefined,
-                    },
-                })
+            {React.Children.map(
+                children,
+                child =>
+                    !!child &&
+                    React.cloneElement(child as any, {
+                        style: {
+                            marginRight:
+                                direction === 'row' ? `${gap}px` : undefined,
+                            marginBottom:
+                                direction === 'column' ? `${gap}px` : undefined,
+                        },
+                    })
             )}
         </div>
     );

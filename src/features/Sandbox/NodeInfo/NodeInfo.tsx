@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-import { Button, Divider, Form } from 'antd';
+import { Button, Divider } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import classNames from 'classnames';
+import { FlexColumn } from 'components';
 import { ValueTypeControl } from 'components/ValueTypeControl/ValueTypeControl';
+import { FieldArray, Formik, FormikHelpers } from 'formik';
+import { Form, FormItem, ResetButton, SubmitButton } from 'formik-antd';
 import _ from 'lodash';
-import { toJS } from 'mobx';
+import * as Yup from 'yup';
 import './NodeInfo.less';
 
 interface INodeInfoProps {
@@ -21,135 +24,128 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
         'node-info': true,
     });
 
-    const handleUpdate = (fields: IPortUIData[]) => {
-        onNodeValueChange(selectedNode!, fields);
+    const handleSubmit = (
+        values: INodeInfoFormValues,
+        actions: FormikHelpers<INodeInfoFormValues>
+    ) => {
+        onNodeValueChange(selectedNode, values.valueInputs);
+        actions.setSubmitting(false);
     };
 
     return (
-        <div className={containerClass}>
-            <div className="node-info-title">
+        <FlexColumn className={containerClass} gap={20}>
+            <FlexColumn className="node-info-title" flex="0 1 auto">
                 <p className="header">{selectedNode.title}</p>
-            </div>
+            </FlexColumn>
             <Divider />
-            <div className="node-info-description">
+            <FlexColumn className="node-info-description" flex="0 1 auto">
                 <p className="header underline">Description:</p>
                 <Paragraph>{selectedNode.description || 'N/A'}</Paragraph>
-            </div>
+            </FlexColumn>
             {selectedNode.valueInputs && selectedNode.valueInputs.any() && (
-                <>
-                    <Divider />
-                    <div className="node-info-properties">
-                        <NodeInfoForm
-                            valueInputs={selectedNode.valueInputs}
-                            onUpdate={handleUpdate}
-                        />
-                    </div>
-                </>
+                <FlexColumn className="value-inputs">
+                    <NodeInfoForm
+                        valueInputs={selectedNode.valueInputs}
+                        handleSubmit={handleSubmit}
+                    />
+                </FlexColumn>
             )}
-        </div>
+        </FlexColumn>
     );
 };
 
-interface IPropertyGroupProps {
-    portList: IPortUIData[];
-    onFieldChange: (port: IPortUIData) => void;
-}
-
-const PropertyGroup: React.FC<IPropertyGroupProps> = ({
-    portList,
-    onFieldChange,
-}) => {
-    const handleChange = (port: IPortUIData, value: any) => {
-        port.value = value;
-        onFieldChange(port);
-    };
-
-    return (
-        <>
-            {portList.map(p => (
-                <Form.Item key={p.id} label={p.name}>
-                    <ValueTypeControl
-                        valueType={p.valueType}
-                        name={p.name}
-                        disabled={p.connected}
-                        defaultValue={p.defaultValue}
-                        value={p.value}
-                        onChange={value => handleChange(p, value)}
-                    />
-                </Form.Item>
-            ))}
-        </>
-    );
-};
-
-interface INodeInfoForm {
+interface INodeInfoFormValues {
     valueInputs: IPortUIData[];
-    onUpdate: (newValues: IPortUIData[]) => void;
 }
 
-const NodeInfoForm: React.FC<INodeInfoForm> = ({ valueInputs, onUpdate }) => {
-    const [form, setForm] = useState(valueInputs.map(x => _.cloneDeep(x)));
-    const [isDirty, setIsDirty] = useState(false);
+interface INodeInfoFormProps {
+    valueInputs: IPortUIData[];
+    handleSubmit: (
+        values: INodeInfoFormValues,
+        actions: FormikHelpers<INodeInfoFormValues>
+    ) => void;
+}
 
-    const handleSubmit = () => {
-        if (isDirty) {
-            const copiedValues = _.cloneDeep(form);
-            valueInputs = copiedValues;
-            onUpdate(copiedValues);
-            setIsDirty(false);
-        }
-    };
+const validationScheme = Yup.object().shape({
+    valueInputs: Yup.array().of(
+        Yup.object().shape<{ value: any }>({
+            value: Yup.mixed().when('valueType', {
+                is: 'url',
+                then: Yup.string()
+                    .url('Invalid Url')
+                    .notRequired(),
+                otherwise: Yup.mixed().notRequired(),
+            }),
+        })
+    ),
+});
 
-    const handleReset = () => {
-        setForm(valueInputs.map(x => _.cloneDeep(x)));
-        setIsDirty(false);
-    };
-
-    const handleValueChange = (port: IPortUIData) => {
-        const p = form.firstOrDefault(x => x.id === port.id);
-        if (p) {
-            const newForm = form.map(x => ({ ...x, value: toJS(x.value) }));
-            setIsDirty(!_.isEqual(newForm, valueInputs));
-            setForm(newForm);
-        }
-    };
-
-    useEffect(() => {
-        setForm(valueInputs.map(x => _.cloneDeep(x)));
-    }, [valueInputs]);
-
+const NodeInfoForm: React.FC<INodeInfoFormProps> = ({
+    valueInputs,
+    handleSubmit,
+}) => {
     return (
-        <Form className="node-info-form">
-            <p>Editable Fields:</p>
-            <div className="properties">
-                {form.length > 0 && (
-                    <PropertyGroup
-                        portList={form}
-                        onFieldChange={handleValueChange}
-                    />
-                )}
-            </div>
-            <div className="info-submit">
-                <Form.Item style={{ margin: '0' }}>
-                    <Button
-                        disabled={!isDirty}
-                        type="primary"
-                        onClick={handleSubmit}
-                        block
-                    >
-                        Update
-                    </Button>
-                    <Button
-                        disabled={!isDirty}
-                        type="danger"
-                        onClick={handleReset}
-                        block
-                    >
-                        Reset
-                    </Button>
-                </Form.Item>
-            </div>
-        </Form>
+        <Formik
+            enableReinitialize
+            initialValues={{
+                valueInputs: valueInputs.map(x => ({
+                    ...x,
+                    value: x.value || x.defaultValue,
+                    valueType: x.valueType!,
+                })),
+            }}
+            validationSchema={validationScheme}
+            onSubmit={handleSubmit}
+            render={({ isSubmitting }) => (
+                <Form className="node-info-form">
+                    <FlexColumn gap={20}>
+                        <Divider />
+                        <FieldArray
+                            name="valueInputs"
+                            render={() => (
+                                <FlexColumn
+                                    gap={20}
+                                    className="value-input-controls"
+                                >
+                                    {valueInputs.map((vi, index) => (
+                                        <FormItem
+                                            key={index}
+                                            name={`valueInputs.${index}.value`}
+                                            label={vi.name}
+                                        >
+                                            <ValueTypeControl
+                                                placeHolder="Value"
+                                                name={`valueInputs.${index}.value`}
+                                                disabled={vi.connected}
+                                                valueType={vi.valueType}
+                                            />
+                                        </FormItem>
+                                    ))}
+                                </FlexColumn>
+                            )}
+                        />
+                        <Button.Group>
+                            <ResetButton
+                                type="danger"
+                                icon="reload"
+                                style={{ width: '50%' }}
+                            >
+                                Undo
+                            </ResetButton>
+                            <SubmitButton
+                                disabled={false}
+                                type="primary"
+                                icon="save"
+                                loading={isSubmitting}
+                                style={{ width: '50%' }}
+                            >
+                                Save
+                            </SubmitButton>
+                        </Button.Group>
+                    </FlexColumn>
+                </Form>
+            )}
+        />
     );
 };
 
