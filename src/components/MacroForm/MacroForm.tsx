@@ -120,10 +120,10 @@ export const MacroForm: React.FC<IMacroFormProps> = ({
                 name: (initialValue && initialValue.name) || '',
                 description: (initialValue && initialValue.description) || '',
                 flowInputs: (initialValue && initialValue.flowInputs) || [
-                    { key: uuid(), label: '' },
+                    { key: uuid(), label: 'In' },
                 ],
                 flowOutputs: (initialValue && initialValue.flowOutputs) || [
-                    { key: uuid(), label: '' },
+                    { key: uuid(), label: 'Out' },
                 ],
                 valueInputs: (initialValue && initialValue.valueInputs) || [],
                 valueOutputs: (initialValue && initialValue.valueOutputs) || [],

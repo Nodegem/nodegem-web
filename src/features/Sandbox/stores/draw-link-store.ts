@@ -60,7 +60,11 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
 
             this.suspend();
 
-            if (this.ctx.hasLink(port)) {
+            if (
+                this.ctx.hasLink(port) &&
+                port.io === 'input' &&
+                port.type === 'value'
+            ) {
                 const { oppositeElement, oppositePort } = this.detachLink(
                     port,
                     element
@@ -180,7 +184,7 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
     };
 
     private clearConnections = (port?: IPortUIData) => {
-        if (port) {
+        if (port && !this.ctx.hasLink(port)) {
             this.ctx.togglePortConnected(port, false);
         }
 

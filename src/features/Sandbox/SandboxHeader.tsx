@@ -2,6 +2,7 @@ import { Button, Dropdown, Icon, Menu } from 'antd';
 import { FlexFillGreedy, FlexRow } from 'components';
 import { useStore } from 'overstated';
 import React, { useMemo } from 'react';
+import { isMacro } from 'utils';
 import { SandboxHeaderStore } from './stores/sandbox-header-store';
 
 const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
@@ -80,6 +81,8 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
         refreshBridges,
         bridge,
         loadingBridges,
+        activeTab,
+        toggleMacroRunModal,
     } = useStore(sandboxHeaderStore, store => ({
         saveGraph: store.ctx.saveGraph,
         editGraph: store.onEditGraph,
@@ -87,6 +90,8 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
         hasBridge: store.hasSelectedBridge,
         onBridgeSelect: store.onBridgeSelect,
         refreshBridges: store.refreshBridges,
+        activeTab: store.ctx.tabsStore.activeTab,
+        toggleMacroRunModal: store.ctx.introStore.toggleMacroRunModal,
         ...store.state,
     }));
 
@@ -120,7 +125,13 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
                     shape="round"
                     icon="caret-right"
                     disabled={!connected}
-                    onClick={runGraph}
+                    onClick={() => {
+                        if (activeTab && isMacro(activeTab.graph)) {
+                            toggleMacroRunModal(true);
+                        } else {
+                            runGraph();
+                        }
+                    }}
                     loading={isRunning || connecting}
                 >
                     Run

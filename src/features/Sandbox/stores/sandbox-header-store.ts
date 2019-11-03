@@ -11,7 +11,6 @@ interface ISandboxHeaderState {
     bridge?: IBridgeInfo;
     bridges: IBridgeInfo[];
     loadingBridges: boolean;
-    modifyingGraphSettings: boolean;
     canSave: boolean;
     canEdit: boolean;
     connected: boolean;
@@ -43,7 +42,6 @@ export class SandboxHeaderStore extends Store<
         isRunning: false,
         bridges: [],
         loadingBridges: false,
-        modifyingGraphSettings: false,
         canSave: false,
         canEdit: false,
         connected: false,
@@ -163,9 +161,17 @@ export class SandboxHeaderStore extends Store<
         this.graphHub.start();
     }
 
-    public runGraph = () => {
+    public runGraph = (
+        flowInput?: FlowInputFieldDto,
+        valueInputs?: ValueInputFieldDto[]
+    ) => {
         if (!this.ctx.tabsStore.hasActiveTab) {
-            appStore.toast('Must select a graph', 'error');
+            appStore.toast('Must select a graph to run', 'error');
+            return;
+        }
+
+        if (!this.state.bridge) {
+            appStore.toast('Must select a bridge to run', 'error');
             return;
         }
 
@@ -177,8 +183,8 @@ export class SandboxHeaderStore extends Store<
 
             this.setState({ isRunning: true });
 
-            if (isMacro(graph)) {
-                // this.graphHub.runMacro(graph);
+            if (isMacro(graph) && flowInput) {
+                this.graphHub.runMacro(graph, connectionId, flowInput.key);
             } else {
                 this.graphHub.runGraph(graph, connectionId);
             }
@@ -200,13 +206,18 @@ export class SandboxHeaderStore extends Store<
     };
 
     public onEditGraph = () => {
-        const { graph } = this.ctx.tabsStore.activeTab;
-        // if (isMacro(graph)) {
-        //     macroModalStore.openModal(graph, true);
-        // } else {
-        //     graphModalStore.openModal(graph, true);
-        // }
-        this.setState({ modifyingGraphSettings: true });
+        const { initial } = this.ctx.tabsStore.activeTab;
+        if (isMacro(initial)) {
+            this.ctx.introStore.setState({
+                isMacroModalOpen: true,
+                graphToEdit: initial,
+            });
+        } else {
+            this.ctx.introStore.setState({
+                isGraphModalOpen: true,
+                graphToEdit: initial,
+            });
+        }
     };
 
     public onTabLoaded = () => {

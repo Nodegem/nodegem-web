@@ -83,6 +83,7 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
             tabs: [
                 ...this.state.tabs,
                 {
+                    initial: { ...graph },
                     graph,
                     isDirty: false,
                     definitions: {} as any,
@@ -98,7 +99,10 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
     public updateTabData = (graph: Graph | Macro) => {
         const { tabs } = this.state;
         const tabData = tabs.first(x => x.graph.id === graph.id);
-        tabs.addOrUpdate({ ...tabData, graph }, x => x.graph.id === graph.id);
+        tabs.addOrUpdate(
+            { ...tabData, graph, initial: { ...graph } },
+            x => x.graph.id === graph.id
+        );
         this.setState({ tabs: [...tabs] });
 
         if (graph.id === this.state.activeTabId) {

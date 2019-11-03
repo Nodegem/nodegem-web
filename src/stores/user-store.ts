@@ -78,7 +78,7 @@ export class UserStoreNew extends Store<IUserStoreState, AppStore> {
             console.error(e);
         } finally {
             this.ctx.openNotification({
-                title: 'Logged out!',
+                title: 'Successfully logged out!',
                 description: '',
                 type: 'success',
             });
