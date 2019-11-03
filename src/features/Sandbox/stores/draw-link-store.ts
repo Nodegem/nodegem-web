@@ -62,8 +62,7 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
 
             if (
                 this.ctx.hasLink(port) &&
-                port.io === 'input' &&
-                port.type === 'value'
+                (port.io !== 'output' || port.type !== 'value')
             ) {
                 const { oppositeElement, oppositePort } = this.detachLink(
                     port,

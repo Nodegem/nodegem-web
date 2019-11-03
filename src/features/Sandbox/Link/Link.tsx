@@ -8,6 +8,8 @@ interface ILinkProps {
     visible: boolean;
     type: PortType;
     showIcons?: boolean;
+    onSourceIconClick?: (linkId: string) => void;
+    onDestinationIconClick?: (linkId: string) => void;
 }
 
 const areEqual = (prev: ILinkProps, cur: ILinkProps) => {
@@ -15,7 +17,14 @@ const areEqual = (prev: ILinkProps, cur: ILinkProps) => {
 };
 
 export const Link: React.FC<ILinkProps> = React.memo(
-    ({ visible, type, linkId, showIcons = true }) => {
+    ({
+        visible,
+        type,
+        linkId,
+        showIcons = true,
+        onSourceIconClick,
+        onDestinationIconClick,
+    }) => {
         const [isHovering, setIsHovering] = useState(false);
 
         const mouseEnter = useCallback(() => setIsHovering(true), []);
@@ -51,6 +60,10 @@ export const Link: React.FC<ILinkProps> = React.memo(
                         <span
                             className="link-icon"
                             id={`${linkId}-icon-source`}
+                            onMouseDown={event => {
+                                event.stopPropagation();
+                                onSourceIconClick!(linkId);
+                            }}
                             onMouseEnter={mouseEnter}
                             onMouseLeave={mouseLeave}
                             style={{ '--offset-x': 5, '--offset-y': 15 } as any}
@@ -60,6 +73,10 @@ export const Link: React.FC<ILinkProps> = React.memo(
                         <span
                             className="link-icon"
                             id={`${linkId}-icon-destination`}
+                            onMouseDown={event => {
+                                event.stopPropagation();
+                                onDestinationIconClick!(linkId);
+                            }}
                             onMouseEnter={mouseEnter}
                             onMouseLeave={mouseLeave}
                             style={

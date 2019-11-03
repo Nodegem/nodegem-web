@@ -161,7 +161,6 @@ export const GraphForm: React.FC<IGraphFormProps> = ({
                             <ResetButton
                                 type="danger"
                                 icon="reload"
-                                disabled={false}
                                 style={{ width: '50%' }}
                             >
                                 Reset

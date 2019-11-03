@@ -6,6 +6,7 @@ import { Socket as Port } from '../Port/Port';
 import './Node.less';
 
 interface INodeProps {
+    isMacro?: boolean;
     nodeId: string;
     scale: number;
     selected: boolean;
@@ -33,6 +34,7 @@ interface INodeProps {
 
 export const Node: React.FC<INodeProps> = React.memo(
     ({
+        isMacro,
         nodeId,
         scale,
         selected,
@@ -92,6 +94,7 @@ export const Node: React.FC<INodeProps> = React.memo(
 
         const classes = classNames({
             'node-container': true,
+            macro: isMacro,
             selected,
         });
 

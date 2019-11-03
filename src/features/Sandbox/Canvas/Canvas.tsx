@@ -35,6 +35,8 @@ interface ILinkNodeProps {
     drawLinkStore: DrawLinkStore;
     scale: number;
     isDrawingLink: boolean;
+    onLinkSourceClick: (linkId: string) => void;
+    onLinkDestinationClick: (linkId: string) => void;
     onPortEvent: (
         event: PortEvent,
         element: HTMLElement,
@@ -57,6 +59,8 @@ const CanvasLinksNodes: React.FC<ILinkNodeProps> = ({
     drawLinkStore,
     scale,
     isDrawingLink,
+    onLinkSourceClick,
+    onLinkDestinationClick,
     onPortAdd,
     onPortRemove,
     onNodeDrag,
@@ -69,13 +73,21 @@ const CanvasLinksNodes: React.FC<ILinkNodeProps> = ({
     <>
         <div className="links" style={{ position: 'absolute' }}>
             {links.map(l => (
-                <Link key={l.id} linkId={l.id} visible={linksVisible} {...l} />
+                <Link
+                    key={l.id}
+                    linkId={l.id}
+                    onSourceIconClick={onLinkSourceClick}
+                    onDestinationIconClick={onLinkDestinationClick}
+                    visible={linksVisible}
+                    {...l}
+                />
             ))}
             <DrawLink drawLinkStore={drawLinkStore} />
         </div>
         <div className="nodes">
             {nodes.map(n => (
                 <Node
+                    isMacro={!!n.macroId}
                     scale={scale}
                     key={n.id}
                     initialPosition={n.position}
@@ -132,6 +144,8 @@ export const Canvas: React.FC<ISandboxProps> = ({
         onNodeRightClick: store.onNodeRightClick,
         hasActiveTab: !!store.ctx.tabsStore.state.activeTabId,
         scale: store.state.scale,
+        onLinkSourceClick: store.onLinkSourceClick,
+        onLinkDestinationClick: store.onLinkDestinationClick,
         ...store.state,
     }));
 

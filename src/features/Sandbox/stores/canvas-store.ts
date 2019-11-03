@@ -571,6 +571,24 @@ export class CanvasStore extends Store<
 
     //#region Links
 
+    public onLinkSourceClick = (linkId: string) => {
+        const link = this.getLink(linkId);
+        if (link) {
+            this.drawLinkStore.toggleDraw('down', link.sourceData, link.source);
+        }
+    };
+
+    public onLinkDestinationClick = (linkId: string) => {
+        const link = this.getLink(linkId);
+        if (link) {
+            this.drawLinkStore.toggleDraw(
+                'down',
+                link.destinationData,
+                link.destination
+            );
+        }
+    };
+
     public hasLink = (port: IPortUIData) => {
         const node = this.getNode(port.nodeId);
         if (node) {
