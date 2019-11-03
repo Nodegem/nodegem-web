@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { Store } from 'overstated';
-import { appStore, graphModalStore, macroModalStore } from 'stores';
+import { appStore } from 'stores';
 import { isMacro } from 'utils';
 import { SandboxStore } from '.';
 import GraphHub from '../hubs/graph-hub';
@@ -201,11 +201,11 @@ export class SandboxHeaderStore extends Store<
 
     public onEditGraph = () => {
         const { graph } = this.ctx.tabsStore.activeTab;
-        if (isMacro(graph)) {
-            macroModalStore.openModal(graph, true);
-        } else {
-            graphModalStore.openModal(graph, true);
-        }
+        // if (isMacro(graph)) {
+        //     macroModalStore.openModal(graph, true);
+        // } else {
+        //     graphModalStore.openModal(graph, true);
+        // }
         this.setState({ modifyingGraphSettings: true });
     };
 

@@ -1,7 +1,7 @@
 import { Button, Divider, Icon } from 'antd';
 import { FlexColumn, FlexRow } from 'components';
 import { ValueTypeControl } from 'components/ValueTypeControl';
-import { FieldArray, Formik, FormikActions } from 'formik';
+import { FieldArray, Formik, FormikHelpers } from 'formik';
 import {
     Checkbox,
     Form,
@@ -14,7 +14,7 @@ import {
     SubmitButton,
 } from 'formik-antd';
 import { uuid } from 'lodash-uuid';
-import * as React from 'react';
+import React from 'react';
 import { valueMap } from 'utils';
 import * as Yup from 'yup';
 import '../../types/yup.ts';
@@ -79,16 +79,29 @@ const validationSchema = Yup.object().shape<IGraphFormValues>({
                 .oneOf(valueOptions)
                 .required('A value type is required'),
             isSecret: Yup.boolean(),
-            value: Yup.mixed(),
+            value: Yup.mixed().when('type', {
+                is: 'url',
+                then: Yup.string().url('Invalid Url'),
+                otherwise: Yup.mixed(),
+            }),
         })
     ),
-    recurringOptions: Yup.object().shape<IFormRecurringOptions>({
-        every: Yup.number()
-            .min(1, 'Must be >= 1')
-            .required('Value is required'),
-        frequency: Yup.mixed()
-            .oneOf(Object.keys(repeatOptionMap))
-            .notRequired(),
+    recurringOptions: Yup.object<IFormRecurringOptions>().when('type', {
+        is: 'recurring',
+        then: Yup.object().shape<IFormRecurringOptions>({
+            every: Yup.number()
+                .min(1, 'Must be >= 1')
+                .required('Value is required'),
+            frequency: Yup.mixed()
+                .oneOf(Object.keys(repeatOptionMap))
+                .notRequired(),
+        }),
+        otherwise: Yup.object().shape<IFormRecurringOptions>({
+            every: Yup.number(),
+            frequency: Yup.mixed()
+                .oneOf(Object.keys(repeatOptionMap))
+                .notRequired(),
+        }),
     }),
 });
 
@@ -96,7 +109,7 @@ interface IGraphFormProps {
     initialValue?: IGraphFormValues;
     handleSubmit: (
         values: IGraphFormValues,
-        actions: FormikActions<IGraphFormValues>
+        actions: FormikHelpers<IGraphFormValues>
     ) => void;
 }
 
@@ -109,15 +122,17 @@ export const GraphForm: React.FC<IGraphFormProps> = ({
             enableReinitialize
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
-            initialValues={
-                initialValue || {
-                    name: '',
-                    description: '',
-                    type: 'manual',
-                    constants: [],
-                    recurringOptions: { every: 1, frequency: 'minutely' },
-                }
-            }
+            initialValues={{
+                name: (initialValue && initialValue.name) || '',
+                description: (initialValue && initialValue.description) || '',
+                type: (initialValue && initialValue.type) || 'manual',
+                constants: (initialValue && initialValue.constants) || [],
+                recurringOptions: (initialValue &&
+                    initialValue.recurringOptions) || {
+                    every: 1,
+                    frequency: 'minutely',
+                },
+            }}
             render={({ isSubmitting, values }) => (
                 <Form>
                     <FlexColumn className="graph-form" gap={15}>
@@ -268,6 +283,7 @@ const GraphConstantsForm: React.FC<{ constants: IFormConstantData[] }> = ({
                             <Button
                                 icon="delete"
                                 type="danger"
+                                shape="circle-outline"
                                 onClick={() => helpers.remove(i)}
                             />
                         </FlexRow>

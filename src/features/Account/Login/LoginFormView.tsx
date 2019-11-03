@@ -2,7 +2,7 @@ import './Login.less';
 
 import { Button, Card, Icon } from 'antd';
 import { FlexColumn, FlexRow } from 'components';
-import { Formik, FormikActions } from 'formik';
+import { Formik, FormikHelpers } from 'formik';
 import { Checkbox, Form, FormItem, Input, SubmitButton } from 'formik-antd';
 import * as React from 'react';
 import {
@@ -28,7 +28,7 @@ interface IFormValues {
 interface ILoginFormProps {
     handleSubmit: (
         values: IFormValues,
-        actions: FormikActions<IFormValues>
+        actions: FormikHelpers<IFormValues>
     ) => void;
 }
 const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
@@ -95,7 +95,7 @@ const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
 const LoginView = () => {
     const handleSubmit = async (
         values: IFormValues,
-        actions: FormikActions<IFormValues>
+        actions: FormikHelpers<IFormValues>
     ) => {
         try {
             const result = await AuthService.login(

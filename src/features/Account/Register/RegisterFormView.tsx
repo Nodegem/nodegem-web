@@ -2,7 +2,7 @@ import './Register.less';
 
 import { Button, Card, Icon } from 'antd';
 import { FlexColumn } from 'components';
-import { Formik, FormikActions } from 'formik';
+import { Formik, FormikHelpers } from 'formik';
 import { Form, FormItem, Input, SubmitButton } from 'formik-antd';
 import * as React from 'react';
 import { AuthService } from 'services';
@@ -46,7 +46,7 @@ interface IFormValues {
 interface IRegisterFormProps {
     handleSubmit: (
         values: IFormValues,
-        actions: FormikActions<IFormValues>
+        actions: FormikHelpers<IFormValues>
     ) => void;
 }
 
@@ -146,7 +146,7 @@ const RegisterForm: React.FC<IRegisterFormProps> = ({ handleSubmit }) => {
 const RegisterView = () => {
     const handleSubmit = async (
         values: IFormValues,
-        actions: FormikActions<IFormValues>
+        actions: FormikHelpers<IFormValues>
     ) => {
         try {
             const result = await AuthService.register(values);

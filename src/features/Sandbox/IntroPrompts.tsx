@@ -1,6 +1,4 @@
 import { Button, Modal } from 'antd';
-import GraphModalFormController from 'components/Modals/GraphModal/GraphModalForm';
-import MacroModalFormController from 'components/Modals/MacroModal/MacroModalForm';
 import { useStore } from 'overstated';
 import React from 'react';
 import PromptGraph from './PromptGraph/PromptGraph';
@@ -33,14 +31,38 @@ export const IntroPrompts: React.FC<IIntroPromptsProps> = ({ introStore }) => {
 
     return (
         <>
-            {/* <GraphModalFormController
-                onSave={graphModifyOrCreate}
-                onGoBack={goBack}
-            /> */}
-            <MacroModalFormController
-                onSave={graphModifyOrCreate}
-                onGoBack={goBack}
-            />
+            {/* <Modal
+                className="graph-form-modal"
+                visible={graphModalVisible}
+                footer={null}
+                centered
+                maskClosable={false}
+                onCancel={() => {
+                    setGraphModalVisible(false);
+                    setGraphToEdit(undefined);
+                }}
+            >
+                <GraphForm
+                    initialValue={graphToEdit}
+                    handleSubmit={handleSaveGraph}
+                />
+            </Modal>
+            <Modal
+                className="macro-form-modal"
+                visible={macroModalVisible}
+                footer={null}
+                centered
+                maskClosable={false}
+                onCancel={() => {
+                    setMacroModalVisible(false);
+                    setGraphToEdit(undefined);
+                }}
+            >
+                <MacroForm
+                    initialValue={graphToEdit as Macro}
+                    handleSubmit={handleSaveMacro}
+                />
+            </Modal> */}
             <Modal
                 className="sandbox-modal prompt-graph-modal"
                 maskClosable={hasTabs}

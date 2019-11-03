@@ -5,7 +5,6 @@ import Paragraph from 'antd/lib/typography/Paragraph';
 import classNames from 'classnames';
 import { ValueTypeControl } from 'components/ValueTypeControl/ValueTypeControl';
 import _ from 'lodash';
-import { toJS } from 'mobx';
 import './NodeInfo.less';
 
 interface INodeInfoProps {
@@ -107,7 +106,7 @@ const NodeInfoForm: React.FC<INodeInfoForm> = ({ valueInputs, onUpdate }) => {
     const handleValueChange = (port: IPortUIData) => {
         const p = form.firstOrDefault(x => x.id === port.id);
         if (p) {
-            const newForm = form.map(x => ({ ...x, value: toJS(x.value) }));
+            const newForm = form.map(x => ({ ...x, value: x.value }));
             setIsDirty(!_.isEqual(newForm, valueInputs));
             setForm(newForm);
         }

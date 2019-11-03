@@ -1,5 +1,4 @@
 import { Store } from 'overstated';
-import { graphModalStore, macroModalStore } from 'stores';
 import { SandboxStore } from '.';
 interface IIntroState {
     isInStartPrompt: boolean;
@@ -50,11 +49,11 @@ export class IntroStore extends Store<IIntroState, SandboxStore> {
         this.toggleChoosingGraphState(false);
         this.unsuspend();
 
-        if (type === 'graph') {
-            graphModalStore.openModal({ isActive: true });
-        } else {
-            macroModalStore.openModal();
-        }
+        // if (type === 'graph') {
+        //     graphModalStore.openModal({ isActive: true });
+        // } else {
+        //     macroModalStore.openModal();
+        // }
     };
 
     public onGraphSelected = (graph: Graph | Macro) => {

@@ -1,51 +1,9 @@
 import localforage from 'localforage';
-import { action, computed, observable } from 'mobx';
 import { Store } from 'overstated';
 import { AuthService } from 'services';
-import { deleteFromStorage, getFromStorage, saveToStorage } from 'utils';
 import routerHistory from 'utils/history';
 import { jwtToUser, parseJwt } from './../utils/helpers';
 import { AppStore } from './app-store';
-
-class UserStore implements IDisposableStore {
-    @observable public token?: TokenData;
-
-    @computed
-    public get user(): User | undefined {
-        return this.token && jwtToUser(parseJwt(this.token.accessToken));
-    }
-
-    @computed
-    public get username(): string {
-        return (this.user && this.user.userName) || '';
-    }
-
-    @computed get isLoggedIn(): boolean {
-        return !!this.user && !!this.token && Object.keys(this.user).length > 0;
-    }
-
-    constructor() {
-        this.init();
-    }
-
-    @action
-    public init() {
-        this.token = getFromStorage<TokenData>('token')!;
-    }
-
-    @action public setToken(token: TokenData) {
-        this.token = token;
-        saveToStorage('token', token);
-    }
-
-    @action public dispose() {
-        deleteFromStorage('user', 'token');
-        this.token = undefined;
-    }
-}
-
-export default new UserStore();
-export { UserStore };
 
 interface IUserStoreState {
     token: TokenData;

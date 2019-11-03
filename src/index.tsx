@@ -1,8 +1,7 @@
 import './index.less';
 import './utils/extensions';
 
-import { Provider } from 'mobx-react';
-import { debug, Provider as OverstatedProvider } from 'overstated';
+import { Provider as OverstatedProvider } from 'overstated';
 import * as React from 'react';
 import { Router } from 'react-router';
 
@@ -13,11 +12,6 @@ import routerHistory from './utils/history';
 
 import { LoadedStateGate } from 'components/LoadedStateGate/LoadedStateGate';
 import ReactDOM from 'react-dom';
-import { legacyStore } from './stores';
-
-if (process.env.NODE_ENV && process.env.NODE_ENV === 'development') {
-    // debug();
-}
 
 localforage.config({
     name: 'nodegem',
@@ -29,11 +23,9 @@ localforage.config({
 ReactDOM.render(
     <OverstatedProvider>
         <LoadedStateGate>
-            <Provider {...legacyStore}>
-                <Router history={routerHistory}>
-                    <App />
-                </Router>
-            </Provider>
+            <Router history={routerHistory}>
+                <App />
+            </Router>
         </LoadedStateGate>
     </OverstatedProvider>,
     document.getElementById('root') as HTMLElement

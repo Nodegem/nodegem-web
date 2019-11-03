@@ -11,21 +11,6 @@ import React from 'react';
 
 const Option = $Select.Option;
 
-const selectBefore = (value: string, isDisabled: boolean | undefined) => (
-    <$Select
-        disabled={isDisabled}
-        value={
-            value && value.toLowerCase().includes('http://')
-                ? 'Http://'
-                : 'Https://'
-        }
-        style={{ width: 90 }}
-    >
-        <Option value="Http://">Http://</Option>
-        <Option value="Https://">Https://</Option>
-    </$Select>
-);
-
 interface IValueTypeControlProps {
     name: string;
     value?: any;
@@ -36,7 +21,6 @@ interface IValueTypeControlProps {
 }
 
 export const ValueTypeControl: React.FC<IValueTypeControlProps> = ({
-    value,
     name,
     placeHolder,
     disabled,
@@ -59,18 +43,6 @@ export const ValueTypeControl: React.FC<IValueTypeControlProps> = ({
                     name={name}
                     disabled={disabled}
                     onChange={handleChange}
-                />
-            );
-        case 'url':
-            return (
-                <Input
-                    name={name}
-                    addonBefore={selectBefore(
-                        value && value.toString(),
-                        disabled
-                    )}
-                    disabled={disabled}
-                    onChange={event => handleChange(event.target.value)}
                 />
             );
         case 'phonenumber':

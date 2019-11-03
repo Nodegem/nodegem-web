@@ -8,7 +8,7 @@ export * from './GraphForm';
 export * from './Header';
 export * from './LoadedStateGate';
 export * from './Loader';
-export * from './Modals';
+export * from './MacroForm';
 export * from './PhoneInput';
 export * from './PortFields';
 export * from './PublicRoute';

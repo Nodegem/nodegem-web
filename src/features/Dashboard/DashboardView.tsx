@@ -6,9 +6,11 @@ import React, { useEffect, useState } from 'react';
 import routerHistory from '../../utils/history';
 
 import { GraphForm, IGraphFormValues } from 'components';
-import { FormikActions } from 'formik';
+import { IMacroFormValues, MacroForm } from 'components/MacroForm/MacroForm';
+import { FormikHelpers } from 'formik';
 import { GraphService, MacroService } from 'services';
 import { appStore } from 'stores';
+import { isMacro } from 'utils';
 import DashboardCard from './DashboardCard';
 
 interface IButtonProps {
@@ -83,7 +85,7 @@ export const DashboardView: React.FC = () => {
 
     const handleSaveGraph = async (
         values: IGraphFormValues,
-        actions: FormikActions<IGraphFormValues>
+        actions: FormikHelpers<IGraphFormValues>
     ) => {
         try {
             if (graphToEdit !== undefined) {
@@ -114,19 +116,70 @@ export const DashboardView: React.FC = () => {
             }
             setGraphModalVisible(false);
         } catch (e) {
-            // // if (isEdit) {
-            //     appStore.openNotification({
-            //         title: 'Unable to edit graph',
-            //         description: `An error occurred while editing ${values.name}`,
-            //         type: 'error',
-            //     });
-            // } else {
-            appStore.openNotification({
-                title: 'Unable to create graph',
-                description: `An error occurred while creating ${values.name}`,
-                type: 'error',
-            });
-            // }
+            if (graphToEdit !== undefined) {
+                appStore.openNotification({
+                    title: 'Unable to edit graph',
+                    description: `An error occurred while editing ${values.name}`,
+                    type: 'error',
+                });
+            } else {
+                appStore.openNotification({
+                    title: 'Unable to create graph',
+                    description: `An error occurred while creating ${values.name}`,
+                    type: 'error',
+                });
+            }
+        } finally {
+            actions.setSubmitting(false);
+        }
+    };
+
+    const handleSaveMacro = async (
+        values: IMacroFormValues,
+        actions: FormikHelpers<IMacroFormValues>
+    ) => {
+        try {
+            if (graphToEdit !== undefined) {
+                const editedMacro = await MacroService.update({
+                    ...graphToEdit!,
+                    ...values,
+                });
+                macros.addOrUpdate(editedMacro, x => x.id === editedMacro.id);
+                setMacros([...macros]);
+                setMacroModalVisible(false);
+                appStore.openNotification({
+                    title: `Successfully edited ${values.name}!`,
+                    description: '',
+                    type: 'success',
+                });
+                setGraphToEdit(undefined);
+            } else {
+                const newMacro = await MacroService.create({
+                    ...values,
+                    userId: appStore.userStore.user.id,
+                });
+                setMacros([...macros, newMacro]);
+                appStore.openNotification({
+                    title: `Successfully created ${values.name}!`,
+                    description: '',
+                    type: 'success',
+                });
+            }
+            setMacroModalVisible(false);
+        } catch (e) {
+            if (graphToEdit !== undefined) {
+                appStore.openNotification({
+                    title: 'Unable to edit macro',
+                    description: `An error occurred while editing ${values.name}`,
+                    type: 'error',
+                });
+            } else {
+                appStore.openNotification({
+                    title: 'Unable to create macro',
+                    description: `An error occurred while creating ${values.name}`,
+                    type: 'error',
+                });
+            }
         } finally {
             actions.setSubmitting(false);
         }
@@ -152,7 +205,12 @@ export const DashboardView: React.FC = () => {
 
     const onEditSettings = (item: Graph | Macro) => {
         setGraphToEdit(item);
-        setGraphModalVisible(true);
+
+        if (isMacro(item)) {
+            setMacroModalVisible(true);
+        } else {
+            setGraphModalVisible(true);
+        }
     };
 
     const onEdit = (item: Graph | Macro) => {
@@ -234,6 +292,8 @@ export const DashboardView: React.FC = () => {
                 className="graph-form-modal"
                 visible={graphModalVisible}
                 footer={null}
+                centered
+                maskClosable={false}
                 onCancel={() => {
                     setGraphModalVisible(false);
                     setGraphToEdit(undefined);
@@ -242,6 +302,22 @@ export const DashboardView: React.FC = () => {
                 <GraphForm
                     initialValue={graphToEdit}
                     handleSubmit={handleSaveGraph}
+                />
+            </Modal>
+            <Modal
+                className="macro-form-modal"
+                visible={macroModalVisible}
+                footer={null}
+                centered
+                maskClosable={false}
+                onCancel={() => {
+                    setMacroModalVisible(false);
+                    setGraphToEdit(undefined);
+                }}
+            >
+                <MacroForm
+                    initialValue={graphToEdit as Macro}
+                    handleSubmit={handleSaveMacro}
                 />
             </Modal>
         </div>
