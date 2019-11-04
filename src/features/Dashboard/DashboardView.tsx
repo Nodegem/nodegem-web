@@ -63,16 +63,24 @@ export const DashboardView: React.FC = () => {
 
     const fetchGraphs = async () => {
         setLoadingGraphs(true);
-        const fetchedGraphs = await GraphService.getAll();
+        try {
+            const fetchedGraphs = await GraphService.getAll();
+            setGraphs(fetchedGraphs);
+        } catch (e) {
+            console.error(e);
+        }
         setLoadingGraphs(false);
-        setGraphs(fetchedGraphs);
     };
 
     const fetchMacros = async () => {
         setLoadingMacros(true);
-        const fetchedMacros = await MacroService.getAll();
+        try {
+            const fetchedMacros = await MacroService.getAll();
+            setMacros(fetchedMacros);
+        } catch (e) {
+            console.error(e);
+        }
         setLoadingMacros(false);
-        setMacros(fetchedMacros);
     };
 
     const onAdd = (type: GraphType) => {
