@@ -228,9 +228,6 @@ const GraphConstantsForm: React.FC<{ constants: IFormConstantData[] }> = ({
                             gap={20}
                         >
                             <FormItem
-                                style={{
-                                    width: '100%',
-                                }}
                                 name={`constants.${i}.label`}
                                 label="Label"
                             >
