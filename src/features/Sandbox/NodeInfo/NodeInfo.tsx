@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Button, Divider } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
@@ -20,6 +20,14 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
     selectedNode,
     onNodeValueChange,
 }) => {
+    const [nodeValueInputs, setValueInputs] = useState(
+        selectedNode.valueInputs
+    );
+
+    useEffect(() => {
+        setValueInputs(selectedNode.valueInputs);
+    }, [selectedNode]);
+
     const containerClass = classNames({
         'node-info': true,
     });
@@ -30,6 +38,7 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
     ) => {
         onNodeValueChange(selectedNode, values.valueInputs);
         actions.setSubmitting(false);
+        setValueInputs(values.valueInputs);
     };
 
     return (
@@ -42,10 +51,10 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
                 <p className="header underline">Description:</p>
                 <Paragraph>{selectedNode.description || 'N/A'}</Paragraph>
             </FlexColumn>
-            {selectedNode.valueInputs && selectedNode.valueInputs.any() && (
+            {nodeValueInputs && nodeValueInputs.any() && (
                 <FlexColumn className="value-inputs">
                     <NodeInfoForm
-                        valueInputs={selectedNode.valueInputs}
+                        valueInputs={nodeValueInputs}
                         handleSubmit={handleSubmit}
                     />
                 </FlexColumn>

@@ -1,17 +1,9 @@
-import { Button, Dropdown, Icon, Menu } from 'antd';
+import { Button, Checkbox, Dropdown, Icon, Menu } from 'antd';
 import { FlexFillGreedy, FlexRow } from 'components';
 import { useStore } from 'overstated';
 import React, { useMemo } from 'react';
 import { isMacro } from 'utils';
 import { SandboxHeaderStore } from './stores/sandbox-header-store';
-
-const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
-    if (event.button === 1) {
-        event.preventDefault();
-        event.stopPropagation();
-        deleteTab();
-    }
-};
 
 interface IBridgeMenuProps {
     bridges: IBridgeInfo[];
@@ -58,6 +50,17 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
         [bridges, currentBridge]
     );
 
+const SettingsMenu: React.FC = () => (
+    <Menu theme="dark" className="sandbox-settings-menu">
+        <Menu.Item>
+            <Checkbox>Auto Save Graph</Checkbox>
+        </Menu.Item>
+        <Menu.Item>
+            <Checkbox>Auto Save Node</Checkbox>
+        </Menu.Item>
+    </Menu>
+);
+
 interface ISandboxHeaderProps {
     sandboxHeaderStore: SandboxHeaderStore;
 }
@@ -71,7 +74,6 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
         saveGraph,
         canEdit,
         editGraph,
-        isRunning,
         connected,
         connecting,
         runGraph,
@@ -97,7 +99,28 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
 
     return (
         <FlexRow className="sandbox-header" flex="0 1 auto">
-            <FlexRow gap={5}>
+            <FlexRow gap={10}>
+                <Dropdown overlay={<SettingsMenu />}>
+                    <Button
+                        shape="round"
+                        type="primary"
+                        icon="tool"
+                        onClick={editGraph}
+                        style={{ marginRight: '10px' }}
+                    >
+                        Settings
+                        <Icon type="down" />
+                    </Button>
+                </Dropdown>
+                <Button
+                    disabled={!canEdit}
+                    shape="round"
+                    type="primary"
+                    icon="setting"
+                    onClick={editGraph}
+                >
+                    Edit Graph
+                </Button>
                 <Button
                     disabled={!canSave}
                     shape="round"
@@ -108,18 +131,9 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
                 >
                     Save
                 </Button>
-                <Button
-                    disabled={!canEdit}
-                    shape="round"
-                    type="primary"
-                    icon="setting"
-                    onClick={editGraph}
-                >
-                    Edit Graph
-                </Button>
             </FlexRow>
             <FlexFillGreedy />
-            <FlexRow gap={5}>
+            <FlexRow gap={10}>
                 <Button
                     type="primary"
                     shape="round"
@@ -132,7 +146,7 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
                             runGraph();
                         }
                     }}
-                    loading={isRunning || connecting}
+                    loading={connecting}
                 >
                     Run
                 </Button>

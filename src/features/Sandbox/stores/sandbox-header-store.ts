@@ -7,7 +7,6 @@ import GraphHub from '../hubs/graph-hub';
 
 interface ISandboxHeaderState {
     isSavingGraph: boolean;
-    isRunning: boolean;
     bridge?: IBridgeInfo;
     bridges: IBridgeInfo[];
     loadingBridges: boolean;
@@ -39,7 +38,6 @@ export class SandboxHeaderStore extends Store<
 
     public state: ISandboxHeaderState = {
         isSavingGraph: false,
-        isRunning: false,
         bridges: [],
         loadingBridges: false,
         canSave: false,
@@ -75,12 +73,6 @@ export class SandboxHeaderStore extends Store<
             } else {
                 appStore.toast('Graph ran successfully!');
             }
-
-            if (this.timeout) {
-                clearTimeout(this.timeout);
-            }
-
-            this.setState({ isRunning: false });
         });
 
         this.graphHub.onConnected.subscribe(() => {
@@ -181,18 +173,11 @@ export class SandboxHeaderStore extends Store<
             const connectionId = selectedBridge.connectionId;
             const graph = this.ctx.getConvertedGraphData();
 
-            this.setState({ isRunning: true });
-
             if (isMacro(graph) && flowInput) {
                 this.graphHub.runMacro(graph, connectionId, flowInput.key);
             } else {
                 this.graphHub.runGraph(graph, connectionId);
             }
-
-            this.timeout = setTimeout(() => {
-                this.setState({ isRunning: false });
-                appStore.toast('Timeout exception', 'error');
-            }, 30000);
         }
     };
 

@@ -140,9 +140,7 @@ const LoginView = () => {
         <div className="login-form-container">
             <Card className="login-card-container" title="Login">
                 <FlexRow gap={10}>
-                    <FlexColumn>
-                        <LoginForm handleSubmit={handleSubmit} />
-                    </FlexColumn>
+                    <LoginForm handleSubmit={handleSubmit} />
                     <FlexColumn className="social-logins">
                         <a href={AuthService.loginGoogle()}>
                             <GoogleLoginButton />

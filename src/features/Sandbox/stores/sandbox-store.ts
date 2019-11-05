@@ -98,7 +98,11 @@ export class SandboxStore
                 this.tabsStore.addTab(graph);
             } else {
                 const { graphToEdit } = this.introStore.state;
-                const updatedGraph = { ...graph, nodes: graphToEdit.nodes, links: graphToEdit.links };
+                const updatedGraph = {
+                    ...graph,
+                    nodes: graphToEdit.nodes,
+                    links: graphToEdit.links,
+                };
                 this.tabsStore.updateTabData(updatedGraph);
             }
         }
@@ -245,18 +249,20 @@ export class SandboxStore
             destinationKey: l.destinationData.id,
         }));
 
-        const nodeData = nodes.map<NodeData>(n => ({
-            id: n.id,
-            position: n.position,
-            fullName: n.fullName,
-            fieldData: n.valueInputs.map<FieldData>(f => ({
-                key: f.id,
-                value: f.value,
-            })),
-            permanent: n.permanent,
-            macroFieldId: n.macroFieldId,
-            macroId: n.macroId,
-        }));
+        const nodeData = nodes
+            .filter(x => this.canvasStore.getNode(x.id)!.links.any())
+            .map<NodeData>(n => ({
+                id: n.id,
+                position: n.position,
+                fullName: n.fullName,
+                fieldData: n.valueInputs.map<FieldData>(f => ({
+                    key: f.id,
+                    value: f.value,
+                })),
+                permanent: n.permanent,
+                macroFieldId: n.macroFieldId,
+                macroId: n.macroId,
+            }));
 
         const { graph } = this.tabsStore.activeTab;
         const { user } = appStore.userStore;
