@@ -45,7 +45,7 @@ export class SandboxStore
         isLoading: false,
     };
 
-    public initialize() {
+    public async initialize() {
         if (appStore.hasSelectedGraph) {
             this.tabsStore.addTab(appStore.state.selectedGraph!);
             appStore.setState({ selectedGraph: undefined });
@@ -55,6 +55,8 @@ export class SandboxStore
 
         this.sandboxHeaderStore.graphHub.start();
         this.logsStore.terminalHub.start();
+
+        await this.sandboxHeaderStore.initialize();
 
         if (this.tabsStore.hasActiveTab) {
             this.tabsStore.refreshActiveTab();

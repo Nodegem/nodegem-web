@@ -1,9 +1,13 @@
+import localforage from 'localforage';
 import moment from 'moment';
 import { Store } from 'overstated';
 import { appStore } from 'stores';
-import { isMacro } from 'utils';
+import { hasItem, isMacro } from 'utils';
 import { SandboxStore } from '.';
 import GraphHub from '../hubs/graph-hub';
+
+const autoSaveGraphKey = () => `${appStore.userStore.user.id}-autosaveGraph`;
+const autoSaveNodeKey = () => `${appStore.userStore.user.id}-autosaveNode`;
 
 interface ISandboxHeaderState {
     isSavingGraph: boolean;
@@ -14,6 +18,8 @@ interface ISandboxHeaderState {
     canEdit: boolean;
     connected: boolean;
     connecting: boolean;
+    autoSaveGraph: boolean;
+    autoSaveNode: boolean;
 }
 
 export class SandboxHeaderStore extends Store<
@@ -44,11 +50,11 @@ export class SandboxHeaderStore extends Store<
         canEdit: false,
         connected: false,
         connecting: false,
+        autoSaveGraph: true,
+        autoSaveNode: true,
     };
 
     public graphHub: GraphHub = new GraphHub();
-
-    private timeout: NodeJS.Timeout;
 
     constructor() {
         super();
@@ -153,6 +159,22 @@ export class SandboxHeaderStore extends Store<
         this.graphHub.start();
     }
 
+    public initialize = async () => {
+        this.suspend();
+        if (await hasItem(autoSaveGraphKey())) {
+            this.setState({
+                autoSaveGraph: await localforage.getItem(autoSaveGraphKey()),
+            });
+        }
+
+        if (await hasItem(autoSaveNodeKey())) {
+            this.setState({
+                autoSaveNode: await localforage.getItem(autoSaveNodeKey()),
+            });
+        }
+        this.unsuspend();
+    };
+
     public runGraph = (
         flowInput?: FlowInputFieldDto,
         valueInputs?: ValueInputFieldDto[]
@@ -188,6 +210,26 @@ export class SandboxHeaderStore extends Store<
     public refreshBridges = () => {
         this.setState({ loadingBridges: true });
         this.graphHub.requestBridges();
+    };
+
+    public toggleAutosaveGraph = (toggle?: boolean) => {
+        const value = this.state.autoSaveGraph.toggle(toggle);
+        localforage.setItem(
+            `${appStore.userStore.user.id}-autosaveGraph`,
+            value
+        );
+        this.setState({
+            autoSaveGraph: this.state.autoSaveGraph.toggle(toggle),
+        });
+    };
+
+    public toggleAutosaveNode = (toggle?: boolean) => {
+        const value = this.state.autoSaveNode.toggle(toggle);
+        localforage.setItem(
+            `${appStore.userStore.user.id}-autosaveNode`,
+            value
+        );
+        this.setState({ autoSaveNode: value });
     };
 
     public onEditGraph = () => {

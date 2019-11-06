@@ -6,4 +6,4 @@ export * from './notification-helper';
 export * from './simple-observable';
 export * from './typeguards';
 export * from './value-type-mapper';
-export * from './localstorage';
+export * from './localforage';

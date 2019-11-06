@@ -20,7 +20,7 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
 }) =>
     useMemo(
         () => (
-            <Menu theme="dark">
+            <Menu theme="dark" selectable={false}>
                 {bridges &&
                     bridges.map(b => (
                         <Menu.Item
@@ -50,13 +50,35 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
         [bridges, currentBridge]
     );
 
-const SettingsMenu: React.FC = () => (
-    <Menu theme="dark" className="sandbox-settings-menu">
+interface ISettingsMenuProps {
+    autosaveGraph: boolean;
+    autosaveNode: boolean;
+    autoSaveGraphToggle: (value?: boolean) => void;
+    autoSaveNodeToggle: (value?: boolean) => void;
+}
+
+const SettingsMenu: React.FC<ISettingsMenuProps> = ({
+    autosaveNode,
+    autosaveGraph,
+    autoSaveGraphToggle,
+    autoSaveNodeToggle,
+}) => (
+    <Menu theme="dark" className="sandbox-settings-menu" selectable={false}>
         <Menu.Item>
-            <Checkbox>Auto Save Graph</Checkbox>
+            <Checkbox
+                checked={autosaveGraph}
+                onChange={value => autoSaveGraphToggle(value.target.checked)}
+            >
+                Auto Save Graph
+            </Checkbox>
         </Menu.Item>
         <Menu.Item>
-            <Checkbox>Auto Save Node</Checkbox>
+            <Checkbox
+                checked={autosaveNode}
+                onChange={value => autoSaveNodeToggle(value.target.checked)}
+            >
+                Auto Save Node
+            </Checkbox>
         </Menu.Item>
     </Menu>
 );
@@ -85,6 +107,10 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
         loadingBridges,
         activeTab,
         toggleMacroRunModal,
+        autoSaveGraph,
+        autoSaveNode,
+        toggleAutosaveGraph,
+        toggleAutosaveNode,
     } = useStore(sandboxHeaderStore, store => ({
         saveGraph: store.ctx.saveGraph,
         editGraph: store.onEditGraph,
@@ -94,18 +120,27 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
         refreshBridges: store.refreshBridges,
         activeTab: store.ctx.tabsStore.activeTab,
         toggleMacroRunModal: store.ctx.introStore.toggleMacroRunModal,
+        toggleAutosaveGraph: store.toggleAutosaveGraph,
+        toggleAutosaveNode: store.toggleAutosaveNode,
         ...store.state,
     }));
 
     return (
         <FlexRow className="sandbox-header" flex="0 1 auto">
             <FlexRow gap={10}>
-                <Dropdown overlay={<SettingsMenu />}>
+                <Dropdown
+                    overlay={
+                        <SettingsMenu
+                            autosaveGraph={autoSaveGraph}
+                            autosaveNode={autoSaveNode}
+                            autoSaveGraphToggle={toggleAutosaveGraph}
+                            autoSaveNodeToggle={toggleAutosaveNode}
+                        />
+                    }
+                >
                     <Button
-                        shape="round"
                         type="primary"
                         icon="tool"
-                        onClick={editGraph}
                         style={{ marginRight: '10px' }}
                     >
                         Settings
@@ -114,7 +149,6 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
                 </Dropdown>
                 <Button
                     disabled={!canEdit}
-                    shape="round"
                     type="primary"
                     icon="setting"
                     onClick={editGraph}
@@ -123,7 +157,6 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
                 </Button>
                 <Button
                     disabled={!canSave}
-                    shape="round"
                     type="primary"
                     icon="save"
                     loading={isSavingGraph}
@@ -136,7 +169,6 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
             <FlexRow gap={10}>
                 <Button
                     type="primary"
-                    shape="round"
                     icon="caret-right"
                     disabled={!connected}
                     onClick={() => {
@@ -163,7 +195,6 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
                 >
                     <Button
                         type="primary"
-                        shape="round"
                         icon="deployment-unit"
                         loading={loadingBridges}
                     >
