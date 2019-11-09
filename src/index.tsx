@@ -24,7 +24,9 @@ ReactDOM.render(
     <OverstatedProvider>
         <LoadedStateGate>
             <Router history={routerHistory}>
+                {/* <React.StrictMode> */}
                 <App />
+                {/* </React.StrictMode> */}
             </Router>
         </LoadedStateGate>
     </OverstatedProvider>,

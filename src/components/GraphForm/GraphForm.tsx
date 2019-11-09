@@ -133,7 +133,8 @@ export const GraphForm: React.FC<IGraphFormProps> = ({
                     frequency: 'minutely',
                 },
             }}
-            render={({ isSubmitting, values }) => (
+        >
+            {({ isSubmitting, values }) => (
                 <Form>
                     <FlexColumn className="graph-form" gap={15}>
                         <FormItem name="name" label="Name" required>
@@ -177,7 +178,7 @@ export const GraphForm: React.FC<IGraphFormProps> = ({
                     </FlexColumn>
                 </Form>
             )}
-        />
+        </Formik>
     );
 };
 

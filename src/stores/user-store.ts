@@ -10,7 +10,7 @@ interface IUserStoreState {
     isLoggedIn: boolean;
 }
 
-export class UserStoreNew extends Store<IUserStoreState, AppStore> {
+export class UserStore extends Store<IUserStoreState, AppStore> {
     public get user(): User {
         return (
             (this.isLoggedIn &&
@@ -49,7 +49,7 @@ export class UserStoreNew extends Store<IUserStoreState, AppStore> {
     public loginWithToken = async (token: string) => {
         try {
             const response = await AuthService.loginWithToken(token);
-            this.setToken(response);
+            await this.setToken(response);
 
             routerHistory.push('/');
         } catch (e) {

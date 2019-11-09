@@ -11,6 +11,7 @@ import {
 } from 'react-social-login-buttons';
 import { AuthService } from 'services';
 import { appStore } from 'stores/app-store';
+import { popup } from 'utils';
 import routerHistory from 'utils/history';
 import * as Yup from 'yup';
 
@@ -41,7 +42,8 @@ const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
             }}
             validationSchema={formValidation}
             onSubmit={handleSubmit}
-            render={({ isSubmitting }) => (
+        >
+            {({ isSubmitting }) => (
                 <Form className="login-form">
                     <FlexColumn gap={15}>
                         <FormItem name="username">
@@ -88,7 +90,7 @@ const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
                     </FlexColumn>
                 </Form>
             )}
-        />
+        </Formik>
     );
 };
 
@@ -136,16 +138,28 @@ const LoginView = () => {
         }
     };
 
+    const onGoogleLogin = () => {
+        appStore.setWindowHandle(
+            popup(AuthService.loginGoogle(), 'Google Login')
+        );
+    };
+
+    const onGithubLogin = () => {
+        appStore.setWindowHandle(
+            popup(AuthService.loginGitHub(), 'Github Login')
+        );
+    };
+
     return (
         <div className="login-form-container">
             <Card className="login-card-container" title="Login">
                 <FlexRow gap={10}>
                     <LoginForm handleSubmit={handleSubmit} />
                     <FlexColumn className="social-logins">
-                        <a href={AuthService.loginGoogle()}>
+                        <a onClick={onGoogleLogin}>
                             <GoogleLoginButton />
                         </a>
-                        <a href={AuthService.loginGitHub()}>
+                        <a onClick={onGithubLogin}>
                             <GithubLoginButton />
                         </a>
                     </FlexColumn>

@@ -128,7 +128,8 @@ export const MacroForm: React.FC<IMacroFormProps> = ({
                 valueInputs: (initialValue && initialValue.valueInputs) || [],
                 valueOutputs: (initialValue && initialValue.valueOutputs) || [],
             }}
-            render={({ isSubmitting, values }) => (
+        >
+            {({ isSubmitting, values }) => (
                 <Form>
                     <FlexColumn className="macro-form" gap={15}>
                         <FormItem name="name" label="Name" required>
@@ -161,7 +162,7 @@ export const MacroForm: React.FC<IMacroFormProps> = ({
                     </FlexColumn>
                 </Form>
             )}
-        />
+        </Formik>
     );
 };
 

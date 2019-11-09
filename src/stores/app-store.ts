@@ -2,11 +2,12 @@ import { message, notification } from 'antd';
 import { MenuTheme } from 'antd/lib/menu/MenuContext';
 import { ArgsProps, NotificationPlacement } from 'antd/lib/notification';
 import { compose, Store } from 'overstated';
-import { UserStoreNew } from './user-store';
+import { UserStore } from './user-store';
 
 interface IAppState {
     selectedGraph?: Graph | Macro;
     theme: MenuTheme;
+    windowHandle: Window | null;
 }
 
 type NoticeType = 'success' | 'info' | 'warn' | 'error';
@@ -23,15 +24,16 @@ interface INotifyOptions {
 }
 
 interface IAppChildren {
-    userStore: UserStoreNew;
+    userStore: UserStore;
 }
 
 @compose({
-    userStore: UserStoreNew,
+    userStore: UserStore,
 })
 export class AppStore extends Store<IAppState, undefined, IAppChildren> {
     public state: IAppState = {
         theme: 'dark',
+        windowHandle: null,
     };
 
     public loadStateFromStorage = async () => {
@@ -48,6 +50,10 @@ export class AppStore extends Store<IAppState, undefined, IAppChildren> {
 
     public clearSelectedGraph = () => {
         this.setState({ selectedGraph: undefined });
+    };
+
+    public setWindowHandle = (windowHandle: Window | null) => {
+        this.setState({ windowHandle });
     };
 
     public openNotification = ({

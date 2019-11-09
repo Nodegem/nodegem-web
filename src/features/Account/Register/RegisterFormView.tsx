@@ -63,7 +63,8 @@ const RegisterForm: React.FC<IRegisterFormProps> = ({ handleSubmit }) => {
             }}
             validationSchema={validation}
             onSubmit={handleSubmit}
-            render={({ isSubmitting }) => (
+        >
+            {({ isSubmitting }) => (
                 <Form className="registration-form">
                     <FlexColumn>
                         <FormItem name="userName" label="Username" required>
@@ -139,7 +140,7 @@ const RegisterForm: React.FC<IRegisterFormProps> = ({ handleSubmit }) => {
                     </Button>
                 </Form>
             )}
-        />
+        </Formik>
     );
 };
 
