@@ -1,4 +1,4 @@
-import { Button, Checkbox, Dropdown, Icon, Menu } from 'antd';
+import { Button, Checkbox, Dropdown, Icon, Menu, Tooltip } from 'antd';
 import { FlexFillGreedy, FlexRow } from 'components';
 import { useStore } from 'overstated';
 import React, { useMemo } from 'react';
@@ -20,7 +20,7 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
 }) =>
     useMemo(
         () => (
-            <Menu theme="dark" selectable={false}>
+            <Menu theme="dark" className="bridge-menu" selectable={false}>
                 {bridges &&
                     bridges.map(b => (
                         <Menu.Item
@@ -70,6 +70,9 @@ const SettingsMenu: React.FC<ISettingsMenuProps> = ({
                 onChange={value => autoSaveGraphToggle(value.target.checked)}
             >
                 Auto Save Graph
+                <Tooltip title="Save graph changes automatically">
+                    <Icon type="info-circle" />
+                </Tooltip>
             </Checkbox>
         </Menu.Item>
         <Menu.Item>
@@ -78,6 +81,9 @@ const SettingsMenu: React.FC<ISettingsMenuProps> = ({
                 onChange={value => autoSaveNodeToggle(value.target.checked)}
             >
                 Auto Save Node
+                <Tooltip title="Save node changes automatically">
+                    <Icon type="info-circle" />
+                </Tooltip>
             </Checkbox>
         </Menu.Item>
     </Menu>

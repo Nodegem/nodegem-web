@@ -47,6 +47,7 @@ export class IntroStore extends Store<IIntroState, SandboxStore> {
         }
 
         this.setState({
+            graphToEdit: undefined,
             isGraphModalOpen: false,
             isMacroModalOpen: false,
         });
