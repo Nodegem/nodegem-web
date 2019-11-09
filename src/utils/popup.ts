@@ -1,5 +1,3 @@
-import localforage from 'localforage';
-
 const findLeftWindowBoundry = () => {
     // In Internet Explorer window.screenLeft is the window's left boundry
     if (window.screenLeft) {
@@ -31,7 +29,7 @@ const findTopWindowBoundry = () => {
 export const popup = (
     url: string,
     title: string,
-    size: Vector2 = { x: 360, y: 640 }
+    size: Vector2 = { x: 480, y: 640 }
 ) => {
     const x = screen.width / 2 - size.x / 2 + findLeftWindowBoundry();
     const y = screen.height / 2 - size.y / 2 + findTopWindowBoundry();

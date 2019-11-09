@@ -7,7 +7,6 @@ import { UserStore } from './user-store';
 interface IAppState {
     selectedGraph?: Graph | Macro;
     theme: MenuTheme;
-    windowHandle: Window | null;
 }
 
 type NoticeType = 'success' | 'info' | 'warn' | 'error';
@@ -33,7 +32,6 @@ interface IAppChildren {
 export class AppStore extends Store<IAppState, undefined, IAppChildren> {
     public state: IAppState = {
         theme: 'dark',
-        windowHandle: null,
     };
 
     public loadStateFromStorage = async () => {
@@ -50,10 +48,6 @@ export class AppStore extends Store<IAppState, undefined, IAppChildren> {
 
     public clearSelectedGraph = () => {
         this.setState({ selectedGraph: undefined });
-    };
-
-    public setWindowHandle = (windowHandle: Window | null) => {
-        this.setState({ windowHandle });
     };
 
     public openNotification = ({

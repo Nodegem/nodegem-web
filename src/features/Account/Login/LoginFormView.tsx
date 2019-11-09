@@ -94,6 +94,23 @@ const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
     );
 };
 
+window.addEventListener('message', event => {
+    const { result } = event.data;
+    if (result && result.socialLogin) {
+        if (!!result.token && result.success) {
+            // Make a login request
+            appStore.userStore.loginWithToken(result.token as string);
+        } else {
+            appStore.openNotification({
+                title: 'Unable to sign-in',
+                description: result.message as string,
+                type: 'error',
+            });
+            routerHistory.push('/login');
+        }
+    }
+});
+
 const LoginView = () => {
     const handleSubmit = async (
         values: IFormValues,
@@ -139,15 +156,11 @@ const LoginView = () => {
     };
 
     const onGoogleLogin = () => {
-        appStore.setWindowHandle(
-            popup(AuthService.loginGoogle(), 'Google Login')
-        );
+        popup(AuthService.loginGoogle(), 'Google Login');
     };
 
     const onGithubLogin = () => {
-        appStore.setWindowHandle(
-            popup(AuthService.loginGitHub(), 'Github Login')
-        );
+        popup(AuthService.loginGitHub(), 'Github Login');
     };
 
     return (
