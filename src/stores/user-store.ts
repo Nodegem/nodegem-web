@@ -39,11 +39,7 @@ export class UserStore extends Store<IUserStoreState, AppStore> {
             isLoggedIn: !!token && !!token.accessToken,
         });
 
-        if (!token) {
-            await localforage.removeItem('session');
-        } else {
-            await localforage.setItem('session', token);
-        }
+        await localforage.setItem('session', token);
     };
 
     public loginWithToken = async (token: string) => {
@@ -74,16 +70,17 @@ export class UserStore extends Store<IUserStoreState, AppStore> {
             if (this.state.isLoggedIn) {
                 await AuthService.logout();
             }
-            await this.setToken(undefined as any);
         } catch (e) {
             console.error(e);
         } finally {
+            await this.setToken(undefined as any);
+            await localforage.removeItem('session');
             this.ctx.openNotification({
                 title: 'Successfully logged out!',
                 description: '',
                 type: 'success',
             });
-            routerHistory.push('/');
+            routerHistory.push('/login');
         }
     };
 }

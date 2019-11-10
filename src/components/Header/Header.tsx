@@ -48,8 +48,9 @@ export const Header: React.FC = () => {
         theme: store.state.theme,
     }));
 
-    const { user } = useStore(appStore.userStore, store => ({
+    const { user, logout } = useStore(appStore.userStore, store => ({
         user: store.user,
+        logout: store.logout,
     }));
 
     return (
@@ -66,7 +67,7 @@ export const Header: React.FC = () => {
                         <Dropdown
                             className="avatar-menu"
                             placement="bottomRight"
-                            overlay={menu(theme, appStore.userStore.logout)}
+                            overlay={menu(theme, logout)}
                             trigger={['click']}
                         >
                             <div>
