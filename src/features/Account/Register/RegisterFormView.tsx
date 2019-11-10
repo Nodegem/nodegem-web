@@ -13,6 +13,10 @@ import * as Yup from 'yup';
 const validation = Yup.object().shape<IFormValues>({
     userName: Yup.string()
         .min(4, value => `Username must be at least ${value.min} characters`)
+        .matches(
+            /^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/,
+            'Invalid username'
+        )
         .required('Username is required'),
     email: Yup.string()
         .email('Must be a valid email')
