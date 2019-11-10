@@ -6,6 +6,7 @@ class GraphHub extends BaseHub {
     public bridgeInfo: SimpleObservable<IBridgeInfo[]>;
     public lostBridge: SimpleObservable<string>;
     public onGraphCompleted: SimpleObservable<IExecutionError>;
+    public onGraphError: SimpleObservable<IExecutionError>;
 
     constructor() {
         super('graphHub');
@@ -14,11 +15,13 @@ class GraphHub extends BaseHub {
         this.lostBridge = new SimpleObservable();
         this.onGraphCompleted = new SimpleObservable();
         this.bridgeEstablished = new SimpleObservable();
+        this.onGraphError = new SimpleObservable();
 
         this.on('BridgeEstablishedAsync', this.bridgeEstablished.execute);
         this.on('RequestedBridgesAsync', this.bridgeInfo.execute);
         this.on('LostBridgeAsync', this.lostBridge.execute);
         this.on('GraphCompletedAsync', this.onGraphCompleted.execute);
+        this.on('GraphErrorAsync', this.onGraphError.execute);
     }
 
     public requestBridges = async () => {

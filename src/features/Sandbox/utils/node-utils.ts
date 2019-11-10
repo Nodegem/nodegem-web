@@ -68,6 +68,7 @@ export const definitionToNode = (
             indefinite: x.indefinite,
             value: x.defaultValue,
             nodeId: id,
+            isEditable: x.isEditable === undefined ? true : x.isEditable,
         })),
         valueOutputs: (valueOutputs || []).map<IPortUIData>(x => ({
             id: x.key,
@@ -138,12 +139,14 @@ export const nodeDataToUINodeData = (
                         name: vi.label,
                         io: 'input',
                         type: 'value',
-                        valueType: vi.valueType,
+                        valueType: fd.valueType || vi.valueType,
                         defaultValue: vi.defaultValue,
                         indefinite: vi.indefinite,
                         value: tryGetValue(node, fd.key, vi.defaultValue),
                         nodeId: node.id,
                         connected: false,
+                        isEditable:
+                            vi.isEditable === undefined ? true : vi.isEditable,
                     }));
             }
 
@@ -159,20 +162,42 @@ export const nodeDataToUINodeData = (
                     value: tryGetValue(node, vi.key, vi.defaultValue),
                     nodeId: node.id,
                     connected: false,
+                    isEditable:
+                        vi.isEditable === undefined ? true : vi.isEditable,
                 },
             ];
         }),
-        valueOutputs: (valueOutputs || []).map<IPortUIData>(vo => ({
-            id: vo.key,
-            name: vo.label,
-            io: 'output',
-            type: 'value',
-            valueType: vo.valueType,
-            value: tryGetValue(node, vo.key),
-            connected: false,
-            indefinite: vo.indefinite,
-            nodeId: node.id,
-        })),
+        valueOutputs: (valueOutputs || []).flatMap<IPortUIData>(vo => {
+            if (vo.indefinite && node.fieldData) {
+                return node.fieldData
+                    .filter(x => x.key.includes('|'))
+                    .map<IPortUIData>(fd => ({
+                        id: fd.key,
+                        name: vo.label,
+                        io: 'output',
+                        type: 'value',
+                        value: fd.value || tryGetValue(node, vo.key),
+                        valueType: fd.valueType || vo.valueType,
+                        indefinite: vo.indefinite,
+                        nodeId: node.id,
+                        connected: false,
+                    }));
+            }
+
+            return [
+                {
+                    id: vo.key,
+                    name: vo.label,
+                    io: 'output',
+                    type: 'value',
+                    valueType: vo.valueType,
+                    value: tryGetValue(node, vo.key),
+                    connected: false,
+                    indefinite: vo.indefinite,
+                    nodeId: node.id,
+                },
+            ];
+        }),
         title: definition.title,
         permanent: node.permanent,
         selected: false,

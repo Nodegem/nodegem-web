@@ -334,6 +334,7 @@ export class CanvasStore extends Store<
         const node = this.getNode(nodeId);
         if (node) {
             node.links = node.links.filter(x => x !== linkId);
+            this.updateNodeInfo(nodeId);
         }
     };
 
@@ -373,6 +374,8 @@ export class CanvasStore extends Store<
             this.updateNode(nodeId, _ => ({
                 selected: true,
             }));
+
+            this.ctx.nodeInfoStore.setSelectedNode(this.getNode(nodeId)!);
             this.unsuspend();
         }
     };
@@ -394,7 +397,7 @@ export class CanvasStore extends Store<
             selected: true,
         }));
 
-        this.ctx.nodeInfoStore.toggleOpen(true);
+        this.ctx.nodeInfoStore.toggleOpen();
         this.ctx.nodeInfoStore.setSelectedNode(node!);
         this.unsuspend();
     };
@@ -538,10 +541,13 @@ export class CanvasStore extends Store<
                         id: fullId,
                         connected: false,
                         value: data.defaultValue,
+                        valueType: data.valueType || 'any',
                     },
                 ]),
             true
         );
+
+        this.updateNodeInfo(data.nodeId);
     };
 
     public onPortRemove = (data: IPortUIData) => {
@@ -553,6 +559,14 @@ export class CanvasStore extends Store<
                 ]),
             true
         );
+
+        this.updateNodeInfo(data.nodeId);
+    };
+
+    private updateNodeInfo = (nodeId: string) => {
+        if (!!this.ctx.nodeInfoStore.state.selectedNode) {
+            this.ctx.nodeInfoStore.setSelectedNode(this.getNode(nodeId)!);
+        }
     };
 
     public onPortEvent = (

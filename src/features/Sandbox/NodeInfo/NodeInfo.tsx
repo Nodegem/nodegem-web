@@ -1,19 +1,37 @@
 import React, { useEffect, useState } from 'react';
 
-import { Button, Divider } from 'antd';
+import { Button, Divider, Icon } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import classNames from 'classnames';
 import { FlexColumn } from 'components';
 import { ValueTypeControl } from 'components/ValueTypeControl/ValueTypeControl';
 import { FieldArray, Formik, FormikHelpers } from 'formik';
-import { Form, FormItem, ResetButton, SubmitButton } from 'formik-antd';
+import { Form, FormItem, ResetButton, Select, SubmitButton } from 'formik-antd';
 import _ from 'lodash';
+import { valueMap } from 'utils';
 import * as Yup from 'yup';
 import './NodeInfo.less';
 
+const valueOptions: ValueType[] = [
+    'any',
+    'text',
+    'textarea',
+    'boolean',
+    'number',
+    'time',
+    'date',
+    'datetime',
+    'phonenumber',
+    'url',
+];
+
 interface INodeInfoProps {
     selectedNode: INodeUIData;
-    onNodeValueChange: (node: INodeUIData, fields: IPortUIData[]) => void;
+    onNodeValueChange: (
+        node: INodeUIData,
+        fields: IPortUIData[],
+        type: 'input' | 'output'
+    ) => void;
 }
 
 const NodeInfo: React.FC<INodeInfoProps> = ({
@@ -23,9 +41,13 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
     const [nodeValueInputs, setValueInputs] = useState(
         selectedNode.valueInputs
     );
+    const [nodeValueOutputs, setValueOutputs] = useState(
+        selectedNode.valueOutputs
+    );
 
     useEffect(() => {
         setValueInputs(selectedNode.valueInputs);
+        setValueOutputs(selectedNode.valueOutputs);
     }, [selectedNode]);
 
     const containerClass = classNames({
@@ -36,9 +58,12 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
         values: INodeInfoFormValues,
         actions: FormikHelpers<INodeInfoFormValues>
     ) => {
-        onNodeValueChange(selectedNode, values.valueInputs);
+        console.log(values);
+        onNodeValueChange(selectedNode, values.valueInputs, 'input');
+        onNodeValueChange(selectedNode, values.valueOutputs, 'output');
         actions.setSubmitting(false);
         setValueInputs(values.valueInputs);
+        setValueOutputs(values.valueOutputs);
     };
 
     return (
@@ -51,10 +76,12 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
                 <p className="header underline">Description:</p>
                 <Paragraph>{selectedNode.description || 'N/A'}</Paragraph>
             </FlexColumn>
-            {nodeValueInputs && nodeValueInputs.any() && (
+            {((nodeValueInputs && nodeValueInputs.any()) ||
+                (nodeValueOutputs && nodeValueInputs.any())) && (
                 <FlexColumn className="value-inputs">
                     <NodeInfoForm
                         valueInputs={nodeValueInputs}
+                        valueOutputs={nodeValueOutputs}
                         handleSubmit={handleSubmit}
                     />
                 </FlexColumn>
@@ -65,10 +92,12 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
 
 interface INodeInfoFormValues {
     valueInputs: IPortUIData[];
+    valueOutputs: IPortUIData[];
 }
 
 interface INodeInfoFormProps {
     valueInputs: IPortUIData[];
+    valueOutputs: IPortUIData[];
     handleSubmit: (
         values: INodeInfoFormValues,
         actions: FormikHelpers<INodeInfoFormValues>
@@ -91,13 +120,32 @@ const validationScheme = Yup.object().shape({
 
 const NodeInfoForm: React.FC<INodeInfoFormProps> = ({
     valueInputs,
+    valueOutputs,
     handleSubmit,
 }) => {
+    const getPortLabel = (
+        port: IPortUIData,
+        list: IPortUIData[],
+        index: number
+    ) => {
+        if (!port.indefinite) {
+            return port.name;
+        }
+
+        const startIndefiniteIndex = list.findIndex(x => x.indefinite);
+        return `${port.name}[${index - startIndefiniteIndex}]`;
+    };
+
     return (
         <Formik
             enableReinitialize
             initialValues={{
                 valueInputs: valueInputs.map(x => ({
+                    ...x,
+                    value: x.value || x.defaultValue,
+                    valueType: x.valueType!,
+                })),
+                valueOutputs: valueOutputs.map(x => ({
                     ...x,
                     value: x.value || x.defaultValue,
                     valueType: x.valueType!,
@@ -114,32 +162,130 @@ const NodeInfoForm: React.FC<INodeInfoFormProps> = ({
                             render={() => (
                                 <FlexColumn
                                     gap={20}
+                                    flex="1 1 auto"
                                     className="value-input-controls"
                                 >
                                     {valueInputs.map((vi, index) => (
                                         <FormItem
                                             key={index}
                                             name={`valueInputs.${index}.value`}
-                                            label={vi.name}
+                                            label={getPortLabel(
+                                                vi,
+                                                valueInputs,
+                                                index
+                                            )}
                                         >
-                                            <ValueTypeControl
-                                                placeHolder="Value"
-                                                name={`valueInputs.${index}.value`}
-                                                disabled={vi.connected}
-                                                valueType={vi.valueType}
-                                            />
+                                            {vi.connected || !vi.isEditable ? (
+                                                !vi.isEditable ? (
+                                                    <span className="is-connected">
+                                                        Not Editable
+                                                    </span>
+                                                ) : (
+                                                    <span className="is-connected">
+                                                        Connected
+                                                        <Icon type="link" />
+                                                    </span>
+                                                )
+                                            ) : (
+                                                <ValueTypeControl
+                                                    placeHolder="Value"
+                                                    name={`valueInputs.${index}.value`}
+                                                    disabled={
+                                                        vi.connected ||
+                                                        !vi.isEditable
+                                                    }
+                                                    valueType={vi.valueType}
+                                                />
+                                            )}
                                         </FormItem>
                                     ))}
                                 </FlexColumn>
                             )}
                         />
+                        {valueOutputs.filter(x => x.indefinite).any() && (
+                            <FieldArray
+                                name="valueOutputs"
+                                render={() => (
+                                    <FlexColumn
+                                        gap={20}
+                                        className="value-output-controls"
+                                    >
+                                        {valueOutputs.map(
+                                            (vo, index) =>
+                                                vo.indefinite && (
+                                                    <React.Fragment key={index}>
+                                                        <FormItem
+                                                            name={`valueOutputs.${index}.value`}
+                                                            label={`${getPortLabel(
+                                                                vo,
+                                                                valueOutputs,
+                                                                index
+                                                            )} Key`}
+                                                        >
+                                                            <ValueTypeControl
+                                                                placeHolder="Value"
+                                                                name={`valueOutputs.${index}.value`}
+                                                                disabled={false}
+                                                                valueType={
+                                                                    'text'
+                                                                }
+                                                            />
+                                                        </FormItem>
+                                                        <FormItem
+                                                            key={index}
+                                                            name={`valueOutputs.${index}.valueType`}
+                                                            label={`${getPortLabel(
+                                                                vo,
+                                                                valueOutputs,
+                                                                index
+                                                            )} Type`}
+                                                        >
+                                                            <Select
+                                                                style={{
+                                                                    minWidth:
+                                                                        '175px',
+                                                                }}
+                                                                name={`valueOutputs.${index}.valueType`}
+                                                                placeholder="Type"
+                                                            >
+                                                                {valueOptions.map(
+                                                                    (
+                                                                        v,
+                                                                        vIndex
+                                                                    ) => (
+                                                                        <Select.Option
+                                                                            key={
+                                                                                vIndex
+                                                                            }
+                                                                            value={
+                                                                                v
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                valueMap[
+                                                                                    v
+                                                                                ]
+                                                                            }
+                                                                        </Select.Option>
+                                                                    )
+                                                                )}
+                                                            </Select>
+                                                        </FormItem>
+                                                    </React.Fragment>
+                                                )
+                                        )}
+                                    </FlexColumn>
+                                )}
+                            />
+                        )}
+
                         <Button.Group>
                             <ResetButton
                                 type="danger"
                                 icon="reload"
                                 style={{ width: '50%' }}
                             >
-                                Undo
+                                Reset
                             </ResetButton>
                             <SubmitButton
                                 disabled={false}

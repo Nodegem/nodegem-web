@@ -60,6 +60,7 @@ interface NodeData {
 interface FieldData {
     key: string;
     value: any | any[];
+    valueType: ValueType;
 }
 
 interface CreateGraph {

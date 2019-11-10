@@ -50,7 +50,6 @@ export class UserStore extends Store<IUserStoreState, AppStore> {
         try {
             const response = await AuthService.loginWithToken(token);
             await this.setToken(response);
-
             routerHistory.push('/');
         } catch (e) {
             let errorMessage = 'Unable to connect to service.';
@@ -84,6 +83,7 @@ export class UserStore extends Store<IUserStoreState, AppStore> {
                 description: '',
                 type: 'success',
             });
+            routerHistory.push('/');
         }
     };
 }

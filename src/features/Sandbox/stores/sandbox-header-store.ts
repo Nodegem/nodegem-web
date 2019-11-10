@@ -93,7 +93,7 @@ export class SandboxHeaderStore extends Store<
         });
 
         this.graphHub.onReconnected.subscribe(() => {
-            this.setState({ connected: true });
+            this.setState({ connected: true, connecting: false });
             this.graphHub.clientConnect();
             appStore.toast('Successfully reconnected!');
         });
@@ -151,6 +151,16 @@ export class SandboxHeaderStore extends Store<
             }
         });
 
+        this.graphHub.onGraphError.subscribe(error => {
+            console.error(error);
+            this.ctx.tabsStore.addLogsToTab(error.graphId, {
+                graphId: error.graphId,
+                message: JSON.stringify(error),
+                type: 'error',
+                timestamp: moment.now(),
+            });
+        });
+
         this.graphHub.onDisconnected.subscribe(() => {
             appStore.toast('Lost connection to graph service', 'error');
             this.setState({ connected: false });
@@ -193,7 +203,7 @@ export class SandboxHeaderStore extends Store<
         const { connected } = this.state;
         if (connected && hasSelectedBridge) {
             const connectionId = selectedBridge.connectionId;
-            const graph = this.ctx.getConvertedGraphData();
+            const graph = this.ctx.getConvertedGraphData(true);
 
             if (isMacro(graph) && flowInput) {
                 this.graphHub.runMacro(graph, connectionId, flowInput.key);
@@ -214,10 +224,7 @@ export class SandboxHeaderStore extends Store<
 
     public toggleAutosaveGraph = (toggle?: boolean) => {
         const value = this.state.autoSaveGraph.toggle(toggle);
-        localforage.setItem(
-            `${appStore.userStore.user.id}-autosaveGraph`,
-            value
-        );
+        localforage.setItem(autoSaveGraphKey(), value);
         this.setState({
             autoSaveGraph: this.state.autoSaveGraph.toggle(toggle),
         });
@@ -225,10 +232,7 @@ export class SandboxHeaderStore extends Store<
 
     public toggleAutosaveNode = (toggle?: boolean) => {
         const value = this.state.autoSaveNode.toggle(toggle);
-        localforage.setItem(
-            `${appStore.userStore.user.id}-autosaveNode`,
-            value
-        );
+        localforage.setItem(autoSaveNodeKey(), value);
         this.setState({ autoSaveNode: value });
     };
 

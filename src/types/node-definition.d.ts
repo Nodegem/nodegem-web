@@ -24,6 +24,7 @@ interface FlowOutputDefinition extends FieldDefinition {}
 interface ValueInputDefinition extends FieldDefinition {
     defaultValue: any;
     valueType: ValueType;
+    isEditable: boolean;
 }
 
 interface ValueOutputDefinition extends FieldDefinition {

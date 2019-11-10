@@ -1,15 +1,36 @@
 @import '../sandbox-variables.less';
 @import '../../../styles/vars.less';
 
-@port-add-offset-x: 22px;
-@port-add-offset-y: 4px;
+@port-add-offset-y: -18px;
 
 .port-container {
     &.indefinite {
         &.left {
             .port-action {
-                left: -@port-add-offset-x;
+                left: -22px;
+                top: -4px;
+            }
+            .add-port {
                 top: -@port-add-offset-y;
+            }
+        }
+
+        &.right {
+            .port-action {
+                left: 4px;
+                top: -4px;
+            }
+            .add-port {
+                top: 18px;
+            }
+        }
+
+        &.bottom {
+            .port-action {
+                top: 14px;
+            }
+            .add-port {
+                left: 22px;
             }
         }
     }
@@ -56,6 +77,12 @@
 
     &.remove-port {
         color: red;
+    }
+
+    &.disabled {
+        cursor: not-allowed;
+        color: gray !important;
+        opacity: 0.5;
     }
 
     &.hidden {

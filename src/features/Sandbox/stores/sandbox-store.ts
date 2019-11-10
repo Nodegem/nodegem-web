@@ -184,8 +184,8 @@ export class SandboxStore
 
         const { tabs } = this.tabsStore.state;
         const graphInfo = tabs.map(x => ({
-            id: x.graph.id,
-            type: getGraphType(x.graph),
+            id: x.initial.id,
+            type: getGraphType(x.initial),
         }));
         await localforage.setItem(
             `${appStore.userStore.user.id}-openTabs`,
@@ -242,7 +242,9 @@ export class SandboxStore
         }
     };
 
-    public getConvertedGraphData = (): Graph | Macro => {
+    public getConvertedGraphData = (
+        skipOrphanedNodes: boolean = false
+    ): Graph | Macro => {
         const { nodes, links } = this.canvasStore.state;
         const linkData = links.map<LinkData>(l => ({
             sourceNode: l.sourceNodeId,
@@ -251,20 +253,26 @@ export class SandboxStore
             destinationKey: l.destinationData.id,
         }));
 
-        const nodeData = nodes
-            .filter(x => this.canvasStore.getNode(x.id)!.links.any())
-            .map<NodeData>(n => ({
-                id: n.id,
-                position: n.position,
-                fullName: n.fullName,
-                fieldData: n.valueInputs.map<FieldData>(f => ({
-                    key: f.id,
-                    value: f.value,
-                })),
-                permanent: n.permanent,
-                macroFieldId: n.macroFieldId,
-                macroId: n.macroId,
-            }));
+        const allNodeData = skipOrphanedNodes
+            ? nodes.filter(x => this.canvasStore.getNode(x.id)!.links.any())
+            : nodes;
+
+        const nodeData = allNodeData.map<NodeData>(n => ({
+            id: n.id,
+            position: n.position,
+            fullName: n.fullName,
+            fieldData: [
+                ...n.valueInputs,
+                ...n.valueOutputs.filter(x => x.indefinite),
+            ].map<FieldData>(f => ({
+                key: f.id,
+                value: f.value,
+                valueType: f.valueType || 'any',
+            })),
+            permanent: n.permanent,
+            macroFieldId: n.macroFieldId,
+            macroId: n.macroId,
+        }));
 
         const { graph } = this.tabsStore.activeTab;
         const { user } = appStore.userStore;
