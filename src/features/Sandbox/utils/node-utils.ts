@@ -120,16 +120,35 @@ export const nodeDataToUINodeData = (
             nodeId: node.id,
             connected: false,
         })),
-        flowOutputs: (flowOutputs || []).map<IPortUIData>(fo => ({
-            id: fo.key,
-            name: fo.label,
-            io: 'output',
-            type: 'flow',
-            value: tryGetValue(node, fo.key),
-            indefinite: fo.indefinite,
-            nodeId: node.id,
-            connected: false,
-        })),
+        flowOutputs: (flowOutputs || []).flatMap<IPortUIData>(fo => {
+            if (fo.indefinite && node.fieldData) {
+                return node.fieldData
+                    .filter(x => x.key.includes('|'))
+                    .map<IPortUIData>(fd => ({
+                        id: fd.key,
+                        name: fo.label,
+                        io: 'output',
+                        type: 'flow',
+                        value: tryGetValue(node, fd.key),
+                        indefinite: fo.indefinite,
+                        nodeId: node.id,
+                        connected: false,
+                    }));
+            }
+
+            return [
+                {
+                    id: fo.key,
+                    name: fo.label,
+                    io: 'output',
+                    type: 'flow',
+                    value: tryGetValue(node, fo.key),
+                    indefinite: fo.indefinite,
+                    nodeId: node.id,
+                    connected: false,
+                },
+            ];
+        }),
         valueInputs: (valueInputs || []).flatMap<IPortUIData>(vi => {
             if (vi.indefinite && node.fieldData) {
                 return node.fieldData

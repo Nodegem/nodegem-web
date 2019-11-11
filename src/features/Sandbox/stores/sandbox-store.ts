@@ -264,6 +264,7 @@ export class SandboxStore
             fieldData: [
                 ...n.valueInputs,
                 ...n.valueOutputs.filter(x => x.indefinite),
+                ...n.flowOutputs.filter(x => x.indefinite),
             ].map<FieldData>(f => ({
                 key: f.id,
                 value: f.value,
