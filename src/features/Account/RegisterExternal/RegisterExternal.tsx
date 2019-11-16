@@ -1,4 +1,4 @@
-import qs from 'query-string';
+import qs from 'qs';
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router';
 
@@ -6,10 +6,10 @@ export const RegisterExternal: React.FC = () => {
     const location = useLocation();
 
     useEffect(() => {
-        const queryValues = qs.parse(location.search, {
-            parseBooleans: true,
-            parseNumbers: true,
-        });
+        const queryValues = qs.parse(location.search.replace('?', ''));
+
+        alert(location.search);
+        alert(JSON.stringify(queryValues));
 
         if (window.opener) {
             const data = {

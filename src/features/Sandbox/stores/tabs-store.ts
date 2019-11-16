@@ -96,11 +96,19 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         this.setActiveTab(graph.id);
     };
 
+    public getTabFromGraphId = (graphId: string) => {
+        return this.state.tabs.firstOrDefault(x => x.graph.id === graphId);
+    };
+
     public updateTabData = (graph: Graph | Macro) => {
         const { tabs } = this.state;
         const tabData = tabs.first(x => x.graph.id === graph.id);
         tabs.addOrUpdate(
-            { ...tabData, graph, initial: { ...graph } },
+            {
+                ...tabData,
+                graph,
+                initial: { ...graph },
+            },
             x => x.graph.id === graph.id
         );
         this.setState({ tabs: [...tabs] });

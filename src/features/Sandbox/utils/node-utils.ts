@@ -69,6 +69,7 @@ export const definitionToNode = (
             value: x.defaultValue,
             nodeId: id,
             isEditable: x.isEditable === undefined ? true : x.isEditable,
+            allowConnection: x.allowConnection,
         })),
         valueOutputs: (valueOutputs || []).map<IPortUIData>(x => ({
             id: x.key,
@@ -166,6 +167,7 @@ export const nodeDataToUINodeData = (
                         connected: false,
                         isEditable:
                             vi.isEditable === undefined ? true : vi.isEditable,
+                        allowConnection: vi.allowConnection,
                     }));
             }
 
@@ -183,6 +185,7 @@ export const nodeDataToUINodeData = (
                     connected: false,
                     isEditable:
                         vi.isEditable === undefined ? true : vi.isEditable,
+                    allowConnection: vi.allowConnection,
                 },
             ];
         }),

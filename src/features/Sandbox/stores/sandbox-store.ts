@@ -12,6 +12,7 @@ import { NodeInfoStore } from './node-info-store';
 import { NodeSelectStore } from './node-select-store';
 import { SandboxHeaderStore } from './sandbox-header-store';
 import { TabsStore } from './tabs-store';
+import _ from 'lodash';
 
 interface ISandboxCompose {
     canvasStore: CanvasStore;
@@ -99,11 +100,11 @@ export class SandboxStore
             if (!this.introStore.state.graphToEdit) {
                 this.tabsStore.addTab(graph);
             } else {
-                const { graphToEdit } = this.introStore.state;
+                const currentGraph = this.getConvertedGraphData();
                 const updatedGraph = {
                     ...graph,
-                    nodes: graphToEdit.nodes,
-                    links: graphToEdit.links,
+                    nodes: currentGraph.nodes,
+                    links: currentGraph.links,
                 };
                 this.tabsStore.updateTabData(updatedGraph);
             }
@@ -121,7 +122,9 @@ export class SandboxStore
             return;
         }
 
+        this.suspend();
         this.sandboxHeaderStore.setState({ isSavingGraph: true });
+        this.setState({ isLoading: true });
 
         try {
             const data = this.getConvertedGraphData();
@@ -132,12 +135,16 @@ export class SandboxStore
                 await GraphService.update(data);
                 appStore.toast('Graph saved successfully!', 'success');
             }
+
+            this.tabsStore.updateTabData(data);
         } catch (e) {
             appStore.toast('Unable to save graph/macro', 'error');
             console.error(e);
         }
 
+        this.setState({ isLoading: false });
         this.sandboxHeaderStore.setState({ isSavingGraph: false });
+        this.unsuspend();
     };
 
     public load = async (graph: Graph | Macro) => {

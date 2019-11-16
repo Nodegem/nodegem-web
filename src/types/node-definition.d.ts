@@ -25,6 +25,7 @@ interface ValueInputDefinition extends FieldDefinition {
     defaultValue: any;
     valueType: ValueType;
     isEditable: boolean;
+    allowConnection: boolean;
 }
 
 interface ValueOutputDefinition extends FieldDefinition {

@@ -1,4 +1,4 @@
-import qs from 'query-string';
+import qs from 'qs';
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { AuthService } from 'services';
@@ -9,10 +9,7 @@ export const EmailConfirmationView = () => {
     const location = useLocation();
 
     useEffect(() => {
-        const queryValues = qs.parse(location.search, {
-            parseBooleans: true,
-            parseNumbers: true,
-        });
+        const queryValues = qs.parse(location.search.replace('?', ''));
 
         AuthService.emailConfirmation(
             queryValues.userId as string,

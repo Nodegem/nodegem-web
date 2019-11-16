@@ -132,22 +132,26 @@ export const Node: React.FC<INodeProps> = React.memo(
                     </div>
                     <div data-node className="inner">
                         <div className="value value-inputs">
-                            {valueInputs.map((vi, i) => (
-                                <Port
-                                    key={vi.id}
-                                    onPortEvent={onPortEvent}
-                                    onAddPort={onPortAdd}
-                                    onRemovePort={onPortRemove}
-                                    lastPort={i === valueInputs.length - 1}
-                                    hidePortActions={hidePortActions}
-                                    nodeId={nodeId}
-                                    portId={vi.id}
-                                    isRemovable={
-                                        valueInputs.count(x => x.indefinite) > 1
-                                    }
-                                    {...vi}
-                                />
-                            ))}
+                            {valueInputs
+                                .filter(x => x.allowConnection)
+                                .map((vi, i) => (
+                                    <Port
+                                        key={vi.id}
+                                        onPortEvent={onPortEvent}
+                                        onAddPort={onPortAdd}
+                                        onRemovePort={onPortRemove}
+                                        lastPort={i === valueInputs.length - 1}
+                                        hidePortActions={hidePortActions}
+                                        nodeId={nodeId}
+                                        portId={vi.id}
+                                        isRemovable={
+                                            valueInputs.count(
+                                                x => x.indefinite
+                                            ) > 1
+                                        }
+                                        {...vi}
+                                    />
+                                ))}
                         </div>
                         <span data-node className="title">
                             {title}

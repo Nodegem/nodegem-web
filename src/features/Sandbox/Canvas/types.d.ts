@@ -36,6 +36,7 @@ interface IPortUIData {
     valueType?: ValueType;
     defaultValue?: any;
     isEditable?: boolean;
+    allowConnection?: boolean;
 }
 
 interface INodeUIData {
