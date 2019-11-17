@@ -228,6 +228,7 @@ export class SandboxStore
 
     private listenToKeyDown = (event: KeyboardEvent) => {
         if (event.ctrlKey || event.metaKey) {
+            console.log(event);
             switch (event.keyCode) {
                 case 83:
                     event.preventDefault();
@@ -235,6 +236,10 @@ export class SandboxStore
                     break;
                 case 32:
                     this.canvasStore.resetView();
+                    break;
+                case 70:
+                    event.preventDefault();
+                    this.nodeSelectStore.focusInput();
                     break;
             }
         } else {

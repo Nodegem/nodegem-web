@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 
 import { Button, Col, Icon, Input, List, Row, Tabs, Tooltip } from 'antd';
@@ -136,6 +136,7 @@ const NodeCategory: React.FC<INodeCategoryProps> = React.memo(
 );
 
 interface INodeSelectProps {
+    setInputRef: (ref: React.RefObject<Input>) => void;
     nodeOptions?: SelectFriendly<NodeDefinition>;
     loading: boolean;
     onFilter: (text: string) => void;
@@ -143,12 +144,18 @@ interface INodeSelectProps {
 }
 
 export const NodeSelect: React.FC<INodeSelectProps> = ({
+    setInputRef,
     nodeOptions,
     addNode,
     onFilter,
     loading,
 }) => {
+    const ref = useRef<Input>(null);
     const [tabIndex, setTabIndex] = useState('0');
+
+    useEffect(() => {
+        setInputRef(ref);
+    }, [ref]);
 
     const handleTabClick = (activeKey?: string) => {
         if (activeKey) {
@@ -202,6 +209,7 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                     {nodeOptions && (
                         <div className="filter">
                             <Input
+                                ref={ref}
                                 onChange={event => onFilter(event.target.value)}
                                 prefix={<Icon type="search" />}
                                 allowClear
