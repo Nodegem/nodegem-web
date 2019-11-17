@@ -1,4 +1,4 @@
-type LogType = 'log' | 'debug' | 'warn' | 'error';
+type LogType = 'log' | 'warn' | 'error';
 
 interface LogData {
     graphId: string;

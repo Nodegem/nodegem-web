@@ -11,6 +11,7 @@ interface INodeProps {
     scale: number;
     selected: boolean;
     title: string;
+    isFaded?: boolean;
     initialPosition: Vector2;
     flowInputs: IPortUIData[];
     flowOutputs: IPortUIData[];
@@ -36,6 +37,7 @@ export const Node: React.FC<INodeProps> = React.memo(
     ({
         isMacro,
         nodeId,
+        isFaded,
         scale,
         selected,
         title,
@@ -95,6 +97,7 @@ export const Node: React.FC<INodeProps> = React.memo(
         const classes = classNames({
             'node-container': true,
             macro: isMacro,
+            faded: isFaded,
             selected,
         });
 

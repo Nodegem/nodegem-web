@@ -6,6 +6,10 @@ const AuthService = {
     login: (username, password): Promise<TokenData> => {
         return superagent
             .get(combinePath('/account/login'))
+            .timeout({
+                response: 45000,
+                deadline: 60000,
+            })
             .use((request: SuperAgentRequest) => {
                 const encoded = btoa(`${username}:${password}`);
                 request.set('Authorization', `Basic ${encoded}`);
@@ -21,6 +25,10 @@ const AuthService = {
     loginWithToken: (token: string): Promise<TokenData> => {
         return superagent
             .get(combinePath('/account/login-token'))
+            .timeout({
+                response: 45000,
+                deadline: 60000,
+            })
             .use((request: SuperAgentRequest) => {
                 request.set('Authorization', `Bearer ${token}`);
             })

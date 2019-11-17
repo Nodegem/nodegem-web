@@ -1,3 +1,4 @@
+import { SearchStore } from './search-store';
 import { uuid } from 'lodash-uuid';
 import { compose, Store } from 'overstated';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
@@ -22,6 +23,7 @@ interface ICanvasState {
 
 interface ICanvasChildren {
     drawLinkStore: DrawLinkStore;
+    searchStore: SearchStore;
 }
 
 interface INodeUIDataWithLinks extends INodeUIData {
@@ -30,6 +32,7 @@ interface INodeUIDataWithLinks extends INodeUIData {
 
 @compose({
     drawLinkStore: DrawLinkStore,
+    searchStore: SearchStore,
 })
 export class CanvasStore extends Store<
     ICanvasState,

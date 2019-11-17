@@ -49,6 +49,7 @@ interface INodeUIData {
     flowOutputs: IPortUIData[];
     valueInputs: IPortUIData[];
     valueOutputs: IPortUIData[];
+    isFaded?: boolean;
     position: Vector2;
     permanent?: boolean;
     macroFieldId?: string;

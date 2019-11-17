@@ -126,8 +126,6 @@ export const Canvas: React.FC<ISandboxProps> = ({
     size = { width: 12000, height: 12000 },
 }: ISandboxProps) => {
     const storeData = useStore(canvasStore, store => ({
-        canToggleConsole: store.ctx.logsStore.canToggle,
-        isConsoleLoading: store.ctx.logsStore.state.isLoading,
         resetView: store.resetView,
         editNode: store.editNode,
         removeNode: store.removeNode,
@@ -137,28 +135,37 @@ export const Canvas: React.FC<ISandboxProps> = ({
         onPortEvent: store.onPortEvent,
         onNodeDrag: store.onNodeMove,
         drawLinkStore: store.drawLinkStore,
-        isDrawingLink: store.drawLinkStore.state.isDrawing,
-        toggleLogView: store.ctx.logsStore.toggleOpen,
         onNodeDblClick: store.onNodeDblClick,
         onNodeClick: store.onNodeClick,
         onNodeRightClick: store.onNodeRightClick,
         hasActiveTab: !!store.ctx.tabsStore.state.activeTabId,
-        scale: store.state.scale,
         onLinkSourceClick: store.onLinkSourceClick,
         onLinkDestinationClick: store.onLinkDestinationClick,
         ...store.state,
     }));
 
-    const {
-        canToggleConsole,
-        isConsoleLoading,
-        resetView,
-        toggleLogView,
-        openContext,
-        editNode,
-        removeNode,
-        hasActiveTab,
-    } = storeData;
+    const { canToggleConsole, isConsoleLoading, toggleLogView } = useStore(
+        canvasStore.ctx.logsStore,
+        store => ({
+            canToggleConsole: store.canToggle,
+            isConsoleLoading: store.state.isLoading,
+            toggleLogView: store.toggleOpen,
+        })
+    );
+
+    const { handleSearchChange } = useStore(canvasStore.searchStore, store => ({
+        handleSearchChange: store.handleSearchChange,
+    }));
+
+    const { hasActiveTab } = useStore(canvasStore.ctx.tabsStore, store => ({
+        hasActiveTab: store.hasActiveTab,
+    }));
+
+    const { isDrawingLink } = useStore(canvasStore.drawLinkStore, store => ({
+        isDrawingLink: store.state.isDrawing,
+    }));
+
+    const { resetView, openContext, editNode, removeNode } = storeData;
 
     const canvasRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
@@ -179,13 +186,16 @@ export const Canvas: React.FC<ISandboxProps> = ({
                     className={classNames({ canvas: true, isLoading })}
                     ref={canvasRef}
                 >
-                    <CanvasLinksNodes {...storeData} />
+                    <CanvasLinksNodes
+                        {...storeData}
+                        isDrawingLink={isDrawingLink}
+                    />
                 </div>
                 <div className="footer">
                     <div className="bottom-left-footer">
                         <Input
                             prefix={<Icon type="search" />}
-                            onChange={event => {}}
+                            onChange={handleSearchChange}
                             allowClear
                             placeholder="Search Nodes"
                         />

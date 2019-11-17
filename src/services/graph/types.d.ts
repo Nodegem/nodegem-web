@@ -1,6 +1,5 @@
 interface Graph {
     id: string;
-    isDebugModeEnabled: boolean;
     name: string;
     isActive?: boolean;
     description: string;

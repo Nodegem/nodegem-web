@@ -30,30 +30,50 @@ const requests = {
     get: url =>
         superagent
             .get(combinePath(url))
+            .timeout({
+                response: 45000,
+                deadline: 60000,
+            })
             .use(tokenPlugin)
             .use(credentialPlugin)
             .then(responseBody, handleErrors),
     post: (url, body) =>
         superagent
             .post(combinePath(url), body)
+            .timeout({
+                response: 45000,
+                deadline: 60000,
+            })
             .use(tokenPlugin)
             .use(credentialPlugin)
             .then(responseBody, handleErrors),
     put: (url, body) =>
         superagent
             .put(combinePath(url), body)
+            .timeout({
+                response: 45000,
+                deadline: 60000,
+            })
             .use(tokenPlugin)
             .use(credentialPlugin)
             .then(responseBody, handleErrors),
     patch: (url, body) =>
         superagent
             .patch(combinePath(url), body)
+            .timeout({
+                response: 45000,
+                deadline: 60000,
+            })
             .use(tokenPlugin)
             .use(credentialPlugin)
             .then(responseBody, handleErrors),
     del: url =>
         superagent
             .del(combinePath(url))
+            .timeout({
+                response: 45000,
+                deadline: 60000,
+            })
             .use(tokenPlugin)
             .use(credentialPlugin)
             .then(responseBody, handleErrors),
