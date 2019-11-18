@@ -728,6 +728,6 @@ export class CanvasStore extends Store<
 
         _.debounce(async () => {
             this.ctx.saveGraph(false);
-        }, 200)();
+        }, 10000)();
     };
 }
