@@ -1,7 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 
-import { Button, Col, Icon, Input, List, Row, Tabs, Tooltip } from 'antd';
+import {
+    Button,
+    Col,
+    Icon,
+    Input,
+    List,
+    Row,
+    Tabs,
+    Tooltip,
+    Empty,
+} from 'antd';
 
 import { FlexFill, Loader } from 'components';
 import _ from 'lodash';
@@ -155,13 +165,21 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
 
     useEffect(() => {
         setInputRef(ref);
-    }, [ref]);
+        if (!nodeOptions || Object.keys(nodeOptions).length <= 1) {
+            setTabIndex('0');
+        }
+    }, [ref, nodeOptions]);
 
     const handleTabClick = (activeKey?: string) => {
         if (activeKey) {
             setTabIndex(activeKey);
         }
     };
+
+    const getDefinitions = (key: string) =>
+        Object.keys(nodeOptions![key]).filter(optionKey =>
+            nodeOptions![key][optionKey].any()
+        );
 
     return (
         <div className="node-select-container">
@@ -174,32 +192,44 @@ export const NodeSelect: React.FC<INodeSelectProps> = ({
                             {Object.keys(nodeOptions).map((k, index) => (
                                 <TabPane tab={k} key={index.toString()}>
                                     <div className="node-definition-container">
-                                        {Object.keys(nodeOptions[k])
-                                            .filter(optionKey =>
-                                                nodeOptions[k][optionKey].any()
-                                            )
-                                            .map((itemListKey, subIndex) => (
-                                                <Droppable
-                                                    isDropDisabled={true}
-                                                    direction="vertical"
-                                                    droppableId={`${nodeSelectDroppableId}-${_.uniqueId()}-${subIndex}`}
-                                                    ignoreContainerClipping
-                                                    key={subIndex}
-                                                >
-                                                    {provided => (
-                                                        <NodeCategory
-                                                            addNode={addNode}
-                                                            definitions={
-                                                                nodeOptions[k][
+                                        {!getDefinitions(k).any() ? (
+                                            <>
+                                                <Empty description="No nodes found" />
+                                            </>
+                                        ) : (
+                                            getDefinitions(k).map(
+                                                (itemListKey, subIndex) => (
+                                                    <Droppable
+                                                        isDropDisabled={true}
+                                                        direction="vertical"
+                                                        droppableId={`${nodeSelectDroppableId}-${_.uniqueId()}-${subIndex}`}
+                                                        ignoreContainerClipping
+                                                        key={subIndex}
+                                                    >
+                                                        {provided => (
+                                                            <NodeCategory
+                                                                addNode={
+                                                                    addNode
+                                                                }
+                                                                definitions={
+                                                                    nodeOptions[
+                                                                        k
+                                                                    ][
+                                                                        itemListKey
+                                                                    ]
+                                                                }
+                                                                provided={
+                                                                    provided
+                                                                }
+                                                                title={
                                                                     itemListKey
-                                                                ]
-                                                            }
-                                                            provided={provided}
-                                                            title={itemListKey}
-                                                        />
-                                                    )}
-                                                </Droppable>
-                                            ))}
+                                                                }
+                                                            />
+                                                        )}
+                                                    </Droppable>
+                                                )
+                                            )
+                                        )}
                                     </div>
                                 </TabPane>
                             ))}

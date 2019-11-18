@@ -36,11 +36,11 @@ export class NodeSelectionSearchStore extends Store<
             ],
             shouldSort: true,
             caseSensitive: false,
-            threshold: 0.35,
+            threshold: 0.45,
             minMatchCharLength: 1,
         });
 
-        const results = filter.search(search);
+        const results = filter.search(search).filter(x => !x.ignoreDisplay);
         const definitionObject: NodeCache = {
             definitionList: results,
             definitions: this.state.baseOptions.definitions,
