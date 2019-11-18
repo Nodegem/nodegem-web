@@ -21,6 +21,13 @@ export const NodeInfoSection: React.FC<INodeInfoProps> = ({
         })
     );
 
+    const { autoSaveNode } = useStore(
+        nodeInfoStore.ctx.sandboxHeaderStore,
+        store => ({
+            autoSaveNode: store.state.autoSaveNode,
+        })
+    );
+
     return (
         <CustomCollapsible
             size="375px"

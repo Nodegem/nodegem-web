@@ -58,7 +58,6 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
         values: INodeInfoFormValues,
         actions: FormikHelpers<INodeInfoFormValues>
     ) => {
-        console.log(values);
         onNodeValueChange(selectedNode, values.valueInputs, 'input');
         onNodeValueChange(selectedNode, values.valueOutputs, 'output');
         actions.setSubmitting(false);
@@ -153,7 +152,8 @@ const NodeInfoForm: React.FC<INodeInfoFormProps> = ({
             }}
             validationSchema={validationScheme}
             onSubmit={handleSubmit}
-            render={({ isSubmitting }) => (
+        >
+            {({ isSubmitting }) => (
                 <Form className="node-info-form">
                     <FlexColumn gap={20}>
                         <Divider />
@@ -278,7 +278,6 @@ const NodeInfoForm: React.FC<INodeInfoFormProps> = ({
                                 )}
                             />
                         )}
-
                         <Button.Group>
                             <ResetButton
                                 type="danger"
@@ -300,7 +299,7 @@ const NodeInfoForm: React.FC<INodeInfoFormProps> = ({
                     </FlexColumn>
                 </Form>
             )}
-        />
+        </Formik>
     );
 };
 

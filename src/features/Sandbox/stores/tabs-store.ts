@@ -55,7 +55,7 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
     };
 
     public setActiveTab = async (id: string, forceReload: boolean = false) => {
-        if (!forceReload && this.state.activeTabId === id) {
+        if (forceReload || this.state.activeTabId === id) {
             return;
         }
 
@@ -203,5 +203,6 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
 
     public clearTabs = () => {
         this.setTabs([]);
+        this.ctx.canvasStore.clearView();
     };
 }

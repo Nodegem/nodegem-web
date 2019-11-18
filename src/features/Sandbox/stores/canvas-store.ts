@@ -1,4 +1,4 @@
-import { SearchStore } from './search-store';
+import { CanvasSearchStore } from './canvas-search-store';
 import { uuid } from 'lodash-uuid';
 import { compose, Store } from 'overstated';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
@@ -12,6 +12,7 @@ import { generateLinkId, updateLinkPath } from './../utils/link-utils';
 import { getPort, getPortId } from './../utils/node-utils';
 import { DrawLinkStore } from './draw-link-store';
 import { SandboxStore } from './sandbox-store';
+import _ from 'lodash';
 
 interface ICanvasState {
     nodes: INodeUIData[];
@@ -19,11 +20,12 @@ interface ICanvasState {
     linksVisible: boolean;
     scale: number;
     openContext?: { id: string; canDelete: boolean };
+    hasLoadedGraph: boolean;
 }
 
 interface ICanvasChildren {
     drawLinkStore: DrawLinkStore;
-    searchStore: SearchStore;
+    searchStore: CanvasSearchStore;
 }
 
 interface INodeUIDataWithLinks extends INodeUIData {
@@ -32,7 +34,7 @@ interface INodeUIDataWithLinks extends INodeUIData {
 
 @compose({
     drawLinkStore: DrawLinkStore,
-    searchStore: SearchStore,
+    searchStore: CanvasSearchStore,
 })
 export class CanvasStore extends Store<
     ICanvasState,
@@ -44,6 +46,7 @@ export class CanvasStore extends Store<
         links: [],
         linksVisible: true,
         scale: 1,
+        hasLoadedGraph: false,
     };
 
     public get mousePos(): Vector2 {
@@ -136,6 +139,7 @@ export class CanvasStore extends Store<
             links: [],
         });
         this.setState({ nodes: Array.from(this._nodes.values()) });
+        this.onChange();
     };
 
     public getNode = (nodeId: string) => {
@@ -224,6 +228,8 @@ export class CanvasStore extends Store<
         if (render) {
             this.updateLinkPaths([linkDataWithElement]);
         }
+
+        this.onChange();
     };
 
     public async load(nodes: INodeUIData[], links: ILinkInitializeData[]) {
@@ -271,22 +277,27 @@ export class CanvasStore extends Store<
         }
 
         this.updateLinkPaths(Array.from(this._links.values()));
+        this.setState({ hasLoadedGraph: true });
     }
 
     public onNodePositionUpdate = (nodeId: string, position: Vector2) => {
         this.updateNode(nodeId, _ => ({
             position,
         }));
+
+        this.onChange();
     };
 
     public clearNodes() {
         this._nodes.clear();
         this.setState({ nodes: [] });
+        this.onChange();
     }
 
     public clearLinks = () => {
         this._links.clear();
         this.setState({ links: [] });
+        this.onChange();
     };
 
     public resetView = () => {
@@ -297,6 +308,7 @@ export class CanvasStore extends Store<
         this.clearNodes();
         this.clearLinks();
         this.resetView();
+        this.setState({ hasLoadedGraph: false });
     }
 
     public toggleLinkVisibility = (toggle?: boolean) => {
@@ -330,6 +342,7 @@ export class CanvasStore extends Store<
             this._links.delete(linkId);
             this.setState({ links: Array.from(this._links.values()) });
             this.unsuspend();
+            this.onChange();
         }
     };
 
@@ -356,6 +369,7 @@ export class CanvasStore extends Store<
                 nodes: Array.from(this._nodes.values()),
             });
             this.unsuspend();
+            this.onChange();
         }
     };
 
@@ -551,6 +565,7 @@ export class CanvasStore extends Store<
         );
 
         this.updateNodeInfo(data.nodeId);
+        this.onChange();
     };
 
     public onPortRemove = (data: IPortUIData) => {
@@ -564,6 +579,7 @@ export class CanvasStore extends Store<
         );
 
         this.updateNodeInfo(data.nodeId);
+        this.onChange();
     };
 
     private updateNodeInfo = (nodeId: string) => {
@@ -701,4 +717,17 @@ export class CanvasStore extends Store<
     };
 
     //#endregion
+
+    private onChange = () => {
+        if (
+            !this.state.hasLoadedGraph ||
+            !this.ctx.sandboxHeaderStore.state.autoSaveGraph
+        ) {
+            return;
+        }
+
+        _.debounce(async () => {
+            this.ctx.saveGraph(false);
+        }, 200)();
+    };
 }

@@ -117,32 +117,36 @@ export class SandboxStore
         });
     };
 
-    public saveGraph = async () => {
+    public saveGraph = async (shouldDisplayNotification: boolean = true) => {
         if (!this.tabsStore.hasActiveTab) {
             return;
         }
 
         this.suspend();
         this.sandboxHeaderStore.setState({ isSavingGraph: true });
-        this.setState({ isLoading: true });
 
         try {
             const data = this.getConvertedGraphData();
             if (isMacro(data)) {
                 await MacroService.update(data);
-                appStore.toast('Macro saved successfully!', 'success');
+                if (shouldDisplayNotification) {
+                    appStore.toast('Macro saved successfully!', 'success');
+                }
             } else {
                 await GraphService.update(data);
-                appStore.toast('Graph saved successfully!', 'success');
+                if (shouldDisplayNotification) {
+                    appStore.toast('Graph saved successfully!', 'success');
+                }
             }
 
             this.tabsStore.updateTabData(data);
         } catch (e) {
-            appStore.toast('Unable to save graph/macro', 'error');
+            if (shouldDisplayNotification) {
+                appStore.toast('Unable to save graph/macro', 'error');
+            }
             console.error(e);
         }
 
-        this.setState({ isLoading: false });
         this.sandboxHeaderStore.setState({ isSavingGraph: false });
         this.unsuspend();
     };
@@ -228,7 +232,6 @@ export class SandboxStore
 
     private listenToKeyDown = (event: KeyboardEvent) => {
         if (event.ctrlKey || event.metaKey) {
-            console.log(event);
             switch (event.keyCode) {
                 case 83:
                     event.preventDefault();

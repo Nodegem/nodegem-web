@@ -1,5 +1,7 @@
+@import '../../../styles/vars.less';
 @import '../sandbox-variables.less';
 
+@box-shadow: 0px 0px 6px 0px;
 @hOffset: 7px;
 @vOffset: 10px;
 @flowHeight: 15px;
@@ -13,17 +15,25 @@
     border-radius: 30px;
     display: flex;
     flex-direction: column;
+    transition: opacity 200ms ease-out, box-shadow 200ms ease-out,
+        border 200ms ease-out;
+    will-change: opacity, box-shadow, border;
 
     &:hover {
-        box-shadow: 0px 0px 10px 2px #ffffffaa;
+        box-shadow: @box-shadow #ffffffaa;
+
+        &.selected {
+            box-shadow: @box-shadow @primary-color4;
+        }
     }
 
     &.selected {
-        box-shadow: 0px 0px 10px 2px red;
+        // box-shadow: @box-shadow @primary-color4;
+        border: @borderSize + 1 solid @primary-color4;
     }
 
     &.faded {
-        opacity: 0.3 !important;
+        opacity: 0.15 !important;
     }
 }
 

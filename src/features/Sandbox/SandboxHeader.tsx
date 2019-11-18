@@ -81,7 +81,7 @@ const SettingsMenu: React.FC<ISettingsMenuProps> = ({
                 onChange={value => autoSaveNodeToggle(value.target.checked)}
             >
                 Auto Save Node
-                <Tooltip title="Save node changes automatically">
+                <Tooltip title="Save node changes automatically (Not implemented yet)">
                     <Icon type="info-circle" />
                 </Tooltip>
             </Checkbox>
@@ -166,7 +166,7 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
                     type="primary"
                     icon="save"
                     loading={isSavingGraph}
-                    onClick={saveGraph}
+                    onClick={() => saveGraph()}
                 >
                     Save
                 </Button>

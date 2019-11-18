@@ -2,7 +2,7 @@ import { Store } from 'overstated';
 import { CanvasStore } from '.';
 import Fuse from 'fuse.js';
 
-export class SearchStore extends Store<{}, CanvasStore> {
+export class CanvasSearchStore extends Store<{}, CanvasStore> {
     public handleSearchChange = async (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -22,7 +22,7 @@ export class SearchStore extends Store<{}, CanvasStore> {
         const filter = new Fuse(nodes, {
             caseSensitive: false,
             keys: ['title'],
-            threshold: 0.7,
+            threshold: 0.5,
             minMatchCharLength: 1,
         });
 
