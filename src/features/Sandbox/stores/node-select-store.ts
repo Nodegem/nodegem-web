@@ -18,7 +18,7 @@ export class NodeSelectionSearchStore extends Store<
             return;
         }
 
-        const { definitionList } = this.state.options;
+        const { definitionList } = this.state.baseOptions;
         const filter = new Fuse(definitionList, {
             keys: [
                 {

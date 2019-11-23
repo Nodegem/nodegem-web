@@ -4,6 +4,10 @@ import { ArgsProps, NotificationPlacement } from 'antd/lib/notification';
 import { compose, Store } from 'overstated';
 import { UserStore } from './user-store';
 
+message.config({
+    maxCount: 3,
+});
+
 interface IAppState {
     selectedGraph?: Graph | Macro;
     theme: MenuTheme;

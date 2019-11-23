@@ -142,7 +142,11 @@ export class SandboxStore
             this.tabsStore.updateTabData(data);
         } catch (e) {
             if (shouldDisplayNotification) {
-                appStore.toast('Unable to save graph/macro', 'error');
+                if (this.tabsStore.activeTabGraphType === 'graph') {
+                    appStore.toast('Unable to save graph', 'error');
+                } else {
+                    appStore.toast('Unable to save macro', 'error');
+                }
             }
             console.error(e);
         }

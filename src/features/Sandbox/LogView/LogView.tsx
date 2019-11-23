@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { FlexColumn, FlexRow } from 'components';
 import moment from 'moment';
-import React from 'react';
+import React, { useRef, useEffect, useLayoutEffect } from 'react';
 
 import JSONTree from 'react-json-tree';
 
@@ -74,6 +74,14 @@ export const LogsView: React.FC<ILogViewProps> = ({ logStore }) => {
         logs: store.state.logs,
     }));
 
+    const scrollRef = React.createRef<HTMLDivElement>();
+
+    useLayoutEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [isOpen, logs]);
+
     return (
         <Modal
             className="sandbox-modal log-view-modal"
@@ -86,11 +94,11 @@ export const LogsView: React.FC<ILogViewProps> = ({ logStore }) => {
             centered
         >
             <FlexColumn className="logs-container">
-                <FlexColumn className="logs">
+                <div ref={scrollRef} className="logs">
                     {logs.map((l, i) => (
                         <LogLine key={i} log={l} />
                     ))}
-                </FlexColumn>
+                </div>
             </FlexColumn>
         </Modal>
     );

@@ -559,6 +559,7 @@ export class CanvasStore extends Store<
                         connected: false,
                         value: data.defaultValue,
                         valueType: data.valueType || 'any',
+                        allowConnection: true,
                     },
                 ]),
             true

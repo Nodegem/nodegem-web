@@ -1,6 +1,7 @@
 import { Store } from 'overstated';
 import { appStore } from 'stores';
 import { SandboxStore } from '.';
+import { getGraphType } from 'utils';
 
 interface ITabsState {
     tabs: TabData[];
@@ -27,6 +28,10 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
 
     public get hasActiveTab(): boolean {
         return !!this.activeTab;
+    }
+
+    public get activeTabGraphType(): GraphType {
+        return getGraphType(this.activeTab.graph);
     }
 
     public get hasTabs(): boolean {
