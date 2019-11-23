@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { FlexColumn, FlexRow } from 'components';
+import { FlexColumn, FlexRow, FlexFill } from 'components';
 import moment from 'moment';
 import React, { useRef, useEffect, useLayoutEffect } from 'react';
 
@@ -50,7 +50,7 @@ const LogLine: React.FC<ILogLineProps> = ({ log }) => {
             {isJSON(message) ? (
                 <span className="json-message">
                     <JSONTree
-                        shouldExpandNode={() => false}
+                        shouldExpandNode={() => true}
                         invertTheme={false}
                         theme={theme}
                         data={JSON.parse(message)}
