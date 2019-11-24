@@ -242,6 +242,7 @@ export class SandboxStore
                     this.saveGraph();
                     break;
                 case 32:
+                    event.preventDefault();
                     this.canvasStore.resetView();
                     break;
                 case 70:
