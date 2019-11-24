@@ -246,6 +246,12 @@ export class SandboxStore
                     break;
                 case 70:
                     event.preventDefault();
+
+                    if (event.shiftKey) {
+                        this.canvasStore.focusSearchInput();
+                        break;
+                    }
+
                     this.nodeSelectStore.focusInput();
                     break;
             }

@@ -168,9 +168,11 @@ export const Canvas: React.FC<ISandboxProps> = ({
     const { resetView, openContext, editNode, removeNode } = storeData;
 
     const canvasRef = useRef<HTMLDivElement>(null);
+    const searchRef = useRef<Input>(null);
     useEffect(() => {
         const canvasElement = canvasRef.current!;
         canvasStore.bindElement(canvasElement, size);
+        canvasStore.setSearchRef(searchRef);
     }, []);
 
     return (
@@ -194,6 +196,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
                 <div className="footer">
                     <div className="bottom-left-footer">
                         <Input
+                            ref={searchRef}
                             prefix={<Icon type="search" />}
                             onChange={handleSearchChange}
                             allowClear

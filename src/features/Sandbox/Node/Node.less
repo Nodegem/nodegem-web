@@ -17,7 +17,7 @@
     flex-direction: column;
     transition: opacity 200ms ease-out, box-shadow 200ms ease-out,
         border 200ms ease-out;
-    will-change: opacity, box-shadow, border;
+    will-change: opacity, box-shadow, border-color;
 
     &:hover {
         box-shadow: @box-shadow #ffffffaa;
@@ -28,8 +28,7 @@
     }
 
     &.selected {
-        // box-shadow: @box-shadow @primary-color4;
-        border: @borderSize + 1 solid @primary-color4;
+        border-color: @primary-color4;
     }
 
     &.faded {
