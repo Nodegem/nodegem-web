@@ -48,6 +48,7 @@ interface LinkData {
 
 interface NodeData {
     id: string;
+    definitionId: string;
     fullName: string;
     position: { x: number; y: number };
     fieldData?: Array<FieldData>;

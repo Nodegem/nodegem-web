@@ -35,6 +35,7 @@ export const definitionToNode = (
     const { flowInputs, flowOutputs, valueInputs, valueOutputs } = definition;
     return {
         id,
+        definitionId: definition.id,
         fullName: definition.fullName,
         description: definition.description,
         flowInputs: (flowInputs || []).map<IPortUIData>(x => ({
@@ -70,6 +71,7 @@ export const definitionToNode = (
             nodeId: id,
             isEditable: x.isEditable === undefined ? true : x.isEditable,
             allowConnection: x.allowConnection,
+            valueOptions: x.valueOptions,
         })),
         valueOutputs: (valueOutputs || []).map<IPortUIData>(x => ({
             id: x.key,
@@ -106,6 +108,7 @@ export const nodeDataToUINodeData = (
     const { flowInputs, flowOutputs, valueInputs, valueOutputs } = definition;
     return {
         id: node.id,
+        definitionId: definition.id,
         fullName: node.fullName,
         position: node.position || { x: 0, y: 0 },
         description: definition.description,
@@ -168,6 +171,7 @@ export const nodeDataToUINodeData = (
                         isEditable:
                             vi.isEditable === undefined ? true : vi.isEditable,
                         allowConnection: vi.allowConnection,
+                        valueOptions: vi.valueOptions,
                     }));
             }
 
@@ -186,6 +190,7 @@ export const nodeDataToUINodeData = (
                     isEditable:
                         vi.isEditable === undefined ? true : vi.isEditable,
                     allowConnection: vi.allowConnection,
+                    valueOptions: vi.valueOptions,
                 },
             ];
         }),

@@ -1,4 +1,5 @@
 interface NodeDefinition {
+    id: string;
     fullName: string;
     title: string;
     description: string;
@@ -26,6 +27,7 @@ interface ValueInputDefinition extends FieldDefinition {
     valueType: ValueType;
     isEditable: boolean;
     allowConnection: boolean;
+    valueOptions?: any[];
 }
 
 interface ValueOutputDefinition extends FieldDefinition {

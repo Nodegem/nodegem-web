@@ -37,11 +37,13 @@ interface IPortUIData {
     defaultValue?: any;
     isEditable?: boolean;
     allowConnection?: boolean;
+    valueOptions?: any[];
 }
 
 interface INodeUIData {
     id: string;
     title: string;
+    definitionId: string;
     fullName: string;
     description: string;
     selected: boolean;

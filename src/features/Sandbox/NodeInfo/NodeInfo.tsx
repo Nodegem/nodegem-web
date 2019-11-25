@@ -195,6 +195,9 @@ const NodeInfoForm: React.FC<INodeInfoFormProps> = ({
                                                         !vi.isEditable
                                                     }
                                                     valueType={vi.valueType}
+                                                    valueOptions={
+                                                        vi.valueOptions
+                                                    }
                                                 />
                                             )}
                                         </FormItem>

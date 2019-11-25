@@ -279,6 +279,7 @@ export class SandboxStore
         const nodeData = allNodeData.map<NodeData>(n => ({
             id: n.id,
             position: n.position,
+            definitionId: n.definitionId,
             fullName: n.fullName,
             fieldData: [
                 ...n.valueInputs,
