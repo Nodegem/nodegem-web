@@ -8,9 +8,6 @@ export const RegisterExternal: React.FC = () => {
     useEffect(() => {
         const queryValues = qs.parse(location.search.replace('?', ''));
 
-        alert(location.search);
-        alert(JSON.stringify(queryValues));
-
         if (window.opener) {
             const data = {
                 result: {

@@ -101,6 +101,24 @@ export const Node: React.FC<INodeProps> = React.memo(
             selected,
         });
 
+        const shouldShowAdd = (
+            port: IPortUIData,
+            index: number,
+            ports: IPortUIData[]
+        ) => {
+            if (port.indefinite) {
+                const startIndex = ports.findIndex(
+                    x => x.indefinite && x.name === port.name
+                );
+                const indefinitePorts = ports.filter(
+                    x => x.indefinite && x.name === port.name
+                );
+                return index === startIndex + indefinitePorts.length - 1;
+            }
+
+            return false;
+        };
+
         return (
             <Draggable
                 position={position}
@@ -124,7 +142,7 @@ export const Node: React.FC<INodeProps> = React.memo(
                                 onPortEvent={onPortEvent}
                                 onAddPort={onPortAdd}
                                 onRemovePort={onPortRemove}
-                                lastPort={i === flowInputs.length - 1}
+                                showAdd={shouldShowAdd(fi, i, flowInputs)}
                                 hidePortActions={hidePortActions}
                                 nodeId={nodeId}
                                 portId={fi.id}
@@ -143,7 +161,11 @@ export const Node: React.FC<INodeProps> = React.memo(
                                         onPortEvent={onPortEvent}
                                         onAddPort={onPortAdd}
                                         onRemovePort={onPortRemove}
-                                        lastPort={i === valueInputs.length - 1}
+                                        showAdd={shouldShowAdd(
+                                            vi,
+                                            i,
+                                            valueInputs
+                                        )}
                                         hidePortActions={hidePortActions}
                                         nodeId={nodeId}
                                         portId={vi.id}
@@ -166,7 +188,7 @@ export const Node: React.FC<INodeProps> = React.memo(
                                     onPortEvent={onPortEvent}
                                     onAddPort={onPortAdd}
                                     onRemovePort={onPortRemove}
-                                    lastPort={i === valueOutputs.length - 1}
+                                    showAdd={shouldShowAdd(vo, i, valueOutputs)}
                                     hidePortActions={hidePortActions}
                                     nodeId={nodeId}
                                     portId={vo.id}
@@ -186,7 +208,7 @@ export const Node: React.FC<INodeProps> = React.memo(
                                 onPortEvent={onPortEvent}
                                 onAddPort={onPortAdd}
                                 onRemovePort={onPortRemove}
-                                lastPort={i === flowOutputs.length - 1}
+                                showAdd={shouldShowAdd(fo, i, flowOutputs)}
                                 hidePortActions={hidePortActions}
                                 nodeId={nodeId}
                                 portId={fo.id}

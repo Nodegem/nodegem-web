@@ -102,7 +102,11 @@
 
     .ant-input-affix-wrapper {
         > * {
-            color: @searchFontColor !important;
+            color: @searchFontColor;
+        }
+
+        input {
+            color: white;
         }
     }
 
@@ -115,6 +119,11 @@
             font-style: italic;
             color: @searchFontColor;
         }
+    }
+
+    input:focus {
+        border: 1px dashed white;
+        box-shadow: 0 0 5px 1px white;
     }
 }
 
