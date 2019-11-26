@@ -13,6 +13,7 @@ import { getPort, getPortId } from './../utils/node-utils';
 import { DrawLinkStore } from './draw-link-store';
 import { SandboxStore } from './sandbox-store';
 import _ from 'lodash';
+import { Input } from 'antd';
 
 interface ICanvasState {
     nodes: INodeUIData[];
@@ -67,6 +68,8 @@ export class CanvasStore extends Store<
     private bounds: Dimensions;
     private zoomBounds?: ZoomBounds;
 
+    private searchRef: React.RefObject<Input>;
+
     public bindElement = (
         element: HTMLDivElement,
         bounds: Dimensions,
@@ -89,6 +92,16 @@ export class CanvasStore extends Store<
             this.canvasController,
             this.handleSelection
         );
+    };
+
+    public setSearchRef = (ref: React.RefObject<Input>) => {
+        this.searchRef = ref;
+    };
+
+    public focusSearchInput = () => {
+        if (this.searchRef && this.searchRef.current) {
+            this.searchRef.current.focus();
+        }
     };
 
     public onCanvasDrag = (
@@ -279,6 +292,10 @@ export class CanvasStore extends Store<
         this.updateLinkPaths(Array.from(this._links.values()));
         this.setState({ hasLoadedGraph: true });
     }
+
+    public magnify = (delta: number) => {
+        this.canvasController.magnify(delta);
+    };
 
     public onNodePositionUpdate = (nodeId: string, position: Vector2) => {
         this.updateNode(nodeId, _ => ({
@@ -551,17 +568,24 @@ export class CanvasStore extends Store<
         this.updateNode(
             data.nodeId,
             oldNode =>
-                this.updateNodePortList(oldNode, data.type, data.io, ports => [
-                    ...ports,
-                    {
+                this.updateNodePortList(oldNode, data.type, data.io, ports => {
+                    const newPort = {
                         ...data,
                         id: fullId,
                         connected: false,
                         value: data.defaultValue,
                         valueType: data.valueType || 'any',
                         allowConnection: true,
-                    },
-                ]),
+                    };
+                    const startIndex = ports.findIndex(
+                        x => x.indefinite && x.name === newPort.name
+                    );
+                    const length = ports.count(
+                        x => x.indefinite && x.name === newPort.name
+                    );
+                    ports.splice(startIndex + length, 0, newPort);
+                    return [...ports];
+                }),
             true
         );
 

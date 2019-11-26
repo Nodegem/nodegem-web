@@ -1,36 +1,47 @@
 @import '../sandbox-variables.less';
 @import '../../../styles/vars.less';
 
-@port-add-offset-y: -18px;
-
 .port-container {
-    &.indefinite {
-        &.left {
-            .port-action {
-                left: -22px;
-                top: -4px;
-            }
+    .port-actions {
+        position: relative;
+        width: 0;
+        height: 0;
+        overflow: visible;
+        display: flex;
+    }
+
+    &.left {
+        .port-actions {
+            top: -4px;
+            left: -4px;
+            flex-direction: row-reverse;
+
             .add-port {
-                top: -@port-add-offset-y;
+                margin-right: 3px;
             }
         }
+    }
 
-        &.right {
-            .port-action {
-                left: 4px;
-                top: -4px;
-            }
+    &.right {
+        .port-actions {
+            top: -4px;
+            right: -4px;
+            flex-direction: row;
+
             .add-port {
-                top: 18px;
+                margin-left: 2px;
             }
         }
+    }
 
-        &.bottom {
-            .port-action {
-                top: 14px;
-            }
+    &.bottom {
+        .port-actions {
+            left: 1px;
+            top: 12px;
+            flex-direction: row;
+
             .add-port {
-                left: 22px;
+                margin-left: 2px;
             }
         }
     }
@@ -67,10 +78,6 @@
 .port-action {
     font-size: 1.3em;
     cursor: pointer;
-    height: 0;
-    width: 0;
-    overflow: visible;
-    position: relative;
     transition: opacity 100ms ease-in-out;
     will-change: opacity;
     opacity: 1;

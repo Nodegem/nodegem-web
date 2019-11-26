@@ -242,10 +242,17 @@ export class SandboxStore
                     this.saveGraph();
                     break;
                 case 32:
+                    event.preventDefault();
                     this.canvasStore.resetView();
                     break;
                 case 70:
                     event.preventDefault();
+
+                    if (event.shiftKey) {
+                        this.canvasStore.focusSearchInput();
+                        break;
+                    }
+
                     this.nodeSelectStore.focusInput();
                     break;
             }
