@@ -11,6 +11,8 @@ import './Canvas.less';
 
 import { DrawLink } from './DrawLink';
 
+const magnifyAmount = 0.25;
+
 export const sandboxDroppableId = 'sandboxId';
 
 const SandboxDropContainer = React.memo(() => (
@@ -141,6 +143,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
         hasActiveTab: !!store.ctx.tabsStore.state.activeTabId,
         onLinkSourceClick: store.onLinkSourceClick,
         onLinkDestinationClick: store.onLinkDestinationClick,
+        magnify: store.magnify,
         ...store.state,
     }));
 
@@ -218,7 +221,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
                             type="primary"
                             shape="circle"
                             icon="minus"
-                            // onClick={() => sandboxManager.magnify(-0.15)}
+                            onClick={() => storeData.magnify(-magnifyAmount)}
                         />
                         <Button
                             type="primary"
@@ -230,7 +233,7 @@ export const Canvas: React.FC<ISandboxProps> = ({
                             type="primary"
                             shape="circle"
                             icon="plus"
-                            // onClick={() => sandboxManager.magnify(0.15)}
+                            onClick={() => storeData.magnify(magnifyAmount)}
                         />
                     </div>
                 </div>

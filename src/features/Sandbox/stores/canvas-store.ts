@@ -293,6 +293,10 @@ export class CanvasStore extends Store<
         this.setState({ hasLoadedGraph: true });
     }
 
+    public magnify = (delta: number) => {
+        this.canvasController.magnify(delta);
+    };
+
     public onNodePositionUpdate = (nodeId: string, position: Vector2) => {
         this.updateNode(nodeId, _ => ({
             position,
