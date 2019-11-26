@@ -1,3 +1,4 @@
+export * from './canvas-search-store';
 export * from './canvas-store';
 export * from './draw-link-store';
 export * from './intro-store';

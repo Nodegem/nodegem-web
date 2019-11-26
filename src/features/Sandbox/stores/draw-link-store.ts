@@ -1,6 +1,6 @@
-import { appStore } from 'app-state-store';
 import _ from 'lodash';
 import { Store } from 'overstated';
+import { appStore } from 'stores';
 import { getCenterCoordinates } from 'utils';
 import { CanvasStore } from '.';
 import { flowPath, valuePath } from '..';
@@ -60,7 +60,10 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
 
             this.suspend();
 
-            if (this.ctx.hasLink(port)) {
+            if (
+                this.ctx.hasLink(port) &&
+                (port.io !== 'output' || port.type !== 'value')
+            ) {
                 const { oppositeElement, oppositePort } = this.detachLink(
                     port,
                     element
@@ -111,7 +114,11 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
                     node: this.ctx.getNode(destinationPort.nodeId)!,
                 };
                 if (isValidConnection(port, destinationPort)) {
-                    this.ctx.addLink(source, destination);
+                    if (port.io === 'input') {
+                        this.ctx.addLink(destination, source);
+                    } else {
+                        this.ctx.addLink(source, destination);
+                    }
                 } else {
                     appStore.toast('Invalid connection', 'warn');
                     this.clearConnections(port);
@@ -151,7 +158,7 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
     private getLinkElement = () => {
         if (!this.linkElement) {
             this.linkElement = document.getElementById(
-                drawLinkElementId
+                `${drawLinkElementId}-path`
             ) as any;
         }
         return this.linkElement;
@@ -176,7 +183,7 @@ export class DrawLinkStore extends Store<IDrawLinkState, CanvasStore> {
     };
 
     private clearConnections = (port?: IPortUIData) => {
-        if (port) {
+        if (port && !this.ctx.hasLink(port)) {
             this.ctx.togglePortConnected(port, false);
         }
 

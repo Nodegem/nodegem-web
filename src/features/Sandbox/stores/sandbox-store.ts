@@ -1,8 +1,7 @@
-import { appStore } from 'app-state-store';
 import localforage from 'localforage';
 import { compose, Store } from 'overstated';
 import { GraphService, MacroService, NodeService } from 'services';
-import { userStore } from 'stores';
+import { appStore } from 'stores';
 import { getGraphType, isMacro } from 'utils';
 import { convertToSelectFriendly, flatten, getPort } from '../utils';
 import { nodeDataToUINodeData } from './../utils';
@@ -13,6 +12,7 @@ import { NodeInfoStore } from './node-info-store';
 import { NodeSelectStore } from './node-select-store';
 import { SandboxHeaderStore } from './sandbox-header-store';
 import { TabsStore } from './tabs-store';
+import _ from 'lodash';
 
 interface ISandboxCompose {
     canvasStore: CanvasStore;
@@ -46,11 +46,7 @@ export class SandboxStore
         isLoading: false,
     };
 
-    constructor() {
-        super();
-    }
-
-    public initialize() {
+    public async initialize() {
         if (appStore.hasSelectedGraph) {
             this.tabsStore.addTab(appStore.state.selectedGraph!);
             appStore.setState({ selectedGraph: undefined });
@@ -60,6 +56,8 @@ export class SandboxStore
 
         this.sandboxHeaderStore.graphHub.start();
         this.logsStore.terminalHub.start();
+
+        await this.sandboxHeaderStore.initialize();
 
         if (this.tabsStore.hasActiveTab) {
             this.tabsStore.refreshActiveTab();
@@ -97,40 +95,64 @@ export class SandboxStore
         return definitionObject;
     };
 
-    public graphModifyOrCreate = (graph?: Graph | Macro, edit?: boolean) => {
+    public graphModifiedOrCreated = (graph?: Graph | Macro) => {
         if (graph) {
-            if (!edit) {
+            if (!this.introStore.state.graphToEdit) {
                 this.tabsStore.addTab(graph);
             } else {
-                this.tabsStore.updateTabData(graph);
+                const currentGraph = this.getConvertedGraphData();
+                const updatedGraph = {
+                    ...graph,
+                    nodes: currentGraph.nodes,
+                    links: currentGraph.links,
+                };
+                this.tabsStore.updateTabData(updatedGraph);
             }
         }
 
-        this.sandboxHeaderStore.setState({ modifyingGraphSettings: false });
+        this.introStore.setState({
+            graphToEdit: undefined,
+            isGraphModalOpen: false,
+            isMacroModalOpen: false,
+        });
     };
 
-    public saveGraph = async () => {
+    public saveGraph = async (shouldDisplayNotification: boolean = true) => {
         if (!this.tabsStore.hasActiveTab) {
             return;
         }
 
+        this.suspend();
         this.sandboxHeaderStore.setState({ isSavingGraph: true });
 
         try {
             const data = this.getConvertedGraphData();
             if (isMacro(data)) {
                 await MacroService.update(data);
+                if (shouldDisplayNotification) {
+                    appStore.toast('Macro saved successfully!', 'success');
+                }
             } else {
                 await GraphService.update(data);
+                if (shouldDisplayNotification) {
+                    appStore.toast('Graph saved successfully!', 'success');
+                }
             }
 
-            appStore.toast('Graph saved successfully!', 'success');
+            this.tabsStore.updateTabData(data);
         } catch (e) {
-            appStore.toast('Unable to save graph', 'error');
+            if (shouldDisplayNotification) {
+                if (this.tabsStore.activeTabGraphType === 'graph') {
+                    appStore.toast('Unable to save graph', 'error');
+                } else {
+                    appStore.toast('Unable to save macro', 'error');
+                }
+            }
             console.error(e);
         }
 
         this.sandboxHeaderStore.setState({ isSavingGraph: false });
+        this.unsuspend();
     };
 
     public load = async (graph: Graph | Macro) => {
@@ -166,22 +188,24 @@ export class SandboxStore
         this.nodeSelectStore.setNodeOptions(definitions);
         this.nodeSelectStore.toggleOpen(true);
 
-        // this.hubManager.initialize();
         this.setState({ isLoading: false });
         this.sandboxHeaderStore.onTabLoaded();
     };
 
     public saveStateLocally = async () => {
-        if (!userStore.isLoggedIn) {
+        if (!appStore.userStore.isLoggedIn) {
             return;
         }
 
         const { tabs } = this.tabsStore.state;
         const graphInfo = tabs.map(x => ({
-            id: x.graph.id,
-            type: getGraphType(x.graph),
+            id: x.initial.id,
+            type: getGraphType(x.initial),
         }));
-        await localforage.setItem(`${userStore.user!.id}-openTabs`, graphInfo);
+        await localforage.setItem(
+            `${appStore.userStore.user.id}-openTabs`,
+            graphInfo
+        );
     };
 
     public tryLoadLocalState = async () => {
@@ -190,7 +214,7 @@ export class SandboxStore
                 id: string;
                 type: GraphType;
             }[]
-        >(`${userStore.user!.id}-openTabs`);
+        >(`${appStore.userStore.user.id}-openTabs`);
 
         if (graphInfo && graphInfo.any()) {
             this.suspend();
@@ -207,7 +231,7 @@ export class SandboxStore
             this.introStore.toggleStartPrompt(true);
         }
 
-        await localforage.setItem(`${userStore.user!.id}-openTabs`, []);
+        await localforage.setItem(`${appStore.userStore.user.id}-openTabs`, []);
     };
 
     private listenToKeyDown = (event: KeyboardEvent) => {
@@ -218,7 +242,18 @@ export class SandboxStore
                     this.saveGraph();
                     break;
                 case 32:
+                    event.preventDefault();
                     this.canvasStore.resetView();
+                    break;
+                case 70:
+                    event.preventDefault();
+
+                    if (event.shiftKey) {
+                        this.canvasStore.focusSearchInput();
+                        break;
+                    }
+
+                    this.nodeSelectStore.focusInput();
                     break;
             }
         } else {
@@ -233,7 +268,9 @@ export class SandboxStore
         }
     };
 
-    public getConvertedGraphData = (): Graph | Macro => {
+    public getConvertedGraphData = (
+        skipOrphanedNodes: boolean = false
+    ): Graph | Macro => {
         const { nodes, links } = this.canvasStore.state;
         const linkData = links.map<LinkData>(l => ({
             sourceNode: l.sourceNodeId,
@@ -242,13 +279,22 @@ export class SandboxStore
             destinationKey: l.destinationData.id,
         }));
 
-        const nodeData = nodes.map<NodeData>(n => ({
+        const allNodeData = skipOrphanedNodes
+            ? nodes.filter(x => this.canvasStore.getNode(x.id)!.links.any())
+            : nodes;
+
+        const nodeData = allNodeData.map<NodeData>(n => ({
             id: n.id,
             position: n.position,
             fullName: n.fullName,
-            fieldData: n.valueInputs.map<FieldData>(f => ({
+            fieldData: [
+                ...n.valueInputs,
+                ...n.valueOutputs.filter(x => x.indefinite),
+                ...n.flowOutputs.filter(x => x.indefinite),
+            ].map<FieldData>(f => ({
                 key: f.id,
                 value: f.value,
+                valueType: f.valueType || 'any',
             })),
             permanent: n.permanent,
             macroFieldId: n.macroFieldId,
@@ -256,7 +302,7 @@ export class SandboxStore
         }));
 
         const { graph } = this.tabsStore.activeTab;
-        const { user } = userStore;
+        const { user } = appStore.userStore;
 
         return {
             ...graph,

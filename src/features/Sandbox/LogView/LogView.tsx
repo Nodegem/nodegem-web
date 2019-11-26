@@ -1,7 +1,7 @@
 import classNames from 'classnames';
-import { FlexColumn, FlexRow } from 'components';
+import { FlexColumn, FlexRow, FlexFill } from 'components';
 import moment from 'moment';
-import React from 'react';
+import React, { useRef, useEffect, useLayoutEffect } from 'react';
 
 import JSONTree from 'react-json-tree';
 
@@ -50,7 +50,7 @@ const LogLine: React.FC<ILogLineProps> = ({ log }) => {
             {isJSON(message) ? (
                 <span className="json-message">
                     <JSONTree
-                        shouldExpandNode={() => false}
+                        shouldExpandNode={() => true}
                         invertTheme={false}
                         theme={theme}
                         data={JSON.parse(message)}
@@ -71,8 +71,16 @@ export const LogsView: React.FC<ILogViewProps> = ({ logStore }) => {
     const { logs, toggleLogs, isOpen } = useStore(logStore, store => ({
         isOpen: store.state.isOpen,
         toggleLogs: store.toggleOpen,
-        logs: store.ctx.tabsStore.activeTabLogs,
+        logs: store.state.logs,
     }));
+
+    const scrollRef = React.createRef<HTMLDivElement>();
+
+    useLayoutEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [isOpen, logs]);
 
     return (
         <Modal
@@ -86,11 +94,11 @@ export const LogsView: React.FC<ILogViewProps> = ({ logStore }) => {
             centered
         >
             <FlexColumn className="logs-container">
-                <FlexColumn className="logs">
+                <div ref={scrollRef} className="logs">
                     {logs.map((l, i) => (
                         <LogLine key={i} log={l} />
                     ))}
-                </FlexColumn>
+                </div>
             </FlexColumn>
         </Modal>
     );

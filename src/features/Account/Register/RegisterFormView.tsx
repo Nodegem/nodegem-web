@@ -1,206 +1,201 @@
 import './Register.less';
 
-import { Button, Card, Form, Icon, Input, Row } from 'antd';
-import { FormComponentProps } from 'antd/lib/form';
-import FormItem from 'antd/lib/form/FormItem';
-import PasswordInput from 'components/PasswordInput/PasswordInput';
-import { inject, observer } from 'mobx-react';
+import { Button, Card, Icon } from 'antd';
+import { FlexColumn } from 'components';
+import { Formik, FormikHelpers } from 'formik';
+import { Form, FormItem, Input, SubmitButton } from 'formik-antd';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import { AuthStore } from 'stores/auth-store';
+import { AuthService } from 'services';
+import { appStore } from 'stores';
+import routerHistory from 'utils/history';
+import * as Yup from 'yup';
 
-enum RegisterErrorCode {
-    DuplicateUserName = 'DuplicateUserName',
-    DuplicateEmail = 'DuplicateEmail',
+const validation = Yup.object().shape<IFormValues>({
+    userName: Yup.string()
+        .min(4, value => `Username must be at least ${value.min} characters`)
+        .matches(
+            /^[a-zA-Z0-9]([._](?![._])|[a-zA-Z0-9]){4,20}[a-zA-Z0-9]$/,
+            'Invalid username'
+        )
+        .required('Username is required'),
+    email: Yup.string()
+        .email('Must be a valid email')
+        .required('Email is required'),
+    password: Yup.string()
+        .matches(
+            new RegExp(
+                '^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$'
+            ),
+            'Password must contain at least one lowercase, uppercase, number and special character'
+        )
+        .min(8, value => `Password must be at least ${value.min} characters`)
+        .required('Password is required'),
+    confirmPassword: Yup.string().oneOf(
+        [Yup.ref('password')],
+        'Passwords must match'
+    ),
+    firstName: Yup.string().notRequired(),
+    lastName: Yup.string().notRequired(),
+});
+
+interface IFormValues {
+    userName: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    password: string;
+    confirmPassword: string;
 }
 
-interface IRegisterFormProps extends FormComponentProps {
-    authStore?: AuthStore;
+interface IRegisterFormProps {
+    handleSubmit: (
+        values: IFormValues,
+        actions: FormikHelpers<IFormValues>
+    ) => void;
 }
 
-interface IRegisterFormState {
-    isDirty: boolean;
-}
-
-@inject('authStore')
-@observer
-class RegisterForm extends React.Component<
-    IRegisterFormProps,
-    IRegisterFormState
-> {
-    public state = {
-        isDirty: false,
-    };
-
-    private handleBlur = e => {
-        const value = e.target.value;
-        this.setState({ isDirty: this.state.isDirty || !!value });
-    };
-
-    private submitForm = (e: React.FormEvent) => {
-        e.preventDefault();
-        const { form, authStore } = this.props;
-
-        form.validateFields(async (err, values) => {
-            if (err) {
-                return;
-            }
-
-            await authStore!.register(values);
-        });
-    };
-
-    private validatePassword = (password: string): boolean => {
-        const passwordRegex = new RegExp(
-            '^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$'
-        );
-        return passwordRegex.test(password);
-    };
-
-    private validateWithConfirm = (rule, value, callback) => {
-        const form = this.props.form;
-
-        if (!this.validatePassword(value)) {
-            callback(
-                'Password must contain at least one lowercase, uppercase, number and special character'
-            );
-            return;
-        }
-
-        if (value && this.state.isDirty) {
-            form.validateFields(['confirmPassword'], { force: true });
-        }
-        callback();
-    };
-
-    private validateWithOriginal = (rule, value, callback) => {
-        const form = this.props.form;
-
-        if (!this.validatePassword(value)) {
-            callback(
-                'Password must contain at least one lowercase, uppercase, number and special character'
-            );
-            return;
-        }
-
-        if (value && value !== form.getFieldValue('password')) {
-            callback('Two passwords that you entered are not the same.');
-            return;
-        }
-        callback();
-    };
-
-    public render() {
-        const { loading } = this.props.authStore!;
-        const { getFieldDecorator } = this.props.form;
-        const iconStyle: React.CSSProperties = { color: 'rgba(0,0,0,.25)' };
-
-        const buttonText = loading ? 'Registering...' : 'Register';
-
-        return (
-            <Row>
-                <Form onSubmit={this.submitForm} className="register-form">
-                    <FormItem label="Username" hasFeedback>
-                        {getFieldDecorator('username', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: 'Please input a username.',
-                                },
-                                {
-                                    min: 6,
-                                    message:
-                                        'Username must be at least 6 characters',
-                                },
-                            ],
-                        })(
+const RegisterForm: React.FC<IRegisterFormProps> = ({ handleSubmit }) => {
+    return (
+        <Formik
+            initialValues={{
+                userName: '',
+                email: '',
+                password: '',
+                confirmPassword: '',
+                firstName: '',
+                lastName: '',
+            }}
+            validationSchema={validation}
+            onSubmit={handleSubmit}
+        >
+            {({ isSubmitting }) => (
+                <Form className="registration-form">
+                    <FlexColumn>
+                        <FormItem name="userName" label="Username" required>
                             <Input
-                                prefix={<Icon type="user" style={iconStyle} />}
+                                name="userName"
+                                prefix={
+                                    <Icon
+                                        type="user"
+                                        style={{ color: 'rgba(0,0,0,.25)' }}
+                                    />
+                                }
                                 placeholder="Username"
                             />
-                        )}
-                    </FormItem>
-                    <FormItem label="Email" hasFeedback>
-                        {getFieldDecorator('email', {
-                            rules: [
-                                {
-                                    type: 'email',
-                                    message: 'Plase input a valid email.',
-                                },
-                                {
-                                    required: true,
-                                    message: 'Please input an email.',
-                                },
-                            ],
-                        })(
+                        </FormItem>
+                        <FormItem name="email" label="Email" required>
                             <Input
-                                prefix={<Icon type="mail" style={iconStyle} />}
+                                name="email"
+                                prefix={
+                                    <Icon
+                                        type="mail"
+                                        style={{ color: 'rgba(0,0,0,.25)' }}
+                                    />
+                                }
                                 placeholder="Email"
                             />
-                        )}
-                    </FormItem>
-                    <FormItem label="First Name" hasFeedback>
-                        {getFieldDecorator('firstName')(
-                            <Input placeholder="First Name" />
-                        )}
-                    </FormItem>
-                    <FormItem label="Last Name" hasFeedback>
-                        {getFieldDecorator('lastName')(
-                            <Input placeholder="Last Name" />
-                        )}
-                    </FormItem>
-                    <FormItem label="Password" hasFeedback required>
-                        {getFieldDecorator('password', {
-                            rules: [
-                                {
-                                    min: 8,
-                                    validator: this.validateWithConfirm,
-                                },
-                            ],
-                        })(<PasswordInput />)}
-                    </FormItem>
-                    <FormItem label="Confirm Password" hasFeedback required>
-                        {getFieldDecorator('confirmPassword', {
-                            rules: [
-                                {
-                                    min: 8,
-                                    validator: this.validateWithOriginal,
-                                },
-                            ],
-                        })(
-                            <PasswordInput
-                                onBlur={this.handleBlur}
+                        </FormItem>
+                        <FormItem name="firstName" label="First Name">
+                            <Input name="firstName" placeholder="First Name" />
+                        </FormItem>
+                        <FormItem name="lastName" label="Last Name">
+                            <Input name="lastName" placeholder="Last Name" />
+                        </FormItem>
+                        <FormItem name="password" label="Password" required>
+                            <Input.Password
+                                prefix={
+                                    <Icon
+                                        type="lock"
+                                        style={{ color: 'rgba(0,0,0,.25)' }}
+                                    />
+                                }
+                                name="password"
+                                placeholder="Password"
+                            />
+                        </FormItem>
+                        <FormItem
+                            name="confirmPassword"
+                            label="Confirm Password"
+                            required
+                        >
+                            <Input.Password
+                                prefix={
+                                    <Icon
+                                        type="lock"
+                                        style={{ color: 'rgba(0,0,0,.25)' }}
+                                    />
+                                }
+                                name="confirmPassword"
                                 placeholder="Confirm Password"
                             />
-                        )}
-                    </FormItem>
+                        </FormItem>
+                        <br />
+                        <SubmitButton type="primary" disabled={false}>
+                            {isSubmitting ? ' Signing up...' : 'Register'}
+                        </SubmitButton>
+                    </FlexColumn>
+                    <br />
                     <Button
-                        loading={loading}
-                        type="primary"
-                        htmlType="submit"
-                        className="register-form-button"
+                        type="link"
+                        icon="arrow-left"
+                        onClick={() => routerHistory.goBack()}
                     >
-                        {buttonText}
+                        Go Back
                     </Button>
-                    <br />
-                    <br />
-                    <span>
-                        <Link to="/login">&#8592; Back to login</Link>
-                    </span>
                 </Form>
-            </Row>
-        );
-    }
-}
+            )}
+        </Formik>
+    );
+};
 
-const RegisterFormView = Form.create()(RegisterForm);
+const RegisterView = () => {
+    const handleSubmit = async (
+        values: IFormValues,
+        actions: FormikHelpers<IFormValues>
+    ) => {
+        try {
+            const result = await AuthService.register(values);
 
-const RegisterView = () => (
-    <div className="register-form-container">
-        <Card className="register-card-container" title="Register">
-            <RegisterFormView />
-        </Card>
-    </div>
-);
+            appStore.userStore.setToken(result);
+            routerHistory.push('/');
+        } catch (e) {
+            const commonParams = {
+                title: 'Unable to complete registration',
+                type: 'error' as any,
+                closeBtn: true,
+                duration: 2.5,
+            };
+
+            if (!e) {
+                appStore.openNotification({
+                    ...commonParams,
+                    description: 'Oops, something went wrong',
+                });
+            } else {
+                if (e.status === 400 && e.body) {
+                    appStore.openNotification({
+                        ...commonParams,
+                        description: e.body.map(x => x.description).join(', '),
+                    });
+                } else {
+                    appStore.openNotification({
+                        ...commonParams,
+                        description: 'An unexpected error occurred',
+                    });
+                }
+            }
+        } finally {
+            actions.setSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="register-form-container">
+            <Card className="register-card-container" title="Register">
+                <RegisterForm handleSubmit={handleSubmit} />
+            </Card>
+        </div>
+    );
+};
 
 export default RegisterView;

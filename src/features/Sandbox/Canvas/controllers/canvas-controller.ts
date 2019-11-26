@@ -241,11 +241,16 @@ class CanvasController implements IDisposable {
     }
 
     public magnify(zoomDelta: number) {
-        const { scale } = this.transform;
-        this.translate(
-            { ...this.transform, scale: scale + zoomDelta },
-            defaultZoomTween
-        );
+        const { left, top } = this.canvas.getBoundingClientRect();
+        const parentBounds = this.parentElement.getBoundingClientRect();
+        const midX = parentBounds.width / 2 + parentBounds.left;
+        const midY = parentBounds.height / 2 + parentBounds.top;
+        const oX = (left - midX) * zoomDelta;
+        const oY = (top - midY) * zoomDelta;
+        this.performZoom(this.transform.scale * (1 + zoomDelta), 'dblClick', {
+            x: oX,
+            y: oY,
+        });
     }
 
     private onZoom = (delta: number, type: ZoomType, position: Vector2) => {

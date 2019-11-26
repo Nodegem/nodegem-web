@@ -1,6 +1,5 @@
 interface Graph {
     id: string;
-    isDebugModeEnabled: boolean;
     name: string;
     isActive?: boolean;
     description: string;
@@ -27,7 +26,7 @@ type FrequencyOptions =
 interface RecurringOptions {
     frequency: FrequencyOptions;
     every: number;
-    start: Date;
+    start?: Date;
     until?: Date;
     iterations?: number;
 }
@@ -35,7 +34,7 @@ interface RecurringOptions {
 interface ConstantData {
     key: string;
     label: string;
-    type: number;
+    type: ValueType;
     value: any;
     isSecret: boolean;
 }
@@ -60,13 +59,14 @@ interface NodeData {
 interface FieldData {
     key: string;
     value: any | any[];
+    valueType: ValueType;
 }
 
 interface CreateGraph {
     name: string;
-    description: string;
+    description?: string;
     userId: string;
     type: ExecutionType;
-    recurringOptions: RecurringOptions;
+    recurringOptions?: RecurringOptions;
     constants: ConstantData[];
 }

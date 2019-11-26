@@ -6,10 +6,12 @@ import { Socket as Port } from '../Port/Port';
 import './Node.less';
 
 interface INodeProps {
+    isMacro?: boolean;
     nodeId: string;
     scale: number;
     selected: boolean;
     title: string;
+    isFaded?: boolean;
     initialPosition: Vector2;
     flowInputs: IPortUIData[];
     flowOutputs: IPortUIData[];
@@ -33,7 +35,9 @@ interface INodeProps {
 
 export const Node: React.FC<INodeProps> = React.memo(
     ({
+        isMacro,
         nodeId,
+        isFaded,
         scale,
         selected,
         title,
@@ -92,8 +96,28 @@ export const Node: React.FC<INodeProps> = React.memo(
 
         const classes = classNames({
             'node-container': true,
+            macro: isMacro,
+            faded: isFaded,
             selected,
         });
+
+        const shouldShowAdd = (
+            port: IPortUIData,
+            index: number,
+            ports: IPortUIData[]
+        ) => {
+            if (port.indefinite) {
+                const startIndex = ports.findIndex(
+                    x => x.indefinite && x.name === port.name
+                );
+                const indefinitePorts = ports.filter(
+                    x => x.indefinite && x.name === port.name
+                );
+                return index === startIndex + indefinitePorts.length - 1;
+            }
+
+            return false;
+        };
 
         return (
             <Draggable
@@ -118,29 +142,41 @@ export const Node: React.FC<INodeProps> = React.memo(
                                 onPortEvent={onPortEvent}
                                 onAddPort={onPortAdd}
                                 onRemovePort={onPortRemove}
-                                lastPort={i === valueInputs.length - 1}
+                                showAdd={shouldShowAdd(fi, i, flowInputs)}
                                 hidePortActions={hidePortActions}
                                 nodeId={nodeId}
                                 portId={fi.id}
+                                isRemovable={flowInputs.length > 1}
                                 {...fi}
                             />
                         ))}
                     </div>
                     <div data-node className="inner">
                         <div className="value value-inputs">
-                            {valueInputs.map((vi, i) => (
-                                <Port
-                                    key={vi.id}
-                                    onPortEvent={onPortEvent}
-                                    onAddPort={onPortAdd}
-                                    onRemovePort={onPortRemove}
-                                    lastPort={i === valueInputs.length - 1}
-                                    hidePortActions={hidePortActions}
-                                    nodeId={nodeId}
-                                    portId={vi.id}
-                                    {...vi}
-                                />
-                            ))}
+                            {valueInputs
+                                .filter(x => x.allowConnection)
+                                .map((vi, i) => (
+                                    <Port
+                                        key={vi.id}
+                                        onPortEvent={onPortEvent}
+                                        onAddPort={onPortAdd}
+                                        onRemovePort={onPortRemove}
+                                        showAdd={shouldShowAdd(
+                                            vi,
+                                            i,
+                                            valueInputs
+                                        )}
+                                        hidePortActions={hidePortActions}
+                                        nodeId={nodeId}
+                                        portId={vi.id}
+                                        isRemovable={
+                                            valueInputs.count(
+                                                x => x.indefinite
+                                            ) > 1
+                                        }
+                                        {...vi}
+                                    />
+                                ))}
                         </div>
                         <span data-node className="title">
                             {title}
@@ -152,10 +188,14 @@ export const Node: React.FC<INodeProps> = React.memo(
                                     onPortEvent={onPortEvent}
                                     onAddPort={onPortAdd}
                                     onRemovePort={onPortRemove}
-                                    lastPort={i === valueInputs.length - 1}
+                                    showAdd={shouldShowAdd(vo, i, valueOutputs)}
                                     hidePortActions={hidePortActions}
                                     nodeId={nodeId}
                                     portId={vo.id}
+                                    isRemovable={
+                                        valueOutputs.count(x => x.indefinite) >
+                                        1
+                                    }
                                     {...vo}
                                 />
                             ))}
@@ -168,10 +208,13 @@ export const Node: React.FC<INodeProps> = React.memo(
                                 onPortEvent={onPortEvent}
                                 onAddPort={onPortAdd}
                                 onRemovePort={onPortRemove}
-                                lastPort={i === valueInputs.length - 1}
+                                showAdd={shouldShowAdd(fo, i, flowOutputs)}
                                 hidePortActions={hidePortActions}
                                 nodeId={nodeId}
                                 portId={fo.id}
+                                isRemovable={
+                                    flowOutputs.count(x => x.indefinite) > 1
+                                }
                                 {...fo}
                             />
                         ))}

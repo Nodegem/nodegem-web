@@ -1,22 +1,25 @@
+import localforage from 'localforage';
 import moment from 'moment';
 import { Store } from 'overstated';
-import { graphModalStore, macroModalStore } from 'stores';
-import { isMacro } from 'utils';
+import { appStore } from 'stores';
+import { hasItem, isMacro } from 'utils';
 import { SandboxStore } from '.';
 import GraphHub from '../hubs/graph-hub';
-import { appStore } from './../../../app-state-store';
+
+const autoSaveGraphKey = () => `${appStore.userStore.user.id}-autosaveGraph`;
+const autoSaveNodeKey = () => `${appStore.userStore.user.id}-autosaveNode`;
 
 interface ISandboxHeaderState {
     isSavingGraph: boolean;
-    isRunning: boolean;
     bridge?: IBridgeInfo;
     bridges: IBridgeInfo[];
     loadingBridges: boolean;
-    modifyingGraphSettings: boolean;
     canSave: boolean;
     canEdit: boolean;
     connected: boolean;
     connecting: boolean;
+    autoSaveGraph: boolean;
+    autoSaveNode: boolean;
 }
 
 export class SandboxHeaderStore extends Store<
@@ -41,19 +44,17 @@ export class SandboxHeaderStore extends Store<
 
     public state: ISandboxHeaderState = {
         isSavingGraph: false,
-        isRunning: false,
         bridges: [],
         loadingBridges: false,
-        modifyingGraphSettings: false,
         canSave: false,
         canEdit: false,
         connected: false,
         connecting: false,
+        autoSaveGraph: true,
+        autoSaveNode: true,
     };
 
     public graphHub: GraphHub = new GraphHub();
-
-    private timeout: NodeJS.Timeout;
 
     constructor() {
         super();
@@ -78,12 +79,6 @@ export class SandboxHeaderStore extends Store<
             } else {
                 appStore.toast('Graph ran successfully!');
             }
-
-            if (this.timeout) {
-                clearTimeout(this.timeout);
-            }
-
-            this.setState({ isRunning: false });
         });
 
         this.graphHub.onConnected.subscribe(() => {
@@ -98,7 +93,7 @@ export class SandboxHeaderStore extends Store<
         });
 
         this.graphHub.onReconnected.subscribe(() => {
-            this.setState({ connected: true });
+            this.setState({ connected: true, connecting: false });
             this.graphHub.clientConnect();
             appStore.toast('Successfully reconnected!');
         });
@@ -156,6 +151,16 @@ export class SandboxHeaderStore extends Store<
             }
         });
 
+        this.graphHub.onGraphError.subscribe(error => {
+            console.error(error);
+            this.ctx.tabsStore.addLogsToTab(error.graphId, {
+                graphId: error.graphId,
+                message: JSON.stringify(error),
+                type: 'error',
+                timestamp: moment.now(),
+            });
+        });
+
         this.graphHub.onDisconnected.subscribe(() => {
             appStore.toast('Lost connection to graph service', 'error');
             this.setState({ connected: false });
@@ -164,9 +169,33 @@ export class SandboxHeaderStore extends Store<
         this.graphHub.start();
     }
 
-    public runGraph = () => {
+    public initialize = async () => {
+        this.suspend();
+        if (await hasItem(autoSaveGraphKey())) {
+            this.setState({
+                autoSaveGraph: await localforage.getItem(autoSaveGraphKey()),
+            });
+        }
+
+        if (await hasItem(autoSaveNodeKey())) {
+            this.setState({
+                autoSaveNode: await localforage.getItem(autoSaveNodeKey()),
+            });
+        }
+        this.unsuspend();
+    };
+
+    public runGraph = (
+        flowInput?: FlowInputFieldDto,
+        valueInputs?: ValueInputFieldDto[]
+    ) => {
         if (!this.ctx.tabsStore.hasActiveTab) {
-            appStore.toast('Must select a graph', 'error');
+            appStore.toast('Must select a graph to run', 'error');
+            return;
+        }
+
+        if (!this.state.bridge) {
+            appStore.toast('Must select a bridge to run', 'error');
             return;
         }
 
@@ -174,20 +203,13 @@ export class SandboxHeaderStore extends Store<
         const { connected } = this.state;
         if (connected && hasSelectedBridge) {
             const connectionId = selectedBridge.connectionId;
-            const graph = this.ctx.getConvertedGraphData();
+            const graph = this.ctx.getConvertedGraphData(true);
 
-            this.setState({ isRunning: true });
-
-            if (isMacro(graph)) {
-                // this.graphHub.runMacro(graph);
+            if (isMacro(graph) && flowInput) {
+                this.graphHub.runMacro(graph, connectionId, flowInput.key);
             } else {
                 this.graphHub.runGraph(graph, connectionId);
             }
-
-            this.timeout = setTimeout(() => {
-                this.setState({ isRunning: false });
-                appStore.toast('Timeout exception', 'error');
-            }, 30000);
         }
     };
 
@@ -200,14 +222,33 @@ export class SandboxHeaderStore extends Store<
         this.graphHub.requestBridges();
     };
 
+    public toggleAutosaveGraph = (toggle?: boolean) => {
+        const value = this.state.autoSaveGraph.toggle(toggle);
+        localforage.setItem(autoSaveGraphKey(), value);
+        this.setState({
+            autoSaveGraph: this.state.autoSaveGraph.toggle(toggle),
+        });
+    };
+
+    public toggleAutosaveNode = (toggle?: boolean) => {
+        const value = this.state.autoSaveNode.toggle(toggle);
+        localforage.setItem(autoSaveNodeKey(), value);
+        this.setState({ autoSaveNode: value });
+    };
+
     public onEditGraph = () => {
-        const { graph } = this.ctx.tabsStore.activeTab;
-        if (isMacro(graph)) {
-            macroModalStore.openModal(graph, true);
+        const { initial } = this.ctx.tabsStore.activeTab;
+        if (isMacro(initial)) {
+            this.ctx.introStore.setState({
+                isMacroModalOpen: true,
+                graphToEdit: initial,
+            });
         } else {
-            graphModalStore.openModal(graph, true);
+            this.ctx.introStore.setState({
+                isGraphModalOpen: true,
+                graphToEdit: initial,
+            });
         }
-        this.setState({ modifyingGraphSettings: true });
     };
 
     public onTabLoaded = () => {

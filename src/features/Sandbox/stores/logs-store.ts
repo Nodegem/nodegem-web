@@ -1,14 +1,15 @@
 import moment from 'moment';
 import { Store } from 'overstated';
+import { appStore } from 'stores';
 import { SandboxStore } from '.';
 import TerminalHub from '../hubs/terminal-hub';
-import { appStore } from './../../../app-state-store';
 
 interface ILogState {
     isOpen: boolean;
     isLoading: boolean;
     connected: boolean;
     connecting: boolean;
+    logs: LogData[];
 }
 
 export class LogsStore extends Store<ILogState, SandboxStore> {
@@ -17,7 +18,12 @@ export class LogsStore extends Store<ILogState, SandboxStore> {
         isLoading: false,
         connected: false,
         connecting: false,
+        logs: [],
     };
+
+    public get currentLogs(): LogData[] {
+        return this.state.logs;
+    }
 
     public terminalHub: TerminalHub = new TerminalHub();
 
@@ -41,10 +47,11 @@ export class LogsStore extends Store<ILogState, SandboxStore> {
         });
 
         this.terminalHub.log.subscribe(data => {
-            this.ctx.tabsStore.addLogsToTab(data.graphId, {
+            const newLog = {
                 ...data,
                 timestamp: moment.now(),
-            });
+            };
+            this.ctx.tabsStore.addLogsToTab(data.graphId, newLog);
         });
 
         this.terminalHub.onDisconnected.subscribe(() => {
@@ -58,6 +65,10 @@ export class LogsStore extends Store<ILogState, SandboxStore> {
     public get canToggle(): boolean {
         return !this.state.isLoading;
     }
+
+    public setLogs = (logs: LogData[]) => {
+        this.setState({ logs });
+    };
 
     public toggleOpen = (value?: boolean) => {
         this.setState({ isOpen: this.state.isOpen.toggle(value) });

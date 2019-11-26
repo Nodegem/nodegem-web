@@ -6,12 +6,21 @@ body {
     font-family: sans-serif;
 }
 
+* {
+    scroll-behavior: smooth;
+}
+
 #root {
     display: flex;
     align-items: stretch;
     flex-direction: column;
     height: 100%;
     flex: 1 1 100%;
+    overflow: hidden;
+
+    .app-layout {
+        overflow: auto;
+    }
 }
 
 ::-webkit-scrollbar-track {
@@ -32,4 +41,14 @@ body {
 * {
     scrollbar-color: #0000009f transparent;
     scrollbar-width: thin;
+}
+
+.ant-input-password {
+    input:focus {
+        background-image: none !important;
+    }
+
+    .ant-input-suffix {
+        font-size: 1.4em;
+    }
 }

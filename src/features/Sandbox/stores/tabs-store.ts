@@ -1,6 +1,7 @@
-import { appStore } from 'app-state-store';
 import { Store } from 'overstated';
+import { appStore } from 'stores';
 import { SandboxStore } from '.';
+import { getGraphType } from 'utils';
 
 interface ITabsState {
     tabs: TabData[];
@@ -29,6 +30,10 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         return !!this.activeTab;
     }
 
+    public get activeTabGraphType(): GraphType {
+        return getGraphType(this.activeTab.graph);
+    }
+
     public get hasTabs(): boolean {
         return this.state.tabs.length > 0;
     }
@@ -55,7 +60,7 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
     };
 
     public setActiveTab = async (id: string, forceReload: boolean = false) => {
-        if (!forceReload && this.state.activeTabId === id) {
+        if (forceReload || this.state.activeTabId === id) {
             return;
         }
 
@@ -65,6 +70,7 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         });
 
         if (id) {
+            this.ctx.logsStore.setLogs(this.activeTab.logs);
             this.ctx.load(this.activeTab.graph);
         } else {
             this.ctx.sandboxHeaderStore.onTabUnloaded();
@@ -82,6 +88,7 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
             tabs: [
                 ...this.state.tabs,
                 {
+                    initial: { ...graph },
                     graph,
                     isDirty: false,
                     definitions: {} as any,
@@ -94,10 +101,21 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
         this.setActiveTab(graph.id);
     };
 
+    public getTabFromGraphId = (graphId: string) => {
+        return this.state.tabs.firstOrDefault(x => x.graph.id === graphId);
+    };
+
     public updateTabData = (graph: Graph | Macro) => {
         const { tabs } = this.state;
         const tabData = tabs.first(x => x.graph.id === graph.id);
-        tabs.addOrUpdate({ ...tabData, graph }, x => x.graph.id === graph.id);
+        tabs.addOrUpdate(
+            {
+                ...tabData,
+                graph,
+                initial: { ...graph },
+            },
+            x => x.graph.id === graph.id
+        );
         this.setState({ tabs: [...tabs] });
 
         if (graph.id === this.state.activeTabId) {
@@ -133,8 +151,10 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
             activeGraphId !== graphId ||
             (activeGraphId === graphId && !this.ctx.logsStore.state.isOpen);
 
+        const newLogs = [...tab.logs, ...logs];
+        this.ctx.logsStore.setLogs(newLogs);
         tabs.addOrUpdate(
-            { ...tab, logs: [...tab.logs, ...logs], hasUnread },
+            { ...tab, logs: newLogs, hasUnread },
             t => t.graph.id === graphId
         );
 
@@ -188,5 +208,6 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
 
     public clearTabs = () => {
         this.setTabs([]);
+        this.ctx.canvasStore.clearView();
     };
 }

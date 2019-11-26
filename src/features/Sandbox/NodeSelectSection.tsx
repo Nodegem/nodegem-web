@@ -4,6 +4,7 @@ import { useStore } from 'overstated';
 import React from 'react';
 import { NodeSelect } from './NodeSelect';
 import { NodeSelectStore } from './stores/node-select-store';
+import _ from 'lodash';
 
 interface INodeSelectProps {
     nodeSelectStore: NodeSelectStore;
@@ -14,33 +15,43 @@ export const NodeSelectSection: React.FC<INodeSelectProps> = ({
 }) => {
     const {
         isOpen,
-        nodeOptions,
         isLoadingDefinitions,
         toggle,
         addNode,
+        setInputRef,
     } = useStore(nodeSelectStore, store => ({
         toggle: store.toggleOpen,
         addNode: store.addNode,
+        setInputRef: store.setInputRef,
         ...store.state,
     }));
+
+    const { handleSearchChange, options } = useStore(
+        nodeSelectStore.nodeSelectionSearchStore,
+        store => ({
+            handleSearchChange: store.handleSearchChange,
+            ...store.state,
+        })
+    );
 
     return (
         <CustomCollapsible
             size="340px"
-            onTabClick={() => toggle()}
+            onTabClick={toggle}
             collapsed={!isOpen}
             className="node-select-collapsible"
         >
-            {!nodeOptions ||
-                (!nodeOptions.selectFriendly && (
+            {!options ||
+                (!options.selectFriendly && (
                     <Empty description="Please create or open a graph to view nodes" />
                 ))}
-            {nodeOptions && nodeOptions.selectFriendly && (
+            {options && options.selectFriendly && (
                 <NodeSelect
-                    onFilter={text => {}}
+                    setInputRef={setInputRef}
+                    onFilter={_.debounce(handleSearchChange, 150)}
                     addNode={addNode}
                     loading={isLoadingDefinitions}
-                    nodeOptions={nodeOptions.selectFriendly}
+                    nodeOptions={options.selectFriendly}
                 />
             )}
         </CustomCollapsible>

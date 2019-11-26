@@ -1,12 +1,55 @@
 @import '../sandbox-variables.less';
 
 .link {
+    pointer-events: none;
     overflow: visible !important;
 
     path {
+        transition: opacity 100ms ease-out;
+        opacity: 0;
         fill: none;
         stroke-width: 0.15em;
         stroke-linecap: round;
         stroke-linejoin: round;
+        &.visible {
+            opacity: 1;
+        }
+    }
+
+    #draw-link-path {
+        opacity: 1;
+    }
+}
+
+.link-icons {
+    width: 0;
+    height: 0;
+    .link-icon {
+        cursor: pointer;
+        transition: opacity 100ms ease-out;
+        font-size: 1.5em;
+        pointer-events: none;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        i {
+            transition: color 100ms ease-out;
+            color: white;
+        }
+
+        transform: translate(var(--pos-x), var(--pos-y));
+
+        &.visible {
+            pointer-events: auto;
+            opacity: 1;
+        }
+    }
+
+    &.hovering {
+        .link-icon {
+            i {
+                color: red;
+            }
+        }
     }
 }

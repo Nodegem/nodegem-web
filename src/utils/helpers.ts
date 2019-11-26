@@ -27,7 +27,7 @@ export const jwtToUser = (jwt: any): User => {
             gravatar.url(
                 jwt.sub,
                 {
-                    s: '100',
+                    s: '128',
                     r: 'pg',
                     d: 'retro',
                 },

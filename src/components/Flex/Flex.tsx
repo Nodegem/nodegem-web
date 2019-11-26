@@ -28,6 +28,7 @@ export const Flex: React.FC<IFlexProps> = ({
     className,
     ...rest
 }) => {
+    const childCount = React.Children.count(children);
     return (
         <div
             {...rest}
@@ -58,15 +59,23 @@ export const Flex: React.FC<IFlexProps> = ({
                 } as any
             }
         >
-            {React.Children.map(children, child =>
-                React.cloneElement(child as any, {
-                    style: {
-                        marginRight:
-                            direction === 'row' ? `${gap}px` : undefined,
-                        marginBottom:
-                            direction === 'column' ? `${gap}px` : undefined,
-                    },
-                })
+            {React.Children.map(
+                children,
+                (child: any, index) =>
+                    !!child &&
+                    React.cloneElement(child as any, {
+                        style: {
+                            ...child.props.style,
+                            marginRight:
+                                direction === 'row' && index < childCount - 1
+                                    ? `${gap}px`
+                                    : undefined,
+                            marginBottom:
+                                direction === 'column' && index < childCount - 1
+                                    ? `${gap}px`
+                                    : undefined,
+                        },
+                    })
             )}
         </div>
     );

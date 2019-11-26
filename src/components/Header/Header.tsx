@@ -1,5 +1,4 @@
 import { Avatar, Dropdown, Icon, Layout, Menu } from 'antd';
-import { observer } from 'mobx-react-lite';
 import React from 'react';
 
 import { SiderTheme } from 'antd/lib/layout/Sider';
@@ -8,7 +7,8 @@ import { Link } from 'react-router-dom';
 
 import logoPath from '../../logo.svg';
 
-import { authStore, commonStore, userStore } from 'stores';
+import { useStore } from 'overstated';
+import { appStore } from 'stores';
 import './Header.less';
 
 const AntHeader = Layout.Header;
@@ -43,16 +43,18 @@ const menu = (theme: SiderTheme, logout: () => void) => (
     </Menu>
 );
 
-export const Header: React.FC = observer(() => {
-    const headerHeight = `${commonStore.headerHeight}px`;
+export const Header: React.FC = () => {
+    const { theme } = useStore(appStore, store => ({
+        theme: store.state.theme,
+    }));
 
-    const { isLoggedIn, user } = userStore;
+    const { user, logout } = useStore(appStore.userStore, store => ({
+        user: store.user,
+        logout: store.logout,
+    }));
 
     return (
-        <AntHeader
-            className="app-header"
-            style={{ height: headerHeight, lineHeight: headerHeight }}
-        >
+        <AntHeader className="app-header">
             <FlexRow>
                 <FlexRow className="header-logo">
                     <Link to="/">
@@ -65,19 +67,19 @@ export const Header: React.FC = observer(() => {
                         <Dropdown
                             className="avatar-menu"
                             placement="bottomRight"
-                            overlay={menu(commonStore.theme, authStore.logout)}
+                            overlay={menu(theme, logout)}
                             trigger={['click']}
                         >
                             <div>
                                 <span className="username">
-                                    {userStore.isLoggedIn && userStore.username}
+                                    {user.userName}
                                     <Icon type="caret-down" />
                                 </span>
                                 <Avatar
                                     size={45}
                                     icon="user"
                                     shape="square"
-                                    src={(isLoggedIn && user!.avatarUrl) || ''}
+                                    src={user.avatarUrl || ''}
                                 />
                             </div>
                         </Dropdown>
@@ -86,4 +88,4 @@ export const Header: React.FC = observer(() => {
             </FlexRow>
         </AntHeader>
     );
-});
+};

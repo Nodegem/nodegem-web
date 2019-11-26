@@ -35,6 +35,8 @@ interface IPortUIData {
     value?: any;
     valueType?: ValueType;
     defaultValue?: any;
+    isEditable?: boolean;
+    allowConnection?: boolean;
 }
 
 interface INodeUIData {
@@ -47,6 +49,7 @@ interface INodeUIData {
     flowOutputs: IPortUIData[];
     valueInputs: IPortUIData[];
     valueOutputs: IPortUIData[];
+    isFaded?: boolean;
     position: Vector2;
     permanent?: boolean;
     macroFieldId?: string;
@@ -63,6 +66,8 @@ interface ILinkUIData {
     destinationData: IPortUIData;
     type: PortType;
     element: SVGPathElement;
+    sourceIconElement: HTMLElement;
+    destinationIconElement: HTMLElement;
 }
 
 interface ILinkInitializeData {

@@ -2,8 +2,11 @@ import { message, notification } from 'antd';
 import { MenuTheme } from 'antd/lib/menu/MenuContext';
 import { ArgsProps, NotificationPlacement } from 'antd/lib/notification';
 import { compose, Store } from 'overstated';
-import { GraphManagerStore } from './graph-manager-store';
 import { UserStore } from './user-store';
+
+message.config({
+    maxCount: 3,
+});
 
 interface IAppState {
     selectedGraph?: Graph | Macro;
@@ -24,17 +27,19 @@ interface INotifyOptions {
 }
 
 interface IAppChildren {
-    // userStore: UserStore;
-    graphManagerStore: GraphManagerStore;
+    userStore: UserStore;
 }
 
 @compose({
-    // userStore: UserStore,
-    graphManagerStore: GraphManagerStore,
+    userStore: UserStore,
 })
 export class AppStore extends Store<IAppState, undefined, IAppChildren> {
     public state: IAppState = {
         theme: 'dark',
+    };
+
+    public loadStateFromStorage = async () => {
+        await this.userStore.loadStateFromStorage();
     };
 
     public get hasSelectedGraph(): boolean {

@@ -23,6 +23,7 @@ interface IExecutionError {
     graphName: string;
     graphId: string;
     message: string;
+    isBuildError: boolean;
     bridge: IBridgeInfo;
 }
 

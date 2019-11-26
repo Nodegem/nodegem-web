@@ -42,16 +42,56 @@ export const valuePath = (source: Vector2, destination: Vector2) => {
 
 export const updateLinkPath = (
     link: ILinkUIData,
-    coordConverter: (element: HTMLElement) => Vector2
+    coordConverter: (element: HTMLElement) => Vector2,
+    showIcons: boolean = false
 ) => {
     const source = coordConverter(link.source);
     const destination = coordConverter(link.destination);
-    const path =
-        link.type === 'flow'
-            ? flowPath(source, destination)
-            : valuePath(source, destination);
+    if (showIcons) {
+        const sourceOffsetX = link.sourceIconElement.style.getPropertyValue(
+            '--offset-x'
+        );
+        const sourceOffsetY = link.sourceIconElement.style.getPropertyValue(
+            '--offset-y'
+        );
+        link.sourceIconElement.style.setProperty(
+            '--pos-x',
+            `${source.x + parseInt(sourceOffsetX)}px`
+        );
+        link.sourceIconElement.style.setProperty(
+            '--pos-y',
+            `${source.y - parseInt(sourceOffsetY)}px`
+        );
 
-    link.element.setAttribute('d', path);
+        const destinationOffsetX = link.destinationIconElement.style.getPropertyValue(
+            '--offset-x'
+        );
+        const destinationOffsetY = link.destinationIconElement.style.getPropertyValue(
+            '--offset-y'
+        );
+        link.destinationIconElement.style.setProperty(
+            '--pos-x',
+            `${destination.x - parseInt(destinationOffsetX)}px`
+        );
+        link.destinationIconElement.style.setProperty(
+            '--pos-y',
+            `${destination.y - parseInt(destinationOffsetY)}px`
+        );
+
+        link.sourceIconElement.classList.add('visible');
+        link.destinationIconElement.classList.add('visible');
+        link.element.classList.remove('visible');
+    } else {
+        const path =
+            link.type === 'flow'
+                ? flowPath(source, destination)
+                : valuePath(source, destination);
+
+        link.element.setAttribute('d', path);
+        link.element.classList.add('visible');
+        link.sourceIconElement.classList.remove('visible');
+        link.destinationIconElement.classList.remove('visible');
+    }
 };
 
 export const getLinkId = (link: ILinkUIData) =>

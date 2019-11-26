@@ -1,15 +1,19 @@
 .logs-container {
-    overflow: auto;
+    .logs {
+        flex-direction: column;
+        flex: 1 1 100%;
+        display: flex;
+        overflow: auto;
+    }
+
     .log-line {
+        align-items: center;
+        font-family: 'Source Code Pro', monospace;
         display: inline-flex;
         flex: 0 1 100%;
 
         &.log {
             color: blue;
-        }
-
-        &.debug {
-            color: green;
         }
 
         &.warn {

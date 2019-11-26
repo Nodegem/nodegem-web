@@ -14,6 +14,11 @@ export const DrawLink: React.FC<IDrawLinkProps> = ({ drawLinkStore }) => {
     }));
 
     return (
-        <Link linkId={drawLinkElementId} visible={isDrawing} type={linkType!} />
+        <Link
+            linkId={drawLinkElementId}
+            visible={isDrawing}
+            type={linkType!}
+            showIcons={false}
+        />
     );
 };

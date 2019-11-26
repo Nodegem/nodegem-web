@@ -1,16 +1,9 @@
-import { Button, Dropdown, Icon, Menu } from 'antd';
+import { Button, Checkbox, Dropdown, Icon, Menu, Tooltip } from 'antd';
 import { FlexFillGreedy, FlexRow } from 'components';
 import { useStore } from 'overstated';
 import React, { useMemo } from 'react';
+import { isMacro } from 'utils';
 import { SandboxHeaderStore } from './stores/sandbox-header-store';
-
-const middleDelete = (event: MouseEvent, deleteTab: () => void) => {
-    if (event.button === 1) {
-        event.preventDefault();
-        event.stopPropagation();
-        deleteTab();
-    }
-};
 
 interface IBridgeMenuProps {
     bridges: IBridgeInfo[];
@@ -27,7 +20,7 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
 }) =>
     useMemo(
         () => (
-            <Menu theme="dark">
+            <Menu theme="dark" className="bridge-menu" selectable={false}>
                 {bridges &&
                     bridges.map(b => (
                         <Menu.Item
@@ -57,6 +50,45 @@ const BridgeMenu: React.FC<IBridgeMenuProps> = ({
         [bridges, currentBridge]
     );
 
+interface ISettingsMenuProps {
+    autosaveGraph: boolean;
+    autosaveNode: boolean;
+    autoSaveGraphToggle: (value?: boolean) => void;
+    autoSaveNodeToggle: (value?: boolean) => void;
+}
+
+const SettingsMenu: React.FC<ISettingsMenuProps> = ({
+    autosaveNode,
+    autosaveGraph,
+    autoSaveGraphToggle,
+    autoSaveNodeToggle,
+}) => (
+    <Menu theme="dark" className="sandbox-settings-menu" selectable={false}>
+        <Menu.Item>
+            <Checkbox
+                checked={autosaveGraph}
+                onChange={value => autoSaveGraphToggle(value.target.checked)}
+            >
+                Auto Save Graph
+                <Tooltip title="Save graph changes automatically">
+                    <Icon type="info-circle" />
+                </Tooltip>
+            </Checkbox>
+        </Menu.Item>
+        <Menu.Item>
+            <Checkbox
+                checked={autosaveNode}
+                onChange={value => autoSaveNodeToggle(value.target.checked)}
+            >
+                Auto Save Node
+                <Tooltip title="Save node changes automatically (Not implemented yet)">
+                    <Icon type="info-circle" />
+                </Tooltip>
+            </Checkbox>
+        </Menu.Item>
+    </Menu>
+);
+
 interface ISandboxHeaderProps {
     sandboxHeaderStore: SandboxHeaderStore;
 }
@@ -70,7 +102,6 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
         saveGraph,
         canEdit,
         editGraph,
-        isRunning,
         connected,
         connecting,
         runGraph,
@@ -80,6 +111,12 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
         refreshBridges,
         bridge,
         loadingBridges,
+        activeTab,
+        toggleMacroRunModal,
+        autoSaveGraph,
+        autoSaveNode,
+        toggleAutosaveGraph,
+        toggleAutosaveNode,
     } = useStore(sandboxHeaderStore, store => ({
         saveGraph: store.ctx.saveGraph,
         editGraph: store.onEditGraph,
@@ -87,41 +124,67 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
         hasBridge: store.hasSelectedBridge,
         onBridgeSelect: store.onBridgeSelect,
         refreshBridges: store.refreshBridges,
+        activeTab: store.ctx.tabsStore.activeTab,
+        toggleMacroRunModal: store.ctx.introStore.toggleMacroRunModal,
+        toggleAutosaveGraph: store.toggleAutosaveGraph,
+        toggleAutosaveNode: store.toggleAutosaveNode,
         ...store.state,
     }));
 
     return (
         <FlexRow className="sandbox-header" flex="0 1 auto">
-            <FlexRow gap={5}>
-                <Button
-                    disabled={!canSave}
-                    shape="round"
-                    type="primary"
-                    icon="save"
-                    loading={isSavingGraph}
-                    onClick={saveGraph}
+            <FlexRow gap={10}>
+                <Dropdown
+                    overlay={
+                        <SettingsMenu
+                            autosaveGraph={autoSaveGraph}
+                            autosaveNode={autoSaveNode}
+                            autoSaveGraphToggle={toggleAutosaveGraph}
+                            autoSaveNodeToggle={toggleAutosaveNode}
+                        />
+                    }
                 >
-                    Save
-                </Button>
+                    <Button
+                        type="primary"
+                        icon="tool"
+                        style={{ marginRight: '10px' }}
+                    >
+                        Settings
+                        <Icon type="down" />
+                    </Button>
+                </Dropdown>
                 <Button
                     disabled={!canEdit}
-                    shape="round"
                     type="primary"
                     icon="setting"
                     onClick={editGraph}
                 >
                     Edit Graph
                 </Button>
+                <Button
+                    disabled={!canSave}
+                    type="primary"
+                    icon="save"
+                    loading={isSavingGraph}
+                    onClick={() => saveGraph()}
+                >
+                    Save
+                </Button>
             </FlexRow>
             <FlexFillGreedy />
-            <FlexRow gap={5}>
+            <FlexRow gap={10}>
                 <Button
                     type="primary"
-                    shape="round"
                     icon="caret-right"
                     disabled={!connected}
-                    onClick={runGraph}
-                    loading={isRunning || connecting}
+                    onClick={() => {
+                        if (activeTab && isMacro(activeTab.graph)) {
+                            toggleMacroRunModal(true);
+                        } else {
+                            runGraph();
+                        }
+                    }}
+                    loading={connecting}
                 >
                     Run
                 </Button>
@@ -138,7 +201,6 @@ export const SandboxHeader: React.FC<ISandboxHeaderProps> = ({
                 >
                     <Button
                         type="primary"
-                        shape="round"
                         icon="deployment-unit"
                         loading={loadingBridges}
                     >

@@ -4,7 +4,7 @@ interface BaseFieldDto {
 }
 
 interface ValueFieldDto extends BaseFieldDto {
-    type: number;
+    type: ValueType;
 }
 
 interface ValueInputFieldDto extends ValueFieldDto {

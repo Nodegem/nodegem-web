@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import { Button } from 'antd';
 import { ArrowIcon } from 'styles/icons';
@@ -54,10 +54,19 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
         collapsed: fullyCollapsed,
     });
 
-    const handleTabClick = () => {
+    const handleTabClick = useCallback(() => {
         setCollapsing(true);
         onTabClick();
-    };
+    }, []);
+
+    const handleTransitionEnd = useCallback(
+        (event: React.TransitionEvent<HTMLDivElement>) => {
+            if (event.nativeEvent.propertyName === 'opacity') {
+                setCollapsing(false);
+            }
+        },
+        []
+    );
 
     const actualSize = size;
     size = collapsed ? tabSize : size;
@@ -72,7 +81,7 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
                     '--content-size': actualSize,
                 } as any
             }
-            onTransitionEnd={() => setCollapsing(false)}
+            onTransitionEnd={handleTransitionEnd}
         >
             <div className={collapseClass}>{children}</div>
             <div className="tab-trigger" onMouseUp={handleTabClick}>
@@ -89,7 +98,7 @@ export const CustomCollapsible: React.FC<IVerticalCollapsibleProps> = ({
                     '--content-size': actualSize,
                 } as any
             }
-            onTransitionEnd={() => setCollapsing(false)}
+            onTransitionEnd={handleTransitionEnd}
         >
             <div className={collapseClass}>{children}</div>
             <div className="tab-trigger" onMouseUp={handleTabClick}>

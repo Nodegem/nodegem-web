@@ -24,8 +24,10 @@ interface ISocketProps {
     io: PortIOType;
     type: PortType;
     indefinite: boolean;
+    isEditable?: boolean;
     connected: boolean;
-    lastPort: boolean;
+    showAdd: boolean;
+    isRemovable: boolean;
     onPortEvent: (
         event: PortEvent,
         element: HTMLElement,
@@ -43,10 +45,12 @@ export const Socket: React.FC<ISocketProps> = React.memo(
         name,
         portId,
         nodeId,
+        isEditable,
         io,
         type,
         onAddPort,
-        lastPort,
+        isRemovable,
+        showAdd,
         onRemovePort,
         indefinite = false,
         connected = false,
@@ -60,6 +64,7 @@ export const Socket: React.FC<ISocketProps> = React.memo(
             connected,
             name,
             indefinite,
+            isEditable,
         };
 
         const portUp = useCallback(
@@ -107,9 +112,26 @@ export const Socket: React.FC<ISocketProps> = React.memo(
                         placement === 'right' ? 'row-reverse' : 'row',
                 }}
             >
-                {indefinite &&
-                    (lastPort ? (
-                        <Tooltip title={`Add to ${name}`}>
+                {indefinite && (
+                    <div className="port-actions">
+                        {!connected && isRemovable && (
+                            <span
+                                onClick={() =>
+                                    isRemovable && onRemovePort(data)
+                                }
+                                className={classNames({
+                                    'port-action': true,
+                                    'remove-port': true,
+                                    disabled: !isRemovable,
+                                    hidden: hidePortActions,
+                                })}
+                            >
+                                <Tooltip title="Remove" placement={placement}>
+                                    <Icon type="minus-circle" />
+                                </Tooltip>
+                            </span>
+                        )}
+                        {showAdd && (
                             <span
                                 onClick={() => onAddPort(data)}
                                 className={classNames({
@@ -118,23 +140,16 @@ export const Socket: React.FC<ISocketProps> = React.memo(
                                     hidden: hidePortActions,
                                 })}
                             >
-                                <Icon type="plus-circle" />
+                                <Tooltip
+                                    title={`Add to ${name}`}
+                                    placement={placement}
+                                >
+                                    <Icon type="plus-circle" />
+                                </Tooltip>
                             </span>
-                        </Tooltip>
-                    ) : (
-                        !connected && (
-                            <span
-                                onClick={() => onRemovePort(data)}
-                                className={classNames({
-                                    'port-action': true,
-                                    'remove-port': true,
-                                    hidden: hidePortActions,
-                                })}
-                            >
-                                <Icon type="minus-circle" />
-                            </span>
-                        )
-                    ))}
+                        )}
+                    </div>
+                )}
                 <Tooltip title={name} placement={placement}>
                     <span
                         id={portNodeId}

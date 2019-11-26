@@ -1,155 +1,305 @@
 import React, { useEffect, useState } from 'react';
 
-import { Button, Divider, Form } from 'antd';
+import { Button, Divider, Icon } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import classNames from 'classnames';
+import { FlexColumn } from 'components';
 import { ValueTypeControl } from 'components/ValueTypeControl/ValueTypeControl';
+import { FieldArray, Formik, FormikHelpers } from 'formik';
+import { Form, FormItem, ResetButton, Select, SubmitButton } from 'formik-antd';
 import _ from 'lodash';
-import { toJS } from 'mobx';
+import { valueMap } from 'utils';
+import * as Yup from 'yup';
 import './NodeInfo.less';
+
+const valueOptions: ValueType[] = [
+    'any',
+    'text',
+    'textarea',
+    'boolean',
+    'number',
+    'time',
+    'date',
+    'datetime',
+    'phonenumber',
+    'url',
+];
 
 interface INodeInfoProps {
     selectedNode: INodeUIData;
-    onNodeValueChange: (node: INodeUIData, fields: IPortUIData[]) => void;
+    onNodeValueChange: (
+        node: INodeUIData,
+        fields: IPortUIData[],
+        type: 'input' | 'output'
+    ) => void;
 }
 
 const NodeInfo: React.FC<INodeInfoProps> = ({
     selectedNode,
     onNodeValueChange,
 }) => {
+    const [nodeValueInputs, setValueInputs] = useState(
+        selectedNode.valueInputs
+    );
+    const [nodeValueOutputs, setValueOutputs] = useState(
+        selectedNode.valueOutputs
+    );
+
+    useEffect(() => {
+        setValueInputs(selectedNode.valueInputs);
+        setValueOutputs(selectedNode.valueOutputs);
+    }, [selectedNode]);
+
     const containerClass = classNames({
         'node-info': true,
     });
 
-    const handleUpdate = (fields: IPortUIData[]) => {
-        onNodeValueChange(selectedNode!, fields);
+    const handleSubmit = (
+        values: INodeInfoFormValues,
+        actions: FormikHelpers<INodeInfoFormValues>
+    ) => {
+        onNodeValueChange(selectedNode, values.valueInputs, 'input');
+        onNodeValueChange(selectedNode, values.valueOutputs, 'output');
+        actions.setSubmitting(false);
+        setValueInputs(values.valueInputs);
+        setValueOutputs(values.valueOutputs);
     };
 
     return (
-        <div className={containerClass}>
-            <div className="node-info-title">
+        <FlexColumn className={containerClass} gap={20}>
+            <FlexColumn className="node-info-title" flex="0 1 auto">
                 <p className="header">{selectedNode.title}</p>
-            </div>
+            </FlexColumn>
             <Divider />
-            <div className="node-info-description">
+            <FlexColumn className="node-info-description" flex="0 1 auto">
                 <p className="header underline">Description:</p>
                 <Paragraph>{selectedNode.description || 'N/A'}</Paragraph>
-            </div>
-            {selectedNode.valueInputs && selectedNode.valueInputs.any() && (
-                <>
-                    <Divider />
-                    <div className="node-info-properties">
-                        <NodeInfoForm
-                            valueInputs={selectedNode.valueInputs}
-                            onUpdate={handleUpdate}
-                        />
-                    </div>
-                </>
+            </FlexColumn>
+            {((nodeValueInputs && nodeValueInputs.any()) ||
+                (nodeValueOutputs && nodeValueInputs.any())) && (
+                <FlexColumn className="value-inputs">
+                    <NodeInfoForm
+                        valueInputs={nodeValueInputs}
+                        valueOutputs={nodeValueOutputs}
+                        handleSubmit={handleSubmit}
+                    />
+                </FlexColumn>
             )}
-        </div>
+        </FlexColumn>
     );
 };
 
-interface IPropertyGroupProps {
-    portList: IPortUIData[];
-    onFieldChange: (port: IPortUIData) => void;
-}
-
-const PropertyGroup: React.FC<IPropertyGroupProps> = ({
-    portList,
-    onFieldChange,
-}) => {
-    const handleChange = (port: IPortUIData, value: any) => {
-        port.value = value;
-        onFieldChange(port);
-    };
-
-    return (
-        <>
-            {portList.map(p => (
-                <Form.Item key={p.id} label={p.name}>
-                    <ValueTypeControl
-                        valueType={p.valueType}
-                        name={p.name}
-                        disabled={p.connected}
-                        defaultValue={p.defaultValue}
-                        value={p.value}
-                        onChange={value => handleChange(p, value)}
-                    />
-                </Form.Item>
-            ))}
-        </>
-    );
-};
-
-interface INodeInfoForm {
+interface INodeInfoFormValues {
     valueInputs: IPortUIData[];
-    onUpdate: (newValues: IPortUIData[]) => void;
+    valueOutputs: IPortUIData[];
 }
 
-const NodeInfoForm: React.FC<INodeInfoForm> = ({ valueInputs, onUpdate }) => {
-    const [form, setForm] = useState(valueInputs.map(x => _.cloneDeep(x)));
-    const [isDirty, setIsDirty] = useState(false);
+interface INodeInfoFormProps {
+    valueInputs: IPortUIData[];
+    valueOutputs: IPortUIData[];
+    handleSubmit: (
+        values: INodeInfoFormValues,
+        actions: FormikHelpers<INodeInfoFormValues>
+    ) => void;
+}
 
-    const handleSubmit = () => {
-        if (isDirty) {
-            const copiedValues = _.cloneDeep(form);
-            valueInputs = copiedValues;
-            onUpdate(copiedValues);
-            setIsDirty(false);
+const validationScheme = Yup.object().shape({
+    valueInputs: Yup.array().of(
+        Yup.object().shape<{ value: any }>({
+            value: Yup.mixed().when('valueType', {
+                is: 'url',
+                then: Yup.string()
+                    .url('Invalid Url')
+                    .notRequired(),
+                otherwise: Yup.mixed().notRequired(),
+            }),
+        })
+    ),
+});
+
+const NodeInfoForm: React.FC<INodeInfoFormProps> = ({
+    valueInputs,
+    valueOutputs,
+    handleSubmit,
+}) => {
+    const getPortLabel = (
+        port: IPortUIData,
+        list: IPortUIData[],
+        index: number
+    ) => {
+        if (!port.indefinite) {
+            return port.name;
         }
-    };
 
-    const handleReset = () => {
-        setForm(valueInputs.map(x => _.cloneDeep(x)));
-        setIsDirty(false);
+        const startIndefiniteIndex = list.findIndex(x => x.indefinite);
+        return `${port.name}[${index - startIndefiniteIndex}]`;
     };
-
-    const handleValueChange = (port: IPortUIData) => {
-        const p = form.firstOrDefault(x => x.id === port.id);
-        if (p) {
-            const newForm = form.map(x => ({ ...x, value: toJS(x.value) }));
-            setIsDirty(!_.isEqual(newForm, valueInputs));
-            setForm(newForm);
-        }
-    };
-
-    useEffect(() => {
-        setForm(valueInputs.map(x => _.cloneDeep(x)));
-    }, [valueInputs]);
 
     return (
-        <Form className="node-info-form">
-            <p>Editable Fields:</p>
-            <div className="properties">
-                {form.length > 0 && (
-                    <PropertyGroup
-                        portList={form}
-                        onFieldChange={handleValueChange}
-                    />
-                )}
-            </div>
-            <div className="info-submit">
-                <Form.Item style={{ margin: '0' }}>
-                    <Button
-                        disabled={!isDirty}
-                        type="primary"
-                        onClick={handleSubmit}
-                        block
-                    >
-                        Update
-                    </Button>
-                    <Button
-                        disabled={!isDirty}
-                        type="danger"
-                        onClick={handleReset}
-                        block
-                    >
-                        Reset
-                    </Button>
-                </Form.Item>
-            </div>
-        </Form>
+        <Formik
+            enableReinitialize
+            initialValues={{
+                valueInputs: valueInputs.map(x => ({
+                    ...x,
+                    value: x.value || x.defaultValue,
+                    valueType: x.valueType!,
+                })),
+                valueOutputs: valueOutputs.map(x => ({
+                    ...x,
+                    value: x.value || x.defaultValue,
+                    valueType: x.valueType!,
+                })),
+            }}
+            validationSchema={validationScheme}
+            onSubmit={handleSubmit}
+        >
+            {({ isSubmitting }) => (
+                <Form className="node-info-form">
+                    <FlexColumn gap={20}>
+                        <Divider />
+                        <FieldArray
+                            name="valueInputs"
+                            render={() => (
+                                <FlexColumn
+                                    gap={20}
+                                    flex="1 1 auto"
+                                    className="value-input-controls"
+                                >
+                                    {valueInputs.map((vi, index) => (
+                                        <FormItem
+                                            key={index}
+                                            name={`valueInputs.${index}.value`}
+                                            label={getPortLabel(
+                                                vi,
+                                                valueInputs,
+                                                index
+                                            )}
+                                        >
+                                            {vi.connected || !vi.isEditable ? (
+                                                !vi.isEditable ? (
+                                                    <span className="is-connected">
+                                                        Not Editable
+                                                    </span>
+                                                ) : (
+                                                    <span className="is-connected">
+                                                        Connected
+                                                        <Icon type="link" />
+                                                    </span>
+                                                )
+                                            ) : (
+                                                <ValueTypeControl
+                                                    placeHolder="Value"
+                                                    name={`valueInputs.${index}.value`}
+                                                    disabled={
+                                                        vi.connected ||
+                                                        !vi.isEditable
+                                                    }
+                                                    valueType={vi.valueType}
+                                                />
+                                            )}
+                                        </FormItem>
+                                    ))}
+                                </FlexColumn>
+                            )}
+                        />
+                        {valueOutputs.filter(x => x.indefinite).any() && (
+                            <FieldArray
+                                name="valueOutputs"
+                                render={() => (
+                                    <FlexColumn
+                                        gap={20}
+                                        className="value-output-controls"
+                                    >
+                                        {valueOutputs.map(
+                                            (vo, index) =>
+                                                vo.indefinite && (
+                                                    <React.Fragment key={index}>
+                                                        <FormItem
+                                                            name={`valueOutputs.${index}.value`}
+                                                            label={`${getPortLabel(
+                                                                vo,
+                                                                valueOutputs,
+                                                                index
+                                                            )} Key`}
+                                                        >
+                                                            <ValueTypeControl
+                                                                placeHolder="Value"
+                                                                name={`valueOutputs.${index}.value`}
+                                                                disabled={false}
+                                                                valueType={
+                                                                    'text'
+                                                                }
+                                                            />
+                                                        </FormItem>
+                                                        <FormItem
+                                                            key={index}
+                                                            name={`valueOutputs.${index}.valueType`}
+                                                            label={`${getPortLabel(
+                                                                vo,
+                                                                valueOutputs,
+                                                                index
+                                                            )} Type`}
+                                                        >
+                                                            <Select
+                                                                style={{
+                                                                    minWidth:
+                                                                        '175px',
+                                                                }}
+                                                                name={`valueOutputs.${index}.valueType`}
+                                                                placeholder="Type"
+                                                            >
+                                                                {valueOptions.map(
+                                                                    (
+                                                                        v,
+                                                                        vIndex
+                                                                    ) => (
+                                                                        <Select.Option
+                                                                            key={
+                                                                                vIndex
+                                                                            }
+                                                                            value={
+                                                                                v
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                valueMap[
+                                                                                    v
+                                                                                ]
+                                                                            }
+                                                                        </Select.Option>
+                                                                    )
+                                                                )}
+                                                            </Select>
+                                                        </FormItem>
+                                                    </React.Fragment>
+                                                )
+                                        )}
+                                    </FlexColumn>
+                                )}
+                            />
+                        )}
+                        <Button.Group>
+                            <ResetButton
+                                type="danger"
+                                icon="reload"
+                                style={{ width: '50%' }}
+                            >
+                                Reset
+                            </ResetButton>
+                            <SubmitButton
+                                disabled={false}
+                                type="primary"
+                                icon="save"
+                                loading={isSubmitting}
+                                style={{ width: '50%' }}
+                            >
+                                Save
+                            </SubmitButton>
+                        </Button.Group>
+                    </FlexColumn>
+                </Form>
+            )}
+        </Formik>
     );
 };
 
