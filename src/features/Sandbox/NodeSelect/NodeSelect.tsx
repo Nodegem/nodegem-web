@@ -42,7 +42,7 @@ const DefinitionItem: React.FC<IDefinitionItemProps> = React.memo(
         <Draggable
             key={i}
             disableInteractiveElementBlocking
-            draggableId={item.fullName}
+            draggableId={item.id}
             index={i}
         >
             {(provided, snapshot) => (

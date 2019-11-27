@@ -44,7 +44,7 @@ export class NodeSelectionSearchStore extends Store<
         const definitionObject: NodeCache = {
             definitionList: results,
             definitions: this.state.baseOptions.definitions,
-            definitionLookup: definitionList.toDictionary('fullName'),
+            definitionLookup: definitionList.toDictionary('id'),
             selectFriendly: {
                 Results: {
                     Matches: results,

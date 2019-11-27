@@ -88,6 +88,7 @@ export const definitionToNode = (
         title: definition.title,
         macroFieldId: definition.macroFieldId,
         macroId: definition.macroId,
+        constantId: definition.constantId,
         selected: false,
     };
 };
@@ -95,7 +96,9 @@ export const definitionToNode = (
 const tryGetValue = (node: NodeData, key: string, defaultValue?: any) => {
     if (node.fieldData) {
         const fd = node.fieldData.firstOrDefault(x => x.key === key);
-        return (fd && fd.value) || defaultValue;
+        return fd && fd.value !== null && fd.value !== undefined
+            ? fd.value
+            : defaultValue;
     }
 
     return defaultValue;
@@ -109,11 +112,12 @@ export const nodeDataToUINodeData = (
     return {
         id: node.id,
         definitionId: definition.id,
-        fullName: node.fullName,
+        fullName: definition.fullName,
         position: node.position || { x: 0, y: 0 },
         description: definition.description,
-        macroFieldId: definition.macroFieldId,
-        macroId: definition.macroId,
+        macroFieldId: node.macroFieldId,
+        macroId: node.macroId,
+        constantId: node.constantId,
         flowInputs: (flowInputs || []).map<IPortUIData>(fi => ({
             id: fi.key,
             name: fi.label,

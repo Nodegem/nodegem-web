@@ -134,7 +134,7 @@ export class CanvasStore extends Store<
         const mousePos = this.mousePos;
 
         const node = definitionToNode(
-            definitionLookup[definition.fullName],
+            definitionLookup[definition.id],
             centered
                 ? { x: 0, y: 0 }
                 : {

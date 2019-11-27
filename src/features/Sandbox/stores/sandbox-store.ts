@@ -86,7 +86,7 @@ export class SandboxStore
         const definitionObject = {
             definitionList,
             definitions,
-            definitionLookup: definitionList.toDictionary('fullName'),
+            definitionLookup: definitionList.toDictionary('id'),
             selectFriendly: convertToSelectFriendly(definitions.children),
         };
 
@@ -165,7 +165,7 @@ export class SandboxStore
         );
 
         const uiNodes = (nodes || []).map<INodeUIData>(n => {
-            const definition = definitions.definitionLookup[n.fullName];
+            const definition = definitions.definitionLookup[n.definitionId];
             return nodeDataToUINodeData(n, definition);
         });
 
@@ -287,7 +287,6 @@ export class SandboxStore
             id: n.id,
             position: n.position,
             definitionId: n.definitionId,
-            fullName: n.fullName,
             fieldData: [
                 ...n.valueInputs,
                 ...n.valueOutputs.filter(x => x.indefinite),
@@ -300,6 +299,7 @@ export class SandboxStore
             permanent: n.permanent,
             macroFieldId: n.macroFieldId,
             macroId: n.macroId,
+            constantId: n.constantId,
         }));
 
         const { graph } = this.tabsStore.activeTab;

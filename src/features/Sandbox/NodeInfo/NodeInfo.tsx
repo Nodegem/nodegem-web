@@ -58,11 +58,11 @@ const NodeInfo: React.FC<INodeInfoProps> = ({
         values: INodeInfoFormValues,
         actions: FormikHelpers<INodeInfoFormValues>
     ) => {
+        setValueInputs(values.valueInputs);
+        setValueOutputs(values.valueOutputs);
         onNodeValueChange(selectedNode, values.valueInputs, 'input');
         onNodeValueChange(selectedNode, values.valueOutputs, 'output');
         actions.setSubmitting(false);
-        setValueInputs(values.valueInputs);
-        setValueOutputs(values.valueOutputs);
     };
 
     return (
@@ -141,12 +141,18 @@ const NodeInfoForm: React.FC<INodeInfoFormProps> = ({
             initialValues={{
                 valueInputs: valueInputs.map(x => ({
                     ...x,
-                    value: x.value || x.defaultValue,
+                    value:
+                        x.value !== null && x.value !== undefined
+                            ? x.value
+                            : x.defaultValue,
                     valueType: x.valueType!,
                 })),
                 valueOutputs: valueOutputs.map(x => ({
                     ...x,
-                    value: x.value || x.defaultValue,
+                    value:
+                        x.value !== null && x.value !== undefined
+                            ? x.value
+                            : x.defaultValue,
                     valueType: x.valueType!,
                 })),
             }}

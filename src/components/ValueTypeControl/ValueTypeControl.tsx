@@ -11,12 +11,11 @@ import React from 'react';
 
 interface IValueTypeControlProps {
     name: string;
-    value?: any;
     placeHolder?: string;
     valueType?: ValueType;
     disabled: boolean;
     onChange?: (value: any) => void;
-    valueOptions?: any[];
+    valueOptions?: IValueOption[];
 }
 
 export const ValueTypeControl: React.FC<IValueTypeControlProps> = ({
@@ -32,8 +31,10 @@ export const ValueTypeControl: React.FC<IValueTypeControlProps> = ({
     if (valueOptions && valueOptions.any()) {
         return (
             <Select name={name} onChange={handleChange}>
-                {valueOptions.map(vo => (
-                    <Select.Option>{vo}</Select.Option>
+                {valueOptions.map((vo, i) => (
+                    <Select.Option key={i} value={vo.value}>
+                        {vo.label}
+                    </Select.Option>
                 ))}
             </Select>
         );

@@ -56,6 +56,7 @@ interface INodeUIData {
     permanent?: boolean;
     macroFieldId?: string;
     macroId?: string;
+    constantId?: string;
 }
 
 interface ILinkUIData {
