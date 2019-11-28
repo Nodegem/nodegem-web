@@ -100,7 +100,7 @@ export const ValueTypeControl: React.FC<IValueTypeControlProps> = ({
                 <Input.TextArea
                     name={name}
                     disabled={disabled}
-                    autosize={{ minRows: 2 }}
+                    autoSize={{ minRows: 2 }}
                     onChange={event => handleChange(event.target.value)}
                 />
             );

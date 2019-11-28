@@ -1,5 +1,5 @@
 import { isInput, isTouchEvent } from 'utils';
-import CanvasController from './canvas-controller';
+import { CanvasController } from '.';
 
 export type ZoomEvent = (
     delta: number,
@@ -8,7 +8,7 @@ export type ZoomEvent = (
 ) => void;
 export type ZoomType = 'wheel' | 'touch' | 'dblClick';
 
-class ZoomController implements IDisposable {
+export class ZoomController implements IDisposable {
     private _distance: number | null;
 
     constructor(
@@ -109,5 +109,3 @@ class ZoomController implements IDisposable {
         this.parentContainer.removeEventListener('touchcancel', this.handleEnd);
     }
 }
-
-export default ZoomController;

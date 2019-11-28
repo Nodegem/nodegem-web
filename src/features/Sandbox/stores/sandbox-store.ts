@@ -122,7 +122,6 @@ export class SandboxStore
             return;
         }
 
-        this.suspend();
         this.sandboxHeaderStore.setState({ isSavingGraph: true });
 
         try {
@@ -152,7 +151,6 @@ export class SandboxStore
         }
 
         this.sandboxHeaderStore.setState({ isSavingGraph: false });
-        this.unsuspend();
     };
 
     public load = async (graph: Graph | Macro) => {
@@ -280,12 +278,12 @@ export class SandboxStore
         }));
 
         const allNodeData = skipOrphanedNodes
-            ? nodes.filter(x => this.canvasStore.getNode(x.id)!.links.any())
+            ? nodes.filter(x => this.canvasStore.getNodeLinks(x.id).any())
             : nodes;
 
         const nodeData = allNodeData.map<NodeData>(n => ({
             id: n.id,
-            position: n.position,
+            position: this.canvasStore.getNodePosition(n.id),
             definitionId: n.definitionId,
             fieldData: [
                 ...n.valueInputs,

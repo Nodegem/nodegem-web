@@ -2,7 +2,7 @@ import { isInput, isTouchEvent } from 'utils';
 
 export type DragTranslateEvent = (delta: Vector2, e: MouseEvent) => void;
 
-class DragController implements IDisposable {
+export class DragController implements IDisposable {
     private mouseStart: Vector2 | null;
 
     constructor(
@@ -109,5 +109,3 @@ class DragController implements IDisposable {
         window.removeEventListener('touchend', this.handleUp);
     }
 }
-
-export default DragController;

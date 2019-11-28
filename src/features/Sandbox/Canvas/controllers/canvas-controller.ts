@@ -1,8 +1,7 @@
 import ResizeObserver from '@juggle/resize-observer';
 import Between from 'between.js';
 import { clamp } from 'utils';
-import DragController from './drag-controller';
-import ZoomController, { ZoomType } from './zoom-controller';
+import { DragController, ZoomController, ZoomType } from '.';
 
 export type ZoomBounds = {
     min: number;
@@ -26,7 +25,7 @@ export type TweenFunc = (
     newTransform: Transform
 ) => any;
 
-class CanvasController implements IDisposable {
+export class CanvasController implements IDisposable {
     private _mousePos: Vector2;
     public get mousePos(): Vector2 {
         return this._mousePos;
@@ -84,8 +83,7 @@ class CanvasController implements IDisposable {
         private zoomBounds: ZoomBounds = { min: 0.53, max: 2.75 },
         private onCanvasDown: (event: MouseEvent) => void,
         private onCanvasUp: (event: MouseEvent) => void,
-        private onCanvasRightClick: (event: MouseEvent) => void,
-        private onZooming: (scale: number) => void
+        private onCanvasRightClick: (event: MouseEvent) => void
     ) {
         this._mousePos = { x: 0, y: 0 };
 
@@ -237,7 +235,6 @@ class CanvasController implements IDisposable {
             },
             defaultTween
         );
-        this.onZooming(1);
     }
 
     public magnify(zoomDelta: number) {
@@ -274,8 +271,6 @@ class CanvasController implements IDisposable {
             y: y + position.y * d,
             scale: clampedZoom || 1,
         };
-
-        this.onZooming(clampedZoom);
 
         if (type !== 'dblClick') {
             this.translate(newTransform);
@@ -314,5 +309,3 @@ class CanvasController implements IDisposable {
         this.resizeObserver.disconnect();
     }
 }
-
-export default CanvasController;

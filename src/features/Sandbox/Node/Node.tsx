@@ -1,28 +1,26 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 
 import classNames from 'classnames';
-import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { Socket as Port } from '../Port/Port';
 import './Node.less';
+import { Tooltip } from 'antd';
 
 interface INodeProps {
     isMacro?: boolean;
     nodeId: string;
-    scale: number;
+    fullName: string;
     selected: boolean;
     title: string;
     isFaded?: boolean;
-    initialPosition: Vector2;
     flowInputs: IPortUIData[];
     flowOutputs: IPortUIData[];
     valueInputs: IPortUIData[];
     valueOutputs: IPortUIData[];
     hidePortActions: boolean;
     onDblClick: (event: MouseEvent, nodeId: string) => void;
-    onClick: (event: MouseEvent, nodeId: string) => void;
+    onMouseDown: (event: MouseEvent, nodeId: string) => void;
+    onMouseUp: (event: MouseEvent, nodeId: string) => void;
     onRightClick: (event: MouseEvent, nodeId: string) => void;
-    onDrag: (id: string) => void;
-    onDragStop: (id: string, position: Vector2) => void;
     onPortEvent: (
         event: PortEvent,
         element: HTMLElement,
@@ -37,42 +35,23 @@ export const Node: React.FC<INodeProps> = React.memo(
     ({
         isMacro,
         nodeId,
+        fullName,
         isFaded,
-        scale,
         selected,
         title,
-        initialPosition,
         flowInputs,
         flowOutputs,
         valueInputs,
         valueOutputs,
         hidePortActions,
-        onClick,
+        onMouseDown,
+        onMouseUp,
         onDblClick,
         onRightClick,
         onPortEvent,
         onPortAdd,
         onPortRemove,
-        onDrag,
-        onDragStop,
     }: INodeProps) => {
-        const [position, setPosition] = useState(initialPosition);
-
-        const handleDrag = useCallback(
-            (e: DraggableEvent, data: DraggableData) => {
-                onDrag(nodeId);
-            },
-            [onDrag, nodeId]
-        );
-
-        const handleDragStop = useCallback(
-            (e: DraggableEvent, data: DraggableData) => {
-                setPosition(data);
-                onDragStop(nodeId, { x: data.x, y: data.y });
-            },
-            [nodeId, onDragStop]
-        );
-
         const handleDblClick = useCallback(
             (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
                 onDblClick(event.nativeEvent, nodeId);
@@ -80,11 +59,18 @@ export const Node: React.FC<INodeProps> = React.memo(
             [nodeId, onDblClick]
         );
 
-        const handleClick = useCallback(
+        const handleMouseDown = useCallback(
             (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-                onClick(event.nativeEvent, nodeId);
+                onMouseDown(event.nativeEvent, nodeId);
             },
-            [nodeId, onClick]
+            [nodeId, onMouseDown]
+        );
+
+        const handleMouseUp = useCallback(
+            (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                onMouseUp(event.nativeEvent, nodeId);
+            },
+            [nodeId, onMouseUp]
         );
 
         const handleRightClick = useCallback(
@@ -120,12 +106,7 @@ export const Node: React.FC<INodeProps> = React.memo(
         };
 
         return (
-            <Draggable
-                position={position}
-                onDrag={handleDrag}
-                onStop={handleDragStop}
-                scale={scale}
-            >
+            <Tooltip title={fullName} mouseEnterDelay={0.75}>
                 <div
                     data-node
                     id={nodeId}
@@ -133,7 +114,8 @@ export const Node: React.FC<INodeProps> = React.memo(
                     className={classes}
                     onDoubleClick={handleDblClick}
                     onContextMenu={handleRightClick}
-                    onClick={handleClick}
+                    onMouseDown={handleMouseDown}
+                    onMouseUp={handleMouseUp}
                 >
                     <div className="flow flow-inputs">
                         {flowInputs.map((fi, i) => (
@@ -220,7 +202,7 @@ export const Node: React.FC<INodeProps> = React.memo(
                         ))}
                     </div>
                 </div>
-            </Draggable>
+            </Tooltip>
         );
     }
 );

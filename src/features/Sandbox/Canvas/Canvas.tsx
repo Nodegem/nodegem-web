@@ -35,7 +35,6 @@ interface ILinkNodeProps {
     nodes: INodeUIData[];
     linksVisible: boolean;
     drawLinkStore: DrawLinkStore;
-    scale: number;
     isDrawingLink: boolean;
     onLinkSourceClick: (linkId: string) => void;
     onLinkDestinationClick: (linkId: string) => void;
@@ -47,10 +46,9 @@ interface ILinkNodeProps {
     ) => void;
     onPortAdd: (port: IPortUIData) => void;
     onPortRemove: (port: IPortUIData) => void;
-    onNodeDrag: (id: string) => void;
-    onNodePositionUpdate: (id: string, position: Vector2) => void;
     onNodeDblClick: (event: MouseEvent, nodeId: string) => void;
-    onNodeClick: (event: MouseEvent, nodeId: string) => void;
+    onNodeMouseDown: (event: MouseEvent, nodeId: string) => void;
+    onNodeMouseUp: (event: MouseEvent, nodeId: string) => void;
     onNodeRightClick: (event: MouseEvent, nodeId: string) => void;
 }
 
@@ -59,17 +57,15 @@ const CanvasLinksNodes: React.FC<ILinkNodeProps> = ({
     nodes,
     linksVisible,
     drawLinkStore,
-    scale,
     isDrawingLink,
     onLinkSourceClick,
     onLinkDestinationClick,
     onPortAdd,
     onPortRemove,
-    onNodeDrag,
-    onNodePositionUpdate,
     onPortEvent,
     onNodeDblClick,
-    onNodeClick,
+    onNodeMouseDown,
+    onNodeMouseUp,
     onNodeRightClick,
 }) => (
     <>
@@ -90,9 +86,7 @@ const CanvasLinksNodes: React.FC<ILinkNodeProps> = ({
             {nodes.map(n => (
                 <Node
                     isMacro={!!n.macroId}
-                    scale={scale}
                     key={n.id}
-                    initialPosition={n.position}
                     flowInputs={n.flowInputs}
                     flowOutputs={n.flowOutputs}
                     valueInputs={n.valueInputs}
@@ -101,10 +95,9 @@ const CanvasLinksNodes: React.FC<ILinkNodeProps> = ({
                     onPortAdd={onPortAdd}
                     onPortEvent={onPortEvent}
                     onPortRemove={onPortRemove}
-                    onDragStop={onNodePositionUpdate}
-                    onDrag={onNodeDrag}
                     onDblClick={onNodeDblClick}
-                    onClick={onNodeClick}
+                    onMouseDown={onNodeMouseDown}
+                    onMouseUp={onNodeMouseUp}
                     onRightClick={onNodeRightClick}
                     nodeId={n.id}
                     {...n}
@@ -131,14 +124,13 @@ export const Canvas: React.FC<ISandboxProps> = ({
         resetView: store.resetView,
         editNode: store.editNode,
         removeNode: store.removeNode,
-        onNodePositionUpdate: store.onNodePositionUpdate,
         onPortAdd: store.onPortAdd,
         onPortRemove: store.onPortRemove,
         onPortEvent: store.onPortEvent,
-        onNodeDrag: store.onNodeMove,
         drawLinkStore: store.drawLinkStore,
         onNodeDblClick: store.onNodeDblClick,
-        onNodeClick: store.onNodeClick,
+        onNodeMouseDown: store.onNodeMouseDown,
+        onNodeMouseUp: store.onNodeMouseUp,
         onNodeRightClick: store.onNodeRightClick,
         hasActiveTab: !!store.ctx.tabsStore.state.activeTabId,
         onLinkSourceClick: store.onLinkSourceClick,

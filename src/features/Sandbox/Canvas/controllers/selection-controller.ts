@@ -1,10 +1,10 @@
-import CanvasController from './canvas-controller';
+import { CanvasController } from '.';
 
 const selectingClass = 'selecting';
 
 type SelectedEvent = (bounds: Bounds) => void;
 
-class SelectionController {
+export class SelectionController {
     public get selecting(): boolean {
         return !!this.start;
     }
@@ -113,5 +113,3 @@ class SelectionController {
         window.removeEventListener('mousemove', this.onSelecting);
     }
 }
-
-export default SelectionController;
