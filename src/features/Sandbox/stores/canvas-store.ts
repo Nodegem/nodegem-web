@@ -128,6 +128,7 @@ export class CanvasStore extends Store<
             result.destination.droppableId === sandboxDroppableId
         ) {
             const { definitionLookup } = this.nodeCache;
+
             this.createNodeFromDefinition(
                 definitionLookup[result.draggableId],
                 false
@@ -377,6 +378,7 @@ export class CanvasStore extends Store<
 
     public clearNodes() {
         this._nodes.clear();
+        this._nodeMetaData.clear();
         this.setState({ nodes: [] });
         this.onChange();
     }
