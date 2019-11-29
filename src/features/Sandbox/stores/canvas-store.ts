@@ -548,8 +548,8 @@ export class CanvasStore extends Store<
         const element = node.element();
         const { width, height } = element.getBoundingClientRect();
         const offsetPosition = {
-            x: position.x - width / 2,
-            y: position.y - height / 2,
+            x: position.x - width / 2 / this.canvasController.scale,
+            y: position.y - height / 2 / this.canvasController.scale,
         };
         element.style.transform = `translate(${offsetPosition.x}px, ${offsetPosition.y}px)`;
         this.updateLinkPaths(node.links.map(x => this.getLink(x)!));
