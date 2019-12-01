@@ -21,6 +21,7 @@ import { Input } from 'antd';
 interface ICanvasState {
     nodes: INodeUIData[];
     links: ILinkUIData[];
+    nodeGroupings: IUINodeGroupingState[];
     linksVisible: boolean;
     openContext?: { id: string; canDelete: boolean };
     hasLoadedGraph: boolean;
@@ -31,7 +32,13 @@ interface ICanvasChildren {
     searchStore: CanvasSearchStore;
 }
 
+interface IUINodeGroupingState {
+    id: string;
+    title: string;
+}
+
 interface INodeMetaData {
+    id: string;
     position: Vector2;
     element: () => HTMLDivElement;
     _element?: HTMLDivElement;
@@ -50,6 +57,7 @@ export class CanvasStore extends Store<
     public state: ICanvasState = {
         nodes: [],
         links: [],
+        nodeGroupings: [],
         linksVisible: true,
         hasLoadedGraph: false,
     };
@@ -66,6 +74,7 @@ export class CanvasStore extends Store<
     public canvasController: CanvasController;
     public nodeDragController: NodeDragController;
 
+    private _nodeGroupings: Map<string, IUINodeGrouping> = new Map();
     private _nodeMetaData: Map<string, INodeMetaData> = new Map();
     private _nodes: Map<string, INodeUIData> = new Map();
     private _links: Map<string, ILinkUIData> = new Map();
@@ -76,6 +85,8 @@ export class CanvasStore extends Store<
 
     private searchRef: React.RefObject<Input>;
     private currentSelectedNodes: string[] = [];
+    private nodeGroup?: IUINodeGrouping;
+    private isCreatingNodeGrouping: boolean = false;
 
     public bindElement = (
         element: HTMLDivElement,
@@ -136,6 +147,40 @@ export class CanvasStore extends Store<
         }
     };
 
+    public onNodeGroupingTitleChange = async (id: string, newTitle: string) => {
+        const groupings = this.state.nodeGroupings;
+        const group = this._nodeGroupings.get(id)!;
+        group.title = newTitle;
+        groupings.addOrUpdate(group, x => x.id === id);
+        this.setState({
+            nodeGroupings: [...groupings],
+        });
+    };
+
+    public onNodeGroupingDelete = (id: string) => {
+        this._nodeGroupings.delete(id);
+        this.setState({
+            nodeGroupings: this.state.nodeGroupings.filter(ng => ng.id !== id),
+        });
+    };
+
+    public onNodeGroupingMouseDown = async (id: string, event: MouseEvent) => {
+        this.nodeGroup = this._nodeGroupings.get(id)!;
+        this.currentSelectedNodes = this.nodeGroup.nodes;
+        this.nodeDragController.onDragStart(event);
+    };
+
+    public onNodeGroupingResize = async (id: string, newSize: Vector2) => {
+        const group = this._nodeGroupings.get(id)!;
+        group.size = newSize;
+        group.nodes = this.getNodesWithinBounds({
+            left: group.position.x,
+            top: group.position.y,
+            width: group.size.x,
+            height: group.size.y,
+        }).map(n => n.id);
+    };
+
     public createNodeFromDefinition = async (
         definition: NodeDefinition,
         centered = false
@@ -157,7 +202,8 @@ export class CanvasStore extends Store<
         await this.addNode(node);
         this.updateNodePosition(
             this._nodeMetaData.get(node.id)!,
-            node.position
+            node.position,
+            true
         );
     };
 
@@ -166,6 +212,7 @@ export class CanvasStore extends Store<
             ...node,
         });
         this._nodeMetaData.set(node.id, {
+            id: node.id,
             links: [],
             position: node.position || { x: 0, y: 0 },
             element: function() {
@@ -279,7 +326,11 @@ export class CanvasStore extends Store<
         this.onChange();
     };
 
-    public async load(nodes: INodeUIData[], links: ILinkInitializeData[]) {
+    public async load(
+        nodes: INodeUIData[],
+        links: ILinkInitializeData[],
+        nodeGroupings: NodeGrouping[]
+    ) {
         this.clearView();
 
         this.suspend();
@@ -289,7 +340,7 @@ export class CanvasStore extends Store<
         this.unsuspend();
 
         Array.from(this._nodeMetaData.values()).forEach(n =>
-            this.updateNodePosition(n, n.position)
+            this.updateNodePosition(n, n.position, true)
         );
 
         for (const link of links) {
@@ -327,8 +378,35 @@ export class CanvasStore extends Store<
             );
         }
 
+        const uiNodeGroupings = nodeGroupings.map<IUINodeGroupingState>(x => ({
+            id: x.id,
+            title: x.title,
+        }));
+
+        nodeGroupings.forEach(x =>
+            this._nodeGroupings.set(x.id, {
+                id: x.id,
+                position: x.position,
+                size: x.size,
+                title: x.title,
+                nodes: this.getNodesWithinBounds({
+                    left: x.position.x,
+                    top: x.position.y,
+                    width: x.size.x,
+                    height: x.size.y,
+                }).map(n => n.id),
+            })
+        );
+
         this.updateLinkPaths(Array.from(this._links.values()));
-        this.setState({ hasLoadedGraph: true });
+        await this.setState({
+            hasLoadedGraph: true,
+            nodeGroupings: uiNodeGroupings,
+        });
+
+        Array.from(this._nodeGroupings.values()).forEach(x =>
+            this.updateNodeGroupTransform(x, x.position, x.size)
+        );
     }
 
     public magnify = (delta: number) => {
@@ -348,6 +426,27 @@ export class CanvasStore extends Store<
     };
 
     private onDragging = (delta: Vector2) => {
+        if (this.nodeGroup) {
+            const { position } = this.nodeGroup;
+            this.updateNodeGroupTransform(this.nodeGroup, {
+                x: position.x + delta.x / this.canvasController.scale,
+                y: position.y + delta.y / this.canvasController.scale,
+            });
+
+            const nodes = this.currentSelectedNodes.map(
+                x => this._nodeMetaData.get(x)!
+            );
+
+            nodes.forEach(n => {
+                const updatedPosition = {
+                    x: n.position.x + delta.x / this.canvasController.scale,
+                    y: n.position.y + delta.y / this.canvasController.scale,
+                };
+                this.updateNodePosition(n, updatedPosition, true);
+            });
+            return;
+        }
+
         const nodes = this.currentSelectedNodes.map(
             x => this._nodeMetaData.get(x)!
         );
@@ -357,11 +456,49 @@ export class CanvasStore extends Store<
                 x: n.position.x + delta.x / this.canvasController.scale,
                 y: n.position.y + delta.y / this.canvasController.scale,
             };
-            this.updateNodePosition(n, updatedPosition);
+            this.updateNodePosition(
+                n,
+                updatedPosition,
+                this.nodeGroup === undefined
+            );
         });
     };
 
     private onDraggingStopped = (delta: Vector2) => {
+        if (this.nodeGroup) {
+            const { position } = this.nodeGroup;
+            const newPosition = {
+                x: position.x + delta.x / this.canvasController.scale,
+                y: position.y + delta.y / this.canvasController.scale,
+            };
+            this.updateNodeGroupTransform(this.nodeGroup, newPosition);
+            this.nodeGroup.position = newPosition;
+            this.nodeGroup.nodes = this.getNodesWithinBounds({
+                left: this.nodeGroup.position.x,
+                top: this.nodeGroup.position.y,
+                width: this.nodeGroup.size.x,
+                height: this.nodeGroup.size.y,
+            }).map(n => n.id);
+
+            const nodes = this.currentSelectedNodes.map(
+                x => this._nodeMetaData.get(x)!
+            );
+
+            nodes.forEach(n => {
+                const updatedPosition = {
+                    x: n.position.x + delta.x / this.canvasController.scale,
+                    y: n.position.y + delta.y / this.canvasController.scale,
+                };
+                this.updateNodePosition(n, updatedPosition, true);
+                n.position = updatedPosition;
+            });
+
+            this.nodeGroup = undefined;
+            this.currentSelectedNodes = [];
+
+            return;
+        }
+
         const nodes = this.currentSelectedNodes.map(
             x => this._nodeMetaData.get(x)!
         );
@@ -371,7 +508,7 @@ export class CanvasStore extends Store<
                 x: n.position.x + delta.x / this.canvasController.scale,
                 y: n.position.y + delta.y / this.canvasController.scale,
             };
-            this.updateNodePosition(n, updatedPosition);
+            this.updateNodePosition(n, updatedPosition, true);
             n.position = updatedPosition;
         });
     };
@@ -544,13 +681,35 @@ export class CanvasStore extends Store<
         }
     };
 
-    private updateNodePosition = (node: INodeMetaData, position: Vector2) => {
+    private updateNodeGroupTransform = (
+        nodeGroup: IUINodeGrouping,
+        position: Vector2,
+        size?: Vector2
+    ) => {
+        const element = document.getElementById(nodeGroup.id)!;
+        size = size || nodeGroup.size;
+        element.style.transform = `translate(${position.x}px, ${position.y}px)`;
+        element.style.width = `${size.x}px`;
+        element.style.height = `${size.y}px`;
+    };
+
+    private updateNodePosition = (
+        node: INodeMetaData,
+        position: Vector2,
+        addOffset: boolean
+    ) => {
         const element = node.element();
         const { width, height } = element.getBoundingClientRect();
-        const offsetPosition = {
-            x: position.x - width / 2 / this.canvasController.scale,
-            y: position.y - height / 2 / this.canvasController.scale,
-        };
+
+        const offsetPosition = addOffset
+            ? {
+                  x: position.x - width / 2 / this.canvasController.scale,
+                  y: position.y - height / 2 / this.canvasController.scale,
+              }
+            : {
+                  x: position.x,
+                  y: position.y,
+              };
         element.style.transform = `translate(${offsetPosition.x}px, ${offsetPosition.y}px)`;
         this.updateLinkPaths(node.links.map(x => this.getLink(x)!));
     };
@@ -629,15 +788,33 @@ export class CanvasStore extends Store<
         return this.canvasController.convertCoordinates(coords);
     };
 
-    private handleSelection = (bounds: Bounds) => {
-        const { nodes } = this.state;
-        const { left, top, width, height } = bounds;
-        const selectedNodes = nodes.filter(node => {
-            const { x, y } = this.getNodePosition(node.id);
-            return (
-                x >= left && y >= top && x < left + width && y < top + height
+    private handleSelection = async (bounds: Bounds) => {
+        if (this.isCreatingNodeGrouping) {
+            this.isCreatingNodeGrouping = false;
+            const groupPosition = { x: bounds.left, y: bounds.top };
+            const groupSize = { x: bounds.width, y: bounds.height };
+            const newNodeGrouping = {
+                id: uuid(),
+                nodes: this.getNodesWithinBounds(bounds).map(n => n.id),
+                position: groupPosition,
+                size: groupSize,
+                title: 'New Grouping',
+            };
+            this._nodeGroupings.set(newNodeGrouping.id, newNodeGrouping);
+            await this.setState({
+                nodeGroupings: [...this.state.nodeGroupings, newNodeGrouping],
+            });
+
+            this.updateNodeGroupTransform(
+                newNodeGrouping,
+                groupPosition,
+                groupSize
             );
-        });
+            return;
+        }
+
+        const { nodes } = this.state;
+        const selectedNodes = this.getNodesWithinBounds(bounds);
 
         this.suspend();
         nodes.forEach(n => {
@@ -796,7 +973,11 @@ export class CanvasStore extends Store<
             return;
         }
 
-        if (event.ctrlKey) {
+        if (event.ctrlKey && event.altKey) {
+            this.isCreatingNodeGrouping = true;
+            this.canvasController.toggleDragging(false);
+            this.selectController.startSelect(this.canvasController.mousePos);
+        } else if (event.ctrlKey) {
             this.canvasController.toggleDragging(false);
             this.selectController.startSelect(this.canvasController.mousePos);
         } else {
@@ -823,6 +1004,19 @@ export class CanvasStore extends Store<
     };
 
     //#endregion
+
+    public getNodeGroupings = () => Array.from(this._nodeGroupings.values());
+
+    private getNodesWithinBounds = (bounds: Bounds) => {
+        const nodes = Array.from(this._nodeMetaData.values());
+        const { left, top, width, height } = bounds;
+        return nodes.filter(node => {
+            const { x, y } = this.getNodePosition(node.id);
+            return (
+                x >= left && y >= top && x < left + width && y < top + height
+            );
+        });
+    };
 
     private onChange = () => {
         if (

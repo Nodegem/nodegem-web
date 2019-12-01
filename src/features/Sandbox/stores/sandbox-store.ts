@@ -181,7 +181,11 @@ export class SandboxStore
             };
         });
 
-        await this.canvasStore.load(uiNodes, uiLinks);
+        await this.canvasStore.load(
+            uiNodes,
+            uiLinks,
+            (graph.metadata && graph.metadata.nodeGroupings) || []
+        );
 
         this.nodeSelectStore.setNodeOptions(definitions);
         this.nodeSelectStore.toggleOpen(true);
@@ -306,6 +310,10 @@ export class SandboxStore
         return {
             ...graph,
             userId: user!.id,
+            metadata: {
+                ...graph.metadata,
+                nodeGroupings: this.canvasStore.getNodeGroupings(),
+            },
             nodes: nodeData,
             links: linkData,
         };

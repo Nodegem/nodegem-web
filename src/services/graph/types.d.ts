@@ -11,6 +11,14 @@ interface Graph {
     lastUpdated?: Date | moment;
     userId: string;
     constants: Array<ConstantData>;
+    metadata: { [key: string]: any };
+}
+
+interface NodeGrouping {
+    id: string;
+    position: Vector2;
+    size: Vector2;
+    title: string;
 }
 
 type ExecutionType = 'manual' | 'recurring' | 'listener';

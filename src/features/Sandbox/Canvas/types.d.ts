@@ -24,6 +24,10 @@ interface IDisposable {
     dispose(): void;
 }
 
+interface IUINodeGrouping extends NodeGrouping {
+    nodes: string[];
+}
+
 interface IPortUIData {
     id: string;
     nodeId: string;

@@ -6,6 +6,7 @@ import React, { useEffect, useRef } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { Link } from '..';
 import { Node } from '../Node';
+import { NodeGrouping } from '../NodeGrouping';
 import { CanvasStore, DrawLinkStore } from '../stores';
 import './Canvas.less';
 
@@ -33,6 +34,7 @@ const SandboxDropContainer = React.memo(() => (
 interface ILinkNodeProps {
     links: ILinkUIData[];
     nodes: INodeUIData[];
+    nodeGroupings: { id: string; title: string }[];
     linksVisible: boolean;
     drawLinkStore: DrawLinkStore;
     isDrawingLink: boolean;
@@ -50,11 +52,16 @@ interface ILinkNodeProps {
     onNodeMouseDown: (event: MouseEvent, nodeId: string) => void;
     onNodeMouseUp: (event: MouseEvent, nodeId: string) => void;
     onNodeRightClick: (event: MouseEvent, nodeId: string) => void;
+    onNodeGroupingTitleChange: (id: string, value: string) => void;
+    onNodeGroupingMouseDown: (id: string, event: MouseEvent) => void;
+    onNodeGroupingResize: (id: string, size: Vector2) => void;
+    onNodeGroupingDelete: (id: string) => void;
 }
 
 const CanvasLinksNodes: React.FC<ILinkNodeProps> = ({
     links,
     nodes,
+    nodeGroupings,
     linksVisible,
     drawLinkStore,
     isDrawingLink,
@@ -67,8 +74,24 @@ const CanvasLinksNodes: React.FC<ILinkNodeProps> = ({
     onNodeMouseDown,
     onNodeMouseUp,
     onNodeRightClick,
+    onNodeGroupingMouseDown,
+    onNodeGroupingTitleChange,
+    onNodeGroupingResize,
+    onNodeGroupingDelete,
 }) => (
     <>
+        <div className="node-groupings" style={{ position: 'absolute' }}>
+            {nodeGroupings.map(ng => (
+                <NodeGrouping
+                    key={ng.id}
+                    {...ng}
+                    onMouseDown={onNodeGroupingMouseDown}
+                    onTitleChange={onNodeGroupingTitleChange}
+                    onResize={onNodeGroupingResize}
+                    onDelete={onNodeGroupingDelete}
+                />
+            ))}
+        </div>
         <div className="links" style={{ position: 'absolute' }}>
             {links.map(l => (
                 <Link
@@ -136,6 +159,10 @@ export const Canvas: React.FC<ISandboxProps> = ({
         onLinkSourceClick: store.onLinkSourceClick,
         onLinkDestinationClick: store.onLinkDestinationClick,
         magnify: store.magnify,
+        onNodeGroupingMouseDown: store.onNodeGroupingMouseDown,
+        onNodeGroupingTitleChange: store.onNodeGroupingTitleChange,
+        onNodeGroupingResize: store.onNodeGroupingResize,
+        onNodeGroupingDelete: store.onNodeGroupingDelete,
         ...store.state,
     }));
 
