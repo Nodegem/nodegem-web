@@ -526,11 +526,17 @@ export class CanvasStore extends Store<
         this.onChange();
     };
 
+    public clearNodeGroups = () => {
+        this._nodeGroupings.clear();
+        this.setState({ nodeGroupings: [] });
+    };
+
     public resetView = () => {
         this.canvasController.reset();
     };
 
     public clearView() {
+        this.clearNodeGroups();
         this.clearNodes();
         this.clearLinks();
         this.resetView();
