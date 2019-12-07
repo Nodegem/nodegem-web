@@ -51,13 +51,9 @@ export const SandboxView = () => {
             sandboxStore.registerEvents();
             sandboxStore.initialize();
         }
-        const unregister = routerHistory.listen((location, action) => {
-            sandboxStore.saveStateLocally();
-        });
 
         return () => {
             sandboxStore.dispose();
-            unregister();
         };
     }, [isDesktop]);
 

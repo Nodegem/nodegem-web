@@ -66,7 +66,7 @@ export class SandboxStore
 
     public registerEvents = () => {
         window.onbeforeunload = () => {
-            this.saveStateLocally();
+            this.dispose();
         };
         window.addEventListener('keydown', this.listenToKeyDown);
     };
@@ -319,11 +319,18 @@ export class SandboxStore
         };
     };
 
-    public dispose() {
+    public async dispose() {
         this.saveStateLocally();
         this.disposeEvents();
 
+        this.sandboxHeaderStore.dispose();
+        this.tabsStore.clearTabs();
+
+        await this.sandboxHeaderStore.graphHub.clientDisconnect();
         this.sandboxHeaderStore.graphHub.disconnect();
         this.logsStore.terminalHub.disconnect();
+
+        this.nodeInfoStore.toggleOpen(false);
+        this.nodeSelectStore.toggleOpen(false);
     }
 }

@@ -37,7 +37,9 @@ class GraphHub extends BaseHub {
     };
 
     public clientDisconnect = async () => {
-        await this.invoke('ClientDisconnectAsync');
+        if (this.isConnected) {
+            await this.invoke('ClientDisconnectAsync');
+        }
     };
 
     public runMacro = async (

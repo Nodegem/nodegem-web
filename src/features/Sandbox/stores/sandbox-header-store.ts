@@ -264,4 +264,11 @@ export class SandboxHeaderStore extends Store<
             canEdit: false,
         });
     };
+
+    public dispose() {
+        this.setState({
+            bridges: [],
+            bridge: undefined,
+        });
+    }
 }

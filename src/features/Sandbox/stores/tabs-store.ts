@@ -208,6 +208,7 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
 
     public clearTabs = () => {
         this.setTabs([]);
+        this.setState({ activeTabId: '', hasUnread: false });
         this.ctx.canvasStore.clearView();
     };
 }
