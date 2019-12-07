@@ -1,5 +1,6 @@
-import { Card, Icon, Popconfirm, Tooltip } from 'antd';
+import { Card, Icon, Popconfirm, Tooltip, Dropdown, Menu } from 'antd';
 import * as React from 'react';
+import { appStore } from 'stores';
 
 interface IDashboardCardProps {
     item: Graph;
@@ -8,6 +9,38 @@ interface IDashboardCardProps {
     onEdit: (item: Graph, type: GraphType) => void;
     onBuild: (item: Graph, type: GraphType) => void;
 }
+
+const iconStyle: React.CSSProperties = { fontStyle: '1em' };
+
+interface OptionProps {
+    item: Graph;
+    type: GraphType;
+    onDelete: (item: Graph, type: GraphType) => void;
+}
+
+const MoreOptions: React.FC<OptionProps> = ({ item, type, onDelete }) => (
+    <Menu theme="dark" selectable={false}>
+        <Menu.Item>
+            <Icon type="copy" style={iconStyle} />
+            Duplicate
+        </Menu.Item>
+        <Menu.Item
+            onClick={() => {
+                appStore.showConfirmation(
+                    `Are you sure you want to delete ${item.name}?`,
+                    'This action cannot be reversed',
+                    () => {
+                        onDelete(item, type);
+                    }
+                );
+            }}
+            className="dangerous"
+        >
+            <Icon type="delete" style={iconStyle} />
+            Delete
+        </Menu.Item>
+    </Menu>
+);
 
 class DashboardCard extends React.Component<IDashboardCardProps> {
     public onDelete = () => {
@@ -26,9 +59,7 @@ class DashboardCard extends React.Component<IDashboardCardProps> {
     };
 
     public render() {
-        const { item } = this.props;
-
-        const iconStyle: React.CSSProperties = { fontSize: 19 };
+        const { item, type } = this.props;
 
         return (
             <Card
@@ -52,21 +83,18 @@ class DashboardCard extends React.Component<IDashboardCardProps> {
                             />
                         </div>
                     </Tooltip>,
-                    <div>
-                        <Popconfirm
-                            title="Are you sure you want to delete?"
-                            onConfirm={this.onDelete}
-                            okText="Yes"
-                            cancelText="No"
-                        >
-                            <Icon
-                                type="delete"
-                                theme="twoTone"
-                                twoToneColor="#FF5A5A"
-                                style={iconStyle}
+                    <Dropdown
+                        placement="topLeft"
+                        overlay={
+                            <MoreOptions
+                                item={item}
+                                type={type}
+                                onDelete={this.onDelete}
                             />
-                        </Popconfirm>
-                    </div>,
+                        }
+                    >
+                        <Icon type="more" />
+                    </Dropdown>,
                 ]}
             >
                 <Card.Meta description={item.description} />
