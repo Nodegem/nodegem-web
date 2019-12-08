@@ -111,7 +111,10 @@ const PersonalSettings = () => {
                 {({ isSubmitting, isValid, dirty }) => (
                     <Form>
                         <FlexColumn gap={15}>
-                            <FormItem name="currentPassword" label="Current">
+                            <FormItem
+                                name="currentPassword"
+                                label="Current Password"
+                            >
                                 <Input.Password
                                     name="currentPassword"
                                     prefix={
