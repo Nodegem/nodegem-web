@@ -10,7 +10,7 @@ interface IDashboardCardProps {
     onBuild: (item: Graph, type: GraphType) => void;
 }
 
-const iconStyle: React.CSSProperties = { fontStyle: '1em' };
+const iconStyle: React.CSSProperties = { fontSize: '1.3em' };
 
 interface OptionProps {
     item: Graph;
@@ -63,7 +63,18 @@ class DashboardCard extends React.Component<IDashboardCardProps> {
 
         return (
             <Card
-                title={item.name}
+                title={
+                    <span className="dash-card-title">
+                        <Icon
+                            type={
+                                type === 'macro'
+                                    ? 'thunderbolt'
+                                    : 'deployment-unit'
+                            }
+                        />
+                        {item.name}
+                    </span>
+                }
                 actions={[
                     <Tooltip title="Edit">
                         <div onClick={this.onEdit}>

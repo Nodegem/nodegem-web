@@ -301,6 +301,7 @@ export const DashboardView: React.FC = () => {
                 visible={graphModalVisible}
                 footer={null}
                 centered
+                width={-1}
                 maskClosable={false}
                 onCancel={() => {
                     setGraphModalVisible(false);
@@ -317,6 +318,7 @@ export const DashboardView: React.FC = () => {
                 visible={macroModalVisible}
                 footer={null}
                 centered
+                width={-1}
                 maskClosable={false}
                 onCancel={() => {
                     setMacroModalVisible(false);

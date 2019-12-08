@@ -23,9 +23,7 @@ const validation = Yup.object().shape<IFormValues>({
         .required('Email is required'),
     password: Yup.string()
         .matches(
-            new RegExp(
-                '^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$'
-            ),
+            /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
             'Password must contain at least one lowercase, uppercase, number and special character'
         )
         .min(8, value => `Password must be at least ${value.min} characters`)
