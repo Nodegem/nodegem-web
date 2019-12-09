@@ -80,7 +80,11 @@ const CanvasLinksNodes: React.FC<ILinkNodeProps> = ({
     onNodeGroupingDelete,
 }) => (
     <>
-        <div className="node-groupings" style={{ position: 'absolute' }}>
+        <div
+            className="node-groupings"
+            id="node-grouping-container"
+            style={{ position: 'absolute' }}
+        >
             {nodeGroupings.map(ng => (
                 <NodeGrouping
                     key={ng.id}
@@ -92,7 +96,11 @@ const CanvasLinksNodes: React.FC<ILinkNodeProps> = ({
                 />
             ))}
         </div>
-        <div className="links" style={{ position: 'absolute' }}>
+        <div
+            className="links"
+            id="link-container"
+            style={{ position: 'absolute' }}
+        >
             {links.map(l => (
                 <Link
                     key={l.id}
@@ -105,7 +113,7 @@ const CanvasLinksNodes: React.FC<ILinkNodeProps> = ({
             ))}
             <DrawLink drawLinkStore={drawLinkStore} />
         </div>
-        <div className="nodes">
+        <div className="nodes" id="node-container">
             {nodes.map(n => (
                 <Node
                     isMacro={!!n.macroId}

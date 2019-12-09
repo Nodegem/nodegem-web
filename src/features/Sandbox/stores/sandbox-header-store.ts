@@ -114,18 +114,23 @@ export class SandboxHeaderStore extends Store<
 
         this.graphHub.lostBridge.subscribe(x => {
             const { bridges, selectedBridge } = this;
-            if (bridges.any(b => b.connectionId === x)) {
-                const bridgeLost = bridges.first(b => b.connectionId === x);
+            if (bridges.any(b => b.graphHubConnectionId === x)) {
+                const bridgeLost = bridges.first(
+                    b => b.graphHubConnectionId === x
+                );
                 appStore.toast(
                     `Lost connection to bridge (${bridgeLost.deviceName})`,
                     'warn'
                 );
 
                 this.setState({
-                    bridges: bridges.filter(b => b.connectionId !== x),
+                    bridges: bridges.filter(b => b.graphHubConnectionId !== x),
                 });
 
-                if (selectedBridge && selectedBridge.connectionId === x) {
+                if (
+                    selectedBridge &&
+                    selectedBridge.graphHubConnectionId === x
+                ) {
                     this.setState({ bridge: undefined });
                 }
             }
@@ -202,7 +207,7 @@ export class SandboxHeaderStore extends Store<
         const { selectedBridge, hasSelectedBridge } = this;
         const { connected } = this.state;
         if (connected && hasSelectedBridge) {
-            const connectionId = selectedBridge.connectionId;
+            const connectionId = selectedBridge.graphHubConnectionId;
             const graph = this.ctx.getConvertedGraphData(true);
 
             if (isMacro(graph) && flowInput) {

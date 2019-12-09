@@ -1,3 +1,4 @@
+import { waitWhile } from './../../../utils/helpers';
 import { CanvasSearchStore } from './canvas-search-store';
 import { uuid } from 'lodash-uuid';
 import { compose, Store } from 'overstated';
@@ -88,6 +89,10 @@ export class CanvasStore extends Store<
     private nodeGroup?: IUINodeGrouping;
     private isCreatingNodeGrouping: boolean = false;
 
+    private nodeGroupingContainerElement: HTMLElement;
+    private linkContainerContainerElement: HTMLElement;
+    private nodeContainerElement: HTMLElement;
+
     private _middleware: any;
 
     public bindElement = (
@@ -116,6 +121,14 @@ export class CanvasStore extends Store<
             this.onDragging,
             this.onDraggingStopped
         );
+
+        this.nodeGroupingContainerElement = document.getElementById(
+            'node-grouping-container'
+        )!;
+        this.linkContainerContainerElement = document.getElementById(
+            'link-container'
+        )!;
+        this.nodeContainerElement = document.getElementById('node-container')!;
 
         this._middleware = _.debounce(this.stateMiddleware, 100);
     };
@@ -335,15 +348,17 @@ export class CanvasStore extends Store<
         this.unregisterMiddleware(this._middleware);
         this.clearView();
 
+        this.toggleVisibility(false);
         this.suspend();
         for (const node of nodes) {
             this.addNode(node);
         }
         this.unsuspend();
 
-        Array.from(this._nodeMetaData.values()).forEach(n =>
-            this.updateNodePosition(n, n.position, true)
-        );
+        const nodeMetaData = Array.from(this._nodeMetaData.values());
+        await waitWhile(() => nodeMetaData.every(nm => !!nm.element()));
+
+        nodeMetaData.forEach(n => this.updateNodePosition(n, n.position, true));
 
         for (const link of links) {
             const sourceNode = this._nodes.get(link.sourceNodeId);
@@ -410,6 +425,7 @@ export class CanvasStore extends Store<
             this.updateNodeGroupTransform(x, x.position, x.size)
         );
 
+        this.toggleVisibility(true);
         this.registerMiddleware(this._middleware);
     }
 
@@ -538,11 +554,13 @@ export class CanvasStore extends Store<
     };
 
     public clearView() {
+        this.suspend();
         this.clearNodeGroups();
         this.clearNodes();
         this.clearLinks();
         this.resetView();
         this.setState({ hasLoadedGraph: false });
+        this.unsuspend();
     }
 
     public toggleLinkVisibility = (toggle?: boolean) => {
@@ -1008,6 +1026,13 @@ export class CanvasStore extends Store<
     };
 
     //#endregion
+
+    private toggleVisibility = (visible: boolean) => {
+        const isVisible = visible ? '1' : '0';
+        this.linkContainerContainerElement.style.opacity = isVisible;
+        this.nodeGroupingContainerElement.style.opacity = isVisible;
+        this.nodeContainerElement.style.opacity = isVisible;
+    };
 
     public getNodeGroupings = () => Array.from(this._nodeGroupings.values());
 
