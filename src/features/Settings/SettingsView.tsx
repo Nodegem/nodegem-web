@@ -1,4 +1,4 @@
-import './Profile.less';
+import './Settings.less';
 
 import {
     Avatar,
@@ -14,7 +14,7 @@ import { FlexColumn, FlexRow, ConstantsForm } from 'components';
 import { useStore } from 'overstated';
 import React, { useEffect } from 'react';
 import { appStore } from 'stores';
-import { Formik, FieldArray, FormikHelpers } from 'formik';
+import { Formik, FormikHelpers } from 'formik';
 import { Input, SubmitButton, FormItem, ResetButton, Form } from 'formik-antd';
 import * as Yup from 'yup';
 import {
@@ -47,14 +47,14 @@ window.addEventListener('message', event => {
     }
 });
 
-const ProfileSection = () => {
+const SettingsSection = () => {
     const { user, patchUser } = useStore(appStore.userStore, store => ({
         user: store.user,
         patchUser: store.patchUser,
     }));
 
     return (
-        <Card className="profile-section" title="Your Profile" bordered={false}>
+        <Card className="profile-section" title="Profile" bordered={false}>
             <FlexColumn gap={35}>
                 <FlexColumn className="account-avatar">
                     <Avatar
@@ -115,37 +115,6 @@ const resetPasswordSchema = Yup.object().shape({
     confirmNewPassword: Yup.string().oneOf(
         [Yup.ref('newPassword')],
         'Passwords must match'
-    ),
-});
-
-const valueOptions: ValueType[] = [
-    'any',
-    'text',
-    'textarea',
-    'boolean',
-    'number',
-    'time',
-    'date',
-    'datetime',
-    'phonenumber',
-    'url',
-];
-
-const constantSchema = Yup.object().shape({
-    constants: Yup.array().of(
-        Yup.object().shape<IFormConstantData>({
-            key: Yup.string().required(),
-            label: Yup.string().required('Label is required'),
-            type: Yup.mixed<ValueType>()
-                .oneOf(valueOptions)
-                .required('A value type is required'),
-            isSecret: Yup.boolean(),
-            value: Yup.mixed().when('type', {
-                is: 'url',
-                then: Yup.string().url('Invalid Url'),
-                otherwise: Yup.mixed(),
-            }),
-        })
     ),
 });
 
@@ -322,8 +291,8 @@ const PersonalSettings = () => {
     );
 };
 
-const ProfileView = () => {
-    const views = [ProfileSection, PersonalSettings];
+export const SettingsView = () => {
+    const views = [SettingsSection, PersonalSettings];
 
     useEffect(() => {
         const queryValues = qs.parse(location.search.replace('?', ''));
@@ -361,5 +330,3 @@ const ProfileView = () => {
         </FlexRow>
     );
 };
-
-export default ProfileView;

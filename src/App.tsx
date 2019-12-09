@@ -16,7 +16,7 @@ import LoginView from './features/Account/Login/LoginFormView';
 import RegisterView from './features/Account/Register/RegisterFormView';
 import DashboardView from './features/Dashboard/DashboardView';
 import NotFoundView from './features/NotFound/NotFound';
-import ProfileView from './features/Profile/ProfileView';
+import { SettingsView } from 'features/Settings/SettingsView';
 
 const { Content } = Layout;
 const ForgotPassword = () => <div>Welp, that sucks duude</div>;
@@ -33,7 +33,10 @@ const App = () => {
                 <Switch>
                     <AuthorizedRoute exact path="/" component={DashboardView} />
                     <AuthorizedRoute path="/sandbox" component={SandboxView} />
-                    <AuthorizedRoute path="/profile" component={ProfileView} />
+                    <AuthorizedRoute
+                        path="/settings"
+                        component={SettingsView}
+                    />
                     <AnonymousOnlyRoute path="/login" component={LoginView} />
                     <AnonymousOnlyRoute
                         path="/forgot-password"

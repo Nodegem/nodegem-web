@@ -28,7 +28,7 @@ const menu = (theme: SiderTheme, logout: () => void) => (
             </Link>
         </Menu.Item>
         <Menu.Item key="settings">
-            <Link to="/profile">
+            <Link to="/settings">
                 <Icon type="setting" />
                 Settings
             </Link>
