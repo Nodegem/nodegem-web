@@ -20,6 +20,7 @@ import * as Yup from 'yup';
 import '../../types/yup.ts';
 
 import './GraphForm.less';
+import { ConstantsForm, ConstantsFormLayout } from 'components/ConstantsForm';
 
 const valueOptions: ValueType[] = [
     'any',
@@ -49,14 +50,6 @@ export interface IGraphFormValues {
     type: ExecutionType;
     constants: IFormConstantData[];
     recurringOptions?: IFormRecurringOptions;
-}
-
-interface IFormConstantData {
-    key: string;
-    label: string;
-    type: ValueType;
-    value: any;
-    isSecret: boolean;
 }
 
 interface IFormRecurringOptions {
@@ -157,8 +150,8 @@ export const GraphForm: React.FC<IGraphFormProps> = ({
                             />
                         </FormItem>
                         {values.type === 'recurring' && <GraphRecurringForm />}
-                        <GraphConstantsForm constants={values.constants} />
-                        <Button.Group>
+                        <ConstantsFormLayout constants={values.constants} />
+                        <Button.Group className="graph-form-button-group">
                             <ResetButton
                                 type="danger"
                                 icon="reload"
@@ -170,6 +163,7 @@ export const GraphForm: React.FC<IGraphFormProps> = ({
                                 type="primary"
                                 icon="save"
                                 disabled={false}
+                                loading={isSubmitting}
                                 style={{ width: '50%' }}
                             >
                                 {isSubmitting ? 'Saving...' : 'Save'}
@@ -187,12 +181,7 @@ const GraphRecurringForm: React.FC = () => (
         <Divider>Execution Type Options</Divider>
         <FlexRow gap={20}>
             <FormItem name="recurringOptions.frequency">
-                <Select
-                    name="recurringOptions.frequency"
-                    style={{
-                        minWidth: '175px',
-                    }}
-                >
+                <Select name="recurringOptions.frequency">
                     {Object.keys(repeatOptionMap).map(x => (
                         <Select.Option value={x} key={x}>
                             {repeatOptionMap[x]}

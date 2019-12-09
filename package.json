@@ -10,6 +10,7 @@
         "between.js": "^0.1.2-fix.2",
         "classnames": "^2.2.6",
         "deep-diff": "^1.0.2",
+        "fast-json-patch": "^3.0.0-1",
         "formik": "^2.0.3",
         "formik-antd": "^1.6.0",
         "fuse.js": "^3.3.0",

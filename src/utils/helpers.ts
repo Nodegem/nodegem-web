@@ -21,19 +21,24 @@ export const jwtToUser = (jwt: any): User => {
         id: jwt.nameid,
         userName: jwt.unique_name,
         email: jwt.sub,
-        constants: jwt.constantData,
-        avatarUrl:
-            jwt.avatarUrl ||
-            gravatar.url(
-                jwt.sub,
-                {
-                    s: '128',
-                    r: 'pg',
-                    d: 'retro',
-                },
-                true
-            ),
+        constants: JSON.parse(jwt.constantData),
+        firstName: jwt.given_name || '',
+        lastName: jwt.family_name || '',
+        avatarUrl: jwt.avatarUrl || getGravatarUrl(jwt.sub),
+        providers: JSON.parse(jwt.providers) || [],
     };
+};
+
+export const getGravatarUrl = (email: string) => {
+    return gravatar.url(
+        email,
+        {
+            s: '128',
+            r: 'pg',
+            d: 'retro',
+        },
+        true
+    );
 };
 
 export const isInput = (target: Element): boolean => {
@@ -73,7 +78,7 @@ export function getCookie(name): string | undefined {
 }
 
 export function getGraphType(
-    graph: Graph | Macro | (Partial<Graph | Macro>)
+    graph: Graph | Macro | Partial<Graph | Macro>
 ): GraphType {
     return isMacro(graph) ? 'macro' : 'graph';
 }

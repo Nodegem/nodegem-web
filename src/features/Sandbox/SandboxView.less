@@ -248,20 +248,6 @@
     }
 }
 
-.sandbox-modal {
-    width: 850px !important;
-    @media screen and (max-width: 858px) {
-        width: 100% !important;
-    }
-}
-
-.log-view-modal {
-    width: 60vw !important;
-    @media screen and (max-width: 1200px) {
-        width: 100% !important;
-    }
-}
-
 .select-graph-modal {
     .ant-modal-footer {
         text-align: left !important;
@@ -274,5 +260,28 @@
 
     .ant-empty-image {
         height: 30vh;
+    }
+}
+
+.card-header {
+    font-size: 1.2em;
+    i {
+        margin-right: 10px;
+    }
+}
+
+.graph-item {
+    cursor: pointer;
+    transition: box-shadow 200ms ease-out;
+    box-shadow: 0 0 1px 1px #00000022;
+    margin: 5px !important;
+
+    .ant-list-item-meta {
+        padding: 10px 0;
+        margin-left: 10px;
+    }
+
+    &:hover {
+        box-shadow: 0 0 4px 4px #357ded55;
     }
 }

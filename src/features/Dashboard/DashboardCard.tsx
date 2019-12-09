@@ -108,7 +108,7 @@ class DashboardCard extends React.Component<IDashboardCardProps> {
                     </Dropdown>,
                 ]}
             >
-                <Card.Meta description={item.description} />
+                <Card.Meta description={item.description || 'No Description'} />
             </Card>
         );
     }

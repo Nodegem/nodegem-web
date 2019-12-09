@@ -1,4 +1,4 @@
-import { Button, Card, Empty } from 'antd';
+import { Button, Card, Empty, List, Icon } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { GraphService, MacroService } from 'services';
 
@@ -8,11 +8,12 @@ interface ISelectGraph {
     onGraphSelect: (graph: Graph | Macro) => void;
 }
 
-interface ISelectGraphState {
-    graphs: Graph[];
-    macros: Macro[];
-    loading: boolean;
-}
+const CardHeader = (icon: string, title: string) => (
+    <span className="card-header">
+        <Icon type={icon} />
+        {title}
+    </span>
+);
 
 const SelectGraph: React.FC<ISelectGraph> = ({ onGraphSelect }) => {
     const [graphs, setGraphs] = useState<Graph[]>([]);
@@ -32,27 +33,53 @@ const SelectGraph: React.FC<ISelectGraph> = ({ onGraphSelect }) => {
 
     return (
         <div className="graph-select">
-            <Card title="Graphs" loading={isLoading} type="inner">
-                {graphs.map((g, i) => (
-                    <Card.Grid key={i}>
-                        <div onClick={() => onGraphSelect(g)}>
-                            <a>{g.name}</a>
-                        </div>
-                    </Card.Grid>
-                ))}
-                {!graphs ||
-                    (graphs.empty() && <Empty description="No Graphs" />)}
+            <Card
+                title={CardHeader('deployment-unit', 'Graphs')}
+                loading={isLoading}
+                type="inner"
+            >
+                <List
+                    grid={{ gutter: 8, sm: 1, md: 3, lg: 6 }}
+                    locale={{ emptyText: 'No Graphs' }}
+                    itemLayout="horizontal"
+                    dataSource={graphs}
+                    renderItem={graph => (
+                        <List.Item
+                            className="graph-item"
+                            onClick={() => onGraphSelect(graph)}
+                        >
+                            <List.Item.Meta
+                                title={graph.name}
+                                description={
+                                    graph.description || 'No Description'
+                                }
+                            />
+                        </List.Item>
+                    )}
+                />
             </Card>
-            <Card title="Macros" loading={isLoading} type="inner">
-                {macros.map((m, i) => (
-                    <Card.Grid key={i}>
-                        <div onClick={() => onGraphSelect(m)}>
-                            <a>{m.name}</a>
-                        </div>
-                    </Card.Grid>
-                ))}
-                {!macros ||
-                    (macros.empty() && <Empty description="No Macros" />)}
+            <Card
+                title={CardHeader('thunderbolt', 'Macros')}
+                loading={isLoading}
+                type="inner"
+            >
+                <List
+                    grid={{ gutter: 16, sm: 1, md: 3, lg: 6 }}
+                    locale={{ emptyText: 'No Macros' }}
+                    itemLayout="horizontal"
+                    dataSource={macros}
+                    renderItem={macro => (
+                        <List.Item
+                            className="graph-item"
+                            onClick={() => onGraphSelect(macro)}
+                        >
+                            <List.Item.Meta
+                                title={macro.name}
+                                description={macro.description}
+                            />
+                        </List.Item>
+                    )}
+                />
             </Card>
         </div>
     );

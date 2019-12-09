@@ -8,22 +8,49 @@ import {
     List,
     Descriptions,
     Typography,
-    Form,
     Icon,
 } from 'antd';
-import { FlexColumn, FlexRow } from 'components';
+import { FlexColumn, FlexRow, ConstantsForm } from 'components';
 import { useStore } from 'overstated';
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import { appStore } from 'stores';
-import { Formik } from 'formik';
-import { Input, SubmitButton, FormItem } from 'formik-antd';
+import { Formik, FieldArray, FormikHelpers } from 'formik';
+import { Input, SubmitButton, FormItem, ResetButton, Form } from 'formik-antd';
 import * as Yup from 'yup';
+import {
+    GoogleLoginButton,
+    GithubLoginButton,
+} from 'react-social-login-buttons';
+import { popup } from 'utils';
+import { UserService } from 'services/user/user-service';
+import qs from 'qs';
+import classNames from 'classnames';
 
 const { Paragraph } = Typography;
 
+window.addEventListener('message', event => {
+    const { result } = event.data;
+    if (result && result.linkAccount) {
+        if (result.success) {
+            appStore.openNotification({
+                title: 'Successfully linked account!',
+                description: `Account is now linked to ${result.provider}`,
+                type: 'success',
+            });
+        } else {
+            appStore.openNotification({
+                title: 'Unable to link account',
+                description: result.message as string,
+                type: 'error',
+            });
+        }
+    }
+});
+
 const ProfileSection = () => {
-    const { user } = useStore(appStore.userStore, store => ({
+    const { user, patchUser } = useStore(appStore.userStore, store => ({
         user: store.user,
+        patchUser: store.patchUser,
     }));
 
     return (
@@ -43,32 +70,33 @@ const ProfileSection = () => {
                     <br />
                     <Descriptions column={1} bordered size="middle">
                         <Descriptions.Item label="First Name:">
-                            <Paragraph editable>
-                                {user.firstName || 'N/A'}
+                            <Paragraph
+                                editable={{
+                                    onChange: value => {
+                                        if (value === user.firstName) return;
+                                        patchUser({ firstName: value });
+                                    },
+                                }}
+                            >
+                                {user.firstName}
                             </Paragraph>
                         </Descriptions.Item>
                         <Descriptions.Item label="Last Name:">
-                            <Paragraph editable>
-                                {user.lastName || 'N/A'}
+                            <Paragraph
+                                editable={{
+                                    onChange: value => {
+                                        if (value === user.lastName) return;
+                                        patchUser({ lastName: value });
+                                    },
+                                }}
+                            >
+                                {user.lastName}
                             </Paragraph>
                         </Descriptions.Item>
                         <Descriptions.Item label="Email:">
                             {user.email}
                         </Descriptions.Item>
                     </Descriptions>
-                </FlexColumn>
-                <FlexColumn
-                    className="danger-zone"
-                    alignContent="center"
-                    gap={30}
-                >
-                    <Divider>Danger Zone</Divider>
-                    <FlexRow gap={15}>
-                        <label>Delete account permanently?</label>
-                        <Button type="danger" icon="delete">
-                            Delete
-                        </Button>
-                    </FlexRow>
                 </FlexColumn>
             </FlexColumn>
         </Card>
@@ -90,14 +118,136 @@ const resetPasswordSchema = Yup.object().shape({
     ),
 });
 
+const valueOptions: ValueType[] = [
+    'any',
+    'text',
+    'textarea',
+    'boolean',
+    'number',
+    'time',
+    'date',
+    'datetime',
+    'phonenumber',
+    'url',
+];
+
+const constantSchema = Yup.object().shape({
+    constants: Yup.array().of(
+        Yup.object().shape<IFormConstantData>({
+            key: Yup.string().required(),
+            label: Yup.string().required('Label is required'),
+            type: Yup.mixed<ValueType>()
+                .oneOf(valueOptions)
+                .required('A value type is required'),
+            isSecret: Yup.boolean(),
+            value: Yup.mixed().when('type', {
+                is: 'url',
+                then: Yup.string().url('Invalid Url'),
+                otherwise: Yup.mixed(),
+            }),
+        })
+    ),
+});
+
 const PersonalSettings = () => {
+    const { user, isLinked, patchUser } = useStore(
+        appStore.userStore,
+        store => ({
+            user: store.user,
+            patchUser: store.patchUser,
+            isLinked: store.alreadyLinkedToProvider,
+        })
+    );
+
+    const onGoogleLink = () => {
+        if (isLinked('Google')) return;
+        popup(UserService.linkGoogle(user.id), 'Google Link');
+    };
+
+    const onGitHubLink = () => {
+        if (isLinked('GitHub')) return;
+        popup(UserService.linkGithub(user.id), 'Github Link');
+    };
+
+    const socialLogins = [
+        <a onClick={onGoogleLink}>
+            <GoogleLoginButton
+                className={classNames({
+                    social: true,
+                    disabled: isLinked('Google'),
+                })}
+                text={
+                    isLinked('Google')
+                        ? 'Already linked'
+                        : 'Link Google Account'
+                }
+            />
+        </a>,
+        <a onClick={onGitHubLink}>
+            <GithubLoginButton
+                className={classNames({
+                    social: true,
+                    disabled: isLinked('GitHub'),
+                })}
+                text={
+                    isLinked('GitHub')
+                        ? 'Already linked'
+                        : 'Link GitHub Account'
+                }
+            />
+        </a>,
+    ];
+
+    const formItems = [
+        <FormItem name="newPassword" label="New Password">
+            <Input.Password
+                name="newPassword"
+                prefix={
+                    <Icon
+                        type="lock"
+                        style={{
+                            color: 'rgba(0,0,0,.25)',
+                        }}
+                    />
+                }
+                placeholder="New Password"
+            />
+        </FormItem>,
+        <FormItem name="confirmNewPassword" label="Confirm New Password">
+            <Input.Password
+                name="confirmNewPassword"
+                prefix={
+                    <Icon
+                        type="lock"
+                        style={{
+                            color: 'rgba(0,0,0,.25)',
+                        }}
+                    />
+                }
+                placeholder="Confirm New Password"
+            />
+        </FormItem>,
+    ];
+
+    const handleConstantSubmit = async (
+        values: { constants: IFormConstantData[] },
+        formikHelpers: FormikHelpers<{ constants: IFormConstantData[] }>
+    ) => {
+        await patchUser({ constants: values.constants });
+        formikHelpers.setSubmitting(false);
+    };
+
     return (
         <Card
             className="personal-settings-section"
             title="Edit Personal Settings"
             bordered={false}
         >
-            <Divider orientation="left">Associate Social Logins</Divider>
+            <Divider orientation="left">Global Constants</Divider>
+            <ConstantsForm
+                constants={user.constants}
+                onSubmit={handleConstantSubmit}
+            />
             <Divider orientation="left">Reset Password</Divider>
             <Formik
                 initialValues={{
@@ -128,54 +278,69 @@ const PersonalSettings = () => {
                                     placeholder="Current Password"
                                 />
                             </FormItem>
-                            <FormItem name="newPassword" label="New Password">
-                                <Input.Password
-                                    name="newPassword"
-                                    prefix={
-                                        <Icon
-                                            type="lock"
-                                            style={{
-                                                color: 'rgba(0,0,0,.25)',
-                                            }}
-                                        />
-                                    }
-                                    placeholder="New Password"
-                                />
-                            </FormItem>
-                            <FormItem
-                                name="confirmNewPassword"
-                                label="Confirm New Password"
-                            >
-                                <Input.Password
-                                    name="confirmNewPassword"
-                                    prefix={
-                                        <Icon
-                                            type="lock"
-                                            style={{
-                                                color: 'rgba(0,0,0,.25)',
-                                            }}
-                                        />
-                                    }
-                                    placeholder="Confirm New Password"
-                                />
-                            </FormItem>
-                            <SubmitButton
-                                disabled={!dirty || !isValid}
-                                loading={isSubmitting}
-                            >
-                                Confirm Reset
-                            </SubmitButton>
+                            <List
+                                grid={{ gutter: 16, md: 1, lg: 2 }}
+                                dataSource={formItems}
+                                renderItem={formItem => (
+                                    <List.Item>{formItem}</List.Item>
+                                )}
+                            />
+                            <Button.Group>
+                                <ResetButton
+                                    type="danger"
+                                    className="reset-button"
+                                    style={{ width: '50%' }}
+                                >
+                                    Reset
+                                </ResetButton>
+                                <SubmitButton
+                                    disabled={!dirty || !isValid}
+                                    loading={isSubmitting}
+                                    style={{ width: '50%' }}
+                                >
+                                    Update Password
+                                </SubmitButton>
+                            </Button.Group>
                         </FlexColumn>
                     </Form>
                 )}
             </Formik>
-            <Divider orientation="left">Global Constants</Divider>
+            <Divider orientation="left">Link Social Logins</Divider>
+            <List
+                grid={{ gutter: 16, md: 1, lg: 2 }}
+                dataSource={socialLogins}
+                renderItem={loginButton => <List.Item>{loginButton}</List.Item>}
+            />
+            <Divider orientation="left">Danger Zone</Divider>
+            <FlexRow gap={15} className="danger-zone" justifyContent="center">
+                <label>Delete account permanently?</label>
+                <Button type="danger" icon="delete">
+                    Delete
+                </Button>
+            </FlexRow>
         </Card>
     );
 };
 
 const ProfileView = () => {
     const views = [ProfileSection, PersonalSettings];
+
+    useEffect(() => {
+        const queryValues = qs.parse(location.search.replace('?', ''));
+
+        if (window.opener) {
+            const data = {
+                result: {
+                    linkAccount: true,
+                    success: queryValues.success === 'true',
+                    message: queryValues.message,
+                    provider: queryValues.provider,
+                },
+            };
+            window.opener.postMessage(data, '*');
+            window.close();
+        }
+    }, []);
 
     return (
         <FlexRow className="profile" gap={30}>
@@ -187,9 +352,9 @@ const ProfileView = () => {
                     md: 2,
                 }}
                 dataSource={views}
-                renderItem={Item => (
-                    <List.Item>
-                        <Item />
+                renderItem={View => (
+                    <List.Item className="profile-view-item">
+                        <View />
                     </List.Item>
                 )}
             />

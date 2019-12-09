@@ -14,7 +14,7 @@ import './Header.less';
 const AntHeader = Layout.Header;
 
 const menu = (theme: SiderTheme, logout: () => void) => (
-    <Menu theme={theme}>
+    <Menu className="main-nav-menu" theme={theme}>
         <Menu.Item key="dashboard">
             <Link to="/">
                 <Icon type="dashboard" />

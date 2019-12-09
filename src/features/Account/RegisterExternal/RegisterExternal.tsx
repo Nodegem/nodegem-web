@@ -13,7 +13,7 @@ export const RegisterExternal: React.FC = () => {
                 result: {
                     socialLogin: true,
                     token: queryValues.token,
-                    success: queryValues.success,
+                    success: queryValues.success === 'true',
                     message: queryValues.message,
                 },
             };

@@ -1,6 +1,7 @@
 import superagent, { SuperAgentRequest } from 'superagent';
 import { requests } from '../agent';
 import { combinePath } from './../agent';
+import { Operation } from 'fast-json-patch';
 
 const AuthService = {
     login: (username, password): Promise<TokenData> => {
@@ -49,6 +50,8 @@ const AuthService = {
         );
     },
     logout: (): Promise<void> => requests.get('/account/logout'),
+    patchUser: (userId: string, operation: Operation): Promise<User> =>
+        requests.patch(`/account/update/${userId}`, operation),
     register: (data: RegisterRequestData): Promise<TokenData> =>
         requests.post('/account/register', data),
     updateUser: (data: User): Promise<User> =>
