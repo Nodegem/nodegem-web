@@ -88,6 +88,8 @@ export class CanvasStore extends Store<
     private nodeGroup?: IUINodeGrouping;
     private isCreatingNodeGrouping: boolean = false;
 
+    private _middleware: any;
+
     public bindElement = (
         element: HTMLDivElement,
         bounds: Dimensions,
@@ -114,6 +116,8 @@ export class CanvasStore extends Store<
             this.onDragging,
             this.onDraggingStopped
         );
+
+        this._middleware = _.debounce(this.stateMiddleware, 100);
     };
 
     public setSearchRef = (ref: React.RefObject<Input>) => {
@@ -225,7 +229,6 @@ export class CanvasStore extends Store<
             },
         });
         await this.setState({ nodes: Array.from(this._nodes.values()) });
-        this.onChange();
     };
 
     public getNode = (nodeId: string) => {
@@ -322,8 +325,6 @@ export class CanvasStore extends Store<
         if (render) {
             this.updateLinkPaths([linkDataWithElement]);
         }
-
-        this.onChange();
     };
 
     public async load(
@@ -331,6 +332,7 @@ export class CanvasStore extends Store<
         links: ILinkInitializeData[],
         nodeGroupings: NodeGrouping[]
     ) {
+        this.unregisterMiddleware(this._middleware);
         this.clearView();
 
         this.suspend();
@@ -407,6 +409,8 @@ export class CanvasStore extends Store<
         Array.from(this._nodeGroupings.values()).forEach(x =>
             this.updateNodeGroupTransform(x, x.position, x.size)
         );
+
+        this.registerMiddleware(this._middleware);
     }
 
     public magnify = (delta: number) => {
@@ -517,13 +521,11 @@ export class CanvasStore extends Store<
         this._nodes.clear();
         this._nodeMetaData.clear();
         this.setState({ nodes: [] });
-        this.onChange();
     }
 
     public clearLinks = () => {
         this._links.clear();
         this.setState({ links: [] });
-        this.onChange();
     };
 
     public clearNodeGroups = () => {
@@ -567,7 +569,6 @@ export class CanvasStore extends Store<
             this._links.delete(linkId);
             this.setState({ links: Array.from(this._links.values()) });
             this.unsuspend();
-            this.onChange();
         }
     };
 
@@ -596,7 +597,6 @@ export class CanvasStore extends Store<
                 nodes: Array.from(this._nodes.values()),
             });
             this.unsuspend();
-            this.onChange();
         }
     };
 
@@ -860,7 +860,6 @@ export class CanvasStore extends Store<
         );
 
         this.updateNodeInfo(data.nodeId);
-        this.onChange();
     };
 
     public onPortRemove = (data: IPortUIData) => {
@@ -871,7 +870,6 @@ export class CanvasStore extends Store<
         );
 
         this.updateNodeInfo(data.nodeId);
-        this.onChange();
     };
 
     private updateNodeInfo = (nodeId: string) => {
@@ -1024,16 +1022,7 @@ export class CanvasStore extends Store<
         });
     };
 
-    private onChange = () => {
-        if (
-            !this.state.hasLoadedGraph ||
-            !this.ctx.sandboxHeaderStore.state.autoSaveGraph
-        ) {
-            return;
-        }
-
-        _.debounce(async () => {
-            this.ctx.saveGraph(false);
-        }, 10000)();
+    private stateMiddleware = async (prevState: Readonly<ICanvasState>) => {
+        console.log(prevState);
     };
 }
