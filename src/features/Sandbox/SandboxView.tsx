@@ -17,6 +17,8 @@ import { SandboxHeader } from './SandboxHeader';
 import './SandboxView.less';
 import { SandboxStore } from './stores';
 
+import mobileWarningSvg from '../../assets/mobile-warning.svg';
+
 export const SandboxView = () => {
     const {
         sandboxStore,
@@ -85,7 +87,7 @@ export const SandboxView = () => {
             <MediaQuery maxDeviceWidth={1023}>
                 <div className="mobile-restriction">
                     <Empty
-                        image="https://42f2671d685f51e10fc6-b9fcecea3e50b3b59bdc28dead054ebc.ssl.cf5.rackcdn.com/illustrations/chore_list_iof3.svg"
+                        image={mobileWarningSvg}
                         description="Sandbox only supports higher resolution devices but we do hope to support mobile soon. Sorry for the inconvenience!"
                     >
                         <Button

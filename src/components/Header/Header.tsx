@@ -5,7 +5,7 @@ import { SiderTheme } from 'antd/lib/layout/Sider';
 import { FlexFillGreedy, FlexRow } from 'components/Flex';
 import { Link } from 'react-router-dom';
 
-import logoPath from '../../logo.svg';
+import logoPath from '../../assets/logo.svg';
 
 import { useStore } from 'overstated';
 import { appStore } from 'stores';

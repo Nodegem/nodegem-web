@@ -1,6 +1,6 @@
 import './Register.less';
 
-import { Button, Card, Icon } from 'antd';
+import { Button, Icon, Divider, List } from 'antd';
 import { FlexColumn } from 'components';
 import { Formik, FormikHelpers } from 'formik';
 import { Form, FormItem, Input, SubmitButton } from 'formik-antd';
@@ -9,6 +9,15 @@ import { AuthService } from 'services';
 import { appStore } from 'stores';
 import routerHistory from 'utils/history';
 import * as Yup from 'yup';
+import { popup } from 'utils';
+import {
+    GoogleLoginButton,
+    GithubLoginButton,
+} from 'react-social-login-buttons';
+
+import space from 'assets/login/space.svg';
+import rocket from 'assets/login/rocket.svg';
+import planet from 'assets/login/saturn.svg';
 
 const validation = Yup.object().shape<IFormValues>({
     userName: Yup.string()
@@ -132,14 +141,6 @@ const RegisterForm: React.FC<IRegisterFormProps> = ({ handleSubmit }) => {
                             {isSubmitting ? ' Signing up...' : 'Register'}
                         </SubmitButton>
                     </FlexColumn>
-                    <br />
-                    <Button
-                        type="link"
-                        icon="arrow-left"
-                        onClick={() => routerHistory.goBack()}
-                    >
-                        Go Back
-                    </Button>
                 </Form>
             )}
         </Formik>
@@ -187,11 +188,55 @@ const RegisterView = () => {
         }
     };
 
+    const onGoogleLogin = () => {
+        popup(AuthService.loginGoogle(), 'Google Signup');
+    };
+
+    const onGithubLogin = () => {
+        popup(AuthService.loginGitHub(), 'Github Signup');
+    };
+
+    const components = [
+        <RegisterForm handleSubmit={handleSubmit} />,
+        <Divider>Or</Divider>,
+        <a onClick={onGoogleLogin}>
+            <GoogleLoginButton className="social" text="Register with Google" />
+        </a>,
+        <a onClick={onGithubLogin}>
+            <GithubLoginButton className="social" text="Register with GitHub" />
+        </a>,
+        <Button
+            type="link"
+            icon="arrow-left"
+            onClick={() => routerHistory.goBack()}
+        >
+            Go Back
+        </Button>,
+    ];
+
     return (
-        <div className="register-form-container">
-            <Card className="register-card-container" title="Register">
-                <RegisterForm handleSubmit={handleSubmit} />
-            </Card>
+        <div className="register-container">
+            <div className="wrapper-container">
+                <div className="form-content">
+                    <h1>Register</h1>
+                    <List
+                        grid={{ gutter: 10, sm: 1 }}
+                        dataSource={components}
+                        renderItem={item => <List.Item>{item}</List.Item>}
+                    />
+                </div>
+                <div className="picture-content">
+                    <div className="space-background">
+                        <img src={space} />
+                    </div>
+                    <div className="spaceship">
+                        <img src={rocket} />
+                    </div>
+                    <div className="planet">
+                        <img src={planet} />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

@@ -3,11 +3,22 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: 'Titillium Web', sans-serif;
 }
 
 * {
+    font-family: 'Roboto', sans-serif;
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scrollbar-color: #0000009f transparent;
+    scrollbar-width: thin;
 }
 
 .ant-modal:not(.ant-modal-confirm) {
@@ -43,11 +54,6 @@ body {
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
     background-color: #0000009f;
-}
-
-* {
-    scrollbar-color: #0000009f transparent;
-    scrollbar-width: thin;
 }
 
 .ant-input-password {

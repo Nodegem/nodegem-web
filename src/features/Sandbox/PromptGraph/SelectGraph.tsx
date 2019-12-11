@@ -39,7 +39,7 @@ const SelectGraph: React.FC<ISelectGraph> = ({ onGraphSelect }) => {
                 type="inner"
             >
                 <List
-                    grid={{ gutter: 8, sm: 1, md: 3, lg: 6 }}
+                    grid={{ gutter: 8, sm: 1, md: 3, lg: 4 }}
                     locale={{ emptyText: 'No Graphs' }}
                     itemLayout="horizontal"
                     dataSource={graphs}
@@ -64,7 +64,7 @@ const SelectGraph: React.FC<ISelectGraph> = ({ onGraphSelect }) => {
                 type="inner"
             >
                 <List
-                    grid={{ gutter: 16, sm: 1, md: 3, lg: 6 }}
+                    grid={{ gutter: 16, sm: 1, md: 3, lg: 4 }}
                     locale={{ emptyText: 'No Macros' }}
                     itemLayout="horizontal"
                     dataSource={macros}

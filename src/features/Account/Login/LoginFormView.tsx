@@ -1,6 +1,6 @@
 import './Login.less';
 
-import { Button, Card, Icon } from 'antd';
+import { Button, Icon, Divider, List } from 'antd';
 import { FlexColumn, FlexRow } from 'components';
 import { Formik, FormikHelpers } from 'formik';
 import { Checkbox, Form, FormItem, Input, SubmitButton } from 'formik-antd';
@@ -14,6 +14,10 @@ import { appStore } from 'stores/app-store';
 import { popup } from 'utils';
 import routerHistory from 'utils/history';
 import * as Yup from 'yup';
+import { Link } from 'react-router-dom';
+
+import rocket from 'assets/login/rocket.svg';
+import planet from 'assets/login/saturn.svg';
 
 const formValidation = Yup.object().shape({
     username: Yup.string().required('Username required'),
@@ -45,7 +49,7 @@ const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
         >
             {({ isSubmitting }) => (
                 <Form className="login-form">
-                    <FlexColumn gap={15}>
+                    <FlexColumn gap={10}>
                         <FormItem name="username">
                             <Input
                                 name="username"
@@ -70,8 +74,12 @@ const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
                                 placeholder="Password"
                             />
                         </FormItem>
-                        <FlexRow className="other">
+                        <FlexRow
+                            className="other"
+                            style={{ display: 'inline-flex' }}
+                        >
                             <Checkbox name="rememberMe">Remember Me?</Checkbox>
+                            <Link to="forgot-password">Forgot password?</Link>
                         </FlexRow>
                         <SubmitButton
                             type="primary"
@@ -80,13 +88,6 @@ const LoginForm: React.FC<ILoginFormProps> = ({ handleSubmit }) => {
                         >
                             {isSubmitting ? 'Logging in...' : 'Login'}
                         </SubmitButton>
-                        <Button
-                            type="default"
-                            icon="solution"
-                            onClick={() => routerHistory.push('/register')}
-                        >
-                            Sign Up
-                        </Button>
                     </FlexColumn>
                 </Form>
             )}
@@ -163,21 +164,42 @@ const LoginView = () => {
         popup(AuthService.loginGitHub(), 'Github Login');
     };
 
+    const components = [
+        <LoginForm handleSubmit={handleSubmit} />,
+        <Divider>Or</Divider>,
+        <a onClick={onGoogleLogin}>
+            <GoogleLoginButton className="social" />
+        </a>,
+        <a onClick={onGithubLogin}>
+            <GithubLoginButton className="social" />
+        </a>,
+        <div className="register-button">
+            Don't have an account?
+            <Link to="/register">Click here</Link>
+        </div>,
+    ];
+
     return (
-        <div className="login-form-container">
-            <Card className="login-card-container" title="Login">
-                <FlexRow gap={10}>
-                    <LoginForm handleSubmit={handleSubmit} />
-                    <FlexColumn className="social-logins">
-                        <a onClick={onGoogleLogin}>
-                            <GoogleLoginButton />
-                        </a>
-                        <a onClick={onGithubLogin}>
-                            <GithubLoginButton />
-                        </a>
-                    </FlexColumn>
-                </FlexRow>
-            </Card>
+        <div className="login-container">
+            <div className="wrapper-container">
+                <div className="picture-content">
+                    <div className="space-background" />
+                    <div className="spaceship">
+                        <img src={rocket} />
+                    </div>
+                    <div className="planet">
+                        <img src={planet} />
+                    </div>
+                </div>
+                <div className="form-content">
+                    <h1>Login</h1>
+                    <List
+                        grid={{ gutter: 10, sm: 1 }}
+                        dataSource={components}
+                        renderItem={item => <List.Item>{item}</List.Item>}
+                    />
+                </div>
+            </div>
         </div>
     );
 };
