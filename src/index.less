@@ -13,17 +13,19 @@ h4 {
 }
 
 * {
-    font-family: 'Roboto', sans-serif;
-    scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-family: 'Roboto', sans-serif;
+    text-rendering: optimizeSpeed;
+
+    scroll-behavior: smooth;
     scrollbar-color: #0000009f transparent;
     scrollbar-width: thin;
 }
 
 .ant-modal:not(.ant-modal-confirm) {
-    width: 50vw !important;
-    @media screen and (max-width: 1480px) {
+    width: 50vw;
+    @media screen and (max-width: 1024px) {
         width: 100% !important;
     }
 }

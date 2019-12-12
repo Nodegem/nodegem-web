@@ -50,21 +50,35 @@ const AuthService = {
         );
     },
     logout: (): Promise<void> => requests.get('/account/logout'),
+    forgotPassword: (email: string): Promise<void> =>
+        requests.post('/account/forgot-password', { email }),
     patchUser: (userId: string, operation: Operation): Promise<User> =>
         requests.patch(`/account/update/${userId}`, operation),
     register: (data: RegisterRequestData): Promise<TokenData> =>
         requests.post('/account/register', data),
     updateUser: (data: User): Promise<User> =>
         requests.post('/account/update', data),
-    forgotPassword: (email: string): Promise<void> =>
-        requests.post('/account/forgot-password', { email }),
     resetPassword: (
         currentPassword: string,
-        newPassword: string
-    ): Promise<void> =>
+        newPassword: string,
+        confirmPassword: string
+    ): Promise<boolean> =>
         requests.post('/account/reset-password', {
             currentPassword,
             newPassword,
+            confirmNewPassword: confirmPassword,
+        }),
+    resetPasswordWithToken: (
+        userId: string,
+        token: string,
+        password: string,
+        confirmPassword: string
+    ): Promise<boolean> =>
+        requests.post('/account/reset-password-with-token', {
+            userId,
+            resetToken: token,
+            newPassword: password,
+            confirmNewPassword: confirmPassword,
         }),
     emailConfirmation: (userId: string, token: string): Promise<void> =>
         requests.get(
