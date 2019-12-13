@@ -216,7 +216,7 @@ const PersonalSettings = () => {
         try {
             await patchUser({ constants: values.constants });
             formikHelpers.resetForm();
-            appStore.toast('Successfully saved', 'error');
+            appStore.toast('Successfully saved!', 'success');
         } catch (e) {
             console.error(e);
             appStore.toast('Unable to save', 'error');
