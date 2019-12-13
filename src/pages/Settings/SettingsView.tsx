@@ -216,9 +216,10 @@ const PersonalSettings = () => {
         try {
             await patchUser({ constants: values.constants });
             formikHelpers.resetForm();
+            appStore.toast('Successfully saved', 'error');
         } catch (e) {
             console.error(e);
-            appStore.toast('Was unable to update constants', 'error');
+            appStore.toast('Unable to save', 'error');
         }
 
         formikHelpers.setSubmitting(false);
