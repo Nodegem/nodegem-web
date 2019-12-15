@@ -1,3 +1,4 @@
+import { OperationsUtil } from './../utils/operations-util';
 import { waitWhile } from '../../../utils/helpers';
 import { CanvasSearchStore } from './canvas-search-store';
 import { uuid } from 'lodash-uuid';
@@ -18,8 +19,6 @@ import {
 } from '../Canvas/controllers';
 import _ from 'lodash';
 import { Input } from 'antd';
-import jsonPatch, { Operation } from 'fast-json-patch';
-import { aggregateDebounce } from '../utils/aggregate-debounce';
 
 @compose({
     drawLinkStore: DrawLinkStore,
@@ -68,8 +67,7 @@ export class CanvasStore extends Store<
     private linkContainerContainerElement: HTMLElement;
     private nodeContainerElement: HTMLElement;
 
-    private graphOperations: Operation[] = [];
-    private _middleware: any;
+    private opUtil = new OperationsUtil();
 
     public bindElement = (
         element: HTMLDivElement,
@@ -105,10 +103,6 @@ export class CanvasStore extends Store<
             'link-container'
         )!;
         this.nodeContainerElement = document.getElementById('node-container')!;
-
-        this._middleware = prevState => {
-            console.log(prevState);
-        };
     };
 
     public setSearchRef = (ref: React.RefObject<Input>) => {
@@ -119,6 +113,24 @@ export class CanvasStore extends Store<
         if (this.searchRef && this.searchRef.current) {
             this.searchRef.current.focus();
         }
+    };
+
+    public undo = async () => {
+        if (this.opUtil.hasOperations) {
+            const { links, nodeGroupings, nodes } = this.opUtil.popOp()!;
+
+            if (nodes) {
+                nodes.forEach(x => x.undo());
+            }
+
+            if (nodeGroupings) {
+                nodeGroupings.forEach(x => x.undo());
+            }
+        }
+    };
+
+    public redo = () => {
+        //not implemented
     };
 
     public onCanvasDrag = (
@@ -220,6 +232,14 @@ export class CanvasStore extends Store<
             },
         });
         await this.setState({ nodes: Array.from(this._nodes.values()) });
+
+        this.opUtil.addOperation('nodes', [
+            {
+                undo: () => {
+                    this.removeNode(node.id);
+                },
+            },
+        ]);
     };
 
     public getNode = (nodeId: string) => {
@@ -323,7 +343,7 @@ export class CanvasStore extends Store<
         links: ILinkInitializeData[],
         nodeGroupings: NodeGrouping[]
     ) {
-        this.unregisterMiddleware(this._middleware);
+        this.opUtil.canAddOperations = false;
         this.clearView();
 
         this.toggleVisibility(false);
@@ -404,7 +424,7 @@ export class CanvasStore extends Store<
         );
 
         this.toggleVisibility(true);
-        this.registerMiddleware(this._middleware);
+        this.opUtil.canAddOperations = true;
     }
 
     public magnify = (delta: number) => {
@@ -464,7 +484,32 @@ export class CanvasStore extends Store<
 
     private onDraggingStopped = (delta: Vector2) => {
         if (this.nodeGroup) {
-            const { position } = this.nodeGroup;
+            const { position, id } = this.nodeGroup;
+
+            this.opUtil.beginOperationTransaction();
+
+            this.opUtil.addOperation('nodeGroupings', [
+                {
+                    undo: () => {
+                        const metadata = this._nodeGroupings.get(id)!;
+                        metadata.position = {
+                            ...position,
+                        };
+                        metadata.nodes = this.getNodesWithinBounds({
+                            left: metadata.position.x,
+                            top: metadata.position.y,
+                            width: metadata.size.x,
+                            height: metadata.size.y,
+                        }).map(n => n.id);
+
+                        this.updateNodeGroupTransform(
+                            metadata,
+                            metadata.position
+                        );
+                    },
+                },
+            ]);
+
             const newPosition = {
                 x: position.x + delta.x / this.canvasController.scale,
                 y: position.y + delta.y / this.canvasController.scale,
@@ -482,6 +527,19 @@ export class CanvasStore extends Store<
                 x => this._nodeMetaData.get(x)!
             );
 
+            this.opUtil.addOperation(
+                'nodes',
+                nodes
+                    .map(x => ({ id: x.id, position: { ...x.position } }))
+                    .map<Op>(x => ({
+                        undo: () => {
+                            const metadata = this._nodeMetaData.get(x.id)!;
+                            metadata.position = x.position;
+                            this.updateNodePosition(metadata, x.position, true);
+                        },
+                    }))
+            );
+
             nodes.forEach(n => {
                 const updatedPosition = {
                     x: n.position.x + delta.x / this.canvasController.scale,
@@ -494,11 +552,25 @@ export class CanvasStore extends Store<
             this.nodeGroup = undefined;
             this.currentSelectedNodes = [];
 
+            this.opUtil.endOperationTransaction();
             return;
         }
 
         const nodes = this.currentSelectedNodes.map(
             x => this._nodeMetaData.get(x)!
+        );
+
+        this.opUtil.addOperation(
+            'nodes',
+            nodes
+                .map(x => ({ id: x.id, position: { ...x.position } }))
+                .map<Op>(x => ({
+                    undo: () => {
+                        const metadata = this._nodeMetaData.get(x.id)!;
+                        metadata.position = x.position;
+                        this.updateNodePosition(metadata, x.position, true);
+                    },
+                }))
         );
 
         nodes.forEach(n => {
@@ -535,11 +607,11 @@ export class CanvasStore extends Store<
 
     public clearView() {
         this.suspend();
+        this.setState({ hasLoadedGraph: false });
         this.clearNodeGroups();
         this.clearNodes();
         this.clearLinks();
         this.resetView();
-        this.setState({ hasLoadedGraph: false });
         this.unsuspend();
     }
 
@@ -565,6 +637,15 @@ export class CanvasStore extends Store<
             this.removeLinkFromNode(link.destinationNodeId, linkId);
 
             this._links.delete(linkId);
+
+            // this.opUtil.addOperation('links', [
+            //     {
+            //         undo: () => {
+            //             this.addLink({ data: link.sourceData, node: l}, link.destination, true);
+            //         }
+            //     }
+            // ])
+
             this.setState({ links: Array.from(this._links.values()) });
             this.unsuspend();
         }
@@ -584,6 +665,8 @@ export class CanvasStore extends Store<
         if (node && nodeMetaData && !node.permanent) {
             this.suspend();
 
+            this.opUtil.beginOperationTransaction();
+
             const linkIds = [...nodeMetaData.links];
 
             for (const linkId of linkIds) {
@@ -591,9 +674,13 @@ export class CanvasStore extends Store<
             }
 
             this._nodes.delete(nodeId);
+            this._nodeMetaData.delete(nodeId);
+
             this.setState({
                 nodes: Array.from(this._nodes.values()),
             });
+
+            this.opUtil.endOperationTransaction();
             this.unsuspend();
         }
     };
@@ -1025,71 +1112,5 @@ export class CanvasStore extends Store<
                 x >= left && y >= top && x < left + width && y < top + height
             );
         });
-    };
-
-    private stateMiddleware = (prevState: Readonly<ICanvasState>): void => {
-        console.log(prevState);
-        if (this.state.hasLoadedGraph) {
-            const monitoredPrevState: MonitoredCanvasState = {
-                links: prevState.links.map<MonitoredLinkState>(x => ({
-                    destinationData: x.destinationData,
-                    id: x.id,
-                    destinationNodeId: x.destinationNodeId,
-                    sourceData: x.sourceData,
-                    sourceNodeId: x.sourceNodeId,
-                    type: x.type,
-                })),
-                nodeGroupings: prevState.nodeGroupings,
-                nodes: prevState.nodes.map<MonitoredNodestate>(x => ({
-                    definitionId: x.definitionId,
-                    description: x.description,
-                    flowInputs: x.flowInputs,
-                    flowOutputs: x.flowOutputs,
-                    valueInputs: x.valueInputs,
-                    valueOutputs: x.valueOutputs,
-                    fullName: x.fullName,
-                    id: x.id,
-                    position: x.position,
-                    title: x.title,
-                    constantId: x.constantId,
-                    macroFieldId: x.macroFieldId,
-                    macroId: x.macroId,
-                    permanent: x.permanent,
-                })),
-            };
-
-            const monitoredState: MonitoredCanvasState = {
-                links: this.state.links.map<MonitoredLinkState>(x => ({
-                    destinationData: x.destinationData,
-                    id: x.id,
-                    destinationNodeId: x.destinationNodeId,
-                    sourceData: x.sourceData,
-                    sourceNodeId: x.sourceNodeId,
-                    type: x.type,
-                })),
-                nodeGroupings: this.state.nodeGroupings,
-                nodes: this.state.nodes.map<MonitoredNodestate>(x => ({
-                    definitionId: x.definitionId,
-                    description: x.description,
-                    flowInputs: x.flowInputs,
-                    flowOutputs: x.flowOutputs,
-                    valueInputs: x.valueInputs,
-                    valueOutputs: x.valueOutputs,
-                    fullName: x.fullName,
-                    id: x.id,
-                    position: x.position,
-                    title: x.title,
-                    constantId: x.constantId,
-                    macroFieldId: x.macroFieldId,
-                    macroId: x.macroId,
-                    permanent: x.permanent,
-                })),
-            };
-
-            const operations = jsonPatch.compare(
-                monitoredPrevState,
-                monitoredState
-            );
-        }
     };
 }

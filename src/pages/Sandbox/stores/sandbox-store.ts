@@ -239,6 +239,10 @@ export class SandboxStore
     private listenToKeyDown = (event: KeyboardEvent) => {
         if (event.ctrlKey || event.metaKey) {
             switch (event.keyCode) {
+                case 90:
+                    event.preventDefault();
+                    this.canvasStore.undo();
+                    break;
                 case 83:
                     event.preventDefault();
                     this.saveGraph();

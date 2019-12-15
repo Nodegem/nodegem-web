@@ -7,6 +7,18 @@ interface ICanvasState {
     hasLoadedGraph: boolean;
 }
 
+type OperationType = 'add' | 'remove' | 'modify';
+
+interface StateOperations {
+    nodes?: Op[];
+    links?: Op[];
+    nodeGroupings?: Op[];
+}
+
+interface Op<T = any> {
+    undo: () => void;
+}
+
 interface ICanvasChildren {
     drawLinkStore: DrawLinkStore;
     searchStore: CanvasSearchStore;

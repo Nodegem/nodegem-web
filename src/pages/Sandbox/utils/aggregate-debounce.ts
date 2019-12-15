@@ -1,19 +1,20 @@
 import _ from 'lodash';
 
-export function aggregateDebounce<T = any>(
-    func: Function,
+export function aggregateDebounce<T = any, U = any>(
+    func: (value: U) => void,
     wait: number,
-    prop: (value: T) => any
+    mapper: (value: T) => U
 ) {
     var timeout;
     var args = [] as T[];
     return function(this: any) {
         var context = this;
-        args = _.uniqBy(args.concat(...Array.from(arguments)), prop);
+        args = args.concat(...Array.from(arguments));
+        const mappedArgs = args.map(mapper);
         clearTimeout(timeout);
         timeout = setTimeout(function() {
             timeout = null;
-            func.apply(context, args);
+            func.apply(context, mappedArgs);
             args = [];
         }, wait);
     };
