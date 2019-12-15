@@ -94,6 +94,7 @@ export class TabsStore extends Store<ITabsState, SandboxStore> {
                     definitions: {} as any,
                     logs: [],
                     hasUnread: false,
+                    modifications: [],
                 },
             ],
         });

@@ -6,6 +6,7 @@ type TabData = {
     definitions: NodeCache;
     logs: LogData[];
     hasUnread: boolean;
+    modifications: Operation[];
 };
 
 type NodeCache = {

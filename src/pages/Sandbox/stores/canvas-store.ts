@@ -18,33 +18,8 @@ import {
 } from '../Canvas/controllers';
 import _ from 'lodash';
 import { Input } from 'antd';
-
-interface ICanvasState {
-    nodes: INodeUIData[];
-    links: ILinkUIData[];
-    nodeGroupings: IUINodeGroupingState[];
-    linksVisible: boolean;
-    openContext?: { id: string; canDelete: boolean };
-    hasLoadedGraph: boolean;
-}
-
-interface ICanvasChildren {
-    drawLinkStore: DrawLinkStore;
-    searchStore: CanvasSearchStore;
-}
-
-interface IUINodeGroupingState {
-    id: string;
-    title: string;
-}
-
-interface INodeMetaData {
-    id: string;
-    position: Vector2;
-    element: () => HTMLDivElement;
-    _element?: HTMLDivElement;
-    links: string[];
-}
+import jsonPatch, { Operation } from 'fast-json-patch';
+import { aggregateDebounce } from '../utils/aggregate-debounce';
 
 @compose({
     drawLinkStore: DrawLinkStore,
@@ -93,6 +68,7 @@ export class CanvasStore extends Store<
     private linkContainerContainerElement: HTMLElement;
     private nodeContainerElement: HTMLElement;
 
+    private graphOperations: Operation[] = [];
     private _middleware: any;
 
     public bindElement = (
@@ -130,7 +106,9 @@ export class CanvasStore extends Store<
         )!;
         this.nodeContainerElement = document.getElementById('node-container')!;
 
-        this._middleware = _.debounce(this.stateMiddleware, 100);
+        this._middleware = prevState => {
+            console.log(prevState);
+        };
     };
 
     public setSearchRef = (ref: React.RefObject<Input>) => {
@@ -1049,7 +1027,69 @@ export class CanvasStore extends Store<
         });
     };
 
-    private stateMiddleware = async (prevState: Readonly<ICanvasState>) => {
+    private stateMiddleware = (prevState: Readonly<ICanvasState>): void => {
         console.log(prevState);
+        if (this.state.hasLoadedGraph) {
+            const monitoredPrevState: MonitoredCanvasState = {
+                links: prevState.links.map<MonitoredLinkState>(x => ({
+                    destinationData: x.destinationData,
+                    id: x.id,
+                    destinationNodeId: x.destinationNodeId,
+                    sourceData: x.sourceData,
+                    sourceNodeId: x.sourceNodeId,
+                    type: x.type,
+                })),
+                nodeGroupings: prevState.nodeGroupings,
+                nodes: prevState.nodes.map<MonitoredNodestate>(x => ({
+                    definitionId: x.definitionId,
+                    description: x.description,
+                    flowInputs: x.flowInputs,
+                    flowOutputs: x.flowOutputs,
+                    valueInputs: x.valueInputs,
+                    valueOutputs: x.valueOutputs,
+                    fullName: x.fullName,
+                    id: x.id,
+                    position: x.position,
+                    title: x.title,
+                    constantId: x.constantId,
+                    macroFieldId: x.macroFieldId,
+                    macroId: x.macroId,
+                    permanent: x.permanent,
+                })),
+            };
+
+            const monitoredState: MonitoredCanvasState = {
+                links: this.state.links.map<MonitoredLinkState>(x => ({
+                    destinationData: x.destinationData,
+                    id: x.id,
+                    destinationNodeId: x.destinationNodeId,
+                    sourceData: x.sourceData,
+                    sourceNodeId: x.sourceNodeId,
+                    type: x.type,
+                })),
+                nodeGroupings: this.state.nodeGroupings,
+                nodes: this.state.nodes.map<MonitoredNodestate>(x => ({
+                    definitionId: x.definitionId,
+                    description: x.description,
+                    flowInputs: x.flowInputs,
+                    flowOutputs: x.flowOutputs,
+                    valueInputs: x.valueInputs,
+                    valueOutputs: x.valueOutputs,
+                    fullName: x.fullName,
+                    id: x.id,
+                    position: x.position,
+                    title: x.title,
+                    constantId: x.constantId,
+                    macroFieldId: x.macroFieldId,
+                    macroId: x.macroId,
+                    permanent: x.permanent,
+                })),
+            };
+
+            const operations = jsonPatch.compare(
+                monitoredPrevState,
+                monitoredState
+            );
+        }
     };
 }
