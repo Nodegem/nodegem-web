@@ -1,26 +1,57 @@
 import './index.less';
 import './utils/extensions';
 
-import { Provider } from 'mobx-react';
+import { Provider as OverstatedProvider } from 'overstated';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { Router } from 'react-router';
 
-import { StoreProvider } from 'stores/StoreProvider';
+import localforage from 'localforage';
 import App from './App';
 import * as servicerWorker from './serviceWorker';
-import history from './utils/history';
+import routerHistory from './utils/history';
 
-import { legacyStore } from './stores';
+import { LoadedStateGate } from 'components/LoadedStateGate/LoadedStateGate';
+import ReactDOM from 'react-dom';
+
+declare let gtag: Function;
+
+routerHistory.listen(location => {
+    if(gtag) {
+        gtag('config', 'UA-149911422-1', {
+                // eslint-disable-next-line @typescript-eslint/camelcase
+                page_path: location.pathname,
+        });
+    }
+});
+
+localforage.config({
+    name: 'nodegem',
+    driver: localforage.INDEXEDDB,
+    version: 1.0,
+    storeName: 'nodegem',
+});
+
+if (process.env.NODE_ENV && process.env.NODE_ENV === 'development') {
+    // debug();
+}
+
+localforage.config({
+    name: 'nodegem',
+    driver: localforage.INDEXEDDB,
+    version: 1.0,
+    storeName: 'nodegem',
+});
 
 ReactDOM.render(
-    <Provider {...legacyStore}>
-        <StoreProvider>
-            <Router history={history}>
+    <OverstatedProvider>
+        <LoadedStateGate>
+            <Router history={routerHistory}>
+                {/* <React.StrictMode> */}
                 <App />
+                {/* </React.StrictMode> */}
             </Router>
-        </StoreProvider>
-    </Provider>,
+        </LoadedStateGate>
+    </OverstatedProvider>,
     document.getElementById('root') as HTMLElement
 );
 

@@ -1,5 +1,45 @@
-import { timeout } from 'q';
+import gravatar from 'gravatar';
 import { isMacro } from './typeguards';
+
+export const parseJwt = (token: string) => {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+        atob(base64)
+            .split('')
+            .map(c => {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join('')
+    );
+
+    return JSON.parse(jsonPayload);
+};
+
+export const jwtToUser = (jwt: any): User => {
+    return {
+        id: jwt.nameid,
+        userName: jwt.unique_name,
+        email: jwt.sub,
+        constants: JSON.parse(jwt.constantData),
+        firstName: jwt.given_name || '',
+        lastName: jwt.family_name || '',
+        avatarUrl: jwt.avatarUrl || getGravatarUrl(jwt.sub),
+        providers: JSON.parse(jwt.providers) || [],
+    };
+};
+
+export const getGravatarUrl = (email: string) => {
+    return gravatar.url(
+        email,
+        {
+            s: '128',
+            r: 'pg',
+            d: 'retro',
+        },
+        true
+    );
+};
 
 export const isInput = (target: Element): boolean => {
     return (
@@ -38,7 +78,7 @@ export function getCookie(name): string | undefined {
 }
 
 export function getGraphType(
-    graph: Graph | Macro | (Partial<Graph | Macro>)
+    graph: Graph | Macro | Partial<Graph | Macro>
 ): GraphType {
     return isMacro(graph) ? 'macro' : 'graph';
 }

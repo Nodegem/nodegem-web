@@ -15,7 +15,7 @@ interface IBridgeInfo {
     deviceName: string;
     operatingSystem: string;
     processorCount: number;
-    connectionId: string;
+    graphHubConnectionId: string;
     userId: string;
 }
 
@@ -23,6 +23,7 @@ interface IExecutionError {
     graphName: string;
     graphId: string;
     message: string;
+    isBuildError: boolean;
     bridge: IBridgeInfo;
 }
 

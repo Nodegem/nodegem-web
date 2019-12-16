@@ -1,5 +1,5 @@
 import * as signalR from '@microsoft/signalr';
-import { userStore } from 'stores';
+import { appStore } from 'stores';
 import { getBaseApiUrl } from 'utils';
 import { SimpleObservable } from '../utils/simple-observable';
 
@@ -34,7 +34,8 @@ abstract class BaseHub {
         const baseUrl = getBaseApiUrl();
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseUrl}/${hub}`, {
-                accessTokenFactory: () => userStore.token!.accessToken!,
+                accessTokenFactory: () =>
+                    appStore.userStore.state.token.accessToken,
                 transport: signalR.HttpTransportType.WebSockets,
             })
             .configureLogging(logLevel)
@@ -96,13 +97,13 @@ abstract class BaseHub {
 
     public async start() {
         try {
+            this.onConnecting.execute();
             this.forceClosed = false;
             await this.connection.start();
             this.onConnected.execute();
         } catch (err) {
             console.warn(err);
             this.onException.execute(err);
-            setTimeout(() => this.start(), 5000);
         }
     }
 }

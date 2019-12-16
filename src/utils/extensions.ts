@@ -4,6 +4,7 @@ declare global {
         empty(): boolean;
         removeItem(T): T[];
         removeWhere(predicate: (item: T) => boolean): void;
+        first(predicate?: (item: T) => boolean): T;
         firstOrDefault(predicate?: (item: T) => boolean): T | undefined;
         lastOrDefault(): T | null;
         copy(): T[];
@@ -46,6 +47,14 @@ Array.prototype.empty = function(): boolean {
 Array.prototype.firstOrDefault = function<T>(
     predicate?: (item: T) => boolean
 ): T | null {
+    return !this.empty()
+        ? !!predicate
+            ? this.filter(predicate)[0]
+            : this[0]
+        : null;
+};
+
+Array.prototype.first = function<T>(predicate?: (item: T) => boolean): T {
     return !this.empty()
         ? !!predicate
             ? this.filter(predicate)[0]

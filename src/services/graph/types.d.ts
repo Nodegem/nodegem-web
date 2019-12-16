@@ -1,6 +1,5 @@
 interface Graph {
     id: string;
-    isDebugModeEnabled: boolean;
     name: string;
     isActive?: boolean;
     description: string;
@@ -8,10 +7,18 @@ interface Graph {
     recurringOptions: RecurringOptions;
     nodes: Array<NodeData>;
     links: Array<LinkData>;
-    createdOn?: Date;
-    lastUpdated?: Date;
+    createdOn?: Date | moment;
+    lastUpdated?: Date | moment;
     userId: string;
     constants: Array<ConstantData>;
+    metadata: { [key: string]: any };
+}
+
+interface NodeGrouping {
+    id: string;
+    position: Vector2;
+    size: Vector2;
+    title: string;
 }
 
 type ExecutionType = 'manual' | 'recurring' | 'listener';
@@ -27,7 +34,7 @@ type FrequencyOptions =
 interface RecurringOptions {
     frequency: FrequencyOptions;
     every: number;
-    start: Date;
+    start?: Date;
     until?: Date;
     iterations?: number;
 }
@@ -35,7 +42,7 @@ interface RecurringOptions {
 interface ConstantData {
     key: string;
     label: string;
-    type: number;
+    type: ValueType;
     value: any;
     isSecret: boolean;
 }
@@ -49,24 +56,26 @@ interface LinkData {
 
 interface NodeData {
     id: string;
-    fullName: string;
+    definitionId: string;
     position: { x: number; y: number };
     fieldData?: Array<FieldData>;
     permanent?: boolean;
     macroId?: string;
     macroFieldId?: string;
+    constantId?: string;
 }
 
 interface FieldData {
     key: string;
     value: any | any[];
+    valueType: ValueType;
 }
 
 interface CreateGraph {
     name: string;
-    description: string;
+    description?: string;
     userId: string;
     type: ExecutionType;
-    recurringOptions: RecurringOptions;
+    recurringOptions?: RecurringOptions;
     constants: ConstantData[];
 }

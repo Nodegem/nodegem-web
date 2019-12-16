@@ -1,0 +1,13 @@
+.context-menu {
+    transition: opacity 200ms ease-in;
+    opacity: 0;
+
+    &.context-menu--visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    &.context-menu--hidden {
+        pointer-events: none;
+    }
+}

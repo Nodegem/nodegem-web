@@ -1,0 +1,106 @@
+@import '../../../styles/vars.less';
+@import '../sandbox-variables.less';
+
+@box-shadow: 0px 0px 6px 0px;
+@hOffset: 7px;
+@vOffset: 10px;
+@flowHeight: 15px;
+@valueWidth: 15px;
+
+.node-container {
+    user-select: none;
+    cursor: default;
+    min-width: 150px;
+    min-height: 50px;
+    border: @borderSize solid @borderColor;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    transition: opacity 200ms ease-out, box-shadow 200ms ease-out,
+        border 200ms ease-out;
+    will-change: opacity, box-shadow, border-color;
+
+    &:hover {
+        box-shadow: @box-shadow #ffffffaa;
+
+        &.selected {
+            box-shadow: @box-shadow @primary-color4;
+        }
+    }
+
+    &.selected {
+        border-color: @primary-color4;
+    }
+
+    &.faded {
+        opacity: 0.15 !important;
+    }
+}
+
+.title {
+    color: @borderColor;
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+}
+
+.inner {
+    display: flex;
+    flex: 1 1 auto;
+}
+
+.flow {
+    height: @flowHeight;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    .port {
+        margin: 0 3px;
+    }
+}
+
+.flow-inputs {
+    margin-top: -@vOffset;
+}
+
+.flow-outputs {
+    margin-bottom: -@vOffset;
+}
+
+.value {
+    width: @valueWidth;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    .port {
+        margin: 3px 0;
+    }
+}
+
+.value-inputs {
+    margin-left: -@hOffset;
+}
+
+.value-outputs {
+    margin-right: -@hOffset;
+}
+
+.toolbar button {
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.zoom-big-fast-enter {
+    animation-duration: 250ms !important;
+}
+
+.zoom-big-fast-leave {
+    animation-duration: 250ms !important;
+}

@@ -1,68 +1,69 @@
 import './App.less';
 
 import { Layout } from 'antd';
-import { inject, observer } from 'mobx-react';
 import * as React from 'react';
-import { RouteComponentProps, Switch, withRouter } from 'react-router';
+import { Route, Switch, withRouter } from 'react-router';
 
+import { AnonymousOnlyRoute, PublicRoute } from 'components';
 import { Header } from 'components/Header/Header';
-import { SandboxView } from 'features/Sandbox/SandboxView';
+import { EmailConfirmationView } from 'pages/Account/EmailConfirmation/EmailConfirmation';
+import { RegisterExternal } from 'pages/Account/RegisterExternal/RegisterExternal';
+import { SandboxView } from 'pages/Sandbox/SandboxView';
+import { useStore } from 'overstated';
+import { appStore } from 'stores';
 import { AuthorizedRoute } from './components/AuthorizedRoute/AuthorizedRoute';
-import { PublicRoute } from './components/PublicRoute/AuthorizedRoute';
-import LoginView from './features/Account/Login/LoginFormView';
-import RegisterView from './features/Account/Register/RegisterFormView';
-import DashboardView from './features/Dashboard/DashboardView';
-import NotFoundView from './features/NotFound/NotFound';
-import ProfileView from './features/Profile/ProfileView';
-import { UserStore } from './stores/user-store';
+import LoginView from './pages/Account/Login/LoginFormView';
+import RegisterView from './pages/Account/Register/Register';
+import DashboardView from './pages/Dashboard/DashboardView';
+import NotFoundView from './pages/NotFound/NotFound';
+import { SettingsView } from 'pages/Settings/SettingsView';
+import { ForgotPassword } from 'pages/Account/ForgotPassword/ForgotPassword';
+import { ResetPassword } from 'pages/Account/ResetPassword/ResetPassword';
 
 const { Content } = Layout;
-const ForgotPassword = () => <div>Welp, that sucks duude</div>;
 
-interface IAppProps {
-    userStore?: UserStore;
-}
+const App = () => {
+    const { isLoggedIn } = useStore(appStore, store => ({
+        isLoggedIn: store.userStore.state.isLoggedIn,
+    }));
 
-@inject('userStore')
-@observer
-class App extends React.Component<IAppProps & RouteComponentProps<any>> {
-    public render() {
-        const { userStore } = this.props;
-
-        return (
-            <Layout className="app-layout">
-                {userStore!.isLoggedIn && <Header />}
-                <Content className="app-layout-content">
-                    <Switch>
-                        <AuthorizedRoute
-                            exact
-                            path="/"
-                            component={DashboardView}
-                        />
-                        <AuthorizedRoute
-                            path="/sandbox"
-                            component={SandboxView}
-                        />
-                        <AuthorizedRoute
-                            path="/profile"
-                            component={ProfileView}
-                        />
-                        <PublicRoute path="/login" component={LoginView} />
-                        <PublicRoute
-                            path="/register"
-                            component={RegisterView}
-                        />
-                        <PublicRoute
-                            path="/forgot-password"
-                            component={ForgotPassword}
-                        />
-                        <AuthorizedRoute component={NotFoundView} />
-                        <PublicRoute component={NotFoundView} />
-                    </Switch>
-                </Content>
-            </Layout>
-        );
-    }
-}
+    return (
+        <Layout className="app-layout">
+            {isLoggedIn && <Header />}
+            <Content className="app-layout-content">
+                <Switch>
+                    <AuthorizedRoute exact path="/" component={DashboardView} />
+                    <AuthorizedRoute path="/sandbox" component={SandboxView} />
+                    <AuthorizedRoute
+                        path="/settings"
+                        component={SettingsView}
+                    />
+                    <AnonymousOnlyRoute path="/login" component={LoginView} />
+                    <AnonymousOnlyRoute
+                        path="/forgot-password"
+                        component={ForgotPassword}
+                    />
+                    <PublicRoute
+                        path="/register/external"
+                        component={RegisterExternal}
+                    />
+                    <PublicRoute
+                        path="/email-confirmation"
+                        component={EmailConfirmationView}
+                    />
+                    <PublicRoute
+                        path="/reset-password/:userId/:resetToken"
+                        component={ResetPassword}
+                    />
+                    <AnonymousOnlyRoute
+                        path="/register"
+                        component={RegisterView}
+                    />
+                    <Route component={NotFoundView} />
+                </Switch>
+            </Content>
+        </Layout>
+    );
+};
 
 export default withRouter(App);

@@ -1,0 +1,1 @@
+type Providers = 'Google' | 'GitHub';

@@ -1,30 +1,45 @@
-@animationSpeed: var(--transition-speed, 350ms);
-@fadeOutSpeed: calc(@animationSpeed / 1.5);
+@import '../../styles/vars.less';
+
+@animationSpeed: var(--transition-speed, 300ms);
+@fadeOutSpeed: calc(@animationSpeed / 2.5);
+@tab-width: 25px;
 
 .collapse-container {
     display: flex;
+    align-items: stretch;
+    max-height: inherit;
+    height: inherit;
 
     &.horizontal {
         flex-direction: row;
         min-height: 100%;
-        transition: width @animationSpeed ease-in-out,
-            min-width @animationSpeed ease-in-out;
+        transition: width @animationSpeed ease-out,
+            min-width @animationSpeed ease-out;
         will-change: min-width, width;
+        width: var(--content-size, 15vw);
+        min-width: var(--content-size, 15vw);
+
+        &.closing,
+        &.opening {
+            min-width: 0 !important;
+        }
+
+        &.collapsed {
+            width: 0;
+            min-width: 0;
+            max-width: 0;
+        }
     }
 
     &.vertical {
         width: 100%;
         max-width: 100%;
         flex-direction: column;
-        transition: height @animationSpeed ease-in-out,
-            min-height @animationSpeed ease-in-out;
+        transition: height @animationSpeed ease-out,
+            min-height @animationSpeed ease-out;
         will-change: min-height, height;
+        min-height: var(--content-min-size, 15vw);
     }
-
-    align-items: stretch;
-    max-height: inherit;
-    height: inherit;
-    overflow: hidden;
 
     &.horizontal {
         &.tab-reverse {
@@ -82,6 +97,54 @@
                 width: 100%;
                 height: var(--content-size, 15vw);
                 min-height: var(--content-min-size, 0);
+            }
+        }
+    }
+
+    .tab-trigger {
+        position: relative;
+        width: 0;
+        height: 0;
+        top: 80px;
+        overflow: visible;
+        z-index: 999;
+
+        svg {
+            transition: transform 250ms ease-out;
+            will-change: transform;
+            transform: rotate(-180deg);
+        }
+
+        .tab-trigger-container {
+            position: relative;
+            width: 32px;
+        }
+    }
+
+    &.horizontal.tab-reverse {
+        .tab-trigger {
+            left: -32px;
+            svg {
+                transform: rotate(0deg);
+            }
+        }
+    }
+
+    &.collapsed {
+        pointer-events: none;
+
+        .tab-trigger {
+            pointer-events: auto;
+            svg {
+                transform: rotate(0) !important;
+            }
+        }
+
+        &.tab-reverse {
+            .tab-trigger {
+                svg {
+                    transform: rotate(-180deg) !important;
+                }
             }
         }
     }

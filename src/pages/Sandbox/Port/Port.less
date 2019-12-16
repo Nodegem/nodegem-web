@@ -1,0 +1,99 @@
+@import '../sandbox-variables.less';
+@import '../../../styles/vars.less';
+
+.port-container {
+    .port-actions {
+        position: relative;
+        width: 0;
+        height: 0;
+        overflow: visible;
+        display: flex;
+    }
+
+    &.left {
+        .port-actions {
+            top: -4px;
+            left: -4px;
+            flex-direction: row-reverse;
+
+            .add-port {
+                margin-right: 3px;
+            }
+        }
+    }
+
+    &.right {
+        .port-actions {
+            top: -4px;
+            right: -4px;
+            flex-direction: row;
+
+            .add-port {
+                margin-left: 2px;
+            }
+        }
+    }
+
+    &.bottom {
+        .port-actions {
+            left: 1px;
+            top: 12px;
+            flex-direction: row;
+
+            .add-port {
+                margin-left: 2px;
+            }
+        }
+    }
+}
+
+.port {
+    cursor: pointer;
+    margin-bottom: 3px;
+    background-color: white;
+    width: 13px;
+    height: 13px;
+    border: @borderSize solid @borderColor;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover::after {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+    }
+
+    &.connected::after,
+    &.connecting::after {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+    }
+}
+
+.port-action {
+    font-size: 1.3em;
+    cursor: pointer;
+    transition: opacity 100ms ease-in-out;
+    will-change: opacity;
+    opacity: 1;
+
+    &.remove-port {
+        color: red;
+    }
+
+    &.disabled {
+        cursor: not-allowed;
+        color: gray !important;
+        opacity: 0.5;
+    }
+
+    &.hidden {
+        opacity: 0 !important;
+        pointer-events: none;
+    }
+}

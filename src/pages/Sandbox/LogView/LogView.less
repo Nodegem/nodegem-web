@@ -1,0 +1,31 @@
+.logs-container {
+    .logs {
+        flex-direction: column;
+        flex: 1 1 100%;
+        display: flex;
+        overflow: auto;
+    }
+
+    .log-line {
+        align-items: center;
+        font-family: 'Source Code Pro', monospace;
+        display: inline-flex;
+        flex: 0 1 100%;
+
+        &.log {
+            color: blue;
+        }
+
+        &.warn {
+            color: darken(yellow, 15%);
+        }
+
+        &.error {
+            color: red;
+        }
+
+        .json-message {
+            flex: 1 1 auto;
+        }
+    }
+}

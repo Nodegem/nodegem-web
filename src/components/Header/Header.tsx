@@ -1,20 +1,20 @@
-import { Avatar, Col, Dropdown, Icon, Layout, Menu, Row } from 'antd';
-import { observer } from 'mobx-react-lite';
+import { Avatar, Dropdown, Icon, Layout, Menu } from 'antd';
 import React from 'react';
-import { useStore } from 'stores/StoreProvider';
 
 import { SiderTheme } from 'antd/lib/layout/Sider';
 import { FlexFillGreedy, FlexRow } from 'components/Flex';
 import { Link } from 'react-router-dom';
 
-import logoPath from '../../logo.svg';
+import logoPath from '../../assets/logo.svg';
 
+import { useStore } from 'overstated';
+import { appStore } from 'stores';
 import './Header.less';
 
 const AntHeader = Layout.Header;
 
 const menu = (theme: SiderTheme, logout: () => void) => (
-    <Menu theme={theme}>
+    <Menu className="main-nav-menu" theme={theme}>
         <Menu.Item key="dashboard">
             <Link to="/">
                 <Icon type="dashboard" />
@@ -28,7 +28,7 @@ const menu = (theme: SiderTheme, logout: () => void) => (
             </Link>
         </Menu.Item>
         <Menu.Item key="settings">
-            <Link to="/profile">
+            <Link to="/settings">
                 <Icon type="setting" />
                 Settings
             </Link>
@@ -43,14 +43,18 @@ const menu = (theme: SiderTheme, logout: () => void) => (
     </Menu>
 );
 
-export const Header: React.FC = observer(() => {
-    const { commonStore, authStore, userStore } = useStore();
-    const headerHeight = `${commonStore.headerHeight}px`;
+export const Header: React.FC = () => {
+    const { theme } = useStore(appStore, store => ({
+        theme: store.state.theme,
+    }));
+
+    const { user, logout } = useStore(appStore.userStore, store => ({
+        user: store.user,
+        logout: store.logout,
+    }));
+
     return (
-        <AntHeader
-            className="app-header"
-            style={{ height: headerHeight, lineHeight: headerHeight }}
-        >
+        <AntHeader className="app-header">
             <FlexRow>
                 <FlexRow className="header-logo">
                     <Link to="/">
@@ -63,15 +67,20 @@ export const Header: React.FC = observer(() => {
                         <Dropdown
                             className="avatar-menu"
                             placement="bottomRight"
-                            overlay={menu(commonStore.theme, authStore.logout)}
+                            overlay={menu(theme, logout)}
                             trigger={['click']}
                         >
                             <div>
                                 <span className="username">
-                                    {userStore.isLoggedIn && userStore.username}
+                                    {user.userName}
                                     <Icon type="caret-down" />
                                 </span>
-                                <Avatar size={35} icon="user" />
+                                <Avatar
+                                    size={45}
+                                    icon="user"
+                                    shape="square"
+                                    src={user.avatarUrl || ''}
+                                />
                             </div>
                         </Dropdown>
                     </div>
@@ -79,4 +88,4 @@ export const Header: React.FC = observer(() => {
             </FlexRow>
         </AntHeader>
     );
-});
+};
