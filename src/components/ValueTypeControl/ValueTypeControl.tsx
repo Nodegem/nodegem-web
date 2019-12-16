@@ -1,4 +1,3 @@
-import { Select as $Select } from 'antd';
 import { PhoneInput } from 'components';
 import {
     DatePicker,
@@ -6,18 +5,17 @@ import {
     InputNumber,
     Switch,
     TimePicker,
+    Select,
 } from 'formik-antd';
 import React from 'react';
 
-const Option = $Select.Option;
-
 interface IValueTypeControlProps {
     name: string;
-    value?: any;
     placeHolder?: string;
     valueType?: ValueType;
     disabled: boolean;
     onChange?: (value: any) => void;
+    valueOptions?: IValueOption[];
 }
 
 export const ValueTypeControl: React.FC<IValueTypeControlProps> = ({
@@ -26,8 +24,22 @@ export const ValueTypeControl: React.FC<IValueTypeControlProps> = ({
     disabled,
     onChange,
     valueType,
+    valueOptions,
 }) => {
     const handleChange = newValue => onChange && onChange(newValue);
+
+    if (valueOptions && valueOptions.any()) {
+        return (
+            <Select name={name} onChange={handleChange}>
+                {valueOptions.map((vo, i) => (
+                    <Select.Option key={i} value={vo.value}>
+                        {vo.label}
+                    </Select.Option>
+                ))}
+            </Select>
+        );
+    }
+
     switch (valueType) {
         case 'boolean':
             return (
@@ -88,7 +100,7 @@ export const ValueTypeControl: React.FC<IValueTypeControlProps> = ({
                 <Input.TextArea
                     name={name}
                     disabled={disabled}
-                    autosize={{ minRows: 2 }}
+                    autoSize={{ minRows: 2 }}
                     onChange={event => handleChange(event.target.value)}
                 />
             );

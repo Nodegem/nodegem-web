@@ -4,19 +4,18 @@ import { AuthService } from 'services';
 import routerHistory from 'utils/history';
 import { jwtToUser, parseJwt } from './../utils/helpers';
 import { AppStore } from './app-store';
+import * as jsonpatch from 'fast-json-patch';
+import { UserService } from 'services/user/user-service';
 
 interface IUserStoreState {
     token: TokenData;
     isLoggedIn: boolean;
+    user: User;
 }
 
 export class UserStore extends Store<IUserStoreState, AppStore> {
     public get user(): User {
-        return (
-            (this.isLoggedIn &&
-                jwtToUser(parseJwt(this.state.token.accessToken))) ||
-            ({} as User)
-        );
+        return this.state.user;
     }
 
     public get isLoggedIn(): boolean {
@@ -26,6 +25,7 @@ export class UserStore extends Store<IUserStoreState, AppStore> {
     public state: IUserStoreState = {
         isLoggedIn: false,
         token: undefined as any,
+        user: {} as User,
     };
 
     public loadStateFromStorage = async () => {
@@ -39,6 +39,11 @@ export class UserStore extends Store<IUserStoreState, AppStore> {
             isLoggedIn: !!token && !!token.accessToken,
         });
 
+        if (token) {
+            this.setState({
+                user: jwtToUser(parseJwt(this.state.token.accessToken)),
+            });
+        }
         await localforage.setItem('session', token);
     };
 
@@ -63,6 +68,33 @@ export class UserStore extends Store<IUserStoreState, AppStore> {
                 description: errorMessage,
             });
         }
+    };
+
+    public patchUser = async (user: Partial<User>) => {
+        const updatedUser = {
+            ...this.user,
+            ...user,
+        };
+        const patchDoc = jsonpatch.compare(this.user, updatedUser);
+
+        try {
+            const newTokenDto = await UserService.patchUser(
+                this.user.id,
+                patchDoc
+            );
+            this.setToken(newTokenDto);
+        } catch (e) {
+            this.ctx.openNotification({
+                title: 'Update unsuccessful',
+                type: 'error',
+                closeBtn: true,
+                description: 'Something went wrong',
+            });
+        }
+    };
+
+    public alreadyLinkedToProvider = (provider: Providers) => {
+        return this.user.providers.includes(provider);
     };
 
     public logout = async () => {

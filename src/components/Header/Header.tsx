@@ -5,7 +5,7 @@ import { SiderTheme } from 'antd/lib/layout/Sider';
 import { FlexFillGreedy, FlexRow } from 'components/Flex';
 import { Link } from 'react-router-dom';
 
-import logoPath from '../../logo.svg';
+import logoPath from '../../assets/logo.svg';
 
 import { useStore } from 'overstated';
 import { appStore } from 'stores';
@@ -14,7 +14,7 @@ import './Header.less';
 const AntHeader = Layout.Header;
 
 const menu = (theme: SiderTheme, logout: () => void) => (
-    <Menu theme={theme}>
+    <Menu className="main-nav-menu" theme={theme}>
         <Menu.Item key="dashboard">
             <Link to="/">
                 <Icon type="dashboard" />
@@ -28,7 +28,7 @@ const menu = (theme: SiderTheme, logout: () => void) => (
             </Link>
         </Menu.Item>
         <Menu.Item key="settings">
-            <Link to="/profile">
+            <Link to="/settings">
                 <Icon type="setting" />
                 Settings
             </Link>

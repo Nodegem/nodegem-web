@@ -4,6 +4,15 @@ interface User {
     email: string;
     firstName?: string;
     lastName?: string;
-    constants: any[];
+    constants: IConstant[];
     avatarUrl: string;
+    providers: string[];
+}
+
+interface IConstant {
+    key: string;
+    label: string;
+    type: ValueType;
+    value: any;
+    isSecret: boolean;
 }

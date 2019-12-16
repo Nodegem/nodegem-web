@@ -1,8 +1,10 @@
-import { message, notification } from 'antd';
+import { message, notification, Modal } from 'antd';
 import { MenuTheme } from 'antd/lib/menu/MenuContext';
 import { ArgsProps, NotificationPlacement } from 'antd/lib/notification';
 import { compose, Store } from 'overstated';
 import { UserStore } from './user-store';
+
+const { confirm } = Modal;
 
 message.config({
     maxCount: 3,
@@ -93,6 +95,21 @@ export class AppStore extends Store<IAppState, undefined, IAppChildren> {
                 notification.open(argProps);
                 break;
         }
+    };
+
+    public showConfirmation = (
+        title: string,
+        content: string,
+        onOk: () => void
+    ) => {
+        confirm({
+            title: title,
+            content: content,
+            autoFocusButton: 'cancel',
+            centered: true,
+            mask: true,
+            onOk: onOk,
+        });
     };
 
     public toast = (

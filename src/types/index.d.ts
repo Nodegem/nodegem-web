@@ -15,7 +15,7 @@ interface IBridgeInfo {
     deviceName: string;
     operatingSystem: string;
     processorCount: number;
-    connectionId: string;
+    graphHubConnectionId: string;
     userId: string;
 }
 
