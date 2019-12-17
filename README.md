@@ -8,12 +8,14 @@
 
 </div>
 
+## About
+
 Nodegem is a visual scripting tool for all sorts of automation projects without the need to know how to program. It is designed to be as inviting as possible to any and all kinds of people varying from no knowledge of programming to expert programmers. The plan is to have all sorts of integrations from many different sources and to be community driven.
+
+## Documentation
 
 For documentation, visit https://docs.nodegem.io.
 
-<br/>
-<br/>
-<div style="text-align: center;">
-<iframe src="https://discordapp.com/widget?id=639896570954907668&theme=dark" width="350" height="250" allowtransparency="true" frameborder="0"></iframe>
-</div>
+## Discord
+
+https://discord.gg/MynGgME
