@@ -16,10 +16,10 @@ import ReactDOM from 'react-dom';
 declare let gtag: Function;
 
 routerHistory.listen(location => {
-    if(gtag) {
+    if (gtag) {
         gtag('config', 'UA-149911422-1', {
-                // eslint-disable-next-line @typescript-eslint/camelcase
-                page_path: location.pathname,
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            page_path: location.pathname,
         });
     }
 });
