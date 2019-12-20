@@ -1,0 +1,19 @@
+image: node:alpine
+
+cache:
+    paths:
+        - node_modules
+
+stages:
+    - deploy
+
+build_and_deploy_static:
+    stage: deploy
+    script:
+        - yarn # Install all dependencies
+        - yarn build # Build for prod
+    artifacts:
+        paths:
+            - build # The built files for Gitlab Pages to serve
+    only:
+        - master # Only run on master branch
