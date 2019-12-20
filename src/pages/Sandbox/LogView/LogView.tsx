@@ -88,7 +88,7 @@ export const LogsView: React.FC<ILogViewProps> = ({ logStore }) => {
             title="Console"
             maskClosable
             visible={isOpen}
-            style={{ minHeight: '80vh', maxHeight: '80vh' }}
+            width="1024px"
             footer={null}
             onCancel={() => toggleLogs(false)}
             centered

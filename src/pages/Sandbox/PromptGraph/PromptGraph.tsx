@@ -44,7 +44,7 @@ const PromptGraph: React.FC<ITypeProps> = ({ onTypeSelect, onSelectGraph }) => {
             <Divider dashed>OR</Divider>
             <List
                 className="type-options"
-                grid={{ gutter: 16, md: 1, lg: 2 }}
+                grid={{ gutter: 16, sm: 1, md: 2 }}
                 dataSource={buttons}
                 renderItem={item => <List.Item>{item}</List.Item>}
             />
