@@ -50,7 +50,7 @@ export const isInput = (target: Element): boolean => {
 };
 
 export const getBaseApiUrl = (): string => {
-    return process.env.REACT_APP_API_BASE_URL!;
+    return process.env.REACT_APP_API_BASE_URL || '';
 };
 
 export function isDescendant(parent, child) {
