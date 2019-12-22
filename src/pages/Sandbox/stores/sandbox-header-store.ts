@@ -210,6 +210,14 @@ export class SandboxHeaderStore extends Store<
             const connectionId = selectedBridge.graphHubConnectionId;
             const graph = this.ctx.getConvertedGraphData(true);
 
+            if (graph.nodes.length <= 1 || !graph.links.any()) {
+                appStore.toast(
+                    'No content to send. Please connect some nodes and try again',
+                    'warn'
+                );
+                return;
+            }
+
             if (isMacro(graph) && flowInput) {
                 this.graphHub.runMacro(graph, connectionId, flowInput.key);
             } else {

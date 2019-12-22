@@ -1,7 +1,8 @@
 import { appStore } from 'stores';
 import superagent, { SuperAgentRequest } from 'superagent';
+import { getBaseApiUrl } from 'utils';
 
-const ROOT_URL = process.env.REACT_APP_API_BASE_URL || '';
+const ROOT_URL = getBaseApiUrl();
 
 export const combinePath = url => `${ROOT_URL}/api${url}`;
 
