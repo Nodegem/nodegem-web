@@ -1,0 +1,29 @@
+# Settings in the [build] context are global and are applied to all contexts
+# unless otherwise overridden by more specific contexts.
+[build]
+  publish = "build"
+
+[[redirects]]
+  from = "/*"
+  to = "/:splat"
+  status = 301
+
+[build.processing]
+  skip_processing = false
+[build.processing.css]
+  bundle = true
+  minify = true
+[build.processing.js]
+  bundle = true
+  minify = true
+[build.processing.html]
+  pretty_urls = true
+[build.processing.images]
+  compress = true
+
+[context.develop.processing]
+    skip_processing = true
+
+[template.environment]
+  REACT_APP_API_BASE_URL = "Change me"
+  REACT_APP_GOOGLE_VERIFICATION = "Change me"
