@@ -16,6 +16,10 @@ Nodegem is a visual scripting tool for all sorts of automation projects without 
 
 For documentation, visit https://docs.nodegem.io.
 
+## Netlify
+
+[![Deploy](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://gitlab.com/nodegem/nodegem-web)
+
 ## Discord
 
 https://discord.gg/MynGgME
