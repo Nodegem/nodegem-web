@@ -1,0 +1,30 @@
+{
+    "name": "Nodegem Web",
+    "description": "This is the front-end application for Nodegem.",
+    "keywords": [
+        "productivity",
+        "visual-scripting",
+        "visual",
+        "scripting",
+        "front-end"
+    ],
+    "website": "https://www.nodegem.io/",
+    "repository": "https://gitlab.com/nodegem/nodegem-web",
+    "logo": "https://cdn.nodegem.io/assets/logo/logo.svg",
+    "success_url": "/login",
+    "env": {
+        "REACT_APP_API_BASE_URL": {
+            "description": "The domain to wherever the nodegem api lives. (Make sure it's https)",
+            "required": true,
+            "value": ""
+        },
+        "REACT_APP_GOOGLE_VERIFICATION": {
+            "description": "Google verification code for Google Analytics"
+        }
+    },
+    "buildpacks": [
+        {
+            "url": "mars/create-react-app"
+        }
+    ]
+}
