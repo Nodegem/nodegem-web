@@ -25,5 +25,5 @@
     skip_processing = true
 
 [template.environment]
-  REACT_APP_API_BASE_URL = "Change me"
-  REACT_APP_GOOGLE_VERIFICATION = "Change me"
+  REACT_APP_API_BASE_URL = "Nodegem API Domain"
+  REACT_APP_GOOGLE_VERIFICATION = "Google Verification (Optional)"
