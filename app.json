@@ -15,11 +15,11 @@
     "env": {
         "REACT_APP_API_BASE_URL": {
             "description": "The domain to wherever the nodegem api lives. (Make sure it's https)",
-            "required": true,
             "value": ""
         },
         "REACT_APP_GOOGLE_VERIFICATION": {
-            "description": "Google verification code for Google Analytics"
+            "description": "Google verification code for Google Analytics",
+            "required": false
         }
     },
     "buildpacks": [
