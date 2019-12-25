@@ -1,6 +1,6 @@
 <div style="text-align: center;">
 
-[![Nodegem.io](cover.png 'Nodegem.io')](https://www.nodegem.io)
+[![Nodegem.io](https://cdn.nodegem.io/assets/cover.png)](https://www.nodegem.io)
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/061a935b-5ae2-46d1-a685-a2ef83df940a/deploy-status)](https://app.netlify.com/sites/nodegem/deploys)
 [![pipeline status](https://gitlab.com/nodegem/nodegem/badges/master/pipeline.svg)](https://gitlab.com/nodegem/nodegem/commits/master)
@@ -19,7 +19,7 @@ For documentation, visit https://docs.nodegem.io.
 ## Quick Deploy
 
 [![Deploy](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://gitlab.com/nodegem/nodegem-web)
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://gitlab.com/nodegem/nodegem-web)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Nodegem/nodegem-web)
 
 ## Discord
 

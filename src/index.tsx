@@ -31,6 +31,17 @@ localforage.config({
     storeName: 'nodegem',
 });
 
+if (process.env.NODE_ENV && process.env.NODE_ENV === 'development') {
+    // debug();
+}
+
+localforage.config({
+    name: 'nodegem',
+    driver: localforage.INDEXEDDB,
+    version: 1.0,
+    storeName: 'nodegem',
+});
+
 ReactDOM.render(
     <OverstatedProvider>
         <LoadedStateGate>
