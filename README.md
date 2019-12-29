@@ -8,19 +8,20 @@
 
 </div>
 
-## About
+# About
 
 Nodegem is a visual scripting tool for all sorts of automation projects without the need to know how to program. It is designed to be as inviting as possible to any and all kinds of people varying from no knowledge of programming to expert programmers. The plan is to have all sorts of integrations from many different sources and to be community driven.
 
-## Documentation
+# Documentation
 
 For documentation, visit https://docs.nodegem.io.
 
-## Quick Deploy
+# Quick Deploy
 
 [![Deploy](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://gitlab.com/nodegem/nodegem-web)
+
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Nodegem/nodegem-web)
 
-## Discord
+# Discord
 
 https://discord.gg/MynGgME
