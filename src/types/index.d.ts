@@ -19,10 +19,17 @@ interface IBridgeInfo {
     userId: string;
 }
 
+interface INodeError {
+    id: string;
+    name: string;
+    message: string;
+}
+
 interface IExecutionError {
     graphName: string;
     graphId: string;
     message: string;
+
     isBuildError: boolean;
     bridge: IBridgeInfo;
 }
