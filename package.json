@@ -16,7 +16,7 @@
         "gravatar": "^1.8.0",
         "libphonenumber-js": "^1.7.29",
         "localforage": "^1.7.3",
-        "lodash": "^4.17.14",
+        "lodash": "^4.17.23",
         "lodash-uuid": "^0.0.3",
         "moment": "^2.23.0",
         "overstated": "^2.2.2",
